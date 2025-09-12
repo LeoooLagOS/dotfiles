@@ -6,7 +6,7 @@ tags:
 category: <data-structure>
 status:
   - learning
-related: '"[[Time Complexity]]"'
+related: "[[Time Complexity]]"
 date: 2025-09-11
 ---
 

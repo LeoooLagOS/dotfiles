@@ -4,7 +4,8 @@ tags:
   - algorithm-pattern
   - dsa
 category: <cs-fundamental>
-status: <learning>
+status:
+  - learning
 related: '"[[<Another Core Concept>]]"'
 date: 2025-09-10
 ---

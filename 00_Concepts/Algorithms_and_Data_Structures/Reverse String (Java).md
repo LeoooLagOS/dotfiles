@@ -10,7 +10,7 @@ difficulty:
 source: '"https://leetcode.com/problems/reverse-string/"'
 status:
   - solved
-related: '"[[Two-Pointer Technique]]"'
+related: "[[Two-Pointer Technique]]"
 date: 2025-09-11
 ---
 
