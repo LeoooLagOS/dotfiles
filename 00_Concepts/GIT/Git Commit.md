@@ -27,14 +27,14 @@ A clear and professional commit message is a critical skill. The standard practi
 
 ### Structure: `type(scope): subject`
 -   **`type`**: What kind of change is this?
-    -   `feat`: A new feature.
-    -   `fix`: A bug fix.
-    -   `docs`: Changes to documentation only.
-    -   `style`: Formatting changes (spaces, semicolons, etc).
-    -   `refactor`: A code change that neither fixes a bug nor adds a feature.
-    -   `test`: Adding or correcting tests.
-    -   `build`: Changes that affect the build system or external dependencies.
-    -   `chore`: Other changes that don't modify source or test files (e.g., updating the `.gitignore`).
+    -   [[feat]]: A new feature.
+    -   [[fix]]: A bug fix.
+    -   [[docs]]: Changes to documentation only.
+    -   [[style]]: Formatting changes (spaces, semicolons, etc).
+    -   [[refactor]]: A code change that neither fixes a bug nor adds a feature.
+    -   [[test]]: Adding or correcting tests.
+    -   [[build]]: Changes that affect the build system or external dependencies.
+    -   [[chore]]: Other changes that don't modify source or test files (e.g., updating the `.gitignore`).
 -   **`(scope)`**: (Optional) What part of the codebase does this change affect? (e.g., `(api)`, `(ui)`)
 -   **`subject`**: A short, descriptive summary of the change, written in the present tense (imperative mood).
 
