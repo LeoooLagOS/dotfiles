@@ -35,7 +35,7 @@ date: 2025-09-10
 	- Time: [[Time Complexity|O(n)]] 
 	- Space: [[Time Complexity|O(1)]]
 
-## 💻 Code Implementation (`<Language>`)
+## 💻 Code Implementation (`<Python3>`)
 ```python 
 from typing import List 
 class Solution: 

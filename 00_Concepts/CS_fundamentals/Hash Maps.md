@@ -12,7 +12,6 @@ date: 2025-09-11
 
 # Hash Maps
 
-## ```
 ## 📝 One-Sentence Summary
 A Hash Map is a data structure that stores key-value pairs and uses a hash function to enable extremely fast (average O(1)) lookups, insertions, and deletions.
 
@@ -24,9 +23,10 @@ A hash map is like a magical library catalog. You give the librarian a book's un
 -   **Why it exists:** It solves the problem of needing to find data associated with a specific identifier without slowly searching through a list.
 
 ## 🔗 Connections & Implementations
--   Implemented in [[Python]] as: [[Python - Dictionaries]]
--   Implemented in [[Java]] as: [[Java - HashMap]]
--   Used to solve: [[Two Sum (Python)]]
+- Implemented in [[Python]] as: [[Python - Dictionaries]]
+- Implemented in [[Java]] as: [[Java - HashMap]]
+- Used to solve: [[Two Sum (Python)]]
+- Used to solve: [[Two Sum (Java)]] 
 
 ## 👍 Pros & 👎 Cons
 -   **Advantages:**
@@ -37,5 +37,4 @@ A hash map is like a magical library catalog. You give the librarian a book's un
 
 ## See Also
 -   [[Arrays]]
--   [[Sets]]
-```
+-   [[Sets]] 
