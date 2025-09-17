@@ -78,9 +78,8 @@ This approach is more memory-efficient as it avoids creating a second copy of th
 
 ### 💻 Code Implementation
 
-Python
 
-```
+``` Python
 class Solution:
     def isPalindrome_two_pointers(self, s: str) -> bool:
         left, right = 0, len(s) - 1

@@ -36,9 +36,7 @@ for (int i = 0; i < array.length; i++) {
 
 Provides a cleaner, more readable syntax when you only need the value of each element, not its index. It is less error-prone as it hides the index management logic.
 
-Java
-
-```
+```Java
 for (ElementType element : collection) {
     // Best for simply reading or processing each element in a collection.
     System.out.println("Value: " + element);

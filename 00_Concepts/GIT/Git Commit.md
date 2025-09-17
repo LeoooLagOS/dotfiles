@@ -42,7 +42,7 @@ A clear and professional commit message is a critical skill. The standard practi
 
 ---
 
-## ## Common Usage & Flags
+##  Common Usage & Flags
 ### Basic Commit
 This is the most common usage. The `-m` flag allows you to write a short, one-line message directly.
 ```bash
