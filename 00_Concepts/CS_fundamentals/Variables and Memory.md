@@ -31,15 +31,15 @@ A variable is like a **labeled box** in a vast warehouse (your computer's memory
 ## 🔗 Connections & Implementations
 The way variables are handled differs between language types.
 
--   In a **statically-typed** language like `[[Java]]`, you must declare the type of the box before you can put anything in it:
-    ```java
+-   In a **statically-typed** language like [[Java]], you must declare the type of the box before you can put anything in it:
+   ```java
     // Declaration and assignment are separate
     String name;      // Creates the box labeled "name" for Strings
     name = "Leo";   // Puts the value in the box
     ```
 
--   In a **dynamically-typed** language like `[[Python]]`, the box is created and typed automatically when you put a value in it:
-    ```python
+-   In a **dynamically-typed** language like [[Python]], the box is created and typed automatically when you put a value in it:
+   ```python
     # Declaration and assignment happen at the same time
     name = "Leo"
     ```
