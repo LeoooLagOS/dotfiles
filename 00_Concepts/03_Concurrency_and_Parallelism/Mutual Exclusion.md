@@ -22,7 +22,7 @@ The act of using the restroom is the **[[Critical Section]]**.*
 ## 🔑 Key Details
 - **What it is:** A mechanism to prevent two or more concurrent processes from simultaneously accessing a common resource. This is essential when a resource (like a variable, file, or hardware port) cannot be safely used by multiple threads at once.
     
-- **Why it exists:** It is the primary solution to **[[race conditions]]**. Without mutual exclusion, if two threads try to modify a shared variable (e.g., incrementing a counter), their operations can interleave in an unpredictable way, leading to an incorrect final value and data inconsistency.
+- **Why it exists:** It is the primary solution to **[[Race Condition || race conditions]]**. Without mutual exclusion, if two threads try to modify a shared variable (e.g., incrementing a counter), their operations can interleave in an unpredictable way, leading to an incorrect final value and data inconsistency.
 ## 🔗 Connections & Implementations
 
 - **Critical Section:** The block of code where a process accesses the shared resource is known as the **critical section** or **critical region**. The goal of mutual exclusion is to ensure that no two processes are executing in their critical sections at the same time.
@@ -56,8 +56,8 @@ The act of using the restroom is the **[[Critical Section]]**.*
 
 - [[Critical Section]]
     
-- [[Race Condition]]
+- [[Race Condition || race conditions]]
     
 - [[Synchronization]]
     
-- [[Deadlock]]
+- [[Deadlock]] 

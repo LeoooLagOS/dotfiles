@@ -45,7 +45,7 @@ date: 2025-09-25
 
 ## See Also
 
-- [[Concurrency vs. Parallelism]]
+- [[Concurrency vs Parallelism]]
     
 - [[Synchronization]]
     
