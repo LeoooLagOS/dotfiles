@@ -25,4 +25,4 @@ date: 2025-09-17
 
 ## See Also
 - [[POST]] 
-- [[Physical Layer (OSI Model)]]
+- [[1_Physical Layer (OSI Model)]]
