@@ -16,7 +16,7 @@ date: 2025-09-25
 
 ## 💡 Analogy
 
-Imagine two office workers, **Alice** ($S_i$​) and **Bob** ($S_j​$), who need to process documents.
+Imagine two office workers, **Ivanka** ($S_i$​) and **John** ($S_j​$), who need to process documents.
 
 - **Read Set L(S)**: The documents a worker needs to read.
     
