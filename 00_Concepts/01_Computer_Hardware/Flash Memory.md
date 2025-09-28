@@ -13,7 +13,7 @@ date: 2025-09-17
 ## 📝 One-Sentence Summary 
 Flash memory is a type of non-volatile storage that acts as the permanent "hard drive" for a network device, storing the operating system and configuration files. 
 ## 💡 Analogy 
-Flash memory is the device's storeroom or garage. It's where you keep all your important tools and project plans (the OS and config files) when you're not actively using them. Unlike your workbench ([[DRAM]]]), this storage is permanent. 
+Flash memory is the device's storeroom or garage. It's where you keep all your important tools and project plans (the OS and config files) when you're not actively using them. Unlike your workbench ([[DRAM]]), this storage is permanent. 
 ## 🔑 Key Details 
 
 - **Non-Volatile:** Its contents are saved even when the device is powered off. 
