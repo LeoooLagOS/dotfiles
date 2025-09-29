@@ -37,6 +37,7 @@ date: 2025-09-26
   S1(config-if)# end 
   S1# copy running-config startup-config
   ````
+  *To configure the port to use automatic settings instead of manual ones, see [[Lab - Configure Port Autonegotiation]].
 ## 👍 Pros & 👎 Cons
 
 - **Pro:** Manually setting these values provides a deterministic and stable link configuration, which is useful for fixing negotiation issues.
@@ -48,4 +49,4 @@ date: 2025-09-26
 
 - [[Duplex Communication]]
     
-- [[Autonegotiation]]
+- [[Autonegotiaton]]

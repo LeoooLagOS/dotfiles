@@ -32,7 +32,7 @@ date: 2025-09-26
 S1(config)# interface FastEthernet 0/1
 S1(config-if)# mdix auto
 ````
-
+*For a complete practical example, see [[Lab - Configure Port Autonegotiation]].
 *The operational status of this feature can be checked by [[Verifying Auto-MDIX]].
 
 ## 👍 Pros & 👎 Cons

@@ -26,7 +26,7 @@ date: 2025-09-26
 	- The most frequent problem with autonegotiation is a **duplex mismatch**. This often occurs if one side of a link is manually configured (e.g., to `100/full`) and the other side is left to autonegotiate. The autonegotiating side may fail to correctly detect the duplex setting and fall back to half-duplex, leading to severe performance issues.
 
 ## 🔗 Connections & Implementations
-* When autonegotiation fails, an administrator must intervene by [[Configuring Switch Port Speed and Duplex]] manually on both ends of the link. 
+* When autonegotiation fails, an administrator must intervene by [[Configuring Switch Port Speed and Duplex]] manually on both ends of the link. *For a practical example of how to enable this feature, see [[Lab - Configure Port Autonegotiation]]. 
 * This process determines the operational state for [[Duplex Communication]] (either half or full).
 ## 👍 Pros & 👎 Cons
 * **Pro:** 

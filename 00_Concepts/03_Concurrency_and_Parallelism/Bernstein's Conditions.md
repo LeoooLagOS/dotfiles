@@ -45,7 +45,7 @@ Imagine two office workers, **Ivanka** ($S_i$​) and **John** ($S_j​$), who n
 
 ## 🔗 Connections & Implementations
 
-- **The Three Conditions:** For two segments Si​ and Sj​ (i$\neq$j) to execute concurrently, all three of the following intersection checks must result in an empty set (∅):
+- **The Three Conditions:** For two segments $S_i$​ and $S_j$​ (i$\neq$j) to execute concurrently, all three of the following intersection checks must result in an empty set (∅):
     
     1. $L(S_i​)∩E(S_j​)=∅$ (Prevents Read-After-Write hazards).
         

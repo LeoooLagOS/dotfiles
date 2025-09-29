@@ -33,7 +33,7 @@ A graph is like a **map of cities and roads**.
 - **Representation in Code:** 
 	- **Adjacency Matrix:** A 2D array where `matrix[i][j] = 1` if there's an edge between vertex `i` and `j`. Good for dense graphs. 
 	- **Adjacency List:** An array where each index `i` stores a list of the vertices connected to vertex `i`. Good for sparse graphs.  
-- *Related Data Structures:** 
+- *Related Data Structures:* 
 	 - A [[Trees|Tree]] is a special kind of graph that is connected and acyclic (has no loops). 
 	 - A [[Linked Lists|Linked List]] is a very simple type of tree. 
 - **Common Algorithms:** This data structure is the basis for many famous algorithms, including: 
