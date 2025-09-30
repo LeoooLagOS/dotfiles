@@ -49,11 +49,19 @@ Cisco CLI
 S1# show etherchannel summary
 S1# show interfaces trunk
 ```
+## ⚠️ Common Troubleshooting Issues
 
+- **Protocol Mismatch:** 
+	- The EtherChannel will fail if one switch is configured for [[EtherChannel Negotiation Protocols (LACP vs. PAgP)|LACP]] (`active`/`passive`) and the other is configured for [[EtherChannel Negotiation Protocols (LACP vs. PAgP)|PAgP]] (`desirable`/`auto`). Both sides must use the same protocol.
+    
+- **Mode Mismatch:** 
+	- The channel will fail if negotiation modes are incompatible. For example, a static `on` mode on one switch will not form a channel with a negotiating mode (`active`, `desirable`, etc.) on the other. Similarly, two passive modes (`auto` and `passive`) will not form a channel.
+    
+- **Inconsistent Port Configuration:** 
+	- All physical ports within the bundle must have identical configuratio
 ## See Also
 
 - [[Trunk Configuration]]
-    
 - [[LACP]]
-    
+- [[EtherChannel Negotiation Protocols (LACP vs. PAgP)]]
 - [[Spanning Tree Protocol (STP)]]
