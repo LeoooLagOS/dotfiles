@@ -28,19 +28,11 @@ date: 2025-09-20
 		- An active mode. The port actively attempts to form a trunk with its neighbor. It will become a trunk if the neighbor is set to `trunk`, `dynamic desirable`, or `dynamic auto`. 
 	- `trunk`: 
 		- Puts the port into permanent trunking mode.
-## 🔗 Connections & Implementations
-*This section is for **links only**. How does this atomic idea connect to practical code?*
--   Implemented in [[Python]] as: `[[Python - Dictionaries]]`
--   Implemented in [[_Java]] as: `[[Java - HashMap]]`
--   Used to solve: `[[Two Sum (Python)]]`, `[[Two Sum (Java)]]`
-
-## 👍 Pros & 👎 Cons
-*The trade-offs associated with **this specific concept**.*
--   **Advantages:**
-    -   *e.g., Fast O(1) lookups.*
--   **Disadvantages:**
-    -   *e.g., Unordered, uses more memory.*
-
-## See Also
--   `[[<Parent Concept>]]`
--   `[[<A related concept often confused with this one>]]`
+## 🔗 Connections & Implementations 
+* The `dynamic auto` and `dynamic desirable` modes rely entirely on the [[Dynamic Trunking Protocol (DTP)]] to negotiate the link status. 
+* Best practice for security is to manually configure ports as either `access` or `trunk` and avoid the dynamic modes. 
+## See Also 
+- [[Access Port]] 
+- [[Trunk Port]] 
+- [[Dynamic Trunking Protocol (DTP)]] 
+- [[switchport nonegotiate]]
