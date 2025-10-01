@@ -19,8 +19,10 @@ date: 2025-09-10
 *It's like two people reading the same book from opposite ends. One starts at the first page (left pointer) and one at the last page (right pointer). They read towards the middle, comparing notes or swapping pages until they meet.*
 
 ## 🔑 Key Details
-- **What it is:** A method using two index variables to traverse a data structure. The pointers can move towards each other, away from each other, or in the same direction at different speeds. 
-- **Why it exists:** It is a highly efficient way to solve problems involving sorted arrays, palindromes, or in-place reversals, typically reducing time complexity to O(n) and space complexity to O(1). 
+- **What it is:** 
+	- A method using two index variables to traverse a data structure. The pointers can move towards each other, away from each other, or in the same direction at different speeds. 
+- **Why it exists:** 
+	- It is a highly efficient way to solve problems involving sorted arrays, palindromes, or in-place reversals, typically reducing time complexity to O(n) and space complexity to O(1). 
 
 ## 🔗 Connections & Implementations
 - Used to solve: '[[Reverse String (Python)]]'

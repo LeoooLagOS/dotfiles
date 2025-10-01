@@ -58,5 +58,4 @@ def reverseString(self, s: List[str]) -> None:
 
 ## 🔗 See Also
 
-- [[Valid Palindrome]]
-- 
+- [[Valid Palindrome (Python)]]

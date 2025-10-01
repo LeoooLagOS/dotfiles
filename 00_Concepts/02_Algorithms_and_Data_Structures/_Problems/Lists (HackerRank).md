@@ -14,7 +14,7 @@ related: "[[Arrays]]"
 date: 2025-09-23
 ---
 
-# Lists (HackerRan)
+# Lists (HackerRank)
 
 ## 🧠 Problem Summary
 Given a series of string commands, parse each command and use it to perform the corresponding manipulation on a Python list.

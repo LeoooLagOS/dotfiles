@@ -31,7 +31,7 @@ A variable is like a **labeled box** in a vast warehouse (your computer's memory
 ## 🔗 Connections & Implementations
 The way variables are handled differs between language types.
 
--   In a **statically-typed** language like [[Java]], you must declare the type of the box before you can put anything in it:
+-   In a **statically-typed** language like [[_Java]], you must declare the type of the box before you can put anything in it:
    ```java
     // Declaration and assignment are separate
     String name;      // Creates the box labeled "name" for Strings

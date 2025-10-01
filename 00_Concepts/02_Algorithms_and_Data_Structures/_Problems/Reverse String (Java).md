@@ -71,4 +71,4 @@ class Solution {
 
 - [[Reverse String (Python)]]
     
-- [[Valid Palindrome]]
+- [[Valid Palindrome (Python)]]

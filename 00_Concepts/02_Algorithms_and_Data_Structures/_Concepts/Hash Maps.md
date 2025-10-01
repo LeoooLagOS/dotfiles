@@ -19,12 +19,14 @@ A Hash Map is a data structure that stores key-value pairs and uses a hash funct
 A hash map is like a magical library catalog. You give the librarian a book's unique code (the **key**), and they instantly know its exact shelf and position (the **value**) without having to search the entire library.
 
 ## 🔑 Key Details
--   **What it is:** A collection of key-value pairs where each key is unique. It's also known as a dictionary or associative array.
--   **Why it exists:** It solves the problem of needing to find data associated with a specific identifier without slowly searching through a list.
+-   **What it is:** 
+	- A collection of key-value pairs where each key is unique. It's also known as a dictionary or associative array.
+-   **Why it exists:** 
+	- It solves the problem of needing to find data associated with a specific identifier without slowly searching through a list.
 
 ## 🔗 Connections & Implementations
-- Implemented in [[Python]] as: [[Python - Dictionaries]]
-- Implemented in [[Java]] as: [[Java - HashMap]]
+- Implemented in [[_Python|Python]] as: [[Python - Dictionaries]]
+- Implemented in [[_Java|Java]] as: [[Java - HashMap]]
 - Used to solve: [[Two Sum (Python)]]
 - Used to solve: [[Two Sum (Java)]] 
 

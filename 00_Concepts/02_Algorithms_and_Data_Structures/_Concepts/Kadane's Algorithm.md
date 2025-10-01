@@ -21,8 +21,10 @@ Imagine walking a path where each step gives or takes points. You have two score
 2. You check if `current_max` has beaten `max_so_far`. If so, you have a new record. 
 3. **The Key Insight:** If your `current_max` ever drops below 0, that path is a "losing path." You wisely reset `current_max` to 0 and start a fresh walk from the next step. 
 ## 🔑 Key Details 
-- **What it is:** An iterative algorithm that maintains two key variables: the maximum sum ending at the current position (`current_max`), and the overall maximum sum found so far (`max_so_far`). 
-- **Why it exists:** It provides a linear-time solution to the maximum subarray problem, which is a massive improvement over a naive O(n²) brute-force approach. The core logic is that a negative-sum prefix will never help maximize a future subarray. 
+- **What it is:** 
+	- An iterative algorithm that maintains two key variables: the maximum sum ending at the current position (`current_max`), and the overall maximum sum found so far (`max_so_far`). 
+- **Why it exists:** 
+	- It provides a linear-time solution to the maximum subarray problem, which is a massive improvement over a naive O(n²) brute-force approach. The core logic is that a negative-sum prefix will never help maximize a future subarray. 
 
 - ## 🔗 Connections & Implementations 
 - Used to solve: [[Maximum Subarray (Python)]] 

@@ -31,7 +31,7 @@ date: 2025-09-20
 ## 🔗 Connections & Implementations
 *This section is for **links only**. How does this atomic idea connect to practical code?*
 -   Implemented in [[Python]] as: `[[Python - Dictionaries]]`
--   Implemented in [[Java]] as: `[[Java - HashMap]]`
+-   Implemented in [[_Java]] as: `[[Java - HashMap]]`
 -   Used to solve: `[[Two Sum (Python)]]`, `[[Two Sum (Java)]]`
 
 ## 👍 Pros & 👎 Cons

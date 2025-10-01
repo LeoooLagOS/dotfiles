@@ -24,6 +24,6 @@ It's like **renting a storage unit**. You tell the facility manager (`malloc`) e
 - **`free()`**: Releases a block of memory that was previously allocated, returning it to the system. Failing to `free` memory results in a "memory leak.".
 
 ## 🔗 Connections & Implementations
-- `malloc` always returns a `[[Pointers in C|pointer]]`. 
-- This is the primary method for creating variable-sized `[[Arrays]]` in C. 
-- Used in the `[[Array Reversal (HackerRank)]]` problem to create an array of a user-specified size.
+- `malloc` always returns a [[Pointers in C|pointer]]. 
+- This is the primary method for creating variable-sized [[Arrays]] in C. 
+- Used in the [[Array Reversal (HackerRank)]] problem to create an array of a user-specified size.
