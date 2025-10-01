@@ -13,7 +13,7 @@ date: 2025-09-30
 # _C_
 
 ## 📝 One-Sentence Summary
-C is a powerful, general-purpose, procedural programming language known for its performance, efficiency, and direct control over hardware and memory.
+C is a powerful, general-purpose, [[procedural programming]] language known for its performance, efficiency, and direct control over hardware and memory.
 
 ## 💡 Core Philosophy
 "**Trust the programmer.**" 
