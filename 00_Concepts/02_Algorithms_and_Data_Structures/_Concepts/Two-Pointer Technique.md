@@ -6,7 +6,7 @@ tags:
 category: <cs-fundamental>
 status:
   - learning
-related: '"[[<Another Core Concept>]]"'
+related: "[[Java - HashMap]]"
 date: 2025-09-10
 ---
 

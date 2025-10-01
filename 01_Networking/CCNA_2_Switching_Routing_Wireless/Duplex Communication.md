@@ -6,7 +6,7 @@ tags:
 category: networking
 status:
   - learning
-related: "[[Collision Domain]]"
+related: "[[Collision Domain vs Broadcast Domain]]"
 date: 2025-09-26
 ---
 
@@ -26,7 +26,7 @@ date: 2025-09-26
 
 - **Why it exists:** The duplex setting must match on both ends of a connection for the link to operate efficiently. A mismatch (e.g., one side full, one side half) is a common cause of network performance problems like excessive collisions and errors.
 ## 🔗 Connections & Implementations
-* In full-duplex mode, the [[Collision Domain]] is eliminated because the collision detection circuit on the network card is disabled. 
+* In full-duplex mode, the [[Collision Domain vs Broadcast Domain]] is eliminated because the collision detection circuit on the network card is disabled. 
 * Modern standards like Gigabit Ethernet and 10Gb Ethernet **require** full-duplex operation. *The settings can be configured manually using the [[Configuring Switch Port Speed and Duplex]] commands.
 
 ## 👍 Pros & 👎 Cons
@@ -34,6 +34,6 @@ date: 2025-09-26
 * **Half-duplex Con:** Inefficient use of bandwidth, leads to frequent collisions.
 
 ## See Also
-- [[Collision Domain]] 
+- [[Collision Domain vs Broadcast Domain]] 
 - [[Microsegmentation]] 
 - [[Autonegotiation]]
