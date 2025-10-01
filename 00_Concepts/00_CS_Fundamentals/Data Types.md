@@ -27,8 +27,8 @@ Data types are like different kinds of containers. An `Integer` is like a box de
 ## 🔗 Connections & Implementations
 -   Data types are assigned to `[[Variables and Memory|Variables]]`.
 -   Functions use data types to define their [[Functions|parameters and return values]].
--   [[_Java]] is a **statically-typed** language where you must declare the data type of a variable.
--   [[Python]] is a **dynamically-typed** language where the interpreter infers the data type at runtime.
+-   [[_Java|Java]] is a **statically-typed** language where you must declare the data type of a variable.
+-   [[_Python|Python]] is a **dynamically-typed** language where the interpreter infers the data type at runtime.
 
 ## See Also
 -   [[Static vs Dynamic Typing]]

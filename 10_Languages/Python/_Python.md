@@ -19,6 +19,10 @@ Python is a high-level, interpreted programming language known for its emphasis 
 "**The Zen of Python**" guides its design, prioritizing principles like "Beautiful is better than ugly," and "Simple is better than complex." 
 The goal is to allow developers to express concepts in fewer lines of code than would be possible in languages like C++ or Java.
 
+## 📜 History & Creator 
+Python was created by **Guido van Rossum** and first released in 1991. He began working on it in the late 1980s as a successor to the ABC language, wanting to create a language that was easy to read and highly extensible. 
+The name was famously inspired by the British comedy group Monty Python's Flying Circus.
+
 ## 🔑 Key Characteristics
 - **Execution:** 
 	- An **interpreted** language, executed line-by-line, which simplifies debugging. 

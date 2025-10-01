@@ -20,7 +20,7 @@ date: <% tp.date.now("YYYY-MM-DD") %>
 
 ## 🔗 Connections & Implementations
 *This section is for **links only**. How does this atomic idea connect to practical code?*
--   Implemented in [[Python]] as: `[[Python - Dictionaries]]`
+-   Implemented in [[_Python]] as: `[[Python - Dictionaries]]`
 -   Implemented in [[_Java]] as: `[[Java - HashMap]]`
 -   Used to solve: `[[Two Sum (Python)]]`, `[[Two Sum (Java)]]`
 

@@ -18,6 +18,10 @@ Java is a high-level, class-based, [[object-oriented programming]] language desi
 ## 💡 Core Philosophy
 "**Write Once, Run Anywhere**" (WORA). The goal is to write code on one platform and have it run on any other platform that has a JVM, without needing to be recompiled for each.
 
+## 📜 History & Creator
+Java was created by **James Gosling** and his team (known as the "Green Team") at Sun Microsystems in the early 1990s. It was initially designed for interactive television and other embedded systems. 
+With the rise of the internet, Java's platform-independent nature made it a perfect fit for web applications, and it was officially released in 1995, quickly becoming one of the most popular programming languages in the world.
+
 ## 🔑 Key Details
 - **Execution:** 
 	- Code is **compiled** into an intermediate "bytecode," which is then interpreted and executed by the **[[Java Virtual Machine (JVM)]]**. 
