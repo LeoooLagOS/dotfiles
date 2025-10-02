@@ -33,7 +33,7 @@ Given a string of space-separated integers, create a tuple from them and print t
 
 ## 📊 Complexity Analysis
 - **Time**: O(n), where `n` is the number of integers in the input, to read and process the data. 
-- **Space**: O(n), to store the `n` integers.
+- **Space**: O(n), to store the `n` integers.w
 
 ## 💻 Code Implementation (`<Python>`)
 
