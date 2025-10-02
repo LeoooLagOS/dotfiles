@@ -27,6 +27,12 @@ This is for my hands-on work and projects where I apply my knowledge.
 This is for topics outside of my core CS curriculum.
 - **`30_Natural_Languages/`**
 
+
+--- 
+### ## 40-49: Personal Setup & Configuration workstation️ 
+This category is for the "workshop"—the practical documentation of my personal machine configurations, custom scripts, and setup guides. It separates my specific implementation from general theory. 
+- **`40_My_Setup/`**
+
 ---
 ### ## 80-99: System & Meta ⚙️
 This range is reserved for utility and system-related folders. Placing them in the 80s and 90s intentionally pushes them to the bottom of the file list, keeping them out of the way of my primary knowledge folders.
