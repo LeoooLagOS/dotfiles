@@ -20,7 +20,7 @@ C is a powerful, general-purpose, [[procedural programming]] language known for 
 C's design philosophy is minimalist and provides you with maximum power and flexibility. It assumes you know what you're doing and gives you the tools to interact with the computer at a very low level, without safety nets.
 
 ## 📜 History & Creator 
-C was developed at Bell Labs by **Dennis Ritchie** between 1972 and 1973. It was created for a very practical purpose: to write the **[[Unix operating system]]**. C was a successor to the B language and was designed to be a portable, efficient, and low-level language that was still easy for humans to use. 
+C was developed at Bell Labs by **Dennis Ritchie** between 1972 and 1973. It was created for a very practical purpose: to write the **[[Unix]] [[_Operating Systems|OS]]**. C was a successor to the B language and was designed to be a portable, efficient, and low-level language that was still easy for humans to use. 
 Its influence is immense, and its syntax has inspired countless other languages, including C++, C#, [[_Java|Java]], and [[_Python|Python]].
 ## 🔑 Key Details
 - **Execution:** 

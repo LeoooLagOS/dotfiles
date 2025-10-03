@@ -1,8 +1,9 @@
 ---
 tags: concept
-category: <data-structure|cs-fundamental|devops|git>
-status: <learning|reviewing|mastered>
-related: '"[[<Another Core Concept>]]"'
+category: <data-structure>
+status:
+  - learning
+related: "[[Spanning Tree Protocol (STP)]]"
 date: 2025-09-23
 ---
 

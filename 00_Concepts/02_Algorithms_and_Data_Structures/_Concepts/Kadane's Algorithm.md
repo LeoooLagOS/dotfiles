@@ -14,7 +14,7 @@ date: 2025-09-17
 # Kadane's Algorithm
 
 ## 📝 One-Sentence Summary 
-Kadane's Algorithm is an efficient O(n) dynamic programming approach to find the maximum sum of a contiguous subarray, elegantly solving the problem by discarding negative-sum prefixes. 
+Kadane's [[_Algorithms|Algorithm]] is an efficient O(n) [[Dynamic Programming|dynamic programming]] approach to find the maximum sum of a contiguous subarray, elegantly solving the problem by discarding negative-sum prefixes. 
 ## 💡 Analogy 
 Imagine walking a path where each step gives or takes points. You have two scoreboards: **`current_max`** (your score for the current continuous walk) and **`max_so_far`** (your all-time high score). 
 1. At each step, you add the new points to `current_max`. 

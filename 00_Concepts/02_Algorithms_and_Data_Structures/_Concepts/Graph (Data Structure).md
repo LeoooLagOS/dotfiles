@@ -14,7 +14,7 @@ date: 2025-09-23
 # Graph (Data Structure)
 
 ## 📝 One-Sentence Summary
-A graph is a non-linear data structure consisting of a set of vertices (or nodes) and a set of edges that connect pairs of these vertices, used to represent networks and relationships.
+A graph is a non-linear [[_Data Structures|data structure ]]consisting of a set of vertices (or nodes) and a set of edges that connect pairs of these vertices, used to represent networks and relationships.
 ## 💡 Analogy
 A graph is like a **map of cities and roads**. 
 	- The **Vertices** (or nodes) are the cities. 

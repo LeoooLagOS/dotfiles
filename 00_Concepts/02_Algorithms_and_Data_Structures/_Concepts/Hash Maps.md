@@ -13,7 +13,7 @@ date: 2025-09-11
 # Hash Maps
 
 ## 📝 One-Sentence Summary
-A Hash Map is a data structure that stores key-value pairs and uses a hash function to enable extremely fast (average O(1)) lookups, insertions, and deletions.
+A Hash Map is a [[_Data Structures|data structure ]] that stores key-value pairs and uses a hash function to enable extremely fast (average O(1)) lookups, insertions, and deletions.
 
 ## 💡 Analogy
 A hash map is like a magical library catalog. You give the librarian a book's unique code (the **key**), and they instantly know its exact shelf and position (the **value**) without having to search the entire library.

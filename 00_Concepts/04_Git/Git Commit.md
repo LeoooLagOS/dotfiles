@@ -70,7 +70,7 @@ This is where you can explain the "why" behind your change in more detail, follo
 
 ## 🔗 See Also
 
-- [[Git]]
+- [[_Git]]
     
 - [[Staging Area]]
     
