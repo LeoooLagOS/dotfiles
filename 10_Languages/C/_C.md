@@ -34,7 +34,7 @@ Its influence is immense, and its syntax has inspired countless other languages,
 
 ## 🔗 Connections & Implementations
 - **Operating Systems:** 
-	- C is the language of operating systems. The [[Kernel|kernels]] of [[Linux]], [[Windows]], and [[macOS]] are all primarily written in C. 
+	- C is the language of operating systems. The [[Kernel|kernels]] of [[_Linux]], [[_Windows]], and [[_macOS]] are all primarily written in C. 
 - **Embedded Systems:** 
 	- Its direct hardware access and small footprint make it the standard for programming microcontrollers, IoT devices, and other resource-constrained hardware. 
 - **High-Performance Computing:** 

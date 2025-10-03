@@ -20,7 +20,7 @@ Git is a distributed **version control system** designed to track changes in sou
 Git is like a **time machine for your code**. It allows you to take "snapshots" of your project at any moment. If you make a mistake, you can instantly travel back to a previous, working version. It's the ultimate "undo" button for your entire project.
 
 ## 📜 History & Creator 
-Git was created in **2005** by **Linus Torvalds**, the same architect behind the [[Linux]] [[_Operating Systems|Operating System]] [[Kernel|kernel]]. 
+Git was created in **2005** by **Linus Torvalds**, the same architect behind the [[_Linux]] [[_Operating Systems|Operating System]] [[Kernel|kernel]]. 
 The [[Linux Kernel]] project, with its thousands of contributors worldwide, needed a version control system that was fast, distributed, and could handle a massive scale of parallel development. When their previous proprietary tool was no longer available, Torvalds developed the initial version of Git in about two weeks to meet this specific need.
 ## 🔑 Core Philosophy & Design 
 Git's design is a direct reflection of the needs of the [[Linux Kernel]] development. Its philosophy can be summarized as "Trust the programmer" and is built on several key principles: 

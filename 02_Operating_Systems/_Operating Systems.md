@@ -35,10 +35,10 @@ The principles established by Unix form the foundation of most modern operating 
 ## 🔗 Connections & Implementations
 The OS is the foundational software layer upon which everything else is built. 
 - **Specific Implementations:** 
-	- [[Linux]] 
-	- [[Windows]] 
-	- [[macOS]] 
-	- Network-specific: `[[Cisco IOS]]` 
+	- [[_Linux]] 
+	- [[_Windows]] 
+	- [[_macOS]] 
+	- Network-specific: [[Cisco IOS]] 
 - **Core Concepts:** 
 	- The OS is responsible for managing the concepts described in [[Concurrency vs Parallelism]]. 
 	- It controls how applications interact with [[_Computer Hardware]].
