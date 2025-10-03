@@ -25,7 +25,7 @@ date: 2025-09-25
 	- **Processes** provide isolation. The operating system uses them to run multiple applications without letting them interfere with one another. A crash in one process typically does not affect another.
     - **Threads** exist to enable concurrency _within_ a single application. This allows an application to perform multiple tasks at once (e.g., updating a GUI while saving a file) without the high overhead of creating separate processes.
 ## 🔗 Connections & Implementations
-* **Memory:** Processes are isolated in [[memory]]. Threads within the same process share the code, data, and file resources. This makes communication between threads fast, but also dangerous without proper synchronization.
+* **Memory:** Processes are isolated in [[Memory]]. Threads within the same process share the code, data, and file resources. This makes communication between threads fast, but also dangerous without proper synchronization.
 * **Overhead:** Creating a process and performing a context switch between processes is a slow, resource-intensive operation for the OS. Creating and switching between threads is significantly faster and less costly because fewer resources are involved.
 
 ## 👍 Pros & 👎 Cons

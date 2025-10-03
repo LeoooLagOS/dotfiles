@@ -1,5 +1,6 @@
 ---
 tags:
+  - algorithm-pattern
 difficulty: <easy|medium|hard>
 source: <paste-link-to-problem>
 status: <unsolved|in-progress|solved|reviewing>
@@ -18,7 +19,7 @@ date: <% tp.date.now("YYYY-MM-DD") %>
 - *e.g., Edge Case: What if no solution exists?*
 
 ## 💡 Key Data Structure / Concept
-- The optimal solution uses: [[<Name of Data Structure or Concept>]]
+- The optimal solution uses: ''[[<Name of Data Structure or Concept>]]''
 
 ## 📜 Algorithm Explained
 1.  **Brute-Force Idea (Optional)**: Briefly describe the simple, slow solution.
@@ -40,14 +41,14 @@ date: <% tp.date.now("YYYY-MM-DD") %>
 ## 🔧 Code Breakdown
 
 - `some_function()`: Explain the purpose of this line and link to a concept, e.g., 
-	- see [[Python - Loops and Iteration]].
+	- see ''[[Python - Loops and Iteration]]''.
     
 - `data_structure = {}`: Explain the initialization, e.g., 
-	- This is our [[Hash Maps|hash map]].
+	- This is our ''[[Hash Maps|hash map]]".
     
 
 ## 🔗 See Also
 
-- [[A similar problem that uses the same pattern]]
+- "[[A similar problem that uses the same pattern]]"
     
-- [[A harder version of this problem]]
+- "[[A harder version of this problem]]"

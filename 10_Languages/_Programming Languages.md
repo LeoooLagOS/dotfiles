@@ -43,7 +43,7 @@ Languages are designed around a series of trade-offs and philosophies that deter
 - **Core Components:** 
 	- **Syntax:** The grammatical rules for how to write valid code. 
 	- **Semantics:** The meaning of the instructions. 
-	- **[[Compiler / Interpreter]]:** The program that translates the human-readable code into machine-executable instructions.
+	- **[[Compiler ]]/ [[Interpreter]]:** The program that translates the human-readable code into machine-executable instructions.
 ## 🔗 Connections & Implementations
 Programming languages are the primary tool for implementing all other computer science concepts. 
 - **Specific Implementations:** 
@@ -51,7 +51,7 @@ Programming languages are the primary tool for implementing all other computer s
 	- [[_Java]] - A statically-typed, object-oriented language. 
 	- [[_Python]] - A dynamically-typed, multi-paradigm language. 
 - **Core Concepts:** 
-	- Languages are used to implement [[Algorithms]] and [[Data Structures]].
+	- Languages are used to implement [[_Algorithms]] and [[_Data Structures]].
 ## See Also
 - [[Compiler]]
 - [[Interpreter]] 

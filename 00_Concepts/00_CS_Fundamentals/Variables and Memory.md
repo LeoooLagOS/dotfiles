@@ -22,8 +22,10 @@ A variable is like a **labeled box** in a vast warehouse (your computer's memory
 -   The **memory address** is the box's unique location code (e.g., Aisle 5, Shelf 3, Position 2), which the computer uses to find it instantly.
 
 ## 🔑 Key Details
--   **What it is:** A symbolic name (an identifier) that is associated with a value and a location in memory. It is the primary way we interact with data in a program.
--   **Why it exists:** It allows us to store, retrieve, and manipulate data without having to know the specific, low-level memory address where the data is located. It abstracts away the hardware complexity.
+-   **What it is:** 
+	- A symbolic name (an identifier) that is associated with a value and a location in memory. It is the primary way we interact with data in a program.
+-   **Why it exists:** 
+	- It allows us to store, retrieve, and manipulate data without having to know the specific, low-level memory address where the data is located. It abstracts away the hardware complexity.
 -   **Core Operations:**
     -   **Declaration:** "Creating" the box and specifying what kind of stuff it's allowed to hold (its [[Data Types|Data Type]]).
     -   **Assignment:** "Putting" a value into the box.
@@ -38,7 +40,7 @@ The way variables are handled differs between language types.
     name = "Leo";   // Puts the value in the box
     ```
 
--   In a **dynamically-typed** language like [[Python]], the box is created and typed automatically when you put a value in it:
+-   In a **dynamically-typed** language like [[_Python]], the box is created and typed automatically when you put a value in it:
    ```python
     # Declaration and assignment happen at the same time
     name = "Leo"

@@ -4,7 +4,7 @@ tags:
   - natural-language
 category: natural-language
 level: <A1|A2|B1|B2|C1|C2>
-related: "[[<Related Grammar Rule>]]"
+related: '"[[<Related Grammar Rule>]]"'
 date: <% tp.date.now("YYYY-MM-DD") %>
 ---
 # <% tp.file.title %>

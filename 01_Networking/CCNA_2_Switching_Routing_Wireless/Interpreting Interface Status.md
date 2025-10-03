@@ -38,6 +38,6 @@ date: 2025-09-28
 | `administratively down, down` | ⛔️ **Disabled:** The interface has been manually disabled with the `shutdown` command. Use `no shutdown` to enable it.                                                            |
 ## See Also 
 - [[Common Switch Verification Commands]] 
-- [[Physical Layer (OSI Model)]]
-- [[Data Link Layer (OSI Model)]] 
+- [[1_Physical Layer (OSI Model)]]
+- [[2_Data Link Layer (OSI Model)]] 
 - [[Troubleshooting Methodology]]

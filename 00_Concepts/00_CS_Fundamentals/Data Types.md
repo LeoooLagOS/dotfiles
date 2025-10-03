@@ -5,7 +5,7 @@ tags:
 category: <cs-fundamental>
 status:
   - learning
-related: "[[Vairables and Memory]]"
+related: "[[Variables and Memory]]"
 date: 2025-09-16
 ---
 

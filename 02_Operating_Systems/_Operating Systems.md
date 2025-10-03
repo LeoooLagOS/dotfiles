@@ -7,7 +7,7 @@ tags:
 category: <cs-fundamental>
 status:
   - learning
-related: "[[Computer Hardware]]"
+related: "[[_Computer Hardware]]"
 date: 2025-10-02
 ---
 
@@ -41,7 +41,7 @@ The OS is the foundational software layer upon which everything else is built.
 	- Network-specific: `[[Cisco IOS]]` 
 - **Core Concepts:** 
 	- The OS is responsible for managing the concepts described in [[Concurrency vs Parallelism]]. 
-	- It controls how applications interact with [[Computer Hardware]].
+	- It controls how applications interact with [[_Computer Hardware]].
 
 ## See Also 
 - [[Kernel]] 
