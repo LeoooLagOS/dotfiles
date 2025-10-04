@@ -34,6 +34,6 @@ A complete solution for protecting a critical section involves a four-part struc
 ## See Also
 - [[Mutual Exclusion]]
     
-- [[Race Condition]]
+- [[Race Conditions]]
     
 - [[Synchronization]]

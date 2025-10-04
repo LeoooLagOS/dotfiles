@@ -3,6 +3,7 @@ tags:
   - overview
   - OS
   - linux
+  - open-source
 category: OS
 status:
   - learning

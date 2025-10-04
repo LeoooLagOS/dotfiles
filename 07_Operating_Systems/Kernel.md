@@ -21,7 +21,7 @@ If the Operating System is the government of a city, the **kernel is the city's 
 - **What it is:** 
 	- The foundational program of an OS that is loaded first on boot and remains in memory at all times. 
 - **Why it exists:** 
-	- To securely manage the hardware resources ([[CPU]], [[Memory (RAM & ROM)|Memory]], [[Input and Output (I/O) Devices]]) and provide a stable, consistent API ([[System Call|System Calls]]) for applications. 
+	- To securely manage the hardware resources ([[CPU]], [[Memory (Computer)|Memory]], [[Input and Output (I/O) Devices]]) and provide a stable, consistent API ([[System Call|System Calls]]) for applications. 
 - **Kernel Space vs. User Space:** 
 	- The kernel runs in a highly privileged processor mode (kernel space), with unrestricted access to all hardware. Applications run in a restricted mode (user space) and must ask the kernel for permission to perform privileged operations.
 

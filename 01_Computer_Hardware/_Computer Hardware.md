@@ -37,7 +37,7 @@ This design separates the "thinking" ([[CPU]]) from the "storing" ([[Storage Dev
 - **Why it exists:** To execute the instructions provided by [[Software]] and to perform the actual computation, storage, and interaction with the physical world. 
 - **Core Components:** 
 	- [[CPU| CPU (Central Processing Unit)]] 
-	- [[Memory (RAM & ROM)]] 
+	- [[Memory (Computer]] 
 	- [[Storage Devices]] (SSDs, HDDs) 
 	- [[Motherboard]] 
 	- [[Input and Output (I/O) Devices]] (Keyboard, Mouse, Monitor)
