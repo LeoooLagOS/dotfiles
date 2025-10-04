@@ -18,17 +18,16 @@ date: 2025-09-25
 
 Imagine two office workers, **Ivanka** ($S_i$​) and **John** ($S_j​$), who need to process documents.
 
-- **Read Set L(S)**: The documents a worker needs to read.
+- **Read Set $L(S)$**: The documents a worker needs to read.
     
-- **Write Set E(S)**: The documents a worker needs to write or update. A supervisor uses Bernstein's Conditions to decide if they can work simultaneously:
+- **Write Set $E(S)$**: The documents a worker needs to write or update. A supervisor uses Bernstein's Conditions to decide if they can work simultaneously:
     
 
 1. **"Don't read my draft!"**: The documents Alice reads $(L(S_i​))$ must not overlap with the documents Bob plans to write $(E(S_j​))$.
     
 2. **"Don't read my draft! (vice-versa)"**: The documents Bob reads $(L(S_j​))$ must not overlap with what Alice plans to write $(E(S_i​))$.
     
-3. **"Don't write on the same page!"**: Alice and Bob cannot write to the same document $(E(S_i​)$ and $E(S_j​)$ must not overlap). If all three rules are met, they are independent and can work in parallel.
-    
+3. **"Don't write on the same page!"**: Alice and Bob cannot write to the same document $(E(S_i​)$ and $E(S_j​)$ must not overlap). If all three rules are met, they are independent and can work in parallel.    
 
 ## 🔑 Key Details
 
