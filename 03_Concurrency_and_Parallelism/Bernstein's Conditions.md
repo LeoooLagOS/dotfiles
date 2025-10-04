@@ -62,13 +62,11 @@ Imagine two office workers, **Ivanka** ($S_i$​) and **John** ($S_j​$), who n
     - Provides a mathematically sound and deterministic way to detect potential parallelism.
         
     - Can be automated and used by parallelizing compilers.
-        
 - **Cons:**
     
     - It can be overly conservative, as it only considers data dependencies, not the logic of the program.
         
     - The analysis is static and does not account for runtime behavior.
-        
 
 ## See Also
 
