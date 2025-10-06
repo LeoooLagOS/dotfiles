@@ -14,7 +14,7 @@ date: 2025-10-03
 
 ## 📝 One-Sentence Summary
 
-A **monitor** is a high-level construct that encapsulates a shared resource along with the procedures that manipulate it, automatically guaranteeing mutual exclusion and providing mechanisms for thread coordination.
+A **monitor** is a high-level construct that encapsulates a shared resource along with the procedures that manipulate it, automatically guaranteeing [[Mutual Exclusion]] and providing mechanisms for thread coordination.
 
 ## 💡 Analogy
 
