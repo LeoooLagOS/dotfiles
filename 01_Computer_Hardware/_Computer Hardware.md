@@ -19,7 +19,7 @@ Computer hardware is like the **human body**.
 - The **[[CPU]]** is the **brain** (processing thoughts). 
 - **[[DRAM|RAM]]** is the **short-term memory** (what you're actively thinking about). 
 - The **[[Storage Devices|Hard Drive]]** is the **long-term memory** (knowledge and memories). 
-- The **Motherboard** is the **skeleton and nervous system**, connecting everything. 
+- The **[[Motherboard]]** is the **skeleton and nervous system**, connecting everything. 
 - **Input/Output devices** are the **senses and limbs** (eyes, ears, hands).
 ## 📜 History & Creator
 The concept of modern computing hardware was formalized by mathematician **John von Neumann** in the 1940s. While early computers existed (like the ENIAC), the **von Neumann architecture** established the fundamental design for most computers today. It was a revolutionary idea that a computer could store not just data, but its own programs in memory, allowing it to perform a variety of tasks.
@@ -37,7 +37,7 @@ This design separates the "thinking" ([[CPU]]) from the "storing" ([[Storage Dev
 - **Why it exists:** To execute the instructions provided by [[Software]] and to perform the actual computation, storage, and interaction with the physical world. 
 - **Core Components:** 
 	- [[CPU| CPU (Central Processing Unit)]] 
-	- [[Memory (Computer]] 
+	- [[Memory (Computer)]] 
 	- [[Storage Devices]] (SSDs, HDDs) 
 	- [[Motherboard]] 
 	- [[Input and Output (I/O) Devices]] (Keyboard, Mouse, Monitor)

@@ -18,17 +18,19 @@ A data type is a classification that tells the compiler or interpreter how a pro
 Data types are like different kinds of containers. An `Integer` is like a box designed to hold only whole numbers, a `String` is like a folder for holding text, and a `Boolean` is like a light switch that can only be on or off. You can't put text in the number box.
 
 ## 🔑 Key Details
--   **What it is:** A set of values and a set of allowed operations on those values.
--   **Why it exists:** They allow us to work with data in a structured way and prevent errors. They are the fundamental building blocks of variables.
+- **What it is:** 
+	- A set of values and a set of allowed operations on those values.
+- **Why it exists:** 
+	- They allow us to work with data in a structured way and prevent errors. They are the fundamental building blocks of variables.
 -   **Two Main Categories:**
     -   **Primitive Types:** The most basic types built into a language (e.g., `int`, `float`, `boolean`, `char`).
     -   **Composite/Object Types:** More complex types built from primitives (e.g., `String`, `Array`, custom classes).
 
 ## 🔗 Connections & Implementations
--   Data types are assigned to `[[Variables and Memory|Variables]]`.
+-   Data types are assigned to [[Variables and Memory|Variables]].
 -   Functions use data types to define their [[Functions|parameters and return values]].
--   [[_Java|Java]] is a **statically-typed** language where you must declare the data type of a variable.
--   [[_Python|Python]] is a **dynamically-typed** language where the interpreter infers the data type at runtime.
+- [[_Java|Java]] is a **statically-typed** language where you must declare the data type of a variable.
+- [[_Python|Python]] is a **dynamically-typed** language where the interpreter infers the data type at runtime.
 
 ## See Also
--   [[Static vs Dynamic Typing]]
+- [[Static vs Dynamic Typing]]
