@@ -4,6 +4,7 @@ tags:
   - networking
   - configuration
   - command
+  - Cisco_IOS
 category: networking
 status:
   - reviewing
