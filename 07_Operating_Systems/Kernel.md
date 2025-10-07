@@ -14,7 +14,7 @@ date: 2025-10-03
 # Kernel
 
 ## 📝 One-Sentence Summary
-The kernel is the central, core component of an [[_Operating Systems|Operating System]] that has complete control over everything in the system, acting as the primary bridge between software applications and the physical hardware.
+The kernel is the central, core component of an [[_Operating Systems|Operating System]] that has complete control over everything in the system, acting as the primary bridge between [[Software]] applications and the physical hardware.
 ## 💡 Analogy
 If the Operating System is the government of a city, the **kernel is the city's executive branch and control tower**. It's the small, powerful, and protected group that makes all the critical decisions: dispatching emergency services (`handling interrupts`), managing all the traffic (`CPU scheduling`), allocating land (`memory management`), and giving special permissions to access secure facilities (`system calls`). All other programs in the city must make requests to this central authority.
 ## 🔑 Key Details

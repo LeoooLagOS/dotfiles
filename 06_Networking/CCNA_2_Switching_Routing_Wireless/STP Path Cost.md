@@ -5,7 +5,7 @@ tags:
 category: networking
 status:
   - learning
-related: "[[Spanning Tree Protocol (STP)]]"
+related: "[[STP]]"
 date: 2025-09-23
 ---
 
@@ -28,6 +28,6 @@ date: 2025-09-23
 * Switches add the ingress port cost to the cost advertised in a received [[BPDU (Bridge Protocol Data Unit)]] to calculate their own total cost to the root.
 
 ## See Also
-- [[Spanning Tree Protocol (STP)]] 
+- [[STP]] 
 - [[Root Port]] 
 - [[Root Bridge]]

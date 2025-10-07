@@ -42,7 +42,7 @@ This design separates the "thinking" ([[CPU]]) from the "storing" ([[Storage Dev
 	- [[Motherboard]] 
 	- [[Input and Output (I/O) Devices]] (Keyboard, Mouse, Monitor)
 ## 🔗 Connections & Implementations
-Hardware is the foundation upon which all software runs.
+Hardware is the foundation upon which all [[Software]] runs.
 - It is directly managed and abstracted by the [[_Operating Systems]]. 
 - It forms the foundation of the [[OSI Model]], specifically the [[1_Physical Layer (OSI Model)|Physical Layer]]. 
 - The performance of algorithms, measured by [[Big O Notation]], is ultimately constrained by the physical speed of the hardware.

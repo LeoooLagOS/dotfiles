@@ -13,7 +13,7 @@ date: 2025-09-30
 # _Python_
 
 ## 📝 One-Sentence Summary
-Python is a high-level, interpreted programming language known for its emphasis on code readability, simplicity, and developer productivity.
+Python is a high-level, [[Interpreted Programming]] [[_Programming Languages|language]] known for its emphasis on code readability, simplicity, and developer productivity.
 
 ## 💡 Core Philosophy
 "**The Zen of Python**" guides its design, prioritizing principles like "Beautiful is better than ugly," and "Simple is better than complex." 

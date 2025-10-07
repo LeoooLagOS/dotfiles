@@ -3,7 +3,6 @@ tags:
   - concept
   - networking
   - protocol
-  - cisco
 category: networking
 status:
   - learning
@@ -29,8 +28,10 @@ DTP is the protocol for that automatic agreement.
 * To disable DTP on a trunk port, you use the [[switchport nonegotiate]] command. 
 * This protocol is enabled by default on many Cisco Catalyst switches.
 ## 👍 Pros & 👎 Cons
-* **Pro:** Simplifies initial switch setup and can reduce configuration time. 
-* **Con:** Creates a significant security vulnerability if not managed correctly. It is not an open standard and only works between Cisco devices.
+* **Pro:** 
+	* Simplifies initial switch setup and can reduce configuration time. 
+* **Con:** 
+	* Creates a significant security vulnerability if not managed correctly. It is not an open standard and only works between Cisco devices.
 ## See Also
 - [[Trunk Port]] 
 - [[Switchport Modes]] 

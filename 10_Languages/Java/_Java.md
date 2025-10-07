@@ -13,10 +13,11 @@ date: 2025-09-30
 # _Java_
 
 ## 📝 One-Sentence Summary
-Java is a high-level, class-based, [[Object-Oriented Programming]] language designed for platform independence via the [[Java Virtual Machine (JVM)]].
+Java is a high-level, class-based, [[Object-Oriented Programming]] [[_Programming Languages|language]] designed for platform independence via the [[Java Virtual Machine (JVM)]].
 
 ## 💡 Core Philosophy
-"**Write Once, Run Anywhere**" (WORA). The goal is to write code on one platform and have it run on any other platform that has a JVM, without needing to be recompiled for each.
+"**Write Once, Run Anywhere**" (WORA). 
+The goal is to write code on one platform and have it run on any other platform that has a JVM, without needing to be recompiled for each.
 
 ## 📜 History & Creator
 Java was created by **James Gosling** and his team (known as the "Green Team") at Sun Microsystems in the early 1990s. It was initially designed for interactive television and other embedded systems. 

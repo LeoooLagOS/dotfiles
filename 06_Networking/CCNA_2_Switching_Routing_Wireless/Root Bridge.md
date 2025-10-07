@@ -5,14 +5,14 @@ tags:
 category: networking
 status:
   - learning
-related: "[[Spanning Tree Protocol (STP)]]"
+related: "[[STP]]"
 date: 2025-09-23
 ---
 
 # Root Bridge
 
 ## 📝 One-Sentence Summary
-*The Root Bridge is the single switch elected by [[Spanning Tree Protocol (STP)]] to act as the central reference point for building a loop-free network topology.
+*The Root Bridge is the single switch elected by [[STP]] to act as the central reference point for building a loop-free network topology.
 ## 💡 Analogy
 - **What it is:** 
 	- The logical center of the STP topology. It is the switch with the lowest [[Bridge ID (BID)]]. 
@@ -28,6 +28,6 @@ date: 2025-09-23
 
 ## See Also
 - [[Bridge ID (BID)]] 
-- [[Spanning Tree Protocol (STP)]] 
+- [[STP]] 
 - [[Root Port]] 
 - [[Designated Port]]

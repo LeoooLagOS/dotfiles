@@ -36,7 +36,7 @@ The Linux philosophy is inherited directly from [[Unix]] and can be summarized a
 	- **The [[Linux Kernel]]:** The core of the OS. 
 	- **[[Shell]]:** The command-line interface (e.g., `bash`). 
 	- **Desktop Environment:** The graphical user interface (GUI) (e.g., GNOME, KDE). 
-	- **[[Package Manager]]:** The system for installing and managing software (e.g., `DNF` in Fedora, `APT` in Debian/Ubuntu).
+	- **[[Package Manager]]:** The system for installing and managing [[Software]] (e.g., `DNF` in Fedora, `APT` in Debian/Ubuntu).
 ## 🔗 Connections & Implementations
 - **My Personal Setup:** My primary workstation runs on [[Fedora|Fedora Workstation]]. 
 - **Servers & Cloud:** Linux dominates the server, cloud computing, and supercomputing markets. 

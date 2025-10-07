@@ -5,14 +5,14 @@ tags:
 category: networking
 status:
   - learning
-related: "[[Spanning Tree Protocol (STP)]]"
+related: "[[STP]]"
 date: 2025-09-30
 ---
 
 # STP Port Roles
 
 ## 📝 One-Sentence Summary
-*[[Spanning Tree Protocol (STP)|STP]] assigns a specific role—**Root**, **Designated**, or **Alternate**—to every active port on a switch to build a single, loop-free path through the network.*
+*[[STP|STP]] assigns a specific role—**Root**, **Designated**, or **Alternate**—to every active port on a switch to build a single, loop-free path through the network.*
 
 ## 💡 Analogy
 *Think of a GPS navigating a road network with loops.* 
@@ -32,9 +32,9 @@ date: 2025-09-30
 | **Designated Port** | The single, lowest-cost port on a network segment that forwards traffic away from the [[Root Bridge]].    | Forwarding |
 | **Alternate Port**  | A port that provides a redundant, backup path toward the [[Root Bridge]] and is blocked to prevent loops. | Blocking   |
 ## 🔗 Connections & Implementations
-The election of these roles is the final step in the [[Spanning Tree Protocol (STP)]] algorithm, following the election of the [[Root Bridge]].
+The election of these roles is the final step in the [[STP]] algorithm, following the election of the [[Root Bridge]].
 
 ## See Also
-- [[Spanning Tree Protocol (STP)]] 
+- [[STP]] 
 - [[Root Bridge]] 
 - [[STP Path Cost]]

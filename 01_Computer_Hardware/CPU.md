@@ -13,7 +13,7 @@ date: 2025-09-17
 
 ## 📝 One-Sentence Summary 
 
-The CPU is the primary component of a computer that acts as its "brain," performing the calculations and executing the instructions that make the software run. 
+The CPU is the primary component of a computer that acts as its "brain," performing the calculations and executing the instructions that make the [[Software]] run. 
 ## 💡 Analogy 
 
 The CPU is the chef in a kitchen. It takes ingredients (data) and follows a recipe (a program) to produce a final dish (the output). 

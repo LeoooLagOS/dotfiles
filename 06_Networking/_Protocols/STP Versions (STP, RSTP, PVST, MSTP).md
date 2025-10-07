@@ -6,14 +6,14 @@ tags:
 category: networking
 status:
   - learning
-related: "[[Spanning Tree Protocol (STP)]]"
+related: "[[STP]]"
 date: 2025-10-01
 ---
 
 # STP Versions (STP, RSTP, PVST, MSTP)
 
 ## 📝 One-Sentence Summary
-*Multiple versions of [[Spanning Tree Protocol (STP)|STP]] exist to provide faster convergence, support for [[VLAN|VLANs]], and improved scalability over the original 802.1D standard.*
+*Multiple versions of [[STP|STP]] exist to provide faster convergence, support for [[VLAN|VLANs]], and improved scalability over the original 802.1D standard.*
 ## 💡 Analogy
 It's like the evolution of Wi-Fi standards. The original was slow and basic (**STP**). Then came faster versions (**RSTP**), versions that handled guest networks better (**PVST+**), and finally, highly efficient versions for large corporate offices (**MSTP**).
 
@@ -35,5 +35,5 @@ It's like the evolution of Wi-Fi standards. The original was slow and basic (**S
 ## 🔗 Connections & Implementations
 * All versions are backward-compatible, but mixing them can result in slower, legacy performance. Cisco switches use Rapid PVST+ by default.
 ## See Also
-- [[Spanning Tree Protocol (STP)]] 
+- [[STP]] 
 - [[VLAN]]

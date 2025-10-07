@@ -5,14 +5,14 @@ tags:
 category: networking
 status:
   - learning
-related: "[[BDPU (Bridge Protocol Data Unit)]]"
+related: "[[BDPU]]"
 date: 2025-09-23
 ---
 
 # Bridge ID (BID)
 
 ## 📝 One-Sentence Summary
-*The Bridge ID is the unique identifier a switch uses in the [[Spanning Tree Protocol (STP)]] election process, where the switch with the numerically lowest BID becomes the [[Root Bridge]].
+*The Bridge ID is the unique identifier a switch uses in the [[STP]] election process, where the switch with the numerically lowest BID becomes the [[Root Bridge]].
 ## 💡 Analogy
 *Think of the BID as a candidate's **ranking number** in an election. The number is calculated from a combination of factors, and the candidate with the absolute lowest number wins.de."*
 

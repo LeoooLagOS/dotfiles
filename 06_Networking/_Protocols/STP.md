@@ -11,7 +11,7 @@ related: "[[Layer 2  Loops]]"
 date: 2025-09-23
 ---
 
-# Spanning Tree Protocol (STP)
+# STP (Spanning Tree Protocol)
 
 ## 📝 One-Sentence Summary
 *STP (IEEE 802.1D) is a Layer 2 network protocol that prevents [[Layer 2 Loops]] by logically blocking redundant paths in a switched network, ensuring there is only one active path between any two devices at a time.

@@ -24,9 +24,9 @@ date: 2025-09-23
 
 ## 🔗 Connections & Implementations
 * A port that is not a [[Root Port]] may become a Designated Port. 
-* This role is decided by comparing [[BPDU (Bridge Protocol Data Unit)]]s on a shared link.
+* This role is decided by comparing [[BDPU]]s on a shared link.
 ## See Also 
-- [[Spanning Tree Protocol (STP)]] 
+- [[STP]] 
 - [[Root Bridge]] 
 - [[Root Port]]
 - [[Alternate Port (Blocked Port)]]

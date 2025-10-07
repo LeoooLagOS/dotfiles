@@ -14,7 +14,7 @@ date: 2025-10-02
 # _Operating Systems_
 
 ## 📝 One-Sentence Summary
-An operating system (OS) is the core software that acts as an intermediary between computer hardware and the user, managing all hardware resources and providing common services for application programs.
+An operating system (OS) is the core [[Software]] that acts as an intermediary between computer hardware and the user, managing all hardware resources and providing common services for application programs.
 ## 💡 Analogy
 The OS is like the **government and infrastructure of a city**. It doesn't build the specific shops or houses (the applications), but it manages the essential, shared resources like the roads (`CPU scheduling`), the power grid (`memory management`), the postal service (`file system`), and the police force (`security`), allowing all the individual businesses to run smoothly and safely.
 
@@ -33,7 +33,7 @@ The principles established by Unix form the foundation of most modern operating 
 	- **Device Management:** Interacting with hardware devices through [[Drivers|drivers]]. 
 	- **Security:** Enforcing access controls and protecting system resources.
 ## 🔗 Connections & Implementations
-The OS is the foundational software layer upon which everything else is built. 
+The OS is the foundational [[Software]] layer upon which everything else is built. 
 - **Specific Implementations:** 
 	- [[_Linux]] 
 	- [[_Windows]] 

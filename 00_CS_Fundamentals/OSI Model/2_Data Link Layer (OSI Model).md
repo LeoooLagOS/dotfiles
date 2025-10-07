@@ -28,5 +28,5 @@ date: 2025-09-26
 - **Hardware Examples:** Switches, bridges, and network interface cards (NICs).
 ## 🔗 Connections & Implementations
 -   The health of this layer is the second part of the [[Interpreting Interface Status]] command output (`line protocol is up/down`).
--   A **[[Layer 2 Loops]]** is a catastrophic failure at this layer, which [[Spanning Tree Protocol (STP)]] is designed to prevent.
+-   A **[[Layer 2 Loops]]** is a catastrophic failure at this layer, which [[STP]] is designed to prevent.
 -   Switches operate primarily at this layer to make forwarding decisions based on the [[MAC Address Table]].

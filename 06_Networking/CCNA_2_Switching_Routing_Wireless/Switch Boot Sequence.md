@@ -13,7 +13,7 @@ date: 2025-09-17
 ## 📝 One-Sentence Summary 
 *The switch boot sequence is an ordered, five-step process that a switch performs upon startup to test hardware, initialize low-level functions, and load the [[Cisco IOS]] operating system. 
 ## 💡 Analogy 
-*It's like a pilot's pre-flight checklist. The switch first checks its own critical systems (engine, electronics), then loads the basic flight controls, initializes its navigation system, and finally loads the advanced autopilot software (the IOS) to become fully operational. 
+*It's like a pilot's pre-flight checklist. The switch first checks its own critical systems (engine, electronics), then loads the basic flight controls, initializes its navigation system, and finally loads the advanced autopilot [[Software]] (the IOS) to become fully operational. 
 ## 🔑 Key Details 
 - **What it is:** A predefined startup routine stored in the switch's [[ROM]]. The sequence is: 
 -

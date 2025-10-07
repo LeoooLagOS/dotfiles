@@ -24,7 +24,7 @@ The core philosophy of Windows is **user-friendliness and backward compatibility
 - **Graphical User Interface (GUI) First:** 
 	- The primary way to interact with the OS is through its graphical interface, making it accessible to non-technical users. 
 - **Backward Compatibility:** 
-	- A major design goal has always been to ensure that software written for older versions of Windows will continue to run on newer versions.
+	- A major design goal has always been to ensure that [[Software]] written for older versions of Windows will continue to run on newer versions.
 ## ⚙️ Key Details 
 - **What it is:** 
 	- A family of proprietary operating systems for personal computers, servers, and other devices. 
@@ -36,7 +36,7 @@ The core philosophy of Windows is **user-friendliness and backward compatibility
 	- **Windows Shell:** 
 		- The graphical interface, including the desktop, taskbar, and Start menu. 
 	- **Windows API:** 
-		- The set of application programming interfaces that developers use to write software for Windows. 
+		- The set of application programming interfaces that developers use to write [[Software]] for Windows. 
 	- **Registry:** 
 		- A hierarchical database that stores low-level settings for the OS and applications.
 ## 🔗 Connections & Implementations

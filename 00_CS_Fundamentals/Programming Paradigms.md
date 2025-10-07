@@ -21,7 +21,7 @@ Paradigms are like different **architectural styles for building a house**.
 - **[[Functional Programming]]** is like a **modern, minimalist design** that focuses on the flow of energy and light through the house, using a series of transformations.
 ## 🔑 Key Details
 - **What it is:** 
-	- A set of principles and concepts that defines a way to build software. Most modern languages are **multi-paradigm**, allowing the programmer to mix and match styles. 
+	- A set of principles and concepts that defines a way to build [[Software]]. Most modern languages are **multi-paradigm**, allowing the programmer to mix and match styles. 
 - **Why it exists:** 
 	- Different paradigms are better suited for solving different types of problems. Choosing the right paradigm can make code simpler, more scalable, and easier to reason about.
 ## 🔗 Connections & Implementations

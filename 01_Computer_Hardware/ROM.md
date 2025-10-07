@@ -22,7 +22,7 @@ ROM is like the printed instruction manual that's glued inside an appliance. It 
 - **What it is:** 
 	- A class of storage media used in computers and other electronic devices that, under normal operation, can only be read from.
 - **Why it exists:** 
-	- To store **firmware**—low-level software that is permanent and is required for the hardware to function, but which the user does not need to change. 
+	- To store **firmware**—low-level [[Software]] that is permanent and is required for the hardware to function, but which the user does not need to change. 
 - **Core Characteristics:** 
 	- **Non-Volatile:** 
 		- It retains its data even when power is turned off. This is crucial for storing boot-up instructions. 

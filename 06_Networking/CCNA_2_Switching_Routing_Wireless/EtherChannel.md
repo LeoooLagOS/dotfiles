@@ -64,4 +64,4 @@ S1# show interfaces trunk
 - [[Trunk Configuration]]
 - [[LACP]]
 - [[EtherChannel Negotiation Protocols (LACP vs. PAgP)]]
-- [[Spanning Tree Protocol (STP)]]
+- [[STP]]

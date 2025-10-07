@@ -29,7 +29,7 @@ date: 2025-09-23
 * The primary decision factor is the [[STP Path Cost]].
 
 ## See Also
-- [[Spanning Tree Protocol (STP)]] 
+- [[STP]] 
 - [[Root Bridge]] 
 - [[Designated Port]]
 - [[Alternate Port (Blocked Port)]]

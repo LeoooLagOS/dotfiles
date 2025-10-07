@@ -17,7 +17,7 @@ A programming paradigm based on the concept of "objects," which bundle data (att
 OOP is like building with **Lego bricks**. Each brick (object) is a self-contained unit with its own properties (color, shape) and built-in functionality (how it connects to other bricks). You combine these standardized bricks to build a complex structure.
 ## 🔑 Key Details
 - **Core Idea:** 
-	- To organize software by modeling real-world entities as objects. Data and the functions that modify that data are bundled together. 
+	- To organize [[Software]] by modeling real-world entities as objects. Data and the functions that modify that data are bundled together. 
 - **The Four Pillars of OOP:** 
 	- [[Encapsulation]]: 
 		- Bundling data and methods together, hiding the internal complexity. 

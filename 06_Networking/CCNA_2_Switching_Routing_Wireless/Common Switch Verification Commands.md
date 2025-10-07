@@ -4,6 +4,7 @@ tags:
   - networking
   - command
   - verification
+  - Cisco_IOS
 category: networking
 status:
   - learning
