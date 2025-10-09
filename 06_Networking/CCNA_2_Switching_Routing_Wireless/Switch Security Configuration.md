@@ -8,7 +8,7 @@ tags:
 category: networking
 status:
   - learning
-related: "[[CISCO IOS Modes]]"
+related: "[[Cisco IOS Modes]]"
 date: 2025-09-30
 ---
 

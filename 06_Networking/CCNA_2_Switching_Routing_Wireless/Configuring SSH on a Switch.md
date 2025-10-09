@@ -5,6 +5,8 @@ tags:
   - security
   - configuration
   - lab
+  - Cisco_IOS
+  - command
 category: <cs-fundamental>
 status:
   - learning

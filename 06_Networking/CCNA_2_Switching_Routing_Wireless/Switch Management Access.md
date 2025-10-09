@@ -5,7 +5,7 @@ tags:
 category: networking
 status:
   - learning
-related: "[[IP Adress]]"
+related: "[[IP Address]]"
 date: 2025-09-17
 ---
 

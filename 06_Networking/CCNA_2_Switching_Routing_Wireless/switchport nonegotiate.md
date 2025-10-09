@@ -3,6 +3,7 @@ tags:
   - concept
   - networking
   - command
+  - Cisco_IOS
 category: networking
 status:
   - learning
