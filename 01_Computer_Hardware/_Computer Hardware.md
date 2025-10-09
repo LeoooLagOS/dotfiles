@@ -44,7 +44,7 @@ This design separates the "thinking" ([[CPU]]) from the "storing" ([[Storage Dev
 ## 🔗 Connections & Implementations
 Hardware is the foundation upon which all [[Software]] runs.
 - It is directly managed and abstracted by the [[_Operating Systems]]. 
-- It forms the foundation of the [[OSI Model]], specifically the [[1_Physical Layer|Physical Layer]]. 
+- It forms the foundation of the [[_OSI Model]], specifically the [[1_Physical Layer|Physical Layer]]. 
 - The performance of algorithms, measured by [[Big O Notation]], is ultimately constrained by the physical speed of the hardware.
 ## See Also
 - [[Software]] 

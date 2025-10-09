@@ -7,7 +7,7 @@ tags:
 category: networking
 status:
   - reviewing
-related: "[[OSI Model]]"
+related: "[[_OSI Model]]"
 date: 2025-09-26
 ---
 
