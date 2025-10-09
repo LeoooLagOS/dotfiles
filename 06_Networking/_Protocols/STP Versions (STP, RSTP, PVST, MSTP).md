@@ -19,7 +19,7 @@ It's like the evolution of Wi-Fi standards. The original was slow and basic (**S
 
 ## 🔑 Key Details
 - **What they are:** 
-	- Different protocols that all share the goal of creating a loop-free [[2_Data Link Layer (OSI Model)|Layer 2]] topology but with different features and efficiencies. 
+	- Different protocols that all share the goal of creating a loop-free [[2_Data Link Layer|Layer 2]] topology but with different features and efficiencies. 
 - **Why they exist:** 
 	- To address the limitations of the original STP standard, such as slow convergence time and lack of VLAN awareness.
 

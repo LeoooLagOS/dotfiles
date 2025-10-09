@@ -14,7 +14,7 @@ date: 2025-09-30
 # Collision Domain vs Broadcast Domain
 
 ## 📝 One-Sentence Summary
-*A **collision domain** is a [[1_Physical Layer (OSI Model)|Layer 1]] segment where data packets can collide, a problem solved by **switches**, while a **broadcast domain** is a [[2_Data Link Layer (OSI Model)|Layer 2]] segment where broadcasts propagate, a problem managed by **routers**.*
+*A **collision domain** is a [[1_Physical Layer|Layer 1]] segment where data packets can collide, a problem solved by **switches**, while a **broadcast domain** is a [[2_Data Link Layer|Layer 2]] segment where broadcasts propagate, a problem managed by **routers**.*
 ## 💡 Analogy
 *Imagine a large, open office floor.* 
 * A **collision domain** is like a single, long conference table. Only one person can talk at a time. If two people talk, their words collide. A **switch** fixes this by giving each person a private phone booth (a separate collision domain). 

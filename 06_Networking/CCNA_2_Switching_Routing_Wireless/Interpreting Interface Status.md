@@ -14,7 +14,7 @@ date: 2025-09-28
 # Interpreting Interface Status
 
 ## 📝 One-Sentence Summary
-*The status line in the `show interfaces` command output indicates the health of both the [[1_Physical Layer (OSI Model)|physical layer]] (Layer 1) and the [[2_Data Link Layer (OSI Model)|Data Link Layer]] (Layer 2), providing a quick and powerful diagnostic tool.
+*The status line in the `show interfaces` command output indicates the health of both the [[1_Physical Layer|physical layer]] (Layer 1) and the [[2_Data Link Layer|Data Link Layer]] (Layer 2), providing a quick and powerful diagnostic tool.
 
 ## 💡 Analogy
 * Think of it as the two main indicator lights on a modem.
@@ -38,6 +38,6 @@ date: 2025-09-28
 | `administratively down, down` | ⛔️ **Disabled:** The interface has been manually disabled with the `shutdown` command. Use `no shutdown` to enable it.                                                            |
 ## See Also 
 - [[Common Switch Verification Commands]] 
-- [[1_Physical Layer (OSI Model)]]
-- [[2_Data Link Layer (OSI Model)]] 
+- [[1_Physical Layer]]
+- [[2_Data Link Layer]] 
 - [[Troubleshooting Methodology]]

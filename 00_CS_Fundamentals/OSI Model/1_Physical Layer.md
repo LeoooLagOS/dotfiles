@@ -25,4 +25,4 @@ The Physical Layer is the **language of electricity and light**. It's the physic
 ## 🔗 Connections & Implementations 
 - The status of this layer is the first part of the [[Interpreting Interface Status]] command output (`Interface is up/down`). 
 - Issues at this layer, like a bad cable or interference, often manifest as [[Common Interface Errors|CRC errors]]. 
-- It is the foundation upon which the [[2_Data Link Layer (OSI Model)]] operates.
+- It is the foundation upon which the [[2_Data Link Layer]] operates.
