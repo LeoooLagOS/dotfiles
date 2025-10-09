@@ -7,7 +7,7 @@ tags:
   - algorithm-pattern
 difficulty:
   - easy 
-source: '"https://leetcode.com/problems/reverse-string/"'
+source: https://leetcode.com/problems/reverse-string/
 status:
   - solved
 related:

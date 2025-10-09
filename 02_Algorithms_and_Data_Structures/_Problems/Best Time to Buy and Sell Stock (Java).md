@@ -6,7 +6,7 @@ tags:
   - array
 difficulty:
   - easy 
-source: '"https://leetcode.com/problems/best-time-to-buy-and-sell-stock/"'
+source: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
 status:
   - solved
 related: "[[Arrays]]"

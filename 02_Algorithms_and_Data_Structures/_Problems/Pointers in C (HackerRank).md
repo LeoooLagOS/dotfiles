@@ -6,7 +6,7 @@ tags:
   - pointers
 difficulty:
   - easy 
-source: '"https://www.hackerrank.com/challenges/pointer-in-c/"'
+source: https://www.hackerrank.com/challenges/pointer-in-c/
 status:
   - solved
 related: "[[Pointers in C]]"

@@ -7,7 +7,7 @@ tags:
   - two-pointer
 difficulty:
   - easy 
-source: '"https://leetcode.com/problems/valid-palindrome/"'
+source: https://leetcode.com/problems/valid-palindrome/
 status:
   - solved
 related: "[[Two-Pointer Technique]]"
