@@ -24,7 +24,7 @@ Each layer is a different department in the logistics company that adds its own 
 - **Layer 3 (Network):** The global shipping office puts the full international "To" and "From" addresses on each box. 
 - **Layer 2 (Data Link):** The local mail truck driver adds the address of the *next* post office. 
 - **Layer 1 (Physical):** The boxes are physically put on the truck. 
-- On the receiving end, the process happens in reverse, with each department unwrapping its own layer until the recipient gets the original letter.
+On the receiving end, the process happens in reverse, with each department unwrapping its own layer until the recipient gets the original letter.
 ## 📜 History & Creator
 The OSI model was developed by the **International Organization for Standardization (ISO)**, starting in the late 1970s and published in 1984. 
 It was created as a vendor-neutral standard to promote interoperability between different networking vendors, each of whom had their own proprietary protocol stacks. 
