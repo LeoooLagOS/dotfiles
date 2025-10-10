@@ -23,8 +23,8 @@ date: 2025-10-09
 ## Router Configuration (Building-1)
 
 This section details the complete initial setup for a Cisco IOS router.
-[[Initial Device Security Configuration]] for the basics.
 
+[[Initial Device Security Configuration]] for the basics.
 ```cisco
 ! --- Initial Hostname and Security ---
 hostname Building-1
@@ -36,12 +36,10 @@ banner motd $Authorized Access Only$
 no ip domain-lookup
 service password-encryption
 ! --- Advanced Hardening ---
-
 security passwords min-length 10
 login block-for 120 attempts 2 within 30
-
 ```
-See [[Configuring SSH on a Switch]] for the full procedure.
+See [[Configuring SSH on a Switch]] for the full SSH Configuration procedure.
 ```
 ! --- SSH Configuration ---
 ```
@@ -84,9 +82,10 @@ password cisco12345
 ! Enforce the more secure SSH version 2.
 ip ssh version 2
 ```
-! --- Interface Configuration ---
-! See [[Configuring Router Interfaces]] for the standard procedure.
+
+! For the 'Interface Configuration' see [[Configuring Router Interfaces]] for the standard procedure.
 ```
+! --- Interface Configuration ---
 interface g0/0
  description First Floor Switch
  ip address 192.168.1.126 255.255.255.224
