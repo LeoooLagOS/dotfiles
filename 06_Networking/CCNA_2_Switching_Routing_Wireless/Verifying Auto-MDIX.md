@@ -4,6 +4,7 @@ tags:
   - networking
   - command
   - verification
+  - Cisco_IOS
 category: networking
 status:
   - learning
@@ -26,7 +27,7 @@ date: 2025-09-26
 	- To allow administrators to troubleshoot and verify low-level hardware features that are not displayed in the standard `show interfaces` command output.
 ## 🔗 Connections & Implementations
 
-*This is the primary command for checking the status of `[[Auto-MDIX]]`.
+*This is the primary command for checking the status of [[Auto-MDIX]].
 * **Verification Command:**
 ```cisco
 S1# show controllers ethernet-controller fa0/1 phy | include MDIX

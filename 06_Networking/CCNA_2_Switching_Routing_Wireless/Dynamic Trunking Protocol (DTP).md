@@ -18,7 +18,7 @@ date: 2025-09-20
 *Imagine two ambassadors meeting. Instead of waiting for instructions, they can automatically agree to speak a special, high-bandwidth language (trunking) to exchange information for all their departments (VLANs) at once. 
 DTP is the protocol for that automatic agreement.
 ## 🔑 Key Details
-- **What it is:** A [[2_Data Link Layer (OSI Model) ||layer 2]] protocol that automates the creation of a trunk link between two switches. It operates on a point-to-point basis. 
+- **What it is:** A [[2_Data Link Layer||layer 2]] protocol that automates the creation of a trunk link between two switches. It operates on a point-to-point basis. 
 - **Why it exists:** To simplify and speed up network configuration. An administrator can connect two switches, and if configured correctly, they will form a trunk link without manual intervention. 
 - **Security Caution:** DTP is a known security risk. An attacker can use it to perform a [[VLAN Hopping]] attack by tricking a switch into forming a trunk with the attacker's machine. It is best practice to disable DTP on ports connected to untrusted devices or end-users.
 ## 🔗 Connections & Implementations

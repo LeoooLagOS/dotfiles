@@ -7,7 +7,7 @@ tags:
   - hash-set
 difficulty:
   - easy 
-source: '"https://leetcode.com/problems/contains-duplicate/'
+source: https://leetcode.com/problems/contains-duplicate/
 status:
   - solved
 related: "[[Hash Sets]]"

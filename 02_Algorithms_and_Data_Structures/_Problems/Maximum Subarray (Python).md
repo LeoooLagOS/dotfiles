@@ -7,7 +7,7 @@ tags:
   - dynamic-programming
 difficulty:
   - medium 
-source: '"https://leetcode.com/problems/maximum-subarray/"'
+source: https://leetcode.com/problems/maximum-subarray/
 status:
   - solved
 related: "[[Kadane's Algorithm]]"

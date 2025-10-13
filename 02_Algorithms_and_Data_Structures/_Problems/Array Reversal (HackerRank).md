@@ -7,7 +7,7 @@ tags:
   - two-pointer
 difficulty:
   - easy 
-source: '"https://www.hackerrank.com/challenges/reverse-array-c/"'
+source: https://www.hackerrank.com/challenges/reverse-array-c/
 status:
   - solved
 related: "[[Two-Pointer Technique]]"

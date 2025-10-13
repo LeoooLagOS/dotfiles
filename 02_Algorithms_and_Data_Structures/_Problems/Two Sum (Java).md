@@ -7,7 +7,7 @@ tags:
   - array
 difficulty:
   - easy 
-source: '"https://leetcode.com/problems/two-sum/"'
+source: https://leetcode.com/problems/two-sum/
 status:
   - solved
 related: "[[Hash Maps]]"

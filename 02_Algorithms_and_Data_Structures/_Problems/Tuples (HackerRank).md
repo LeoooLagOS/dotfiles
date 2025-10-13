@@ -7,7 +7,7 @@ tags:
   - hashing
 difficulty:
   - easy 
-source: '"https://www.hackerrank.com/challenges/python-tuples/"'
+source: https://www.hackerrank.com/challenges/python-tuples/
 status:
   - solved
 related: "[[Tuples in Python]]"

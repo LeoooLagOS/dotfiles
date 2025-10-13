@@ -7,7 +7,7 @@ tags:
   - data-structure
 difficulty:
   - easy 
-source: '"https://www.hackerrank.com/challenges/python-lists/"'
+source: https://www.hackerrank.com/challenges/python-lists/
 status:
   - solved
 related: "[[Arrays]]"

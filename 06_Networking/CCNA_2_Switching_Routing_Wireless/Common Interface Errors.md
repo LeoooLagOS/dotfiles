@@ -10,7 +10,7 @@ date: 2025-09-28
 # Common Interface Errors
 
 ## 📝 One-Sentence Summary
-*The error counters in the `show interfaces` command output provide critical clues for diagnosing physical ([[1_Physical Layer (OSI Model)|Layer 1]]) and data link ([[2_Data Link Layer (OSI Model)|Layer 2]]) problems on a network connection.
+*The error counters in the `show interfaces` command output provide critical clues for diagnosing physical ([[1_Physical Layer|Layer 1]]) and data link ([[2_Data Link Layer|Layer 2]]) problems on a network connection.
 ## 💡 Analogy
 Think of these error counters as the specific **diagnostic codes** a car's computer gives a mechanic. A generic "check engine" light ([[Interpreting Interface Status|interface is down]]) tells you there's a problem, but a specific code like "CRC error" or "runt" tells you *exactly* what kind of problem it is, helping you find the root cause much faster.
 ## 🔑 Key Details
