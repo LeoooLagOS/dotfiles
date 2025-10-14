@@ -4,7 +4,7 @@ tags:
   - OS
   - cs-fundamental
   - overview
-category: <cs-fundamental>
+category: cs-fundamental
 status:
   - learning
 related: "[[_Computer Hardware]]"
