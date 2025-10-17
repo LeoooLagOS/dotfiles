@@ -10,7 +10,7 @@ date: 2025-10-16
 # CSS Positioning
 
 ## 📝 One-Sentence Summary
-CSS positioning is the mechanism that allows you to take elements out of the normal document flow and place them exactly where you want them, often relative to other elements.
+[[_CSS]] positioning is the mechanism that allows you to take elements out of the normal document flow and place them exactly where you want them, often relative to other elements.
 ## 💡 Analogy
 Think of `position: relative` as an **anchor point** on a map. It doesn't move the anchor itself, but it gives any `position: absolute` elements inside it a fixed point of reference to navigate from. Without an anchor, the absolute elements would be positioned relative to the entire map's borders (`<body>`).
 
