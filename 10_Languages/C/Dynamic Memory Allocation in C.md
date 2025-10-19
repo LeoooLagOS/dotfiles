@@ -19,9 +19,12 @@ Dynamic memory allocation is the manual process of requesting a block of memory 
 It's like **renting a storage unit**. You tell the facility manager (`malloc`) exactly how much space you need. They give you a key (`pointer`) to a specific unit. You can use it as you wish, but you are responsible for telling the manager when you're done (`free`) so they can rent it to someone else.
 
 ## 🔑 Key Details
-- **`malloc()`**: The "memory allocation" function. It takes a size in bytes as an argument and returns a `void` pointer to the start of the allocated block of memory on the heap. 
-- **`sizeof()`**: An operator used to calculate the size (in bytes) of a data type. It's used with `malloc` to ensure you request the correct amount of memory (e.g., `malloc(10 * sizeof(int))`). 
-- **`free()`**: Releases a block of memory that was previously allocated, returning it to the system. Failing to `free` memory results in a "memory leak.".
+- **`malloc()`**: 
+	- The "memory allocation" function. It takes a size in bytes as an argument and returns a `void` pointer to the start of the allocated block of memory on the heap. 
+- **`sizeof()`**: 
+	- An operator used to calculate the size (in bytes) of a data type. It's used with `malloc` to ensure you request the correct amount of memory (e.g., `malloc(10 * sizeof(int))`). 
+- **`free()`**: 
+	- Releases a block of memory that was previously allocated, returning it to the system. Failing to `free` memory results in a "memory leak.".
 
 ## 🔗 Connections & Implementations
 - `malloc` always returns a [[Pointers in C|pointer]]. 

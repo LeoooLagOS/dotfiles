@@ -6,14 +6,14 @@ tags:
 category: web-development
 status:
   - learning
-related: "[[CSS Positioning]]"
+related: "[[Semantic HTML]]"
 date: 2025-10-16
 ---
 
 # Applying CSS to HTML
 
 ## 📝 One-Sentence Summary
-CSS rules can be applied to [[_HTML]] documents using three methods—inline, internal, or external—with external stylesheets being the most efficient and standard professional practice.
+[[_CSS]] rules can be applied to [[_HTML]] documents using three methods—inline, internal, or external—with external stylesheets being the most efficient and standard professional practice to separate a website's structure from its presentation
 
 ## 💡 Analogy
 Think of styling a person. 
@@ -25,6 +25,24 @@ Think of styling a person.
 	* Posting a "Dress Code" book outside the room (`<link rel="stylesheet">`). Anyone from any room can read and follow the same rules, ensuring consistency.
 ## 🔑 Key Details
 The evolution from inline to external styles is a core principle of web development, promoting a "Separation of Concerns" between a page's structure ([[_HTML]]) and its presentation ([[_CSS]])
+
+### Unstyled HTML (The Foundation)
+This is the baseline document containing only the semantic structure and content, with no styling applied. This corresponds to your `index-no-css.html` file. 
+
+**Example (`index-no-css.html`):** 
+```html 
+<body> 
+	<header> 
+		<h1>Mi Página Personal</h1> 
+	</header> 
+	<main> 
+		<section> 
+			<h2>Mi GIF Favorito</h2> 
+			<img src="img/gato-programando.gif"...>
+		</section> 
+	</main> 
+</body>
+````
 
 ### 1. Inline Styles (Method 1)
 CSS is written directly inside an element's `style` attribute. This is highly specific and generally discouraged.
@@ -44,35 +62,30 @@ CSS rules are placed within a `<style>` tag in the `<head>` of the HTML document
 
 **Example from notes :**
 ```HTML
-<head>
-    <style>
-        .body-container {
-            background-color: red;
-            width: 100px;
-            height: 100px;
-            position: relative;
-        }
-        .right-circle {
-            background: black;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            position: absolute;
-            right: 0px;
-            top: 0px;
-        }
-    </style>
-</head>
-<body>
-    <div class="body-container">
-        <div class="right-circle"></div>
-    </div>
+<head> 
+	<title>BUAP - Mi Página Personal (con CSS)</title> 
+	<style> 
+		body { 
+			background-color: #fff5f0; 
+			font-family: 'Segoe UI', sans-serif; 
+			} 
+		header { 
+			text-align: center; 
+			background: linear-gradient(135deg, #e84000, #a82c00); 
+			} 
+			/* ... all other styles ... */ 
+	</style> 
+</head> 
+<body> 
+	<header> ... </header> 
+	<main> ... </main> 
 </body>
 ```
 
 ### 3. External Stylesheet (Method 3 - Best Practice)
 
 CSS rules are placed in a separate `.css` file and linked from the HTML document's `<head>`.
+This is the best practice. All CSS rules are placed in a separate `.css` file (e.g., `style.css`), and the HTML file links to it. This allows you to use the same styles across many pages.
 
 **Example from notes:**
 ```HTML
@@ -99,10 +112,17 @@ CSS rules are placed in a separate `.css` file and linked from the HTML document
 /* ... etc. */
 ```
 
+## 👍 Pros & 👎 Cons
+
+|**Method**|**👍 Pros**|**👎 Cons**|
+|---|---|---|
+|**Internal**|Good for single-page projects; keeps everything in one file.|Not reusable across multiple pages; mixes concerns.|
+|**External**|**Best Practice.** Reusable, clean, easier to maintain, better for performance.|Requires managing at least two separate files.|
+|**Inline**|Useful for very specific, one-time style overrides.|Bad for maintenance; clutters HTML; generally avoided|
 ## See Also
 
-- [[CSS Selectors]]
-    
 - [[HTML Structure]]
-    
+- [[Semantic HTML]]
+- [[CSS Boc Model]]
+- [[CSS Selectors]]
 - [[CSS Specificity]]
