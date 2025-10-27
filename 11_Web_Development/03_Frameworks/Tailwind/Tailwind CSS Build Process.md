@@ -39,7 +39,8 @@ The build process is like a **custom paint mixer**. It takes your list, goes to 
 	* Start the development server (e.g., Vite). It scans your `content` files, detects used classes, processes the Tailwind directives, and generates the final CSS in real-time. 
 	* For production, you run a build command (e.g., `npm run build`) which performs the same process but adds optimizations like minification. 
 5. **Include Compiled CSS (`@vite`):** 
-	* Link the *output* CSS file (handled automatically by `@vite` in Laravel Blade layouts) in your HTML `<head>`. **Do not link the raw Tailwind library or paste large CSS blocks.** 
+	* Link the *output* CSS file (handled automatically by `@vite` in Laravel Blade layouts) in your HTML `<head>`. 
+	* **Do not link the raw Tailwind library or paste large CSS blocks.** 
 ## See Also 
 - [[Tailwind CSS vs Pure CSS]] 
 - [[_Tailwind CSS]] 
