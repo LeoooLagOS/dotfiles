@@ -6,7 +6,7 @@ tags:
 category: cybersecurity
 status:
   - learning
-related: "[[AAA (Authentication, Authorization, Accounting)]]"
+related: "[[AAA]]"
 date: 2025-10-23
 ---
 
@@ -21,7 +21,7 @@ date: 2025-10-23
 	* Like having a **central security headquarters** that maintains the master list of all employees for all buildings. Each building's guard contacts headquarters to verify anyone trying to enter. Easier to manage for a large organization.
 ## 🔑 Key Details
 - **What they are:** 
-	- Two common methods for implementing the authentication component of the [[AAA (Authentication, Authorization, Accounting)|AAA]] framework. 
+	- Two common methods for implementing the authentication component of the [[AAA|AAA]] framework. 
 - **Why the distinction exists:** 
 	- To provide scalability options based on network size and complexity.
 ### The Methods
@@ -35,6 +35,6 @@ date: 2025-10-23
     * **Cons:** Requires a dedicated server; adds a potential point of failure (if the server is unreachable).
 
 ## See Also
--   [[AAA (Authentication, Authorization, Accounting)]]
+-   [[AAA]]
 -   [[RADIUS]]
 -   [[TACACS+]]

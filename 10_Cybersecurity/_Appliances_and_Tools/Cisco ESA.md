@@ -8,7 +8,7 @@ tags:
 category: cybersecurity
 status:
   - learning
-related: "[[Endpoint Security]]"
+related: "[[_Endpoint Security]]"
 date: 2025-10-23
 ---
 
@@ -38,4 +38,4 @@ date: 2025-10-23
 -   [[Phishing]]
 -   [[Malware]]
 -   [[SMTP]]
--   [[Cisco WSA (Web Security Appliance)]]
+-   [[Cisco WSA]]

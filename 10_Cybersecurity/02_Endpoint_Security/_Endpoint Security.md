@@ -6,7 +6,7 @@ tags:
 category: cybersecurity
 status:
   - learning
-related: "[[NAC (Network Access Control)]]"
+related: "[[NAC]]"
 date: 2025-10-23
 ---
 
@@ -25,7 +25,7 @@ date: 2025-10-23
 - **Protection Methods:** 
 	- Traditionally includes [[Antivirus/Antimalware]], host-based firewalls, and [[Host-based Intrusion Prevention Systems (HIPS)]]. 
 ## 🔗 Connections & Implementations
-- Modern approaches often integrate [[NAC (Network Access Control)]], advanced malware protection (AMP) software, and specialized security appliances like [[Cisco ESA]] and [[Cisco WSA]].
+- Modern approaches often integrate [[NAC]], advanced malware protection (AMP) software, and specialized security appliances like [[Cisco ESA]] and [[Cisco WSA]].
 ## 👍 Pros & 👎 Cons
 * **Pro:** 
 	* Directly protects the devices where users interact and data resides, providing defense-in-depth. 
@@ -33,6 +33,6 @@ date: 2025-10-23
 	* Can be complex to manage across a large number of diverse devices, requires constant updates to keep up with new threats.
 ## See Also
 - [[Malware]] 
-- [[NAC (Network Access Control)]] 
+- [[NAC]] 
 - [[Cisco ESA]] 
 - [[Cisco WSA]]

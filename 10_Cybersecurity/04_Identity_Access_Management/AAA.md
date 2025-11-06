@@ -36,7 +36,7 @@ date: 2025-10-23
 		- AAA servers keep detailed logs useful for tracking user actions, including configuration changes, which aids in troubleshooting and identifying malicious activity.
 ## 🔗 Connections & Implementations
 * AAA services are often provided by protocols like [[RADIUS]] or [[TACACS+]]. 
-* [[NAC (Network Access Control)]] solutions often leverage AAA services. 
+* [[NAC]] solutions often leverage AAA services. 
 * [[802.1X]] is an authentication protocol often used within an AAA framework.
 ## See Also
 -   [[Local vs Server-Based AAA]]

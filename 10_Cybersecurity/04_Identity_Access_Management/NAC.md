@@ -23,7 +23,7 @@ date: 2025-10-23
 	- To prevent unauthorized or non-compliant devices (e.g., infected laptops, unpatched servers) from connecting to the network and potentially spreading malware or accessing sensitive data. 
 	- It's often used as part of perimeter security and endpoint protection strategies 
 - **Key Functions:** 
-	- Typically includes authentication, authorization, accounting [[AAA (Authentication, Authorization, Accounting)]]), endpoint security assessment (checking for antivirus, patches, etc.), and policy enforcement (allowing, denying, or quarantining access).
+	- Typically includes authentication, authorization, accounting [[AAA]]), endpoint security assessment (checking for antivirus, patches, etc.), and policy enforcement (allowing, denying, or quarantining access).
 ## 🔗 Connections & Implementations
 * NAC often integrates with directory services (like Active Directory) for user authentication and uses protocols like [[802.1X]] for port-based authentication.
 * It is a key component of modern endpoint protection strategies.
@@ -35,5 +35,5 @@ date: 2025-10-23
 ## See Also
 -   [[Authentication]]
 -   [[802.1X]]
--   [[AAA (Authentication, Authorization, Accounting)]]
--   [[Endpoint Security]]
+-   [[AAA]]
+-   [[_Endpoint Security]]

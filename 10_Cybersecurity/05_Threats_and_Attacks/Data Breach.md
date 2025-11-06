@@ -15,7 +15,7 @@ date: 2025-10-23
 ## 📝 One-Sentence Summary
 *A data breach is a security incident where sensitive, confidential, or protected information is accessed, stolen, or disclosed by an unauthorized party.*
 ## 💡 Analogy
-*Think of a **bank robbery**. Spies or thieves bypass security ([[AAA (Authentication, Authorization, Accounting)|Authentication]], [[AAA (Authentication, Authorization, Accounting)|Authorization]]) to break into the vault (servers or databases) and steal valuable assets (confidential data).*
+*Think of a **bank robbery**. Spies or thieves bypass security ([[AAA|Authentication]], [[AAA|Authorization]]) to break into the vault (servers or databases) and steal valuable assets (confidential data).*
 ## 🔑 Key Details
 - **What it is:** 
 	- The unauthorized access and retrieval of sensitive information. 
@@ -26,4 +26,4 @@ date: 2025-10-23
 	- Can lead to significant financial losses, reputational damage, legal liabilities, and loss of customer trust.
 ## 🔗 Connections & Implementations
 * Data breaches often result from other attacks like [[Phishing]], [[Malware]] infections, or exploiting software vulnerabilities. 
-* Protecting against data breaches involves strong [[AAA (Authentication, Authorization, Accounting)|Authentication]], [[AAA (Authentication, Authorization, Accounting)|Authentication]], [[Encryption]], and [[Endpoint Security]] measures.
+* Protecting against data breaches involves strong [[AAA|Authentication]], [[AAA|Authentication]], [[Encryption]], and [[_Endpoint Security]] measures.

@@ -6,7 +6,7 @@ tags:
 category: cybersecurity
 status:
   - learning
-related: "[[DDoS (Distributed Denial of Service)]]"
+related: "[[DDoS]]"
 date: 2025-10-23
 ---
 

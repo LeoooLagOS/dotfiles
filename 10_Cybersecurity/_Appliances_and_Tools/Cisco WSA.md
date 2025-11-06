@@ -8,7 +8,7 @@ tags:
 category: cybersecurity
 status:
   - learning
-related: "[[Endpoint Security]]"
+related: "[[_Endpoint Security]]"
 date: 2025-10-23
 ---
 
@@ -44,4 +44,4 @@ date: 2025-10-23
 ## See Also
 -   [[Malware]]
 -   [[Proxy Server]]
--   [[Cisco ESA (Email Security Appliance)]]
+-   [[Cisco ESA]]
