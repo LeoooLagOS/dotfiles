@@ -15,7 +15,7 @@ date: 2025-11-06
 # Blade Views and Asset Helper
 
 ## 📝 One-Sentence Summary
-*Blade is Laravel's templating engine that allows you to write clean HTML, and the `asset()` helper is the correct, secure way to generate URLs to your static files (CSS, JS, images) located in the `public` folder.*
+*Blade is Laravel's templating engine that allows you to write clean [[_HTML]], and the `asset()` helper is the correct, secure way to generate URLs to your static files ([[_CSS]], JS, images) located in the `public` folder.*
 ## 💡 Analogy
 *Think of your `public` folder as a **storage shed** 🧰 full of tools (CSS, JS) and decorations (images) located next to your house. Your Blade file is the **blueprint for the house**. When you need a tool, you can't just write "get the hammer." You must use the `{{ asset('...') }}` helper, which is like a **map** that generates the exact, correct path from the house to the shed, no matter where the house is built (local server or live domain).*
 ## 🔑 Key Details
