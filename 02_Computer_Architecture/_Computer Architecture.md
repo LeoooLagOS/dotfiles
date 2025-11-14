@@ -35,4 +35,4 @@ date: 2025-10-23
 - [[_Computer Hardware]] 
 - [[_Operating Systems]] 
 - [[_ISA]] 
-- [[Datapath]]
+- [[_Datapath]]
