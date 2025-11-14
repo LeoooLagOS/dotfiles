@@ -28,12 +28,9 @@ The core philosophy of Computer Science is **abstraction**. It is the art of bui
 -   **Why it exists:** 
 	- To formalize how we solve problems using logic, algorithms, and automation.
 -   **Core Sub-Pillars:** This folder organizes the most abstract theories:
-    -   **`_Foundations/`**: The basic building blocks of programming, like [[Variables and Memory]] and [[Data Types]].
     -   **`_Theory_of_Computation/`**: The formal mathematics of what is computable.
 
 ## 🔗 Connections & Implementations
-The principles in this folder are the bedrock for all other domains in this vault.
--   The concepts in `_Foundations/` are used to build [[_Programming Languages]].
 -   The principles in `_Theory_of_Computation/` define the limits and efficiency of [[_Algorithms]].
 -   This entire field provides the logical basis for [[_Operating Systems]] and [[_Computer Architecture]].
 
