@@ -12,7 +12,6 @@ status:
 related: "[[Initial Device Security Configuration]]"
 date: 2025-10-09
 ---
-
 # Lab - Foundational Device Configuration
 
 ## 📝 One-Sentence Summary
