@@ -24,7 +24,7 @@ date: 2025-10-23
 - **Why it exists:** 
 	- To provide a blueprint for engineers to design and build hardware (like CPUs) that can execute software. 
 - **Core Functions/Components:** 
-	- [[Instruction Set Architecture (ISA)]] (The "language" the CPU understands) 
+	- [[_ISA]] (The "language" the CPU understands) 
 	- [[Datapath]] (The components that process data) 
 	- [[Control Unit]] (The component that directs the datapath) 
 	- [[Memory Hierarchy]] (Caches, RAM, etc.) 
@@ -34,5 +34,5 @@ date: 2025-10-23
 ## See Also
 - [[_Computer Hardware]] 
 - [[_Operating Systems]] 
-- [[Instruction Set Architecture (ISA)]] 
+- [[_ISA]] 
 - [[Datapath]]

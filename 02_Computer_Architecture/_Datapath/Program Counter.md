@@ -37,5 +37,5 @@ date: 2025-10-24
 	- In simple designs, the PC is a bottleneck; the CPU can't fetch the next instruction until the current one is (at least partially) processed. This is solved by techniques like [[Pipelining]] and `branch prediction`.
 ## See Also
 - [[Datapath]] 
-- [[ISA]] 
+- [[_ISA]] 
 - [[Control Unit]]

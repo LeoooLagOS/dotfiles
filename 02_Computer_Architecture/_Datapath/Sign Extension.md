@@ -28,7 +28,7 @@ date: 2025-10-24
 ## 🔗 Connections & Implementations
 - This is a dedicated hardware block within the [[Datapath]]. 
 - It provides one of the inputs to the [[MUX]] that feeds the [[ALU]]. 
-- The necessity for sign extension is defined by the [[Instruction Set Architecture (ISA)]]. 
+- The necessity for sign extension is defined by the [[_ISA]]. 
 - This concept relies on the [[Two's Complement]] representation for negative numbers.
 ## 👍 Pros & 👎 Cons
 - This isn't a trade-off; it's a **necessary function**. 

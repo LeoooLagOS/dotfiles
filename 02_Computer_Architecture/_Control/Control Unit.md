@@ -31,7 +31,7 @@ date: 2025-10-24
 ## 🔗 Connections & Implementations
 - The Control Unit and the [[Datapath]] are the two primary parts of a CPU. 
 - It is the master of all the [[MUX|Muxes]] in the datapath, as its outputs are their `sel` (select) inputs. 
-- It's designed based on the [[Instruction Set Architecture (ISA)]], as it must know how to decode every instruction in the ISA. 
+- It's designed based on the [[_ISA]], as it must know how to decode every instruction in the ISA. 
 ## 👍 Pros & 👎 Cons
 - **Pros:** 
 	- Centralizes all the complex instruction-decoding logic into one (conceptually) single block. 
@@ -40,5 +40,5 @@ date: 2025-10-24
 ## See Also
 - [[Datapath]] 
 - [[_Computer Architecture]] 
-- [[Instruction Set Architecture (ISA)]] 
+- [[_ISA]] 
 - [[MUX]]
