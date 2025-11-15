@@ -6,6 +6,8 @@ tags:
   - performance
 category: web-development
 status:
+  - learning
+related: "[[REST]]"
 ---
 
 # Underfetching
