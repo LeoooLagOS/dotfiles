@@ -30,7 +30,7 @@ date: 2025-11-07
     - [[SOAP]]
     - [[gRPC]]
 ## 🔗 Connections & Implementations
-*Frontend applications (like [[_React]] or [[_Next.js]]) use Web APIs to get and send data to a backend server (like [[_Node.js]] or [[_Python]]).*
+*Frontend applications (like React or Next.js) use Web APIs to get and send data to a backend server (like Node.js or Python).*
 ## See Also
 - [[HTTP Methods]]
 - [[JSON]]
