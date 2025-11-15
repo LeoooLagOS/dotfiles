@@ -3,38 +3,45 @@ tags:
   - concept
   - isa
   - cpu
+  - overview
 category: computer-architecture
 status:
   - learning
 related: "[[_Computer Architecture]]"
 date: 2025-10-24
 ---
-
-# Instruction Set Architecture (ISA)
+# _ISA (Instruction Set Architecture)
 
 ## 📝 One-Sentence Summary
-*The ISA is the fundamental "contract" or "user manual" between the hardware and the software, defining the complete set of commands, registers, and memory access methods the CPU can understand.*
+*The ISA is the foundational "contract" between software and hardware, defining the complete set of commands, data types, and registers that a processor can understand and execute.*
 
 ## 💡 Analogy
-An ISA is like the **dashboard, steering wheel, and pedals of a car**. Every car has them (or an equivalent). This standard interface (the ISA) allows any licensed driver (software) to operate any car (hardware), whether it's a cheap 4-cylinder or a Formula 1 race car. 
-The *implementation* under the hood is totally different, but the *interface* to the driver is the same.*
-## 🔑 Key Details
--   **What it is:** A concise, technical definition of this single concept.
--   **Why it exists:** The specific problem this one concept solves.
+*An ISA is like the **full user manual and dashboard layout** for a car. It's the complete "interface" a driver (software) interacts with.* It defines *what* the car can do (e.g., "turn left," "accelerate," "brake") but *not* how the engine or steering rack (the hardware) is built to accomplish it. 
+## 📜 History & Creator
+*The concept of a formal ISA emerged with the first stored-program computers, like the **IBM System/360** in the 1960s. This was a landmark:* IBM created a *family* of computers with different hardware and prices that all ran the same software, proving the power of a stable, abstract ISA.
+
+## 🔑 Core Philosophy & Design
+*The core philosophy is **abstraction**. The ISA intentionally hides the complex, inner details of the hardware (the "microarchitecture"). This allows hardware engineers to invent new, faster processors (e.g., Intel vs. AMD) while allowing software (e.g., Windows) to run on both without modification. The primary design choice is between [[RISC|RISC (Reduced Instruction Set Computer)]] and [[CISC|CISC (Complex Instruction Set Computer)]] philosophies.*
+
+## ⚙️ Key Details
+-   **What it is:** 
+	- The part of the computer architecture that is visible to the programmer or compiler.
+-   **Why it exists:** 
+	- To create a stable, standard interface that separates the concerns of software development from the concerns of hardware design.
+-   **Core Functions/Components:**
+    -   [[Instruction Set]]: The list of all commands (e.g., `add`, `load`, `branch`).
+    -   [[ISA: Addressing Modes]]: The different ways instructions can specify data locations.
+    -   [[ISA: Registers]]: The number, type, and names of programmer-visible registers.
+    -   [[ISA: Data Types]]: The fundamental data sizes (e.g., byte, word) the CPU supports.
+    -   [[ISA: Instruction Formats]]: The binary layout (R-type, I-type, J-type) of instructions.
 
 ## 🔗 Connections & Implementations
-*This section is for **links only**. How does this atomic idea connect to practical code?*
--   Implemented in [[_Python]] as: `[[Python - Dictionaries]]`
--   Implemented in [[_Java]] as: `[[Java - HashMap]]`
--   Used to solve: `[[Two Sum (Python)]]`, `[[Two Sum (Java)]]`
-
-## 👍 Pros & 👎 Cons
-*The trade-offs associated with **this specific concept**.*
--   **Advantages:**
-    -   *e.g., Fast O(1) lookups.*
--   **Disadvantages:**
-    -   *e.g., Unordered, uses more memory.*
+*The ISA is a core component of [[_Computer Architecture]]. A [[Compiler]]'s job is to translate a high-level language (like C, into the specific machine code of a target ISA. 
+The [[_Datapath]] and [[Control Unit]] are the physical *implementation* of an ISA.*
 
 ## See Also
--   `[[<Parent Concept>]]`
--   `[[<A related concept often confused with this one>]]`
+-   [[_Computer Architecture]]
+-   [[RISC]]
+-   [[CISC]]
+-   [[_Datapath]]
+-   [[Compiler]]
