@@ -30,17 +30,6 @@ date: 2025-10-23
 	- Application visibility and control (allowing/blocking/throttling specific apps like chat or video)
 	- Web application filtering 
 	- Encryption/decryption of web traffic.
-## 🔗 Connections & Implementations
-*This section is for **links only**. How does this atomic idea connect to practical code?*
--   Implemented in [[_Python]] as: `[[Python - Dictionaries]]`
--   Implemented in [[_Java]] as: `[[Java - HashMap]]`
--   Used to solve: `[[Two Sum (Python)]]`, `[[Two Sum (Java)]]`
-
-## 👍 Pros & 👎 Cons
-* **Pro:** 
-	* Provides granular control over web access, protects against malware downloaded via the web, enforces corporate policies. 
-* **Con:** 
-	* Requires careful policy configuration, SSL/TLS decryption can raise privacy concerns and impacts performance, can be a bottleneck if undersized.
 ## See Also
 -   [[Malware]]
 -   [[Proxy Server]]
