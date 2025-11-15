@@ -28,7 +28,7 @@ date: 2025-11-12
 * **Port Security:** 
 	* Secure S1 ports with static, sticky, and dynamic limits, plus different violation modes.
 * **Inter-VLAN Routing:** 
-	* Implement [[Router-on-a-Stick]] on R1 for all VLANs.
+	* Implement [[Router-on-a-stick]] on R1 for all VLANs.
 * **[[DHCPv4]]:** 
 	* Configure R1 as a DHCP server for VLAN 10.
 * **[[DHCPv6]]:** 
@@ -370,7 +370,7 @@ exit
 
 ###  2. Interface Configuration
 
-This implements [[Router-on-a-Stick]], [[SLAAC]], and stateful [[DHCPv6 (Stateful)]].
+This implements [[Router-on-a-stick]], [[SLAAC]], and stateful [[DHCPv6 (Stateful)]].
 **Goals:**
 
 - Configure `GigabitEthernet0/0/0` (from S2) as the trunk.
