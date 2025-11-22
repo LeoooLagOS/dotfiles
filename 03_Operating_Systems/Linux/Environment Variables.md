@@ -28,9 +28,14 @@ date: 2025-11-22
     - **`USER`:** The current username.
     - **`SHELL`:** The path to the current shell interpreter.
 - **Commands:**
-    - `printenv` or `env`: Lists all current environment variables.
-    - `echo $VAR_NAME`: Prints the value of a specific variable.
-    - `export`: Promotes a shell variable to an environment variable.
+	- **Listing Variables:** 
+		- `printenv`: Prints **only** environment variables. 
+		- `env`: When run without arguments, prints environment variables. (Primary use: run a command in a modified environment). 
+		- `set`: Prints **all** variables (Environment Vars + Shell Vars + Shell Functions).
+	- **Modifying Variables:** 
+		- `export VAR=value`: Promotes a shell variable to an environment variable (makes it visible to child processes). 
+		- `unset VAR`: Deletes a variable (shell or environment).
+	    - `export`: Promotes a shell variable to an environment variable.
 ## 🔗 Connections & Implementations
 * **The `PATH` Problem:** If you type a command and get `command not found`, it usually means the directory containing that program is not in your `$PATH`.
 * **Configuration:** These are almost always set in `[[Bash Startup Files]]` like `.bashrc` or `.bash_profile` to ensure they persist across reboots.
