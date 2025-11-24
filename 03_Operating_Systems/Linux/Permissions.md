@@ -31,16 +31,25 @@ Permissions are often represented by numbers. You add the values together.
 | **5** | 4+1 | `r-x` | Read & Execute (Standard for scripts) |
 | **4** | 4 | `r--` | Read Only |
 
+* **Example Calculation:** `rwxr-x---` 
+	1. **User (rwx):** 4 + 2 + 1 = **7** 
+	2. **Group (r-x):** 4 + 0 + 1 = **5** 
+	3. **Others (---):** 0 + 0 + 0 = **0** 
+	* **Result:** `750`
+
 ## ⚙️ Core Commands
-* **`chmod` (Change Mode):** Changes the permissions.
-    * *Symbolic:* `chmod u+x script.sh` (Add **eXecute** for **User**).
-    * *Octal:* `chmod 755 script.sh` (User=7, Group=5, Others=5).
-* **`chown` (Change Owner):** Changes who owns the file.
-    * *Format:* `chown user:group file`
-    * *Example:* `chown lagos:developers project.py`
+* **`chmod` (Change Mode):** 
+	* *Symbolic:* `chmod g=rw test.t` (Set Group to Read/Write). 
+	* *Symbolic:* `chmod o-r,g+w test.t` (Remove Read from Others, add Write to Group). 
+	* *Octal:* `chmod 755 script.sh` (rwxr-xr-x). 
+* **`chown` (Change Owner):** 
+	* `chown lagos /home/myfolder` (Make 'lagos' the owner). 
+* **`chgrp` (Change Group):** 
+	* `chgrp developers test.t` (Make 'developers' the group owner).
 ## 🔗 Connections & Implementations
 * **Directories:** For a directory, "Execute" (`x`) means permission to **enter** (cd into) it. "Read" (`r`) means permission to **list** (`ls`) its contents.
 * **View Permissions:** Use `ls -l` to see the string (e.g., `-rwxr-xr--`).
 ## See Also
 - [[Linux Users and Groups]]
 - [[Linux File System]]
+- [[File Attributes]]
