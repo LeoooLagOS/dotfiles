@@ -7,7 +7,7 @@ tags:
   - tool
 category: os
 status: learning
-related: "[[Permissions]]"
+related: "[[Linux Permissions]]"
 date: 2025-11-24
 ---
 # File Attributes (Chattr & Lsattr)
@@ -33,5 +33,5 @@ date: 2025-11-24
     * `chattr +i file.txt` (Add Immutable flag).
     * `chattr -i file.txt` (Remove Immutable flag).
 ## See Also
-- [[Permissions]]
+- [[Linux Permissions]]
 - [[Linux File System]]

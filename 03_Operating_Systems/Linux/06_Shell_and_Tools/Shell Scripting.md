@@ -32,6 +32,6 @@ date: 2025-11-22
 * A script starts with a **Shebang** (`#!/bin/bash`) to tell the OS which interpreter to use.
 * You must give the file execute permissions: `chmod +x script.sh`.
 ## See Also
-- [[Permissions]]
+- [[Linux Permissions]]
 - [[Variables]]
 - [[Bash Startup Files]]

@@ -6,7 +6,7 @@ tags:
   - security
 category: os
 status: learning
-related: "[[Permissions]]"
+related: "[[Linux Permissions]]"
 date: 2025-11-24
 ---
 # Special Permissions (SUID, SGID, Sticky Bit)
@@ -36,5 +36,5 @@ In Octal notation, these form a 4th digit placed *before* the standard permissio
 * **Command:** `chmod 4555 /usr/bin/my_command`
 
 ## See Also
-- [[Permissions]]
+- [[Linux Permissions]]
 - [[Linux Users and Groups]]

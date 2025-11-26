@@ -46,4 +46,4 @@ Before managing them, understand what defines them:
 ## See Also
 - [[Linux Users and Groups]]
 - [[Privilege Escalation (su vs sudo)]]
-- [[Permissions]]
+- [[Linux Permissions]]

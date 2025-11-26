@@ -34,5 +34,5 @@ date: 2025-11-22
 * **Root (UID 0):** The superuser. The system administrator with unlimited power.
 * **System Users:** Accounts used by services (like `www-data` for web servers) usually have UIDs < 1000 and no login shell (`/bin/false`).
 ## See Also
-- [[Permissions]]
+- [[Linux Permissions]]
 - [[Visudo]]

@@ -22,4 +22,4 @@ date: 2025-11-22
 - **Editor:** It uses the default editor set in the `$EDITOR` variable.
 ## See Also
 - [[Vim]]
-- [[Permissions]]
+- [[Linux Permissions]]

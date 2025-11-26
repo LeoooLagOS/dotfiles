@@ -7,7 +7,7 @@ tags:
   - selinux
 category: os
 status: learning
-related: "[[Permissions]]"
+related: "[[Linux Permissions]]"
 date: 2025-11-24
 ---
 # SELinux (Security Enhanced Linux)
@@ -33,5 +33,5 @@ SELinux operates in one of three states, controlled by `/etc/selinux/config`.
 * **Log Files:** Violations are typically logged in `/var/log/audit/audit.log` or `/var/log/messages`.
 ## See Also
 - [[Managing SELinux]]
-- [[Permissions]]
+- [[Linux Permissions]]
 - [[Kernel]]

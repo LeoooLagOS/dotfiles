@@ -38,4 +38,4 @@ The **Filesystem Hierarchy Standard (FHS)** defines the directory structure:
 * To view logs when debugging, you check `/var/log`.
 ## See Also
 - [[Inode]]
-- [[Permissions]]
+- [[Linux Permissions]]
