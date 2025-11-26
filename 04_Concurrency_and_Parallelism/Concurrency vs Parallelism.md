@@ -3,7 +3,7 @@ tags:
   - concept
   - concurrency
   - parallelism
-category: <cs-fundamental>
+category: cs-fundamental
 status:
   - learning
 related: "[[Processes vs Threads]]"
@@ -19,6 +19,11 @@ date: 2025-09-25
 Imagine a kitchen. 
 - **Concurrency** is **one chef** making a meal. They put water on to boil (task 1), and while it's heating up, they chop vegetables (task 2). The tasks are interleaved by one resource (the chef). 
 - **Parallelism** is **two chefs** making a meal. One boils pasta while the other chops vegetables. Both tasks happen simultaneously, requiring multiple resources (two chefs). 
+
+## 🍕 Pizza Ready Analogy (Course Examples)
+* **Concurrency:** "A cashier attends a customer while simultaneously adding new orders." (Tasks interleave based on availability).
+* **Parallelism (Multicore):** "Multiple ovens working at the same time." (Hardware processing distinct tasks simultaneously).
+* **Parallelism (Multi-thread):** "Hiring cooks and employees who prepare and deliver orders in parallel."
 ## 🔑 Key Details 
 - **What it is:** 
 	- **Concurrency:** A property of a program's **design** where multiple tasks can be in progress over the same period. It is a **logical** concept, often achieved by interleaving execution (context switching). 
