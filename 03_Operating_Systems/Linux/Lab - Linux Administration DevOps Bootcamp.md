@@ -29,7 +29,7 @@ date: 2025-11-27
 2.  **User Management:** Create specific users/groups and configure passwordless `sudo` for specific commands.
 3.  **Storage:** Implement [[LVM]] on a secondary disk and manage [[Linux Swap]].
 4.  **Services:** Install specific versions of [[Docker]], configure [[Nginx]], and automate backups via [[Cron]].
-5.  **Networking:** Configure persistent static routes using **Netplan**.
+5.  **Networking:** Configure persistent static routes using **[[Netplan]]**.
 
 ---
 
@@ -158,8 +158,8 @@ echo "alias eip='curl ifconfig.me'" | sudo tee -a /home/student_home/.bashrc
 
 ## ⚠️ Key Challenges & Solutions
 
-- **Hostname Resolution:** `hostname -f` failed until `/etc/hosts` was edited to prioritize the hostname before localhost.
+- **Hostname Resolution:** `hostname -f` failed until `/etc/hosts` was edited to prioritize the hostname before localhost. See [[Hostname Management]]
     
-- **YAML Indentation:** Netplan failed with "mapping values not allowed" until `via:` was perfectly aligned with `to:`.
+- **YAML Indentation:** [[Netplan]] failed with "mapping values not allowed" until `via:` was perfectly aligned with `to:`.
     
 - **Swap Permission**s:** `swapon` warned of insecure permissions (0644); fixed by running `chmod 600`.
