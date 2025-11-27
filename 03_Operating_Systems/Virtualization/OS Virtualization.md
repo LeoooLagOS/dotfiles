@@ -24,7 +24,7 @@ date: 2025-11-27
 - **Cons:**
     * **Compatibility:** Guest must use the same kernel as Host (Cannot run Windows apps on Linux natively).
     * **Isolation:** Less secure than hardware virtualization (kernel exploits affect everyone).
-- **Examples:** `[[Docker]]`, Solaris Containers, Linux-VServer.
+- **Examples:** [[Docker]], Solaris Containers, [[Linux-VServer]].
 
 ![[Pasted image 20251127153951.png]]
 
