@@ -1,5 +1,12 @@
 ---
-tags: concept, linux, programming, scripting
+tags:
+  - scripting
+  - programming
+  - concept
+  - devops
+  - linux
+  - OS
+  - sysadmin
 category: os
 status: learning
 related: "[[Shell]]"
@@ -35,3 +42,4 @@ date: 2025-11-22
 - [[Linux Permissions]]
 - [[Variables]]
 - [[Bash Startup Files]]
+- [[Shell]]
