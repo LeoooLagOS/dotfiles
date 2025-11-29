@@ -19,7 +19,7 @@ date: 2025-10-16
 ## 🧠 Problem Summary
 Given a string and a specified maximum width, wrap the string so that each line is no longer than the given width.
 ## 💡 Key Data Structure / Concept
-- The best and simplest solution for this problem is to use Python's built-in **[[textwrap module]]**, which is specifically designed for this task.
+- The best and simplest solution for this problem is to use [[_Python]]'s built-in **[[Textwrap Module]]**, which is specifically designed for this task.
 
 ## 📜 Algorithm Explained
 1. **Import the Module**:
@@ -58,5 +58,3 @@ if __name__ == '__main__':
 	- This is the core function. It takes a string and a width as arguments and returns a new string that has been wrapped to that width, with newline characters inserted at the appropriate places. It's the professional-grade tool for this job.
 
 ## 🔗 See Also
-
-- [[textwrap module]]
