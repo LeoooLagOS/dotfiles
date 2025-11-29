@@ -38,10 +38,10 @@ date: 2025-11-27
 *Context: A virtual machine with two disks (`/dev/sda` for OS, `/dev/sdb` for Data).*
 
 ### 1. Identity & User Management
-*Theory Reference: 
+*Theory Reference:*
 * [[User and Group Management]] 
 * [[Privilege Escalation (su vs sudo)]]
-* [[DNS Configuration]]*
+* [[DNS Configuration]]
 
 ```bash
 # --- 1. Hostname Resolution ---
@@ -65,7 +65,7 @@ sudo chmod 440 /etc/sudoers.d/student
 ```
 ### 2. Storage & LVM Configuration
 
-_Theory Reference: 
+_Theory Reference:_ 
 * [[LVM]] 
 * [[Linux Swap]]
 * [[Linux File System]]_
@@ -94,7 +94,7 @@ sudo swapon /swapfile
 
 ### 3. Services & Automation
 
-_Theory Reference: 
+_Theory Reference:_
 * [[Linux Package Management]]
 * [[Cron]]
 * [[Systemd Architecture]]
@@ -129,7 +129,7 @@ sudo chattr +i /immutable.txt
 
 ### 4. Networking & Routing
 
-_Theory Reference: 
+_Theory Reference:_ 
 * [[Network Configuration]]
 * [[Bash Startup Files]]_
 ```YAML
@@ -160,6 +160,6 @@ echo "alias eip='curl ifconfig.me'" | sudo tee -a /home/student_home/.bashrc
 
 - **Hostname Resolution:** `hostname -f` failed until `/etc/hosts` was edited to prioritize the hostname before localhost. See [[Hostname Management]]
     
-- **YAML Indentation:** [[Netplan]] failed with "mapping values not allowed" until `via:` was perfectly aligned with `to:`.
+- **[[YAML]] Indentation:** [[Netplan]] failed with "mapping values not allowed" until `via:` was perfectly aligned with `to:`.
     
-- **Swap Permission**s:** `swapon` warned of insecure permissions (0644); fixed by running `chmod 600`.
+- **Swap Permission**s: `swapon` warned of insecure permissions (0644); fixed by running `chmod 600`.
