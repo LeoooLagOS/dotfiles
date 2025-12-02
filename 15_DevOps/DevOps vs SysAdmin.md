@@ -25,7 +25,7 @@ The difference between a SysAdmin and DevOps is a shift from manual, reactive se
     -   **Mindset:** "Keep the lights on" and minimize change to ensure stability.
 -   **DevOps (Development + Operations):**
     -   **Focus:** The entire software delivery lifecycle.
-    -   **Methods:** [[IaC]], [[CI/CD Pipelines]], and automation.
+    -   **Methods:** [[IaC]], [[CI-CD Pipelines|CI/CD Pipelines]], and automation.
     -   **Mindset:** "Change is inevitable; automate it to make it safe." It is a **Culture**, not just a job title.
 
 ## 🔗 Connections & Implementations

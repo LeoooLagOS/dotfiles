@@ -24,7 +24,7 @@ date: 2025-11-28
 - **Shebang (`#!`):** The first line that tells the OS which interpreter to use.
 - **Exit Codes:** How scripts communicate success (0) or failure (1-255).
 ## 🔗 Connections & Implementations
-* **DevOps:** Used for [[CI/CD Pipelines]] ([[Jenkins]], [[GitLab CI]]), server provisioning, and backups.
+* **DevOps:** Used for [[CI-CD Pipelines|CI/CD Pipelines]] ([[Jenkins]], [[GitLab CI]]), server provisioning, and backups.
 * **Systemd:** Service unit files often call Bash scripts to start applications.
 ## See Also
 - [[Shell]] (The Environment)

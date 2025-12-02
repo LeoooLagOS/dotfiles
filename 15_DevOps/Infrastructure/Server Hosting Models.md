@@ -22,7 +22,7 @@ Think of hosting like **housing arrangements**:
 -   **Shared Hosting:** Staying in a **hostel dormitory**. You share the room and resources with others; it's cheap, but if someone is noisy, it affects you.
 
 ## 🔑 Key Details
--   **On-Premise:** Managing your own physical hardware ("fierros").
+-   **On-Premise:** Managing your own physical hardware .
     -   **Requirements:** A controlled environment with specific temperature, humidity, and dust control.
     -   **Pros:** Total control, data sovereignty.
     -   **Cons:** High cost, requires hardware maintenance (cloning disks, replacing RAM), hard to scale.
@@ -34,5 +34,5 @@ Think of hosting like **housing arrangements**:
 -   Managed by **[[DevOps vs SysAdmin|SysAdmins]]** (On-Premise) or **[[SRE]]s** ([[Cloud]]).
 
 ## See Also
--   [[Virtualization]]
+-   [[_Virtualization]]
 -   [[Scalability (Vertical vs Horizontal)]]

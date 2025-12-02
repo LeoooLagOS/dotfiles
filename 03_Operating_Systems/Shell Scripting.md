@@ -54,7 +54,7 @@ Shell is a command processor, not a development language.
 
 ## 🔗 Connections & Implementations
 * **Wrappers:** The most common use case is writing a simple script to launch a complex Java or Python application with specific flags. 
-* **CI/CD:** [[CI/CD Pipelines]] often use Shell for the "glue" steps, but call Python scripts for the "logic" steps.
+* **CI/CD:** [[CI-CD Pipelines|CI/CD Pipelines]] often use Shell for the "glue" steps, but call Python scripts for the "logic" steps.
 * A script starts with a **Shebang** (`#!/bin/bash`) to tell the OS which interpreter to use.
 * You must give the file execute permissions: `chmod +x script.sh`.
 ## See Also
