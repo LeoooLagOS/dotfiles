@@ -45,7 +45,7 @@ Bash functions **cannot return data** (like a string or int) directly to a varia
         
 2. **Echo (Data):** To "return" data, `echo` it and capture it with a subshell.
 ```bash
-    get_name() { echo "Leona"; }
+    get_name() { echo "Lagos"; }
     NAME=$(get_name)
     ```
 ## See Also

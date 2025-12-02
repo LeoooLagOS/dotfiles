@@ -51,7 +51,7 @@ The core design is often summarized by the acronym **CALMS**:
     
 - **Core Functions/Components:**
     
-    - **[[CI-CD|CI/CD]] (Continuous Integration/Continuous Deployment):** Automating the merge and release process.
+    - **[[_CI-CD|CI/CD]] (Continuous Integration/Continuous Deployment):** Automating the merge and release process.
         
     - **[[IaC]] (Infrastructure as Code):** Managing hardware via configuration files.
         
