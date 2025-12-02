@@ -12,13 +12,36 @@ date: 2025-11-28
 ---
 # Bash Variables and Quoting
 ## 📝 One-Sentence Summary
-*Variables store data for reuse in scripts, while specific quoting mechanisms (`'` vs `"`) determine whether the shell interprets special characters and variables inside strings.*
-## 🔑 Variables
-* **Assignment:** `VAR=value`
-    * ⚠️ **Rule:** **No Spaces** around the `=`. `VAR = value` is an error (it tries to run a command named VAR).
-* **Access:** `$VAR` or `${VAR}`.
-    * *Best Practice:* Use `${VAR}` when concatenating text (e.g., `${VAR}_backup.tar`).
+*Variables store data for reuse in scripts, while specific quoting mechanisms (`'` vs `"`) categorized by scope (Local vs. Environment) and type (String vs. Integer), while quoting protects that data from shell interpretation.*
+## 🔑 Variable Types & Declaration 
+Bash variables are strings by default. 
+* **`declare -i VAR`**: Forces the variable to be treated as an **Integer**.
+```bash 
+declare -i n 
+n=6/3 
+echo $n # Output: 2 (Arithmetic is performed automatically) 
+```
 
+* **Indirect Reference:** Accessing the *value* of a variable whose *name* is in another variable. 
+```bash 
+REAL_VAL="Hello" 
+REF="REAL_VAL" 
+eval echo \$$REF # Output: Hello 
+``` 
+## 🌍 Scope: Where do they live? 
+1. **Local Variables:** Visible **only** inside the function/block where defined. 
+	* Syntax: `local VAR=value` 
+2. **Global Variables:** Visible to the entire script (Default behavior). 
+3. **Environment Variables:** Visible to **child processes** (programs started by the script). 
+	* Syntax: `export VAR=value` 
+	* View all: `env` or `printenv` 
+## 🔢 Positional Parameters (Arguments)
+Variables automatically set based on how the script was called (`./script.sh arg1 arg2`). 
+* **`$0`**: Script name. 
+* **`$1` - `$9`**: The arguments. (Use `${10}` for >9). 
+* **`$#`**: Total **Number** of arguments. 
+* **`$@`**: All arguments as a list (Best for iteration). 
+* **`$*`**: All arguments as a single string.
 ## 🛡️ Quoting Rules (Crucial)
 | Quote Type | Symbol | Behavior | Example | Result |
 | :--- | :--- | :--- | :--- | :--- |
@@ -35,3 +58,6 @@ Always wrap variables in double quotes inside test conditions to prevent "Word S
 ## See Also
 - [[Shell Scripting]]
 - [[Bash Logic]]
+- [[Bash String Manipulation]]
+- [[Bash Parameter Expansion]]
+- [[Environment Variables]]
