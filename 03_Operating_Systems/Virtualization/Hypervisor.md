@@ -31,7 +31,7 @@ date: 2025-11-27
     * *Use Case:* Enterprise datacenters.
 2.  **Type 2 (Hosted):** Runs as an app inside an OS.
     * *Examples:* Oracle VirtualBox, VMware Workstation.
-    * *Use Case:* Your laptop (The lab you just did!).
+    * *Use Case:* Your laptop.
 ## See Also
 - [[Hardware Virtualization]]
 - [[_Virtualization]]
