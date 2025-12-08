@@ -9,6 +9,9 @@ My personal configuration files for a high-performance **Fedora Hyprland** envir
 Focused on a clean, **Apple-inspired aesthetic** for the lock screen with robust backend automation for music and weather integration.
 
 ---
+## 📸 Showcase
+
+![lockscreen](lockscreen_showcase.png)
 
 ## ✨ Key Features
 
