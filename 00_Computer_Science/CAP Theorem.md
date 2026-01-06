@@ -8,7 +8,6 @@ status: learning
 related: "[[_Distributed Systems]]"
 date: 2026-01-04
 ---
-
 # CAP Theorem
 
 ## 📝 One-Sentence Summary
