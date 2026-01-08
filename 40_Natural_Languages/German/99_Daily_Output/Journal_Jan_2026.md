@@ -27,3 +27,9 @@ status: active
 3. **In der** Nacht **habe** ich **meine** Freundin **geküsst**.
 
 ---
+### **2026-01-07 (Wednesday)**
+* **Topic:** Dative Verbs & Past Tense
+* **Corrections:** Fixed Gender endings (meinem/meiner) and Regular Participles (-t).
+1. Ich habe **meiner** Schwester für das Essen **gedankt**.
+2. Der Lehrer **hat** dem Buch **geglaubt**.
+3. Ich habe **meinem** Bruder **vertraut**.

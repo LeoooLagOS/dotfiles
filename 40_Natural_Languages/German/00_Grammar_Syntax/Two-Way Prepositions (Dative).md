@@ -25,7 +25,6 @@ The Dative case modifies the article of the noun that follows the preposition.
 | :------------------------ | :---------------- | :---------------- |
 | Masculine<br><br><br><br> | der / ein         | **dem / einem**   |
 | Feminine                  | die / eine        | **der / einer**   |
-|                           |                   |                   |
 | Neuter                    | das / ein         | **dem / einem**   |
 | Plural                    | die / keine       | **den ...-n**     |
 

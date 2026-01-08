@@ -12,7 +12,7 @@ date: 2026-01-05
 # The Perfekt Tense (Spoken Past)
 
 ## 📝 One-Sentence Summary
-The primary tense used for spoken past events, constructed using a "Helper Verb" (Position 2) and a "Participle" (End Position).
+The primary tense used for spoken past events, constructed using a "Helper Verb" ([[Sentence Structure V2|Position 2]]) and a "Participle" (End Position).
 
 ## 💡 Core Rule & Analogy
 **Analogy: The Sentence Bracket (The Sandwich)**
