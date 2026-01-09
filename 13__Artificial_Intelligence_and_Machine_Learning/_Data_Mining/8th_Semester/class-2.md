@@ -23,11 +23,5 @@ Class introduction
 	- si ninguna variable se destaca como dependiente principal
 	- 
 
-
-## 🛠️ Code Snippets / Whiteboard Sketches
-(Drop raw code blocks or descriptions of diagrams here)
-
-## 📂 Follow-up Tasks (Librarian/COO Action)
-- [ ] Create Atomic Note for: `[[Concept Name]]`
-- [ ] Refactor Code into: `[[Lab Name]]`
-- [ ] Review during Commute: (German translation of a key term)
+## 📂 Homework
+- [ ] Investigacion de modelos de regresion y un ejemplo de cada uno de esos modelos
