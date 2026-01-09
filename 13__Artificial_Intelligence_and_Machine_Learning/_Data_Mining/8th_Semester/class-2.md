@@ -6,7 +6,7 @@ professor: undefined
 date: 2026-01-08
 status: raw
 ---
-# 📝 Class: [[class-2]]
+# 📝 Class: [[13__Artificial_Intelligence_and_Machine_Learning/_Data_Mining/8th_Semester/class-2]]
 
 ## 🎯 Main Goal of Today
 Class introduction
