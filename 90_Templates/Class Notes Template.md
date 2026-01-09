@@ -13,7 +13,9 @@ status: raw
 
 ## 📓 Live Lecture Notes
 - **Point 1:** (Use bullet points for speed)
-- **Point 2:** - *Sub-point:* (Details/Context)
+- **Point 2:** 
+	- *Sub-point:* (Details/Context)
+	- 
 - **Warning/Tip:** (Teacher mentioned this will be on the exam/project)
 
 ## 🛠️ Code Snippets / Whiteboard Sketches
@@ -21,5 +23,5 @@ status: raw
 
 ## 📂 Follow-up Tasks (Librarian/COO Action)
 - [ ] Create Atomic Note for: `[[Concept Name]]`
-- [ ] Refactor Code into: `[[Lab Name]]`
+- [ ] Refactor/Create Code into: `[[Lab Name]]`
 - [ ] Review during Commute: (German translation of a key term)
