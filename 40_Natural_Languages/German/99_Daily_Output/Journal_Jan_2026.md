@@ -33,3 +33,10 @@ status: active
 1. Ich habe **meiner** Schwester für das Essen **gedankt**.
 2. Der Lehrer **hat** dem Buch **geglaubt**.
 3. Ich habe **meinem** Bruder **vertraut**.
+
+---
+### 2026-01-08 (Donnerstag)
+* **Thema:** Linux, Kurs & Gym.
+1. Heute Nacht habe ich meinen Computer repariert.
+2. Der Deutschkurs mit Rafa war interessant.
+3. Ich habe meine Beine trainiert.
