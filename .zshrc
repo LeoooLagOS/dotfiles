@@ -275,9 +275,6 @@ vault-tree() {
         echo '```'
     } > "$MD_VAULT"
 
-    # 3. Print to terminal with color
-    lsd --group-directories-first --tree -I ".git" --color=always "$VAULT_DIR"
-
     echo "📦 Step 2: Syncing Knowledge Base (Obsidian)..."
     pushd "$VAULT_DIR" > /dev/null || return 1
     
@@ -293,6 +290,9 @@ vault-tree() {
     echo "⚙️  Step 3: Syncing System State (Dotfiles)..."
     # We call your existing save-dots function directly
     save-dots "build(sys): sync architecture map and system state $CURRENT_DATE"
+
+    # 3. Print to terminal with color
+    lsd --group-directories-first --tree -I ".git" --color=always "$VAULT_DIR"
 
     echo "------------------------------------------------"
     echo "✨ GLOBAL SYNC COMPLETE: Workstation is Secure."
