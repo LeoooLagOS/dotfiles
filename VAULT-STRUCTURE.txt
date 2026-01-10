@@ -1,0 +1,567 @@
+My-CS-Notes
+├── 00_Computer_Science
+│   ├── _Computer Science.md
+│   ├── _Theory of Computation.md
+│   ├── ASCII Table.md
+│   ├── Automata Theory.md
+│   ├── CAP Theorem.md
+│   ├── Communication Models.md
+│   ├── Complexity Theory.md
+│   ├── Computability Theory.md
+│   ├── Finite Automata.md
+│   ├── NP.md
+│   ├── P vs NP.md
+│   ├── P.md
+│   ├── Petri Nets.md
+│   ├── The Halting Problem.md
+│   └── Turing Machine.md
+├── 01_Computer_Hardware
+│   ├── _Core_Components
+│   │   ├── CPU.md
+│   │   ├── FPGA.md
+│   │   └── POST.md
+│   ├── _Digital_Logic
+│   │   ├── Flip-Flop.md
+│   │   ├── Latch.md
+│   │   ├── Logic Gate.md
+│   │   └── Transistor.md
+│   ├── _Memory_and_Storage
+│   │   ├── _Memory.md
+│   │   ├── DRAM.md
+│   │   ├── Flash File System.md
+│   │   ├── Flash Memory.md
+│   │   ├── RAM.md
+│   │   └── ROM.md
+│   ├── _Networking_Devices
+│   │   ├── Router.md
+│   │   └── Switch.md
+│   ├── _Computer Hardware.md
+│   └── RS232.md
+├── 02_Computer_Architecture
+│   ├── _Control
+│   │   └── Control Unit.md
+│   ├── _Datapath
+│   │   ├── _Datapath.md
+│   │   ├── ALU.md
+│   │   ├── MUX.md
+│   │   ├── Program Counter.md
+│   │   ├── Register File.md
+│   │   └── Sign Extension.md
+│   ├── _ISA
+│   │   └── _ISA.md
+│   └── _Computer Architecture.md
+├── 03_Operating_Systems
+│   ├── _Linux
+│   │   ├── 01_Core_System
+│   │   │   ├── Boot Loaders (LILO vs GRUB).md
+│   │   │   ├── Linux Architecture.md
+│   │   │   ├── Linux Boot Process.md
+│   │   │   └── Runlevels and System Targets.md
+│   │   ├── 02_Storage_and_Filesystem
+│   │   │   ├── Disk Quota.md
+│   │   │   ├── File Attributes.md
+│   │   │   ├── Hard Link vs Soft Link.md
+│   │   │   ├── Inode.md
+│   │   │   ├── Linux File Search.md
+│   │   │   ├── Linux File System.md
+│   │   │   ├── Linux Swap.md
+│   │   │   ├── LVM.md
+│   │   │   └── Managing Swap.md
+│   │   ├── 03_Security_and_Identity
+│   │   │   ├── Linux Permissions.md
+│   │   │   ├── Linux Users and Groups.md
+│   │   │   ├── Managing SELinux.md
+│   │   │   ├── Privilege Escalation (su vs sudo).md
+│   │   │   ├── SELinux.md
+│   │   │   ├── Special Permissions.md
+│   │   │   ├── User and Group Management.md
+│   │   │   └── Visudo.md
+│   │   ├── 04_Services_and_Automation
+│   │   │   ├── Cron.md
+│   │   │   ├── Daemon.md
+│   │   │   ├── Service Management (Init vs Systemd).md
+│   │   │   ├── Systemctl.md
+│   │   │   ├── Systemd Architecture.md
+│   │   │   └── Systemd Unit Files.md
+│   │   ├── 05_Software_Management
+│   │   │   ├── Alternatives.md
+│   │   │   ├── APT.md
+│   │   │   ├── Linux Package Management.md
+│   │   │   └── YUM and DNF.md
+│   │   ├── 06_Shell_and_Tools
+│   │   │   ├── _Bash_Scripting.md
+│   │   │   ├── Awk.md
+│   │   │   ├── Bash Arrays.md
+│   │   │   ├── Bash Best Practices and Standards.md
+│   │   │   ├── Bash Control Flow.md
+│   │   │   ├── Bash Execution and Reliability Standards.md
+│   │   │   ├── Bash Formatting and Syntax Standards.md
+│   │   │   ├── Bash Functions.md
+│   │   │   ├── Bash IO Redirection.md
+│   │   │   ├── Bash Logic.md
+│   │   │   ├── Bash Loops.md
+│   │   │   ├── Bash Naming and Structure Standards.md
+│   │   │   ├── Bash Parameter Expansion.md
+│   │   │   ├── Bash Script Structure.md
+│   │   │   ├── Bash Startup Files.md
+│   │   │   ├── Bash String Manipulation.md
+│   │   │   ├── Bash Tests and Comparisons.md
+│   │   │   ├── Bash Variables and Quoting.md
+│   │   │   ├── Data Slicing.md
+│   │   │   ├── Environment Variables.md
+│   │   │   ├── Exit Codes.md
+│   │   │   ├── File Viewing.md
+│   │   │   ├── Grep.md
+│   │   │   ├── Gzip.md
+│   │   │   ├── nano.md
+│   │   │   ├── Sed.md
+│   │   │   ├── Shell Options.md
+│   │   │   ├── Tar.md
+│   │   │   ├── Vim.md
+│   │   │   ├── Xargs.md
+│   │   │   └── Zip.md
+│   │   ├── 07_Networking
+│   │   │   ├── DNS Configuration.md
+│   │   │   ├── DNS Tools.md
+│   │   │   ├── Firewalld Configuration.md
+│   │   │   ├── Legacy Network Management.md
+│   │   │   ├── Linux Firewalls.md
+│   │   │   ├── Network Configuration.md
+│   │   │   ├── Network Routing.md
+│   │   │   ├── Network Troubleshooting.md
+│   │   │   ├── NSS.md
+│   │   │   ├── Packet Analysis.md
+│   │   │   ├── Remote Access Overview.md
+│   │   │   ├── Route Tracing.md
+│   │   │   ├── Secure File Transfer.md
+│   │   │   ├── SSH Advanced.md
+│   │   │   └── SSH Basics.md
+│   │   ├── 08_System_Monitoring
+│   │   │   ├── Linux CPU Monitoring.md
+│   │   │   ├── Linux Kernel Logs.md
+│   │   │   ├── Linux System Logs (Journalctl).md
+│   │   │   ├── Memory Analysis.md
+│   │   │   ├── Process Monitoring.md
+│   │   │   ├── Storage and IO Monitoring.md
+│   │   │   └── Traditional Log Files.md
+│   │   ├── _Linux.md
+│   │   └── Lab - Linux Administration DevOps Bootcamp.md
+│   ├── _macOS
+│   │   └── _macOS.md
+│   ├── _Windows
+│   │   └── _Windows.md
+│   ├── Virtualization
+│   │   ├── _Virtualization.md
+│   │   ├── Hardware Virtualization.md
+│   │   ├── Hypervisor.md
+│   │   └── OS Virtualization.md
+│   ├── _Operating Systems.md
+│   ├── Kernel.md
+│   ├── Process State.md
+│   ├── Process.md
+│   ├── Shell Scripting.md
+│   ├── Shell.md
+│   └── Thread.md
+├── 04_Concurrency_and_Parallelism
+│   ├── Amdahl's Law.md
+│   ├── Bernstein's Conditions.md
+│   ├── Busy-Waiting.md
+│   ├── Concurrency vs Parallelism.md
+│   ├── Critical Section.md
+│   ├── Deadlock.md
+│   ├── Monitor.md
+│   ├── Mutual Exclusion.md
+│   ├── Parallel Communication Patterns.md
+│   ├── PCAM Methodology.md
+│   ├── Processes vs Threads.md
+│   ├── Race Condition.md
+│   ├── Semaphore.md
+│   └── Thread Affinity.md
+├── 05_Algorithms_and_Data_Structures
+│   ├── 00 Fundamentals and Complexity
+│   │   ├── _Algorithms.md
+│   │   ├── _Data Structures.md
+│   │   └── Big O Notation.md
+│   ├── 01 Data Structures
+│   │   ├── Linear
+│   │   │   └── Arrays.md
+│   │   └── Non Linear
+│   │       ├── Graph (Data Structure).md
+│   │       ├── Hash Maps.md
+│   │       ├── Hash Sets.md
+│   │       └── Spanning Tree (Graph Theory).md
+│   ├── 02 Algorithms and Techniques
+│   │   ├── Searching and Patterns
+│   │   │   ├── Kadanes Algorithm.md
+│   │   │   └── Two Pointer Technique.md
+│   │   └── Sorting
+│   │       ├── Bubble Sort.md
+│   │       ├── Insertion Sort.md
+│   │       └── Merge Sort.md
+│   └── 03 Practice Log
+│       ├── HackerRank
+│       │   ├── 1D Array (Java).md
+│       │   ├── 1D Arrays in C.md
+│       │   ├── Array Reversal (HackerRank).md
+│       │   ├── ArrayList (HackerRank).md
+│       │   ├── Lists (HackerRank).md
+│       │   ├── Pointers in C (HackerRank).md
+│       │   ├── Reverse String (Java).md
+│       │   ├── Reverse String (Python).md
+│       │   ├── String Validators (HackerRank).md
+│       │   ├── Strings Introduction (Java).md
+│       │   ├── Substring (HackerRank).md
+│       │   ├── Text Wrap (HackerRank).md
+│       │   └── Tuples (HackerRank).md
+│       ├── LeetCode
+│       │   ├── Best Time to Buy and Sell Stock (Java).md
+│       │   ├── Contains Duplicate (Java).md
+│       │   ├── Group Anagrams (Python).md
+│       │   ├── Maximum Subarray (Python).md
+│       │   ├── Two Sum (Java).md
+│       │   ├── Two Sum (Python).md
+│       │   └── Valid Palindrome (Python).md
+│       └── uni-labs
+│           └── PySerial Implementation.md
+├── 06_Computer_Graphics
+│   └── _Computer Graphics.md
+├── 07_Programming_Language_Theory
+│   ├── _Foundations
+│   │   ├── Data Types.md
+│   │   ├── Dynamic Memory Allocation.md
+│   │   ├── Pointers.md
+│   │   └── Variables and Memory.md
+│   └── _Programming_Paradigms
+│       ├── _Programming Paradigms.md
+│       ├── Functional Programming.md
+│       ├── Object-Oriented Programming.md
+│       └── Procedural Programming.md
+├── 08_Databases
+│   ├── _Databases.md
+│   └── Oracle Apex.md
+├── 09_Networking
+│   ├── 8th_Semester_Admin
+│   │   ├── class-2-intro.md
+│   │   ├── Lab_Environment_Setup.md
+│   │   └── Network_Administration_Syllabus.md
+│   ├── _IP_Addressing
+│   │   ├── IPv6 Link-Local Address.md
+│   │   └── SLAAC.md
+│   ├── _OSI_Model
+│   │   ├── 1_Physical Layer.md
+│   │   ├── 2_Data Link Layer.md
+│   │   ├── 3_Network Layer.md
+│   │   └── _OSI Model.md
+│   ├── _Protocols
+│   │   ├── BDPU.md
+│   │   ├── DHCPv4 DORA Process.md
+│   │   ├── DHCPv4.md
+│   │   ├── Dynamic Trunking Protocol (DTP).md
+│   │   ├── EtherChannel Negotiation Protocols (LACP vs PAgP).md
+│   │   ├── HSRP.md
+│   │   ├── SSH.md
+│   │   ├── STP Port Roles.md
+│   │   ├── STP Versions (STP, RSTP, PVST, MSTP).md
+│   │   └── STP.md
+│   ├── _Routing_Concepts
+│   │   ├── Default Gateway on a Switch.md
+│   │   ├── Default Route.md
+│   │   ├── Directly Connected Route.md
+│   │   ├── Longest Match Rule.md
+│   │   ├── Packet Forwading Decision Process.md
+│   │   ├── Remote Route.md
+│   │   ├── Root Bridge.md
+│   │   ├── Router-on-a-stick.md
+│   │   ├── Routing (Packet Forwarding Process).md
+│   │   ├── Routing Table.md
+│   │   └── Static Routing.md
+│   ├── _Switching_Concepts
+│   │   ├── Alternate Port (Blocked Port).md
+│   │   ├── Auto-MDIX.md
+│   │   ├── Autonegotiaton.md
+│   │   ├── Bridge ID (BID).md
+│   │   ├── Collision Domain vs Broadcast Domain.md
+│   │   ├── Designated Port.md
+│   │   ├── Duplex Communication.md
+│   │   ├── EtherChannel.md
+│   │   ├── Port Security Aging.md
+│   │   ├── Port Security MAC Address Modes.md
+│   │   ├── Port Security Violation Modes.md
+│   │   ├── Port Security.md
+│   │   ├── Root Port.md
+│   │   ├── STP Path Cost.md
+│   │   ├── Switch Boot Sequence.md
+│   │   ├── Switch LED Indicators.md
+│   │   ├── Switch Management Access.md
+│   │   ├── Switch Management Interface (SVI).md
+│   │   ├── Switch System Crash Recovery.md
+│   │   ├── Switchport Modes.md
+│   │   ├── switchport nonegotiate.md
+│   │   ├── Trunk Configuration.md
+│   │   ├── VLAN Configuration.md
+│   │   └── VLAN vs Removing a Port Assigment.md
+│   └── CISCO
+│       ├── CCNA_1_Intro_to_Networks
+│       │   ├── Configuring a Layer 2 Switch for Remote Management.md
+│       │   ├── Device Hardening Best Practices.md
+│       │   ├── Enabling IPv6 Routing.md
+│       │   ├── Improving CLI Usability.md
+│       │   ├── Initial Device Security Configuration.md
+│       │   └── Lab - Foundational Device Configuration.md
+│       ├── CCNA_2_Switching_Routing_Wireless
+│       │   ├── _CCNA 2 - MOC.md
+│       │   ├── Common Interface Errors.md
+│       │   ├── Common Router Verification Commands.md
+│       │   ├── Common Switch Verification Commands.md
+│       │   ├── Configuring a Cisco IOS DHCPv4 Server.md
+│       │   ├── Configuring Router Interfaces.md
+│       │   ├── Configuring SSH on a Switch.md
+│       │   ├── Configuring Switch Port Speed and Duplex.md
+│       │   ├── Initial Router Security Configuration.md
+│       │   ├── Interpreting Interface Status.md
+│       │   ├── Lab - Configure Port Autonegotiation.md
+│       │   ├── Lab - SRWE Final Exam Configuration.md
+│       │   ├── Loopback Interface.md
+│       │   ├── RSA Keys.md
+│       │   ├── Securing Unused Ports.md
+│       │   ├── Switch Security Configuration.md
+│       │   ├── Telnet vs SSH.md
+│       │   ├── Verifying Auto-MDIX.md
+│       │   ├── Verifying Connectivity with Ping.md
+│       │   ├── Verifying DTP Mode.md
+│       │   ├── Verifying Port Security.md
+│       │   ├── Verifying Routes with show ip route.md
+│       │   └── VTY Lines.md
+│       └── Cisco IOS.md
+├── 10_Cybersecurity
+│   ├── 01_Network_Security
+│   │   ├── NGFW.md
+│   │   ├── SSH Hardening.md
+│   │   └── VPN.md
+│   ├── 02_Endpoint_Security
+│   │   └── _Endpoint Security.md
+│   ├── 03_Application_Security
+│   │   └── SQL Injection.md
+│   ├── 04_Identity_Access_Management
+│   │   ├── 802.1X.md
+│   │   ├── AAA.md
+│   │   ├── Local vs Server-Based AAA.md
+│   │   └── NAC.md
+│   ├── 05_Threats_and_Attacks
+│   │   ├── Data Breach.md
+│   │   ├── DDoS.md
+│   │   └── Malware.md
+│   └── _Appliances_and_Tools
+│       ├── Cisco ESA.md
+│       └── Cisco WSA.md
+├── 11_Distributed_Systems
+│   ├── 8th-semester
+│   │   ├── 8th-semester-Dashboard.md
+│   │   └── class-2.md
+│   ├── _Distributed Systems.md
+│   ├── Flow Control.md
+│   ├── Middleware.md
+│   ├── NTCIP.md
+│   ├── RabbitMQ.md
+│   ├── ROS2.md
+│   ├── RPC.md
+│   ├── SNMP.md
+│   └── XON-XOFF Protocol.md
+├── 13__Artificial_Intelligence_and_Machine_Learning
+│   └── _Data_Mining
+│       ├── 8th_Semester
+│       │   ├── 8th_Semester_Dashboard.md
+│       │   └── class-2.md
+│       ├── _Data Mining.md
+│       └── CRISP-DM Process.md
+├── 14_Git
+│   ├── _Troubleshooting
+│   │   └── Git Push Rejected (Remote Ahead).md
+│   ├── Conventional Commits
+│   │   ├── chore.md
+│   │   ├── docs.md
+│   │   ├── feat.md
+│   │   └── fix.md
+│   ├── _Git.md
+│   ├── Git Commit.md
+│   ├── Git Credential Manager.md
+│   └── Git Submodules and Nested Repositories.md
+├── 15_DevOps
+│   ├── CI_CD
+│   │   ├── _CI-CD.md
+│   │   └── GitHub Actions.md
+│   ├── Containerization
+│   │   ├── Docker.md
+│   │   └── IaC.md
+│   ├── Development Enviorements
+│   │   ├── Laragon.md
+│   │   ├── MySQL Workbench.md
+│   │   └── XAMPP.md
+│   ├── Infrastructure
+│   │   ├── Load Balancing.md
+│   │   ├── Scalability (Vertical vs Horizontal).md
+│   │   ├── Server Hosting Models.md
+│   │   └── SLA.md
+│   ├── _DevOps.md
+│   ├── DevOps vs SysAdmin.md
+│   ├── Environment Variables and .env Files.md
+│   └── SRE.md
+├── 20_Languages
+│   ├── C
+│   │   ├── _C.md
+│   │   ├── calloc in C.md
+│   │   ├── Dynamic Memory Allocation in C.md
+│   │   ├── Pointers in C.md
+│   │   ├── Pointers to Pointers in C.md
+│   │   └── realloc in C.md
+│   ├── Java
+│   │   ├── Concurrency in Java
+│   │   │   ├── _Java Threads.md
+│   │   │   ├── Concurrency vs Parallelism in Java.md
+│   │   │   ├── Creating a Java Thread.md
+│   │   │   ├── Fork Join Framework.md
+│   │   │   ├── Java Image IO and Hardware.md
+│   │   │   ├── MPJ Express.md
+│   │   │   ├── Parallel Filter Logic.md
+│   │   │   ├── Parallel Image Processing Pattern.md
+│   │   │   └── Thread Affinity with JNA.md
+│   │   ├── _Java.md
+│   │   ├── For-Loops in Java.md
+│   │   ├── JDBC.md
+│   │   ├── JSP.md
+│   │   ├── Strings in Java.md
+│   │   └── WEB-INF.md
+│   ├── JavaScript
+│   │   ├── AJAX.md
+│   │   ├── IIFE.md
+│   │   ├── jQuery Fundamentals.md
+│   │   └── SetTimeout.md
+│   ├── PHP
+│   │   ├── Composer.md
+│   │   ├── PHP and MySQL (MySQLi).md
+│   │   ├── PHP Form Handling.md
+│   │   └── PHP Sessions.md
+│   ├── Python
+│   │   ├── _Pyhton for DSA.md
+│   │   └── _Python.md
+│   ├── VHDL
+│   │   ├── _VHDL.md
+│   │   └── VHDL Testbench.md
+│   ├── _Programming Languages.md
+│   └── YAML.md
+├── 21_Web_Development
+│   ├── 01_Frontend
+│   │   ├── CSS
+│   │   │   ├── Applying CSS to HTML.md
+│   │   │   ├── CSS Classes and IDs.md
+│   │   │   ├── CSS Positioning.md
+│   │   │   ├── CSS Selectors.md
+│   │   │   ├── CSS Units.md
+│   │   │   └── CSS z-index.md
+│   │   ├── HTML
+│   │   │   ├── HTML Forms.md
+│   │   │   ├── HTML Image Tag.md
+│   │   │   └── Semantic HTML.md
+│   │   ├── JavaScript
+│   │   │   └── Promises and Async-Await.md
+│   │   ├── Alpine.js.md
+│   │   ├── Emmet.md
+│   │   └── Vite.md
+│   ├── 02_Backend
+│   │   ├── NodeJS
+│   │   │   └── Node.js Event Loop.md
+│   │   └── Security
+│   │       └── Environment Variables (Env Vars).md
+│   ├── 03_Frameworks
+│   │   ├── Bootstrap
+│   │   │   └── Bootstrap Grid System.md
+│   │   ├── Laravel
+│   │   │   ├── _Eloquent ORM.md
+│   │   │   ├── _Laravel.md
+│   │   │   ├── Artisan CLI.md
+│   │   │   ├── Blade Components.md
+│   │   │   ├── Blade Views and Asset Helper.md
+│   │   │   ├── CSRF.md
+│   │   │   ├── Database Factories and Seeding.md
+│   │   │   ├── Dependency Injection.md
+│   │   │   ├── File Storage.md
+│   │   │   ├── Laravel Breeze.md
+│   │   │   ├── Laravel Form Handling.md
+│   │   │   ├── Laravel Middleware.md
+│   │   │   ├── Laravel Pagination.md
+│   │   │   ├── Laravel Routing.md
+│   │   │   ├── Laravel Validation.md
+│   │   │   ├── Mass Assignment.md
+│   │   │   ├── Method Spoofing.md
+│   │   │   ├── Migrations.md
+│   │   │   ├── Resource Controllers.md
+│   │   │   ├── Route Constrains.md
+│   │   │   └── Route Model Binding.md
+│   │   └── Tailwind
+│   │       ├── _Tailwind CSS.md
+│   │       ├── Tailwind CSS Build Process.md
+│   │       └── Tailwind CSS vs Pure CSS.md
+│   ├── _Servers
+│   │   ├── Apache HTTP Server.md
+│   │   ├── Apache Tomcat Context File.md
+│   │   ├── Apache Tomcat.md
+│   │   └── Reverse Proxy (Apache and Tomcat).md
+│   ├── _Web_API_Concepts
+│   │   ├── _Web Apis.md
+│   │   ├── BFF.md
+│   │   ├── GraphQL.md
+│   │   ├── gRPC.md
+│   │   ├── HTTP Status Codes.md
+│   │   ├── Overfetching.md
+│   │   ├── Rate Limiting.md
+│   │   ├── REST.md
+│   │   ├── RESTful API Design.md
+│   │   ├── SOAP.md
+│   │   └── Underfetching.md
+│   └── _Web Development.md
+├── 22_Mobile_Development
+│   ├── 8th-semester
+│   │   └── class-2-first-practice.md
+│   ├── Android
+│   ├── Visual-Programming
+│   └── _Mobile Apps Development.md
+├── 30_Projects
+│   └── PCAM Image Processor.md
+├── 40_Natural_Languages
+│   └── German
+│       ├── 00_Grammar_Syntax
+│       │   ├── German Cases.md
+│       │   ├── Imperative (Formal 'Sie').md
+│       │   ├── Imperative (Informal du & ihr).md
+│       │   ├── Passiv.md
+│       │   ├── Sentence Structure V2.md
+│       │   ├── The Dative Case.md
+│       │   ├── The Perfekt Tense.md
+│       │   ├── Two-Way Prepositions (Dative).md
+│       │   └── Verbs of State (Lageverben).md
+│       ├── 01_Vocabulary_DB
+│       │   ├── Daily Routine (Tagesablauf).md
+│       │   ├── Gym Vocabulary (Fitness und Training).md
+│       │   └── Housing Furniture (Wohnen und Möbel).md
+│       ├── 99_Daily_Output
+│       │   └── Journal_Jan_2026.md
+│       └── _German.md
+├── 41_My_Setup
+│   └── _Fedora Workstation
+│       ├── _Fedora Linux (Stable).md
+│       ├── _Fedora Workstation.md
+│       ├── Fedora Rawhide.md
+│       └── Hyprlock Configuration.md
+├── 80_System
+│   └── Vault Structure Philosophy.md
+├── 90_Templates
+│   ├── Algorithm Template.md
+│   ├── Class Notes Template.md
+│   ├── Concept Template.md
+│   ├── Natural Language.md
+│   └── Overview Template.md
+├── Pasted image 20251127153739.png
+├── Pasted image 20251127153744.png
+├── Pasted image 20251127153951.png
+├── VAULT-STRUCTURE.md
+└── VAULT-STRUCTURE.txt
