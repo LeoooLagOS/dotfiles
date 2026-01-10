@@ -299,3 +299,7 @@ vault-tree() {
     echo "------------------------------------------------"
     echo "✅ Structure synchronized across .txt and .md"
 }
+
+# local/private configurations (Not tracked by Git)
+# later create ~/.zshrc.local for anything secret 
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
