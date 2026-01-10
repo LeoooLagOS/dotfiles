@@ -13,75 +13,102 @@ date: 2025-12-08
 # _Fedora Workstation_
 
 ## 📝 One-Sentence Summary
-My primary development and academic environment running on Fedora Linux, configured with a [[Hyprland]] [[Window Manager]] and a strict "[[IaC|Infrastructure as Code]]" philosophy for configuration management.
+
+A professional-grade development environment running on Fedora Linux, architected with a **Tiling Window Manager (Hyprland)** and managed through a **Self-Healing Infrastructure as Code (IaC)** philosophy.
 
 ## 💡 Analogy
-This workstation is my **Digital Workshop**. Just as a carpenter organizes their physical tools (saws, hammers) into specific, labeled areas and keeps their blueprints safe, this system organizes my data (`Documents`), my active construction sites (`Development`), and the instructions for how the workshop itself behaves (`dotfiles`).
+
+This workstation is my **Digital Workshop**. Just as a carpenter uses jigs and templates to ensure every cut is identical, this system uses **Symlinks** and **Git** to ensure that my tools, my workbench (the UI), and my blueprints (dotfiles) are perfectly aligned, versioned, and reproducible.
 
 ## 📜 History & Creator
-* **Curator:** lagOS
-* **Evolution:** Migrated from a standard layout to a developer-centric structure to support Computer Science studies and self-taught AI/Engineering projects.
-* **Current Iteration:** Fedora 43 (target) running a custom Hyprland environment with Apple-inspired aesthetics.
+
+- **Curator:** [[Leonardo Lagos]]
+    
+- **Hardware Target:** HP Victus-874
+    
+- **Current Iteration:** Fedora 43 (Custom Hyprland environment with a "DankMaterial" Pill aesthetic).
+    
 
 ## 🔑 Core Philosophy & Design
-* **Separation of Concerns:** Data (Notes), Code (Projects), and Configuration (System) are strictly separated to prevent clutter and data loss.
-* **Reproducibility:** The system configuration is version-controlled via Git, allowing the entire environment to be restored or replicated on a new machine instantly.
-* **Aesthetics meets Function:** A visual style (Apple-like lock screen, blurred glass) that encourages usage without sacrificing the speed of a tiling window manager.
 
-## 🌳 System Structure 
-A visual representation of the directory hierarchy separating Configuration, Code, and Data. 
-```text 
+- **Atomic State Management:** Every system change is captured as a Git commit (using Conventional Commits).
+    
+- **Self-Healing Integrity:** The system verifies its own symbolic links before allowing backups (`check-links` pre-flight).
+    
+- **Layered Security:** Sensitive credentials (identity, tokens) are kept in `.local` files, decoupled from the public dotfiles repository.
+    
+- **Cognitive Flow:** A "Pill" based Waybar HUD that provides real-time feedback on Obsidian Sync and Study Streaks.
+    
+
+## 🌳 System Structure
+
+```Plaintext
 /home/lag-os/ 
 │ 
-├── ⚙️ dotfiles/     (Git Repository: System Configuration) 
-│ ├── .git/          (Version Control) 
-│ ├── hypr/ 
-│ │ ├── hyprland.conf             (Window Manager Settings) 
-│ │ ├── hyprlock.conf             (Lock Screen Styling) 
-│ │ └── scripts/  (Automation: Music.sh, AutoLockscreen.sh) │ └── README.md                   (System Documentation) 
+├── ⚙️ dotfiles/       (Git Repo: The 'Brain') 
+│   ├── .git/          (Version Control) 
+│   ├── .zshrc         (Logic & Logic Hub) 
+│   ├── config-waybar/ (Pill-style UI)
+│   ├── hypr/          (WM & Lockscreen)
+│   ├── scripts/       (Vault-check, Health-checks)
+│   ├── pkglist.txt    (DNF Manifest)
+│   └── flatpaks.txt   (Flatpak Manifest)
 │ 
-├── 🚀 Development/               (Active Projects & Code) 
-│ ├── proyects-ai/                (AI & Machine Learning) 
-│ ├── uni-cs-projects/            (University Coursework) 
-│ └── websites/                  (Web Development Practice) 
+├── 🚀 Development/    (Active Construction) 
+│   ├── projects-ai/   
+│   └── uni-cs/        (Distributed Systems, PCAM, MPI)
 │ 
-├── 🏛️ Documents/                 (Static Data & Knowledge) 
-│ └── Obsidian-Vault/             (Second Brain / CS Notes) 
+├── 🏛️ Documents/      (Static Knowledge) 
+│   └── My-CS-Notes/   (Obsidian Vault / Second Brain) 
 │ 
-└── 📥 Downloads/                 (Temporary Intake Buffer)
+└── 📥 Downloads/      (Transient Buffer)
 ```
 
 
 ## ⚙️ Key Details
 
-### 1. The Home Directory Structure 🏠
-My `$HOME` directory is organized to separate "consumption" from "creation":
+### 1. Automation Logic 🤖
 
-- **`~/dotfiles/`**: The Git repository containing system configurations (Hyprland, Waybar, Scripts). This is the "brain" of the setup.
-- **`~/Development/`**: The workspace for active coding.
-    - `proyects-ai/`: Artificial Intelligence projects.
-    - `uni-cs-projects/`: University coursework.
-    - `websites/`: Web development practice.
-- **`~/Documents/`**: Static knowledge and data.
-    - `Obsidian-Vault/`: The "Second Brain" and CS Notes.
-- **`~/Downloads/`**: Temporary intake buffer (regularly purged).
+The system is managed by two primary "Engine" functions in the `.zshrc`:
 
-### 2. The Dotfiles (Configuration) 🛠️
-Managed in `~/dotfiles`, these configurations control the behavior and look of the system:
+- `save-dots()`: A robust backup function that snapshots packages, verifies symlink health, and pushes state to GitHub.
+    
+- `check-links()`: A transparency tool that reports the health of the connection between `$HOME` and `~/dotfiles`.
+    
 
-* **Window Manager:** [[Hyprland]] (Tiling WM).
-* **Lock Screen:** [[Hyprlock]] (Custom Apple-style aesthetic with weather and music integration).
-* **Color Scheme:** [[Wallust]] (Generates colors from wallpapers).
-* **Automation Scripts:**
-    * `Music.sh`: extracts metadata and album art for the lock screen.
-    * `AutoLockscreen.sh`: syncs the lock screen background with the desktop wallpaper.
+### 2. The User Interface (DankMaterial) 🎨
+
+- **Window Manager:** [[Hyprland]].
+    
+- **Status Bar:** [[Waybar]] (Configured with floating "Pills" and rounded corners for a GNOME-like feel).
+    
+- **Environment HUD:** Live Git indicators for the Obsidian Vault to ensure no data is left un-pushed.
+    
+
+### 3. Disaster Recovery Plan 🛡️
+
+- **Recovery Command:** `restore-dots` automatically parses the `pkglist.txt` to reinstall the entire environment on any DNF, APT, or Pacman-based system.
+    
+- **Safety Net:** Symlink integrity is enforced at the hardware level; broken links are detected before backup.
+    
 
 ## 🔗 Connections & Implementations
-* **OS Base:** [[Linux Distros|Fedora Linux]]
-* **Shell:** [[Shell|Zsh]] (Likely, or Bash depending on preference)
-* **Version Control:** [[_Git]] (Used to manage the `dotfiles` folder)
+
+- **Base OS:** [[Fedora Linux]]
+    
+- **Shell Logic:** [[Zsh]] + [[Starship]] + [[FZF]]
+    
+- **Configuration Sync:** [[_Git]] (Public Repository)
+    
+- **Secret Management:** `.local` inclusion layer for private credentials.
+    
 
 ## See Also
-- [[_Linux]]
-- [[_Git]]
+
+- [[_Disaster Recovery Plan]]
+    
+- [[Conventional Commits]]
+    
 - [[Hyprland]]
+    
+- [[Cybersecurity Best Practices]]
