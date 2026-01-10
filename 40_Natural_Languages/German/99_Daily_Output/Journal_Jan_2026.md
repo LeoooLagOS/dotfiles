@@ -40,3 +40,13 @@ status: active
 1. Heute Nacht habe ich meinen Computer repariert.
 2. Der Deutschkurs mit Rafa war interessant.
 3. Ich habe meine Beine trainiert.
+
+---
+### 2026-01-09 (Freitag)
+* **Topic:** Hybrid Gym & Freundin.
+* **Corrections:** Fixed V2 Word Order (*Dann bin ich*), Movement Helper Verb (*bin* vs *habe*), and the "Spaß machen" idiom.
+1. Wir haben zusammen trainiert.
+2. Das **hat** Spaß **gemacht**.
+3. Dann **bin** ich **nach** Hause **gefahren**.
+
+---
