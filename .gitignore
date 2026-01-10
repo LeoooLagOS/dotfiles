@@ -1,3 +1,6 @@
+*.local
+*.secret
+.ssh/
 *.log
 __pycache__/
 .DS_Store

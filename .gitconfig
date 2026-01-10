@@ -1,5 +1,3 @@
-[user]
-	name = LeoooLagOS
-	email = lagoslopezleonardo@gmail.com
-[pull]
-	rebase = false
+[include]
+    # This file will NOT be tracked by Git
+    path = ~/.gitconfig.local
