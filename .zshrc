@@ -240,3 +240,62 @@ save-deutsch-log() {
 
     popd > /dev/null
 }
+
+vault-tree() {
+    local VAULT_DIR="$HOME/Documents/My-CS-Notes"
+    local DOTS_DIR="$HOME/dotfiles"
+    local CURRENT_DATE=$(date +'%Y-%m-%d')
+    
+    local TXT_DOTS="$DOTS_DIR/vault-architecture.txt"
+    local TXT_VAULT="$VAULT_DIR/VAULT-STRUCTURE.txt"
+    local MD_VAULT="$VAULT_DIR/VAULT-STRUCTURE.md"
+
+    if [[ ! -d "$VAULT_DIR" ]]; then
+        echo "Error: Vault not found at $VAULT_DIR" >&2
+        return 1
+    fi
+
+    echo "Status: Generating Multi-Format Vault Maps... Mapping Vault Architecture..."
+
+    # 1. Generate TXT files (Standardized flags)
+    # We use -I to ignore the .git folder
+    lsd --group-directories-first --tree -I ".git" --color=never "$VAULT_DIR" > "$TXT_DOTS"
+    cp "$TXT_DOTS" "$TXT_VAULT"
+
+    # 2. Generate the Markdown version
+    {
+        echo "---"
+        echo "tags: #system/meta"
+        echo "last_updated: $(date +'%Y-%m-%d %H:%M')"
+        echo "---"
+        echo "# 🌳 Vault Structure Map"
+        echo ""
+        echo '```text'
+        cat "$TXT_DOTS"
+        echo '```'
+    } > "$MD_VAULT"
+
+    # 3. Print to terminal with color
+    lsd --group-directories-first --tree -I ".git" --color=always "$VAULT_DIR"
+
+    echo "📦 Step 2: Syncing Knowledge Base (Obsidian)..."
+    pushd "$VAULT_DIR" > /dev/null || return 1
+    
+    if [[ -n "$(git status --porcelain)" ]]; then
+        git add .
+        git commit -m "docs(meta): update vault structure and architecture maps $CURRENT_DATE"
+        git push && echo "✅ Notes synchronized to GitHub."
+    else
+        echo "ℹ️  Notes already up to date."
+    fi
+    popd > /dev/null
+
+    echo "⚙️  Step 3: Syncing System State (Dotfiles)..."
+    # We call your existing save-dots function directly
+    save-dots "build(sys): sync architecture map and system state $CURRENT_DATE"
+
+    echo "------------------------------------------------"
+    echo "✨ GLOBAL SYNC COMPLETE: Workstation is Secure."
+    echo "------------------------------------------------"
+    echo "✅ Structure synchronized across .txt and .md"
+}
