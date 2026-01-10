@@ -1,6 +1,37 @@
+# --- OS & Hardware Metadata ---
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+*~
+
+# --- Security & Credentials (CRITICAL) ---
 *.local
 *.secret
+*.pem
+*.key
+*.pub
 .ssh/
-*.log
+.gnupg/
+.env
+.env.*
+!.env.example
+
+# --- Python & Dev Environment ---
 __pycache__/
-.DS_Store
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.python-version
+
+# --- Obsidian & Workspace Metadata ---
+# Only ignore workspace-specific settings, keep your snippets!
+.obsidian/workspace.json
+.obsidian/graph.json
+.obsidian/workspace-mobile.json
+
+# --- Log Files ---
+*.log
+*.swp
+*.swo
