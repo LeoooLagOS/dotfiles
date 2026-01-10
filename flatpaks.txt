@@ -1,3 +1,4 @@
 com.rtosta.zapzap
 com.spotify.Client
+com.visualstudio.code
 dev.vencord.Vesktop
