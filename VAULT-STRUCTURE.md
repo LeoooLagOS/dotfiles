@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-11 15:16
+last_updated: 2026-01-12 12:10
 ---
 # 🌳 Vault Structure Map
 
@@ -12,6 +12,7 @@ My-CS-Notes
 │   ├── ASCII Table.md
 │   ├── Automata Theory.md
 │   ├── CAP Theorem.md
+│   ├── Client-Server Model.md
 │   ├── Communication Models.md
 │   ├── Complexity Theory.md
 │   ├── Computability Theory.md
@@ -43,7 +44,8 @@ My-CS-Notes
 │   │   ├── Router.md
 │   │   └── Switch.md
 │   ├── _Computer Hardware.md
-│   └── RS232.md
+│   ├── RS232.md
+│   └── Workstations and Peripherals.md
 ├── 02_Computer_Architecture
 │   ├── _Control
 │   │   └── Control Unit.md
@@ -166,6 +168,7 @@ My-CS-Notes
 │   ├── Kernel.md
 │   ├── Process State.md
 │   ├── Process.md
+│   ├── Shared Time Systems.md
 │   ├── Shell Scripting.md
 │   ├── Shell.md
 │   └── Thread.md
@@ -412,7 +415,8 @@ My-CS-Notes
 │   ├── _DevOps.md
 │   ├── DevOps vs SysAdmin.md
 │   ├── Environment Variables and .env Files.md
-│   └── SRE.md
+│   ├── SRE.md
+│   └── SysAdmin Functions.md
 ├── 20_Languages
 │   ├── C
 │   │   ├── _C.md
@@ -541,6 +545,7 @@ My-CS-Notes
 │       │   ├── Imperative (Formal 'Sie').md
 │       │   ├── Imperative (Informal du & ihr).md
 │       │   ├── Passiv.md
+│       │   ├── Possessive Articles (Possessivartikel).md
 │       │   ├── Sentence Structure V2.md
 │       │   ├── The Dative Case.md
 │       │   ├── The Perfekt Tense.md
@@ -549,7 +554,8 @@ My-CS-Notes
 │       ├── 01_Vocabulary_DB
 │       │   ├── Daily Routine (Tagesablauf).md
 │       │   ├── Gym Vocabulary (Fitness und Training).md
-│       │   └── Housing Furniture (Wohnen und Möbel).md
+│       │   ├── Housing Furniture (Wohnen und Möbel).md
+│       │   └── Networking_Vocab.md
 │       ├── 99_Daily_Output
 │       │   └── Journal_Jan_2026.md
 │       └── _German.md
@@ -570,6 +576,7 @@ My-CS-Notes
 ├── Pasted image 20251127153739.png
 ├── Pasted image 20251127153744.png
 ├── Pasted image 20251127153951.png
+├── Pasted image 20260112115756.png
 ├── VAULT-STRUCTURE.md
 └── VAULT-STRUCTURE.txt
 ```
