@@ -69,6 +69,22 @@ _Verification:_ Run `virt-manager` from your terminal or app launcher. If it ope
 4. In `virt-manager` -> **Manage VM Snapshots** -> Create Snapshot.
     
 5. Name: `Base_Clean_Install`. _Use this snapshot to revert instantly if you break the bootloader during the "System Boot" unit._
+
+## 🔌 Connection Protocol
+**Do not use the graphical console.** Connect via SSH from the host terminal for better UI.
+
+1.  **Start VM:** `virt-manager` -> Select VM -> Play.
+2.  **Get IP (One-time):** Log in to console, run `ip a` (Look for `192.168.122.XXX`).
+	* This lab was: 192.168.124.165
+3.  **Connect from Host:**
+    ```bash
+    ssh lag-os-admin@<IP_ADDRESS> 
+    # ssh lag-os-admin@192.168.124.165
+    ```
+4.  **Shared Folders:** Use `scp` to move files if needed.
+    ```bash
+    scp my_script.sh lag-os-admin@<IP_ADDRESS>:/home/lag-os-admin/
+    ```
 ## 🔗 Connections
 
 - Fits into [[KVM and QEMU]] concepts.

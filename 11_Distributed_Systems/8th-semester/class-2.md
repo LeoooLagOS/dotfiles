@@ -1,41 +1,35 @@
 ---
 tags:
   - university
+  - semester_8
 course: Applied Distributive Programming
 professor: Orato
 date: 2026-01-09
 status: raw
 ---
-# 📝 Class: [[class-2]]
+---
+# 📝 Class: [[Class 02 - Serial Protocols and Buffer Control]]
 
 ## 🎯 Main Goal of Today
-Installing and understanding Hercules, RealTerm and PIPE and how that work together 
+Understanding Flow Control (XON/XOFF) and Serial Communication through software simulation (Hercules/RealTerm/CuteCom) and modeling (Petri Nets).
+
 ## 📓 Live Lecture Notes
-- **Point 1:** Serial port COM1 opened
-- **Point 2:** Create a Python program that see both terminals inside Hercules
-- Realterm speed: 9600
-	- in the terminal anex CR and LF
-	- In the right terminal Display as: Hexispace
-	- In both terminal check 'port' 
-		- XON and XOFF 'full buffer'? (explain) 
-		- Petri Nets model for XON and XOFF (explain)
-- What is an ASCII table ? and how it work in this programs and why it is used
-	- in windows use 0A 
-	- in Linux use just 0
-- **Warning/Tip:** (Teacher mentioned this will be on the exam/project)
+- **Software Setup:** 
+	- RealTerm (Windows) / CuteCom (Fedora) speed set to **9600 baud**.
+    - **CR (Carriage Return)** and **LF (Line Feed)** must be appended to messages.
+    - Display mode: **Hexispace** (viewing raw hex values with spaces).
+- **Flow Control (XON/XOFF):** 
+	- A software-based protocol to prevent "Buffer Overflow."
+    - **XON (Transmit On):** Sent when the buffer has space.
+    - **XOFF (Transmit Off):** Sent when the buffer is nearly full (e.g., 80%).
+- **Encoding (ASCII Table):**
+    - Used to translate binary/hex into human-readable characters.
+    - **Platform Differences:** Windows typically uses `\r\n` (0D 0A) for new lines; Linux uses `\n` (0A).
 
-## 🛠️ Code Snippets / Whiteboard Sketches
-(Drop raw code blocks or descriptions of diagrams here)
-pyserial on windows
-``` python
-port = COM1
+- **Warning/Tip:** The Petri Net model for XON/XOFF flow control is high probability for the exam.
 
-```
-## 📂 Follow-up Tasks (Librarian/COO Action)
-- [ ] Create Atomic Note for: `[[Concept Name]]`
-- [ ] Refactor Code into: `[[pyserial - windows]]`
-- [ ] Review during Commute: (German translation of a key term)
-- [ ] create the python program using XON and XOFF protocol 'pyserial python'
-	- [ ] RT -> XON/XOFF -> Python with buffer-limit
-- [ ] ble terminal with port 'ble-serial'
-- [ ] first work(practice): a python program that in distributed system resolve an 'accident and emergency unit' with rabbitMQ
+## 📂 Follow-up Tasks
+- [x] Create Atomic Note: [[XON-XOFF Protocol]]
+- [x] Create Atomic Note: [[ASCII Table]]
+- [x] Refactor Python Code: [[PySerial Implementation]]
+- [ ] Practice Project: "Accident & Emergency Unit" with RabbitMQ.
