@@ -21,16 +21,16 @@ Essential terminology for the "Bulking Phase," covering equipment, anatomy, and 
 
 ## 🗃️ The Equipment Database (Nouns)
 
-| Article | German Word | Plural | English | Context |
-| :--- | :--- | :--- | :--- | :--- |
-| **Die** | **Hantel** | -n | Dumbbell | *Die Hanteln nehmen* |
-| **Die** | **Langhantel** | -n | Barbell | For Bench/Squat |
-| **Das** | **Gewicht** | -e | Weight | *Zu viel Gewicht* |
-| **Die** | **Bank** | Bänke | Bench | *Bankdrücken* (Bench Press) |
-| **Das** | **Gerät** | -e | Machine/Device | *Ist das Gerät frei?* |
-| **Der** | **Spiegel** | - | Mirror | For form checks |
-| **Das** | **Handtuch** | Hantücher | Towel | Don't forget it! |
-| **Die** | **Trinkflasche** | -n | Water Bottle | Hydration |
+| Article | German Word      | Plural    | English        | Context                     |
+| :------ | :--------------- | :-------- | :------------- | :-------------------------- |
+| **Die** | **Hantel**       | -n        | Dumbbell       | *Die Hanteln nehmen*        |
+| **Die** | **Langhantel**   | -n        | Barbell        | For Bench/Squat             |
+| **Das** | **Gewicht**      | -e        | Weight         | *Zu viel Gewicht*           |
+| **Die** | **Bank**         | Bänke     | Bench          | *Bankdrücken* (Bench Press) |
+| **Das** | **Gerät**        | -e        | Machine/Device | *Ist das Gerät frei?*       |
+| **Der** | **Spiegel**      | -         | Mirror         | For form checks             |
+| **Das** | **Handtuch**     | Hantücher | Towel          | Don't forget it!            |
+| **Die** | **Trinkflasche** | -n        | Water Bottle   | Hydration                   |
 
 ## 🗃️ The Body Database (Anatomy)
 

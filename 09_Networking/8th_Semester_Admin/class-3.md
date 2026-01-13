@@ -6,7 +6,7 @@ professor: undefined
 date: 2026-01-12
 status: raw
 ---
-# 📝 Class: [[class-3]]
+# 📝 Class: [[09_Networking/8th_Semester_Admin/class-3]]
 
 ## 🎯 Main Goal of Today
 *Master the `vi` editor for remote system administration and configuration.*

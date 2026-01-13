@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-12 22:18
+last_updated: 2026-01-13 17:57
 ---
 # 🌳 Vault Structure Map
 
@@ -382,9 +382,12 @@ My-CS-Notes
 │   └── _Data_Mining
 │       ├── 8th_Semester
 │       │   ├── 8th_Semester_Dashboard.md
-│       │   └── class-2.md
+│       │   ├── class-2.md
+│       │   └── class-3.md
 │       ├── _Data Mining.md
-│       └── CRISP-DM Process.md
+│       ├── _Regression Models.md
+│       ├── CRISP-DM Process.md
+│       └── Data Mining Variables.md
 ├── 14_Git
 │   ├── _Troubleshooting
 │   │   └── Git Push Rejected (Remote Ahead).md

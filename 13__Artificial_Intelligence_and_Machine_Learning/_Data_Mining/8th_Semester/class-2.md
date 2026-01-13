@@ -6,22 +6,28 @@ professor: undefined
 date: 2026-01-08
 status: raw
 ---
-# 📝 Class: [[13__Artificial_Intelligence_and_Machine_Learning/_Data_Mining/8th_Semester/class-2]]
-
+# 📝 Class: 2
 ## 🎯 Main Goal of Today
-Class introduction
+*Introduction to Data Mining tools (IBM/SAS) and Variable Classification.*
 ## 📓 Live Lecture Notes
-- **Point 1:** Uses of data-mining
-	- **Point 2:** neuronal-networks
-- Software: IBM SPSS and SAS (legacy?)
-	- IBM for stadystics in general 
-	- key for data-mining inheritas SPSS Clementine
-- Variables dependientes 
-	- metricas
-	- no metricas
-- Modelos generados por los datos
-	- si ninguna variable se destaca como dependiente principal
-	- 
+- **Tooling Landscape:**
+    
+    - **IBM SPSS Statistics:** General-purpose statistical analysis.
+        
+    - **IBM SPSS Modeler:** The descendant of **Clementine**; the primary workbench for Data Mining.
+        
+    - **SAS:** Legacy but powerful industrial standard.
+        
+- **Variable Types:**
+    
+    - **Dependent Variables:** Categorized into **Metric** (quantitative/numerical) and **Non-Metric** (qualitative/categorical).
+        
+- **Model Logic:** Data-driven models occur when no single variable is designated as the primary dependent variable (Unsupervised learning context).
 
-## 📂 Homework
+## 📂 Homework/Follow-up Tasks
 - [ ] Investigacion de modelos de regresion y un ejemplo de cada uno de esos modelos
+- [ ] Create [[IBM SPSS Modeler]] (Concept)
+    
+- [ ] Create [[Data Mining Variables]] (Concept)
+    
+- [ ] Create [[_Regression Models]] (Pillar for Homework)
