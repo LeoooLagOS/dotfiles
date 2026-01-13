@@ -50,3 +50,11 @@ status: active
 3. Dann **bin** ich **nach** Hause **gefahren**.
 
 ---
+---
+## Week 2
+
+### 2026-01-12 (Montag)
+* **Thema:** Theorie & Podcast.
+1. Ich habe einen Podcast über Pronomen gehört.
+2. Ich habe eine Notiz für mein System geschrieben.
+3. Mein Montag war sehr produktiv.
