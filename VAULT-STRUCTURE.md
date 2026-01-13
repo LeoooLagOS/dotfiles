@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-12 12:10
+last_updated: 2026-01-12 22:18
 ---
 # 🌳 Vault Structure Map
 
@@ -252,6 +252,7 @@ My-CS-Notes
 ├── 09_Networking
 │   ├── 8th_Semester_Admin
 │   │   ├── class-2-intro.md
+│   │   ├── class-3.md
 │   │   ├── Lab_Environment_Setup.md
 │   │   └── Network_Administration_Syllabus.md
 │   ├── _IP_Addressing
@@ -416,7 +417,9 @@ My-CS-Notes
 │   ├── DevOps vs SysAdmin.md
 │   ├── Environment Variables and .env Files.md
 │   ├── SRE.md
-│   └── SysAdmin Functions.md
+│   ├── SysAdmin Functions.md
+│   ├── Vi Cheat Sheet.md
+│   └── Vi Editor.md
 ├── 20_Languages
 │   ├── C
 │   │   ├── _C.md
@@ -535,7 +538,8 @@ My-CS-Notes
 │   │   └── class-2-first-practice.md
 │   ├── Android
 │   ├── Visual-Programming
-│   └── _Mobile Apps Development.md
+│   ├── _Mobile Apps Development.md
+│   └── Event-Driven Programming.md
 ├── 30_Projects
 │   └── PCAM Image Processor.md
 ├── 40_Natural_Languages
@@ -553,6 +557,7 @@ My-CS-Notes
 │       │   └── Verbs of State (Lageverben).md
 │       ├── 01_Vocabulary_DB
 │       │   ├── Daily Routine (Tagesablauf).md
+│       │   ├── Editor_Vocab.md
 │       │   ├── Gym Vocabulary (Fitness und Training).md
 │       │   ├── Housing Furniture (Wohnen und Möbel).md
 │       │   └── Networking_Vocab.md
