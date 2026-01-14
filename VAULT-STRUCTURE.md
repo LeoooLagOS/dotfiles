@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-13 17:57
+last_updated: 2026-01-14 11:47
 ---
 # 🌳 Vault Structure Map
 
@@ -368,8 +368,10 @@ My-CS-Notes
 ├── 11_Distributed_Systems
 │   ├── 8th-semester
 │   │   ├── 8th-semester-Dashboard.md
-│   │   └── class-2.md
+│   │   ├── class-2.md
+│   │   └── class-3.md
 │   ├── _Distributed Systems.md
+│   ├── Distributed Systems Architectures.md
 │   ├── Flow Control.md
 │   ├── Middleware.md
 │   ├── NTCIP.md
@@ -554,7 +556,6 @@ My-CS-Notes
 │       │   ├── Passiv.md
 │       │   ├── Possessive Articles (Possessivartikel).md
 │       │   ├── Sentence Structure V2.md
-│       │   ├── The Dative Case.md
 │       │   ├── The Perfekt Tense.md
 │       │   ├── Two-Way Prepositions (Dative).md
 │       │   └── Verbs of State (Lageverben).md
@@ -566,7 +567,8 @@ My-CS-Notes
 │       │   └── Networking_Vocab.md
 │       ├── 99_Daily_Output
 │       │   └── Journal_Jan_2026.md
-│       └── _German.md
+│       ├── _German.md
+│       └── The Dative Case.md
 ├── 41_My_Setup
 │   └── _Fedora Workstation
 │       ├── _Fedora Linux (Stable).md
