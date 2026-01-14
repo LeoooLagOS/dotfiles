@@ -46,6 +46,9 @@ date: 2026-01-07
 - [[RabbitMQ]]
 - [[SNMP]]
 - [[Oracle APEX]]
+- ###  🇩🇪 German Technical Vocabulary
+* **Main Glossary:** [[Distributed_Systems_Vocab]]
+    * *Focus:* Architektur, Verhalten, Nebenläufigkeit.
 
 ---
 

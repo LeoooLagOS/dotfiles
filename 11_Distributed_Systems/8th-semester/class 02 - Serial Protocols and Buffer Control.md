@@ -7,7 +7,6 @@ professor: Orato
 date: 2026-01-09
 status: raw
 ---
----
 # 📝 Class: [[Class 02 - Serial Protocols and Buffer Control]]
 
 ## 🎯 Main Goal of Today
