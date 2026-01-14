@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-14 11:47
+last_updated: 2026-01-14 11:58
 ---
 # 🌳 Vault Structure Map
 
@@ -232,7 +232,8 @@ My-CS-Notes
 │       │   ├── Two Sum (Python).md
 │       │   └── Valid Palindrome (Python).md
 │       └── uni-labs
-│           └── PySerial Implementation.md
+│           ├── PySerial Implementation.md
+│           └── Stop and Wait Python.md
 ├── 06_Computer_Graphics
 │   └── _Computer Graphics.md
 ├── 07_Programming_Language_Theory
@@ -371,7 +372,7 @@ My-CS-Notes
 │   │   ├── class-2.md
 │   │   └── class-3.md
 │   ├── _Distributed Systems.md
-│   ├── Distributed Systems Architectures.md
+│   ├── Distributed System Architectures.md
 │   ├── Flow Control.md
 │   ├── Middleware.md
 │   ├── NTCIP.md
@@ -561,6 +562,7 @@ My-CS-Notes
 │       │   └── Verbs of State (Lageverben).md
 │       ├── 01_Vocabulary_DB
 │       │   ├── Daily Routine (Tagesablauf).md
+│       │   ├── Distributed_Vocab.md
 │       │   ├── Editor_Vocab.md
 │       │   ├── Gym Vocabulary (Fitness und Training).md
 │       │   ├── Housing Furniture (Wohnen und Möbel).md
