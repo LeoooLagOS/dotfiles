@@ -58,3 +58,9 @@ status: active
 1. Ich habe einen Podcast über Pronomen gehört.
 2. Ich habe eine Notiz für mein System geschrieben.
 3. Mein Montag war sehr produktiv.
+---
+### 2026-01-13 (Dienstag)
+* **Thema:** Uni & Data Mining.
+1. Der Deutschkurs war langsam.
+2. Wir haben im Data-Mining-Kurs Datenmuster gelernt.
+3. Ich habe meine Grammatik geübt.
