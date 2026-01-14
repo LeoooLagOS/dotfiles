@@ -247,6 +247,7 @@ My-CS-Notes
 │   ├── 8th_Semester_Admin
 │   │   ├── class-2-intro.md
 │   │   ├── class-3.md
+│   │   ├── class-4.md
 │   │   ├── Lab_Environment_Setup.md
 │   │   └── Network_Administration_Syllabus.md
 │   ├── _IP_Addressing
@@ -362,8 +363,8 @@ My-CS-Notes
 ├── 11_Distributed_Systems
 │   ├── 8th-semester
 │   │   ├── 8th-semester-Dashboard.md
-│   │   ├── class-2.md
-│   │   └── class-3.md
+│   │   ├── class 02 - Serial Protocols and Buffer Control.md
+│   │   └── class 03 - Distributed Architectures and Flow Simulation.md
 │   ├── _Distributed Systems.md
 │   ├── Distributed System Architectures.md
 │   ├── Flow Control.md
@@ -413,6 +414,7 @@ My-CS-Notes
 │   │   ├── Server Hosting Models.md
 │   │   └── SLA.md
 │   ├── _DevOps.md
+│   ├── Advanced Vi Operations.md
 │   ├── DevOps vs SysAdmin.md
 │   ├── Environment Variables and .env Files.md
 │   ├── SRE.md
@@ -555,7 +557,7 @@ My-CS-Notes
 │       │   └── Verbs of State (Lageverben).md
 │       ├── 01_Vocabulary_DB
 │       │   ├── Daily Routine (Tagesablauf).md
-│       │   ├── Distributed_Vocab.md
+│       │   ├── Distributed_Systems_Vocab.md
 │       │   ├── Editor_Vocab.md
 │       │   ├── Gym Vocabulary (Fitness und Training).md
 │       │   ├── Housing Furniture (Wohnen und Möbel).md
