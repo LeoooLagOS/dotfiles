@@ -7,10 +7,10 @@ priority: "High"
 # 🏗️ Project Log: {{title}}
 
 ## 🗓️ Milestones
-- [ ] Requirements / Environment Setup
-- [ ] Initial Logic / Code Implementation
-- [ ] Debugging & Refactoring
-- [ ] Final Documentation & vsync
-
+- [ ] Requirements Analysis 
+- [ ] Initial Logic / Pseudo-code 
+- [ ] Implementation (Fedora/Victus) 
+- [ ] Testing & Debugging 
+- [ ] Final `vsync` and Submission
 ## 🪵 Dev Journal
 - **{{date}}:** (Initial thoughts/Blockers)
