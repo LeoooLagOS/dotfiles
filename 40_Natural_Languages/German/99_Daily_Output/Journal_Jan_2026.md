@@ -64,3 +64,10 @@ status: active
 1. Der Deutschkurs war langsam.
 2. Wir haben im Data-Mining-Kurs Datenmuster gelernt.
 3. Ich habe meine Grammatik geübt.
+---
+### 2026-01-14 (Mittwoch)
+* **Thema:** Podcast, Notizen & Uni.
+* **Korrekturen:** Präpositionen (*ohne* + Akk, *zu* + Dat) & Artikel.
+1. Ich habe einen Podcast über Präpositionen gehört.
+2. Ich habe eine Vokabelnotiz erstellt.
+3. Ich bin ohne meinen Computer zur Uni gefahren.
