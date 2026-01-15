@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-14 19:07
+last_updated: 2026-01-14 21:33
 ---
 # 🌳 Vault Structure Map
 
@@ -253,12 +253,6 @@ My-CS-Notes
 │   ├── OLTP vs OLAP.md
 │   └── Oracle Apex.md
 ├── 09_Networking
-│   ├── 8th_Semester_Admin
-│   │   ├── class-2-intro.md
-│   │   ├── class-3.md
-│   │   ├── class-4.md
-│   │   ├── Lab_Environment_Setup.md
-│   │   └── Network_Administration_Syllabus.md
 │   ├── _IP_Addressing
 │   │   ├── IPv6 Link-Local Address.md
 │   │   └── SLAAC.md
@@ -370,10 +364,6 @@ My-CS-Notes
 │       ├── Cisco ESA.md
 │       └── Cisco WSA.md
 ├── 11_Distributed_Systems
-│   ├── 8th-semester
-│   │   ├── 8th-semester-Dashboard.md
-│   │   ├── class 02 - Serial Protocols and Buffer Control.md
-│   │   └── class 03 - Distributed Architectures and Flow Simulation.md
 │   ├── _Distributed Systems.md
 │   ├── Distributed System Architectures.md
 │   ├── Flow Control.md
@@ -585,6 +575,17 @@ My-CS-Notes
 │   └── Vault Structure Philosophy.md
 ├── 90_Logs
 │   ├── Academia
+│   │   └── 2026-1
+│   │       ├── Data_Mining
+│   │       ├── Dist_Prog
+│   │       │   ├── Class_02_Serial_Protocols.md
+│   │       │   └── Class_03_Architectures.md
+│   │       ├── Mobile_Dev
+│   │       ├── Net_Admin
+│   │       │   ├── Class_02_Intro.md
+│   │       │   ├── Class_03_Protocols.md
+│   │       │   └── Class_04_Management.md
+│   │       └── Semester_Dashboard.md
 │   ├── Career
 │   │   └── Job_Hunt_2026.md
 │   ├── Daily
