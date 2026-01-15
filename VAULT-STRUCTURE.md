@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-14 21:33
+last_updated: 2026-01-14 22:10
 ---
 # 🌳 Vault Structure Map
 
@@ -253,6 +253,7 @@ My-CS-Notes
 │   ├── OLTP vs OLAP.md
 │   └── Oracle Apex.md
 ├── 09_Networking
+│   ├── 8th_Semester_Admin
 │   ├── _IP_Addressing
 │   │   ├── IPv6 Link-Local Address.md
 │   │   └── SLAAC.md
@@ -376,10 +377,6 @@ My-CS-Notes
 │   └── XON-XOFF Protocol.md
 ├── 13__Artificial_Intelligence_and_Machine_Learning
 │   └── _Data_Mining
-│       ├── 8th_Semester
-│       │   ├── 8th_Semester_Dashboard.md
-│       │   ├── class-2.md
-│       │   └── class-3.md
 │       ├── _Data Mining.md
 │       ├── _Regression Models.md
 │       ├── CRISP-DM Process.md
@@ -534,8 +531,6 @@ My-CS-Notes
 │   │   └── Underfetching.md
 │   └── _Web Development.md
 ├── 22_Mobile_Development
-│   ├── 8th-semester
-│   │   └── class-2-first-practice.md
 │   ├── Android
 │   ├── Visual-Programming
 │   ├── _Mobile Apps Development.md
@@ -577,15 +572,20 @@ My-CS-Notes
 │   ├── Academia
 │   │   └── 2026-1
 │   │       ├── Data_Mining
+│   │       │   ├── Class_02_Intro.md
+│   │       │   └── Class_03_Methodology.md
 │   │       ├── Dist_Prog
 │   │       │   ├── Class_02_Serial_Protocols.md
-│   │       │   └── Class_03_Architectures.md
+│   │       │   ├── Class_03_Architectures.md
+│   │       │   └── Dist_Prog_Dashboard.md
 │   │       ├── Mobile_Dev
+│   │       │   └── Class_02_Practice.md
 │   │       ├── Net_Admin
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Protocols.md
-│   │       │   └── Class_04_Management.md
-│   │       └── Semester_Dashboard.md
+│   │       │   ├── Class_04_Management.md
+│   │       │   └── Network_Administration_Syllabus.md
+│   │       └── 8th-Semester-Master_Dashboard.md
 │   ├── Career
 │   │   └── Job_Hunt_2026.md
 │   ├── Daily
