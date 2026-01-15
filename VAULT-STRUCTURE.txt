@@ -242,6 +242,8 @@ My-CS-Notes
 │       └── Procedural Programming.md
 ├── 08_Databases
 │   ├── _Databases.md
+│   ├── Database Integrity Constraints.md
+│   ├── OLTP vs OLAP.md
 │   └── Oracle Apex.md
 ├── 09_Networking
 │   ├── 8th_Semester_Admin
@@ -574,7 +576,21 @@ My-CS-Notes
 │       └── Hyprlock Configuration.md
 ├── 80_System
 │   └── Vault Structure Philosophy.md
-├── 90_Templates
+├── 90_Logs
+│   ├── Academia
+│   ├── Career
+│   │   └── Job_Hunt_2026.md
+│   ├── Daily
+│   ├── Health
+│   │   └── Lumbar_Tracker.md
+│   └── Reading
+├── 91_Templates
+│   ├── logs
+│   │   ├── gym-legs.md
+│   │   ├── gym-pull.md
+│   │   ├── gym-push.md
+│   │   ├── maestro-project.md
+│   │   └── maestro-reading.md
 │   ├── Algorithm Template.md
 │   ├── Class Notes Template.md
 │   ├── Concept Template.md
