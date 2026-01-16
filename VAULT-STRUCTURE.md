@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-15 13:50
+last_updated: 2026-01-16 11:04
 ---
 # 🌳 Vault Structure Map
 
@@ -572,8 +572,10 @@ My-CS-Notes
 │   ├── Academia
 │   │   └── 2026-1
 │   │       ├── Data_Mining
+│   │       │   ├── Class.md
 │   │       │   ├── Class_02_Intro.md
-│   │       │   └── Class_03_Methodology.md
+│   │       │   ├── Class_03_Methodology.md
+│   │       │   └── Class_04_Weka_and_KDD.md
 │   │       ├── Dist_Prog
 │   │       │   ├── Class_02_Serial_Protocols.md
 │   │       │   ├── Class_03_Architectures.md
@@ -592,6 +594,7 @@ My-CS-Notes
 │   ├── Health
 │   │   └── Lumbar_Tracker.md
 │   └── Reading
+│       └── 2026-01-20_Data_Mining_Concepts_Han.md
 ├── 91_Templates
 │   ├── logs
 │   │   ├── gym-legs.md
