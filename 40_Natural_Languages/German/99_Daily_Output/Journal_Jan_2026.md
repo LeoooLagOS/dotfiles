@@ -71,3 +71,10 @@ status: active
 1. Ich habe einen Podcast über Präpositionen gehört.
 2. Ich habe eine Vokabelnotiz erstellt.
 3. Ich bin ohne meinen Computer zur Uni gefahren.
+---
+### 2026-01-15 (Donnerstag)
+* **Thema:** Unterwegs mit "Mit" (Dativ).
+* **Korrekturen:** Dativ-Endungen (Feminin: -er), Bewegungsverben (*bin gegangen*) und Wortstellung.
+1. Ich bin mit meiner Freundin zur Bushaltestelle gefahren.
+2. Ich habe mit meiner Mutter gegessen.
+3. Ich bin mit meinen Freunden zur 'Pytalavera' gegangen.
