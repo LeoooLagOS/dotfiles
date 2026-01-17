@@ -78,3 +78,10 @@ status: active
 1. Ich bin mit meiner Freundin zur Bushaltestelle gefahren.
 2. Ich habe mit meiner Mutter gegessen.
 3. Ich bin mit meinen Freunden zur 'Pytalavera' gegangen.
+---
+### 2026-01-16 (Freitag) 
+* **Thema:** Stadt, Uni & Robotik. 
+* **Korrekturen:** Wortstellung (Person vor Ort), Dativ (*zum* Zentrum) & unregelmäßige Verben (*begonnen*). 
+1. Ich bin mit meiner Freundin zum Stadtzentrum gegangen. 
+2. Ich habe drei Kurse besucht. 
+3. Ich habe ein Robotikprojekt mit meinen Freunden begonnen.
