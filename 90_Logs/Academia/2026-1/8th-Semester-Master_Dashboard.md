@@ -9,7 +9,7 @@ status: active
 | Subject                       | Subject Dashboard                                      | Log Folder                                     | Status    |
 | :---------------------------- | :----------------------------------------------------- | :--------------------------------------------- | :-------- |
 | **Net Administration**        | [[Network_Administration_Syllabus\|Subject Dashboard]] | [[90_Logs/Academia/2026-1/Net_Admin/\|Logs]]   | 🟢 Active |
-| **Applied Dist. Programming** | [[Dist_Prog_Dashboard\|Subject Dashboard]]             | [[90_Logs/Academia/2026-1/Dist_Prog/\|Logs]]   | 🟢 Active |
+| **Applied Dist. Programming** | [[_Dist_Prog_Dashboard\|Subject Dashboard]]             | [[90_Logs/Academia/2026-1/Dist_Prog/\|Logs]]   | 🟢 Active |
 | **Data Mining**               | (Coming Soon)                                          | [[90_Logs/Academia/2026-1/Data_Mining/\|Logs]] | 🟢 Active |
 | **Mobile Apps Development**   | (Coming Soon)                                          | [[90_Logs/Academia/2026-1/Mobile_Dev/\|Logs]]  | 🟢 Active |
 |                               |                                                        |                                                |           |
