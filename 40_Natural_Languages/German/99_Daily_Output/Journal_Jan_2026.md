@@ -85,3 +85,10 @@ a# _Daily Output Log (January 2026)_
 1. Ich bin mit meiner Freundin zum Stadtzentrum gegangen. 
 2. Ich habe drei Kurse besucht. 
 3. Ich habe ein Robotikprojekt mit meinen Freunden begonnen.
+---
+### 2026-01-19 (Montag)
+* **Thema:** Wochenende & Linux Projekte.
+* **Korrekturen:** Wortwahl (*eingerichtet* vs. *funktioniert*), Akkusativ (*meinen* Monitor, *den* Test) & Neutrum (*mein* Wochenende).
+1. Mein Wochenende war sehr gut, aber ich habe den TOEFL-Test nicht gemacht.
+2. Ich habe mein Linux-System eingerichtet.
+3. Ich habe meinen Python-Systemmonitor angefangen.
