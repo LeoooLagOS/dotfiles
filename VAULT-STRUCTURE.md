@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-16 11:04
+last_updated: 2026-01-21 14:34
 ---
 # 🌳 Vault Structure Map
 
@@ -232,6 +232,7 @@ My-CS-Notes
 │       │   ├── Two Sum (Python).md
 │       │   └── Valid Palindrome (Python).md
 │       └── uni-labs
+│           ├── Practice 1 Implementation.md
 │           ├── PySerial Implementation.md
 │           └── Stop and Wait Python.md
 ├── 06_Computer_Graphics
@@ -374,6 +375,7 @@ My-CS-Notes
 │   ├── ROS2.md
 │   ├── RPC.md
 │   ├── SNMP.md
+│   ├── Stop and Wait Protocol.md
 │   └── XON-XOFF Protocol.md
 ├── 13__Artificial_Intelligence_and_Machine_Learning
 │   └── _Data_Mining
@@ -413,6 +415,7 @@ My-CS-Notes
 │   ├── Advanced Vi Operations.md
 │   ├── DevOps vs SysAdmin.md
 │   ├── Environment Variables and .env Files.md
+│   ├── Linux CLI Fundamentals.md
 │   ├── SRE.md
 │   ├── SysAdmin Functions.md
 │   ├── Vi Cheat Sheet.md
@@ -546,6 +549,7 @@ My-CS-Notes
 │       │   ├── Passiv.md
 │       │   ├── Possessive Articles (Possessivartikel).md
 │       │   ├── Sentence Structure V2.md
+│       │   ├── The Dative Case.md
 │       │   ├── The Perfekt Tense.md
 │       │   ├── Two-Way Prepositions (Dative).md
 │       │   └── Verbs of State (Lageverben).md
@@ -555,11 +559,11 @@ My-CS-Notes
 │       │   ├── Editor_Vocab.md
 │       │   ├── Gym Vocabulary (Fitness und Training).md
 │       │   ├── Housing Furniture (Wohnen und Möbel).md
+│       │   ├── Linux Admin Vocab.md
 │       │   └── Networking_Vocab.md
 │       ├── 99_Daily_Output
 │       │   └── Journal_Jan_2026.md
-│       ├── _German.md
-│       └── The Dative Case.md
+│       └── _German.md
 ├── 41_My_Setup
 │   └── _Fedora Workstation
 │       ├── _Fedora Linux (Stable).md
@@ -572,14 +576,14 @@ My-CS-Notes
 │   ├── Academia
 │   │   └── 2026-1
 │   │       ├── Data_Mining
-│   │       │   ├── Class.md
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Methodology.md
 │   │       │   └── Class_04_Weka_and_KDD.md
 │   │       ├── Dist_Prog
+│   │       │   ├── _Dist_Prog_Dashboard.md
 │   │       │   ├── Class_02_Serial_Protocols.md
 │   │       │   ├── Class_03_Architectures.md
-│   │       │   └── Dist_Prog_Dashboard.md
+│   │       │   └── Class_04_Practice_1_Lab.md
 │   │       ├── Mobile_Dev
 │   │       │   └── Class_02_Practice.md
 │   │       ├── Net_Admin
