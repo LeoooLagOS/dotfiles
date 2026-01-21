@@ -92,3 +92,10 @@ a# _Daily Output Log (January 2026)_
 1. Mein Wochenende war sehr gut, aber ich habe den TOEFL-Test nicht gemacht.
 2. Ich habe mein Linux-System eingerichtet.
 3. Ich habe meinen Python-Systemmonitor angefangen.
+---
+### 2026-01-20 (Dienstag)
+* **Thema:** Uni & Coding.
+* **Korrekturen:** Dativ Maskulin (*zu meinem*), Akkusativ Neutral (*ein Buch/Skript*) und Partizip II (*geschrieben*).
+1. Ich bin zu meinem Deutschkurs gefahren.
+2. Ich habe ein Data-Mining-Buch gelesen.
+3. Ich habe ein Python-Skript geschrieben.
