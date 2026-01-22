@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-21 22:28
+last_updated: 2026-01-22 10:22
 ---
 # 🌳 Vault Structure Map
 
@@ -382,7 +382,8 @@ My-CS-Notes
 │       ├── _Data Mining.md
 │       ├── _Regression Models.md
 │       ├── CRISP-DM Process.md
-│       └── Data Mining Variables.md
+│       ├── Data Mining Variables.md
+│       └── Supervised vs Unsupervised Learning.md
 ├── 14_Git
 │   ├── _Troubleshooting
 │   │   └── Git Push Rejected (Remote Ahead).md
@@ -543,12 +544,15 @@ My-CS-Notes
 ├── 40_Natural_Languages
 │   └── German
 │       ├── 00_Grammar_Syntax
+│       │   ├── Adjective Endings.md
 │       │   ├── German Cases.md
 │       │   ├── Imperative (Formal 'Sie').md
 │       │   ├── Imperative (Informal du & ihr).md
+│       │   ├── Modal Verbs.md
 │       │   ├── Passiv.md
 │       │   ├── Possessive Articles (Possessivartikel).md
 │       │   ├── Sentence Structure V2.md
+│       │   ├── Subordinate Clauses (Nebensätze).md
 │       │   ├── The Dative Case.md
 │       │   ├── The Perfekt Tense.md
 │       │   ├── Two-Way Prepositions (Dative).md
