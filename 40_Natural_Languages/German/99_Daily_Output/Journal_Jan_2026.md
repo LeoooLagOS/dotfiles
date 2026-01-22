@@ -99,3 +99,10 @@ a# _Daily Output Log (January 2026)_
 1. Ich bin zu meinem Deutschkurs gefahren.
 2. Ich habe ein Data-Mining-Buch gelesen.
 3. Ich habe ein Python-Skript geschrieben.
+---
+### 2026-01-21 (Mittwoch)
+* **Thema:** Uni & Projekte.
+* **Grammatik:** Nebensatz mit "weil" (Verb am Ende!), Passiv (*wurde gewählt*) und Partizipien (*gezeichnet*).
+1. Ich bin zu meiner Vorlesung gegangen, weil der Parkplatz sehr voll war.
+2. Ich wurde im "Mobile Robotics Lab" zum Projektchef gewählt.
+3. Ich habe ein App-Mockup gezeichnet.
