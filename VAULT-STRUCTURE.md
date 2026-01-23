@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-22 18:15
+last_updated: 2026-01-23 12:20
 ---
 # 🌳 Vault Structure Map
 
@@ -542,12 +542,18 @@ My-CS-Notes
 ├── 30_Projects
 │   └── PCAM Image Processor.md
 ├── 40_Natural_Languages
+│   ├── English
+│   │   └── C2_Matery
+│   │       ├── Advanced_Collocations.md
+│   │       ├── C2_Nuance_and_Hedging.md
+│   │       └── Phrasal_Verb_Logic.md
 │   └── German
 │       ├── 00_Grammar_Syntax
 │       │   ├── Adjective Endings.md
 │       │   ├── German Cases.md
 │       │   ├── Imperative (Formal 'Sie').md
 │       │   ├── Imperative (Informal du & ihr).md
+│       │   ├── Konjunktiv II.md
 │       │   ├── Modal Verbs.md
 │       │   ├── Passiv.md
 │       │   ├── Possessive Articles (Possessivartikel).md
