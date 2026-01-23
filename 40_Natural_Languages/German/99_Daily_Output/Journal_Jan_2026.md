@@ -9,7 +9,7 @@ month: January
 year: 2026
 status: active
 ---
-a# _Daily Output Log (January 2026)_
+# _Daily Output Log (January 2026)_
 
 ## 🎯 Monthly Goal
 * **Target:** Write 3 sentences daily.
@@ -86,6 +86,8 @@ a# _Daily Output Log (January 2026)_
 2. Ich habe drei Kurse besucht. 
 3. Ich habe ein Robotikprojekt mit meinen Freunden begonnen.
 ---
+---
+## Week 3
 ### 2026-01-19 (Montag)
 * **Thema:** Wochenende & Linux Projekte.
 * **Korrekturen:** Wortwahl (*eingerichtet* vs. *funktioniert*), Akkusativ (*meinen* Monitor, *den* Test) & Neutrum (*mein* Wochenende).

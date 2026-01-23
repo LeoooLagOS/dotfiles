@@ -27,22 +27,59 @@ A logically structured, inflection-heavy Germanic language that relies on strict
 * **Precision:** German favors explicit grammatical markers (Cases) over context.
 * **The "Bracket" (Klammer):** Sentences often hold the most important information (the verb prefix or participle) until the very end, requiring the listener to buffer the entire sentence in memory.
 
-## ⚙️ Key Details
-- **Current Level:** A1-A2 (Targeting B1/B2 by May 2026).
-- **Core Components:**
-    - **Syntax Engine:** The rules governing word order (V2, Inversion).
-    - **Logic Engine:** The Case System (Nom, Akk, Dat, Gen).
-    - **Database:** Vocabulary (Nouns require Gender + Plural).
-- **Routine:**
-    - **Input:** Daily Commute Audio (Passive).
-    - **Processing:** Gym Contextual Association.
-    - **Output:** Daily Journaling (3 Sentences).
+---
 
-## 🔗 Connections & Implementations
-* **Syntax & Rules:**
-    * [[German Cases|The Cases]] - The logic of "Who does what."
-    * [[The Perfekt Tense]] - Handling the past.
-    * [[Sentence Structure V2|The Word Order V2]] - The main algorithm for sentences.
-    * [[Two-Way Prepositions (Dative)]] - Location logic.
-## See Also
-* [[Anki]] - Spaced Repetition System.
+## 🧠 System Architecture (Map of Content)
+
+### 🏗️ 00_Grammar_Syntax (The Engine)
+*The rules governing the "Syntax Engine" and "Logic Engine".*
+
+**🧱 The Foundation (Types & Declarations)**
+* [[German Cases]] - The master cheat sheet (Nom/Akk/Dat).
+* [[The Dative Case]] - Deep dive into the "Recipient" role.
+* [[Adjective Endings]] - The signal theory (Strong vs. Weak).
+* [[Possessive Articles (Possessivartikel)]] - Ownership markers.
+
+**⚙️ Control Flow (Syntax)**
+* [[Sentence Structure V2]] - The main algorithm (Position 2).
+* [[Subordinate Clauses (Nebensätze)]] - The "Verb Kicker" (weil, dass, wenn).
+* [[Two-Way Prepositions (Dative)]] - Location logic (Wo vs. Wohin).
+
+**⚡ Functions & States (Verbs)**
+* [[The Perfekt Tense]] - Handling asynchronous events (The Past).
+* [[Modal Verbs]] - Modifying execution capability (können, müssen).
+* [[Passiv]] - Describing background processes.
+* [[Verbs of State (Lageverben)]] - Positional states.
+* [[Imperative (Formal 'Sie')]] & [[Imperative (Informal du & ihr)]] - Issuing commands.
+
+### 💾 01_Vocabulary_DB (The Fuel)
+*Domain-specific data to populate the structures.*
+
+**🖥️ Domain: Computer Science**
+* [[Linux Admin Vocab]] - File systems, permissions, shell.
+* [[Distributed_Systems_Vocab]] - Latency, nodes, clusters.
+* [[Networking_Vocab]] - Layers, protocols, hardware.
+* [[Editor_Vocab]] - IDEs, debugging, shortcuts.
+
+**🌍 Domain: Reality**
+* [[Daily Routine (Tagesablauf)]] - The main loop of the day.
+* [[Gym Vocabulary (Fitness und Training)]] - Physical maintenance.
+* [[Housing Furniture (Wohnen und Möbel)]] - Environment setup.
+
+### 📝 99_Daily_Output (Runtime Logs)
+* [[Journal_Jan_2026]] - Daily execution logs (3 Sentences).
+
+---
+
+## ⚙️ Execution Plan (Sprint Goal: B1)
+**Current Status:** A2 (Targeting B1 by May 2026).
+
+**Routine:**
+1.  **Input (Passive):** Daily Commute Audio (Easy German / Quarks Daily).
+2.  **Processing (Active):** Gym Contextual Association.
+3.  **Output (Write):** Daily Journaling (3 Sentences).
+
+**Focus Areas:**
+* [ ] Mastering the **"Verb Kicker"** in sub-clauses.
+* [ ] Getting fluent with **Adjective Endings**.
+* [ ] Expanding **Tech Vocabulary**.
