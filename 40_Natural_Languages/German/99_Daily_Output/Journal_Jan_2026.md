@@ -108,3 +108,11 @@ status: active
 1. Ich bin zu meiner Vorlesung gegangen, weil der Parkplatz sehr voll war.
 2. Ich wurde im "Mobile Robotics Lab" zum Projektchef gewählt.
 3. Ich habe ein App-Mockup gezeichnet.
+---
+### 2026-01-22 (Donnerstag)
+* **Thema:** Gym Anmeldung & Konjunktiv.
+* **Korrekturen:** Nebensatz-Wortstellung (*weil ... habe*), Richtung (*nach Hause*) und Konjunktiv II.
+1. Ich bin zum Gym gegangen, weil ich mich in einem neuen Fitnessstudio angemeldet habe.
+2. Ich bin früh nach Hause gefahren, weil meine Freundinnen zum Platzfest gegangen sind.
+3. Ich würde gerne meine Hausaufgaben machen.
+---
