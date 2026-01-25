@@ -75,6 +75,74 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 [ -s "/home/lag-os/.bun/_bun" ] && source "/home/lag-os/.bun/_bun"
 
+function sentinel() {
+    # Environment-agnostic variables
+    local DEV_USER="$USER"
+    local VAULT_DIR="$HOME/Documents/My-CS-Notes"
+    
+    # ANSI Color Codes for Professional UI
+    local B='\033[1;34m' # Info
+    local G='\033[0;32m' # Success
+    local R='\033[0;31m' # Fail
+    local Y='\033[1;33m' # Action
+    local NC='\033[0m'   # No Color
+
+    echo -e "${B}===[ 🛡️  SENTINEL SYSTEM CHECK | User: ${DEV_USER} ]===${NC}"
+
+    # 1. IDEMPOTENT SECURITY POLICY
+    # Fixes lax permissions common in dual-boot setups automatically.
+    printf "🔐 Security: "
+    if [[ -d ~/.ssh ]]; then
+        chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519* 2>/dev/null
+        chmod -R go-rwx ~/.keychain 2>/dev/null
+        echo -e "${G}POLICY_ENFORCED${NC}"
+    else
+        echo -e "${R}SSH_DIR_NOT_FOUND${NC}"
+    fi
+
+    # 2. VIRTUALIZATION ENGINE (KVM/QEMU)
+    # Required for GNS3 and Network Administration labs.
+    printf "🌐 Virtual:  "
+    if systemctl is-active --quiet libvirtd; then
+        echo -e "${G}KVM_ACTIVE${NC}"
+    else
+        echo -e "${Y}STARTING_LIBVIRTD...${NC}"
+        sudo systemctl start libvirtd && echo -e "   ↳ ${G}Daemon spawned successfully.${NC}"
+    fi
+
+    # 3. RUNTIME INVENTORY
+    # Dynamic versioning for Bun and Go.
+    printf "⚡ Runtimes: "
+    command -v bun &>/dev/null && echo -ne "${G}Bun($(bun --version))${NC} | " || echo -ne "${R}NO_BUN${NC} | "
+    command -v go &>/dev/null && echo -e "${G}Go(Ready)${NC}" || echo -e "${R}NO_GO${NC}"
+
+    # 4. GIT IDENTITY VALIDATION
+    # Uses dynamic lookup to ensure the current shell matches your global config.
+    printf "🐙 Git Auth: "
+    local CURRENT_GIT_USER=$(git config --global user.name)
+    if [[ -n "$CURRENT_GIT_USER" ]]; then
+        echo -e "${G}${CURRENT_GIT_USER}${NC}"
+    else
+        echo -e "${R}IDENTITY_NOT_SET${NC}"
+    fi
+
+    # 5. REPOSITORY INTEGRITY
+    # Checks the status of your "Second Brain" Obsidian Vault.
+    if [[ -d "$VAULT_DIR/.git" ]]; then
+        printf "📚 Vault:    "
+        if [[ -z $(git -C "$VAULT_DIR" status --porcelain) ]]; then
+            echo -e "${G}CLEAN${NC}"
+        else
+            echo -e "${Y}DIRTY_PENDING_SYNC${NC}"
+        fi
+    fi
+
+    echo -e "${B}=================================================${NC}"
+}
+
+# Execute sentinel on shell initialization
+sentinel
+
 # Auto-Backup Function
 save-dots() {
     # 1. Environment & Path Setup
