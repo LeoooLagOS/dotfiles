@@ -1,5 +1,6 @@
 com.spotify.Client
 md.obsidian.Obsidian
+<<<<<<< HEAD
 org.freedesktop.Platform
 org.freedesktop.Platform.GL.default
 org.freedesktop.Platform.GL.default
@@ -8,3 +9,5 @@ org.freedesktop.Platform.VAAPI.Intel
 org.freedesktop.Platform.VAAPI.nvidia
 org.freedesktop.Platform.codecs-extra
 org.gtk.Gtk3theme.Flat-Remix-GTK-Blue-Dark
+=======
+>>>>>>> af0f374 (build(sys): sync architecture map and system state 2026-01-25)
