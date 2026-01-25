@@ -1,0 +1,10 @@
+com.spotify.Client
+md.obsidian.Obsidian
+org.freedesktop.Platform
+org.freedesktop.Platform.GL.default
+org.freedesktop.Platform.GL.default
+org.freedesktop.Platform.GL.nvidia-580-119-02
+org.freedesktop.Platform.VAAPI.Intel
+org.freedesktop.Platform.VAAPI.nvidia
+org.freedesktop.Platform.codecs-extra
+org.gtk.Gtk3theme.Flat-Remix-GTK-Blue-Dark
