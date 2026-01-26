@@ -1,6 +1,6 @@
 ---
 tags: #system/meta
-last_updated: 2026-01-25 14:23
+last_updated: 2026-01-26 13:59
 ---
 # 🌳 Vault Structure Map
 
@@ -621,6 +621,7 @@ My-CS-Notes
 │   ├── Concept Template.md
 │   ├── Natural Language.md
 │   └── Overview Template.md
+├── AlmaLinux-Lab.md
 ├── Pasted image 20251127153739.png
 ├── Pasted image 20251127153744.png
 ├── Pasted image 20251127153951.png
