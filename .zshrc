@@ -253,20 +253,21 @@ check-links() {
     
     echo "Status: Verifying Symlink Integrity..."
     
-    # We use a temporary file to store counts because pipes | create subshells
-    while read -r line; do
+    # We use 'readlink' which is much more reliable than parsing 'ls'
+    while read -r link; do
         ((TOTAL_LINKS++))
-        local link=$(echo "$line" | awk '{print $(NF-2)}')
-        local target=$(echo "$line" | awk '{print $NF}')
+        local target=$(readlink -f "$link")
         
         if [[ ! -e "$target" ]]; then
             echo "❌ Broken Link: $link -> $target"
             ((BROKEN_COUNT++))
         fi
-    done < <(find "$HOME" -maxdepth 2 -type l -ls | grep "$DOTS_DIR")
+    done < <(find "$HOME" -maxdepth 2 -type l -exec ls -d {} + | grep "$DOTS_DIR")
 
-    if [[ $BROKEN_COUNT -eq 0 ]]; then
+    if [[ $BROKEN_COUNT -eq 0 && $TOTAL_LINKS -gt 0 ]]; then
         echo "✅ All $TOTAL_LINKS links are healthy."
+    elif [[ $TOTAL_LINKS -eq 0 ]]; then
+        echo "❓ No dotfile links found in $HOME."
     else
         echo "⚠️ Found $BROKEN_COUNT broken links out of $TOTAL_LINKS."
     fi

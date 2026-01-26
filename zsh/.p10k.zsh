@@ -1,0 +1,1 @@
+/home/lag-os/dotfiles/zsh/.p10k.zsh
