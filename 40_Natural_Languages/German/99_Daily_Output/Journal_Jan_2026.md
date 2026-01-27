@@ -116,3 +116,11 @@ status: active
 2. Ich bin früh nach Hause gefahren, weil meine Freundinnen zum Platzfest gegangen sind.
 3. Ich würde gerne meine Hausaufgaben machen.
 ---
+---
+## Week 3
+### 2026-01-26 (Montag)
+* **Thema:** Push-Training & Autofahrt.
+* **Korrekturen:** Vokabel (*erledigt*), Präposition (*mit dem Auto*), Nebensatz (*weil ... ist*) und Konjunktiv (*würde* + Infinitiv).
+1. Ich habe meine Push-Routine erledigt.
+2. Ich bin mit dem Auto gefahren, weil das Gym weit weg ist.
+3. Ich würde jetzt gerne schlafen.
