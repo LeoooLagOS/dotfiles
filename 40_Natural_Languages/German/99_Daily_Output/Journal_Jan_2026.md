@@ -124,3 +124,10 @@ status: active
 1. Ich habe meine Push-Routine erledigt.
 2. Ich bin mit dem Auto gefahren, weil das Gym weit weg ist.
 3. Ich würde jetzt gerne schlafen.
+---
+### 2026-01-27 (Dienstag)
+* **Thema:** Kino & Teamarbeit.
+* **Korrekturen:** Dativ-Endungen (*meiner, dem*), Präposition (*ins Kino*), Pronomen (*Wir*) und Konjunktiv III-Person (*könnte*).
+1. Ich bin mit meiner Freundin ins Kino gegangen.
+2. Wir fanden, dass der Film sehr gut war.
+3. Mein Projektteam könnte mir mit dem Bericht helfen.
