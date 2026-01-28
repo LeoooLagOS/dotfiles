@@ -1,0 +1,9 @@
+[user]
+    name = LeoooLagOS
+    email = lagoslopezleonardo@gmail.com
+[color]
+    ui = auto
+[init]
+    defaultBranch = main
+[push]
+    autoSetupRemote = true
