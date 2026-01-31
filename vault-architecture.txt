@@ -1,4 +1,4 @@
-My-CS-Notes
+my-cs-notes
 ├── 00_Computer_Science
 │   ├── _Computer Science.md
 │   ├── _Theory of Computation.md
@@ -560,6 +560,7 @@ My-CS-Notes
 │       │   ├── Two-Way Prepositions (Dative).md
 │       │   └── Verbs of State (Lageverben).md
 │       ├── 01_Vocabulary_DB
+│       │   ├── Cybersecurity Vocab.md
 │       │   ├── Daily Routine (Tagesablauf).md
 │       │   ├── Distributed_Systems_Vocab.md
 │       │   ├── Editor_Vocab.md

@@ -78,7 +78,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 function sentinel() {
     # Environment-agnostic variables
     local DEV_USER="$USER"
-    local VAULT_DIR="$HOME/Documents/My-CS-Notes"
+    local VAULT_DIR="$HOME/Documents/my-cs-notes/"
     
     # ANSI Color Codes for Professional UI
     local B='\033[1;34m' # Info
@@ -276,7 +276,7 @@ check-links() {
 # Auto-Backup Function for German obsidian vault Logs 
 save-deutsch-log() {
     # 1. Scope variables locally to avoid environment pollution
-    local LOG_DIR="$HOME/Documents/My-CS-Notes/40_Natural_Languages/German/99_Daily_Output"
+    local LOG_DIR="$HOME/Documents/my-cs-notes/40_Natural_Languages/German/99_Daily_Output"
     local CURRENT_DATE=$(date +'%Y-%m-%d')
     local DEFAULT_MSG="docs(de): update system German-log for $CURRENT_DATE"
 
@@ -318,7 +318,7 @@ save-deutsch-log() {
 }
 
 vault-tree() {
-    local VAULT_DIR="$HOME/Documents/My-CS-Notes"
+    local VAULT_DIR="$HOME/Documents/my-cs-notes/"
     local DOTS_DIR="$HOME/dotfiles"
     local CURRENT_DATE=$(date +'%Y-%m-%d')
     
