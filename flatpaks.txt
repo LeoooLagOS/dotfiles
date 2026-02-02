@@ -1,3 +1,4 @@
+com.github.tchx84.Flatseal
 com.rtosta.zapzap
 com.spotify.Client
 dev.vencord.Vesktop
