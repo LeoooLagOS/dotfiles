@@ -569,6 +569,7 @@ my-cs-notes
 │       │   ├── Linux Admin Vocab.md
 │       │   └── Networking_Vocab.md
 │       ├── 99_Daily_Output
+│       │   ├── Journal_Feb_2026.md
 │       │   └── Journal_Jan_2026.md
 │       ├── Resources
 │       │   ├── panorama-a1pdf(2)_250814_131536.pdf
@@ -611,9 +612,14 @@ my-cs-notes
 │       └── 2026-01-20_Data_Mining_Concepts_Han.md
 ├── 91_Templates
 │   ├── logs
-│   │   ├── gym-legs.md
-│   │   ├── gym-pull.md
-│   │   ├── gym-push.md
+│   │   ├── gym
+│   │   │   ├── gym-lower-A.md
+│   │   │   ├── gym-lower-B.md
+│   │   │   ├── gym-upper-A.md
+│   │   │   ├── gym-upper-B.md
+│   │   │   ├── Lower B.md
+│   │   │   ├── Lower-A.md
+│   │   │   └── RPE.jpg
 │   │   ├── maestro-project.md
 │   │   └── maestro-reading.md
 │   ├── Algorithm Template.md
