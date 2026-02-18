@@ -622,6 +622,8 @@ my-cs-notes
 │       └── Hyprlock Configuration.md
 ├── 80_System
 │   └── Vault Structure Philosophy.md
+├── 81_AI_Logic_and_Prompts
+│   └── update-system-prompts.md
 ├── 90_Logs
 │   ├── Academia
 │   │   └── 2026-1
