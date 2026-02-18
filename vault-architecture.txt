@@ -623,6 +623,7 @@ my-cs-notes
 ├── 80_System
 │   └── Vault Structure Philosophy.md
 ├── 81_AI_Logic_and_Prompts
+│   ├── 8th-semester-prompt.md
 │   └── update-system-prompts.md
 ├── 90_Logs
 │   ├── Academia
