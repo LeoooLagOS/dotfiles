@@ -308,6 +308,7 @@ nvtop
 nwg-displays
 nwg-look
 nxpwireless-firmware
+okular
 open-vm-tools-desktop
 openh264
 opensc

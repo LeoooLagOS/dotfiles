@@ -534,6 +534,8 @@ my-cs-notes
 │   └── _Web Development.md
 ├── 22_Mobile_Development
 │   ├── Android
+│   │   ├── _Android Resource Architecture.md
+│   │   └── XML Resource Linking.md
 │   ├── Visual-Programming
 │   ├── _Mobile Apps Development.md
 │   └── Event-Driven Programming.md
@@ -553,6 +555,7 @@ my-cs-notes
 │   └── German
 │       ├── 00_Grammar_Syntax
 │       │   ├── Adjective Endings.md
+│       │   ├── Daily Routine (Tagesablauf).md
 │       │   ├── German Cases.md
 │       │   ├── Imperative (Formal 'Sie').md
 │       │   ├── Imperative (Informal du & ihr).md
@@ -567,8 +570,9 @@ my-cs-notes
 │       │   ├── Two-Way Prepositions (Dative).md
 │       │   └── Verbs of State (Lageverben).md
 │       ├── 01_Vocabulary_DB
+│       │   ├── Clothes_Vocab.md
 │       │   ├── Cybersecurity Vocab.md
-│       │   ├── Daily Routine (Tagesablauf).md
+│       │   ├── Daily_Routine_Vocab.md
 │       │   ├── Distributed_Systems_Vocab.md
 │       │   ├── Editor_Vocab.md
 │       │   ├── Gym Vocabulary (Fitness und Training).md
