@@ -571,14 +571,23 @@ my-cs-notes
 │       │   └── Verbs of State (Lageverben).md
 │       ├── 01_Vocabulary_DB
 │       │   ├── Clothes_Vocab.md
-│       │   ├── Cybersecurity Vocab.md
+│       │   ├── Cybersecurity_Vocab.md
 │       │   ├── Daily_Routine_Vocab.md
 │       │   ├── Distributed_Systems_Vocab.md
 │       │   ├── Editor_Vocab.md
-│       │   ├── Gym Vocabulary (Fitness und Training).md
-│       │   ├── Housing Furniture (Wohnen und Möbel).md
-│       │   ├── Linux Admin Vocab.md
-│       │   └── Networking_Vocab.md
+│       │   ├── Feelings_Opinions_Vocab.md
+│       │   ├── Food_Dining_Vocab.md
+│       │   ├── Gym_Fitness_Vocab.md
+│       │   ├── Health_Sickness_Vocab.md
+│       │   ├── Housing_Furniture_Vocab_(Wohnen-und-Möbel).md
+│       │   ├── Linux_Admin_Vocab.md
+│       │   ├── Media_News_Vocab.md
+│       │   ├── Money_Banking_Vocab.md
+│       │   ├── Nature_Weather_Vocab.md
+│       │   ├── Networking_Vocab.md
+│       │   ├── Transport_Travel_Vocab.md
+│       │   ├── Uni_Academic_Vocab.md
+│       │   └── Work_Bureaucracy_Vocab.md
 │       ├── 99_Daily_Output
 │       │   ├── Journal_Feb_2026.md
 │       │   └── Journal_Jan_2026.md
@@ -626,7 +635,7 @@ my-cs-notes
 │   └── Vault Structure Philosophy.md
 ├── 81_AI_Logic_and_Prompts
 │   ├── 8th-semester-prompt.md
-│   └── update-system-prompts.md
+│   └── update-system-prompt.md
 ├── 90_Logs
 │   ├── Academia
 │   │   └── 2026-1
@@ -652,6 +661,7 @@ my-cs-notes
 │   │   └── Job_Hunt_2026.md
 │   ├── Daily
 │   ├── Health
+│   │   ├── Gym
 │   │   └── Lumbar_Tracker.md
 │   └── Reading
 │       └── 2026-01-20_Data_Mining_Concepts_Han.md
