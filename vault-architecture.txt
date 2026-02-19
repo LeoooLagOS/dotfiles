@@ -609,6 +609,8 @@ my-cs-notes
 │       └── _Delfin-2026.md
 ├── 42_Professional_Identity
 ├── 43_Certifications_and_Roadmaps
+│   └── CCNA3
+│       └── Voucher_Pago_CCNA3_BUAP.pdf
 ├── 44_Leadership_and_Soft_Skills
 ├── 45_Bio_Hardware_and_Performance
 ├── 46_Creative_Computing
