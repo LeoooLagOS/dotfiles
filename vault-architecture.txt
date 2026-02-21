@@ -556,19 +556,28 @@ my-cs-notes
 │       ├── 00_Grammar_Syntax
 │       │   ├── Adjective Endings.md
 │       │   ├── Daily Routine (Tagesablauf).md
+│       │   ├── Der Genitiv.md
+│       │   ├── Futur I.md
 │       │   ├── German Cases.md
 │       │   ├── Imperative (Formal 'Sie').md
 │       │   ├── Imperative (Informal du & ihr).md
 │       │   ├── Konjunktiv II.md
 │       │   ├── Modal Verbs.md
+│       │   ├── N-Deklination.md
 │       │   ├── Passiv.md
+│       │   ├── Plusquamperfekt.md
 │       │   ├── Possessive Articles (Possessivartikel).md
+│       │   ├── Präteritum (Simple Past).md
+│       │   ├── Reflexive Verben.md
+│       │   ├── Relativsätze.md
 │       │   ├── Sentence Structure V2.md
 │       │   ├── Subordinate Clauses (Nebensätze).md
 │       │   ├── The Dative Case.md
 │       │   ├── The Perfekt Tense.md
 │       │   ├── Two-Way Prepositions (Dative).md
-│       │   └── Verbs of State (Lageverben).md
+│       │   ├── Verben mit festen Präpositionen.md
+│       │   ├── Verbs of State (Lageverben).md
+│       │   └── Zweiteilige Konnektoren.md
 │       ├── 01_Vocabulary_DB
 │       │   ├── Clothes_Vocab.md
 │       │   ├── Cybersecurity_Vocab.md

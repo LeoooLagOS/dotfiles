@@ -285,6 +285,7 @@ mesa-dri-drivers
 mesa-libEGL
 mesa-vulkan-drivers
 microcode_ctl
+minicom
 mousepad
 mozilla-openh264
 mpage
@@ -327,6 +328,7 @@ patch
 patchutils
 pavucontrol
 pciutils
+picocom
 pinentry-gnome3
 pinfo
 pipewire-alsa
@@ -405,6 +407,7 @@ systemd-oomd-defaults
 systemd-resolved
 systemd-udev
 systemtap
+tabby-terminal
 tar
 tcpdump
 teamd
