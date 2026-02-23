@@ -197,10 +197,11 @@ my-cs-notes
 │   │   ├── Searching and Patterns
 │   │   │   ├── Kadanes Algorithm.md
 │   │   │   └── Two Pointer Technique.md
-│   │   └── Sorting
-│   │       ├── Bubble Sort.md
-│   │       ├── Insertion Sort.md
-│   │       └── Merge Sort.md
+│   │   ├── Sorting
+│   │   │   ├── Bubble Sort.md
+│   │   │   ├── Insertion Sort.md
+│   │   │   └── Merge Sort.md
+│   │   └── Dijkstra's Algorithm.md
 │   └── 03 Practice Log
 │       ├── HackerRank
 │       │   ├── 1D Array (Java).md
@@ -264,6 +265,7 @@ my-cs-notes
 │   │   ├── Dynamic Trunking Protocol (DTP).md
 │   │   ├── EtherChannel Negotiation Protocols (LACP vs PAgP).md
 │   │   ├── HSRP.md
+│   │   ├── OSPF.md
 │   │   ├── SSH.md
 │   │   ├── STP Port Roles.md
 │   │   ├── STP Versions (STP, RSTP, PVST, MSTP).md
@@ -273,6 +275,10 @@ my-cs-notes
 │   │   ├── Default Route.md
 │   │   ├── Directly Connected Route.md
 │   │   ├── Longest Match Rule.md
+│   │   ├── OSPF Databases.md
+│   │   ├── OSPF Hierarchical Design.md
+│   │   ├── OSPF Operational States.md
+│   │   ├── OSPF Packet Types.md
 │   │   ├── Packet Forwading Decision Process.md
 │   │   ├── Remote Route.md
 │   │   ├── Root Bridge.md
@@ -337,6 +343,7 @@ my-cs-notes
 │       │   ├── Verifying Port Security.md
 │       │   ├── Verifying Routes with show ip route.md
 │       │   └── VTY Lines.md
+│       ├── CCNA_3_Enterprise_Networking_Security_and_Automation
 │       └── Cisco IOS.md
 ├── 10_Cybersecurity
 │   ├── 01_Network_Security
@@ -648,6 +655,11 @@ my-cs-notes
 ├── 90_Logs
 │   ├── Academia
 │   │   └── 2026-1
+│   │       ├── CCNA3
+│   │       │   ├── CCNA3_M01.1_01 - OSPF Features and Characteristics.md
+│   │       │   ├── CCNA3_M01.1_02 - OSPF Hierarchical Design.md
+│   │       │   ├── CCNA3_M01.2 - OSPF Packets.md
+│   │       │   └── CCNA3_M01.3 - OSPF Operation.md
 │   │       ├── Data_Mining
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Methodology.md
