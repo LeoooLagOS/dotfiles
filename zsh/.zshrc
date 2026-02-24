@@ -22,6 +22,12 @@ source $ZSH/oh-my-zsh.sh
 [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+# -----------------------------------------------------------
+# 🔒 Private Configs
+# -----------------------------------------------------------
+# local/private configurations (Not tracked by Git)
+# later create ~/.zshrc.local for anything secret 
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
 # -----------------------------------------------------------
 # 🎨 Visuals (Pokemon & Fastfetch)
@@ -61,6 +67,7 @@ alias spotify='flatpak run com.spotify.Client'
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/id_ed25519
 chmod -R go-rwx ~/.keychain
+
 # Start SSH Agent via Keychain
 eval $(keychain --eval --quiet id_ed25519)
 
@@ -317,6 +324,50 @@ save-deutsch-log() {
     popd > /dev/null
 }
 
+# Auto-Backup Function for DSA Daily Logs 
+save-dsa-log() {
+    # 1. Scope variables locally
+    # Note: Quotes are critical here because "03 Practice Log" contains spaces
+    local LOG_DIR="$HOME/Documents/my-cs-notes/05_Algorithms_and_Data_Structures/03 Practice Log/99_Daily_Output"
+    local CURRENT_DATE=$(date +'%Y-%m-%d')
+    local DEFAULT_MSG="docs(dsa): update DSA daily log for $CURRENT_DATE"
+
+    # 2. Guard Clause: Verify directory existence
+    if [[ ! -d "$LOG_DIR" ]]; then
+        echo "Error: Target directory does not exist at $LOG_DIR" >&2
+        return 1
+    fi
+
+    # 3. Use pushd for cleaner directory stack management
+    pushd "$LOG_DIR" > /dev/null || return 1
+
+    # 4. The "Porcelain" Check: Prevent empty commits
+    if [[ -z "$(git status --porcelain .)" ]]; then
+        echo "System: No changes detected in the DSA log. Skipping commit."
+        popd > /dev/null
+        return 0
+    fi
+
+    echo "Status: Staging DSA logs for $CURRENT_DATE..."
+    git add .
+
+    # 5. Commit with default or custom message ($1)
+    local COMMIT_MSG="${1:-$DEFAULT_MSG}"
+
+    # 6. Atomic Operation
+    if git commit -m "$COMMIT_MSG"; then
+        echo "Status: Syncing with remote origin..."
+        git push
+        echo "Success: DSA log saved professionally. Keep grinding!"
+    else
+        echo "Error: Git commit failed." >&2
+        popd > /dev/null
+        return 1
+    fi
+
+    popd > /dev/null
+}
+
 vault-tree() {
     local VAULT_DIR="$HOME/Documents/my-cs-notes/"
     local DOTS_DIR="$HOME/dotfiles"
@@ -487,12 +538,8 @@ sys-clean() {
 alias vt='vault-tree'
 alias vsync='vault-tree'
 alias gerlog='save-deutsch-log'
+alias dsalog='save-dsa-log'
 alias dots='save-dots'
 alias check='check-links'
 
-# -----------------------------------------------------------
-# 🔒 Private Configs
-# -----------------------------------------------------------
-# local/private configurations (Not tracked by Git)
-# later create ~/.zshrc.local for anything secret 
-[ -f ~/.zshrc.local ] && source ~/.zshrc.local
+
