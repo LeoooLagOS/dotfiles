@@ -203,6 +203,8 @@ my-cs-notes
 │   │   │   └── Merge Sort.md
 │   │   └── Dijkstra's Algorithm.md
 │   └── 03 Practice Log
+│       ├── 99_Daily_Output
+│       │   └── DSA_Journal_Feb_2026.md
 │       ├── HackerRank
 │       │   ├── 1D Array (Java).md
 │       │   ├── 1D Arrays in C.md
@@ -631,7 +633,8 @@ my-cs-notes
 │       │   ├── Ruiz-Vega-Daniel.md
 │       │   ├── Sossa-Azuela-Juan-Humberto.md
 │       │   └── Villordo-Jimenez-Iclia.md
-│       └── _Delfin-2026.md
+│       ├── _Delfin-2026.md
+│       └── D26_IPN_AIRO_ACEPTADO.pdf
 ├── 42_Professional_Identity
 ├── 43_Certifications_and_Roadmaps
 │   └── CCNA3
@@ -685,7 +688,8 @@ my-cs-notes
 │   │   ├── Gym
 │   │   └── Lumbar_Tracker.md
 │   └── Reading
-│       └── 2026-01-20_Data_Mining_Concepts_Han.md
+│       ├── 2026-01-20_Data_Mining_Concepts_Han.md
+│       └── 2026-02-24_ISLP.md
 ├── 91_Templates
 │   ├── logs
 │   │   ├── gym
@@ -696,6 +700,7 @@ my-cs-notes
 │   │   │   ├── Lower B.md
 │   │   │   ├── Lower-A.md
 │   │   │   └── RPE.jpg
+│   │   ├── DSA Journal Template.md
 │   │   ├── maestro-project.md
 │   │   └── maestro-reading.md
 │   ├── Algorithm Template.md
