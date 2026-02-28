@@ -53,7 +53,7 @@ alias l='ls -l'
 alias la='ls -a'
 alias lla='ls -la'
 alias lt='ls --tree'
-alias update='sudo dnf update update'
+alias update='sudo dnf update'
 
 # Android Studio Alias (Native Launcher)
 alias studio='/opt/android-studio/bin/studio > /dev/null 2>&1 &!'
