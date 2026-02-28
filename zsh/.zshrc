@@ -53,6 +53,7 @@ alias l='ls -l'
 alias la='ls -a'
 alias lla='ls -la'
 alias lt='ls --tree'
+alias update='sudo dnf update update'
 
 # Android Studio Alias (Native Launcher)
 alias studio='/opt/android-studio/bin/studio > /dev/null 2>&1 &!'
@@ -535,12 +536,19 @@ sys-clean() {
 # -----------------------------------------------------------
 # 🏷️ Custom Command Aliases
 # -----------------------------------------------------------
+##---Git Shortcuts---
+alias st='git status'
+alias ad='git add .'
+alias cm='git commit -m'
+alias psh='git push origin main'
+alias pll='git pull origin main'
+
+##---Custom Functions--
 alias vt='vault-tree'
 alias vsync='vault-tree'
 alias gerlog='save-deutsch-log'
 alias dsalog='save-dsa-log'
 alias dots='save-dots'
 alias check='check-links'
-
 
 alias mklab='f(){ mkdir -p "Lab_$1" && touch "Lab_$1/Notes.md"; unset -f f; }; f'
