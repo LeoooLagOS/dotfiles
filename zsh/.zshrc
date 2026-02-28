@@ -543,3 +543,4 @@ alias dots='save-dots'
 alias check='check-links'
 
 
+alias mklab='f(){ mkdir -p "Lab_$1" && touch "Lab_$1/Notes.md"; unset -f f; }; f'
