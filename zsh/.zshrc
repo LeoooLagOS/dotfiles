@@ -281,6 +281,48 @@ check-links() {
     fi
 }
 
+# Surgical Sync for German Vocabulary only
+save-cards() {
+    local VAULT_DIR="$HOME/Documents/my-cs-notes"
+    local VOCAB_PATH="40_Natural_Languages/German/01_Vocabulary_DB"
+    local CURRENT_DATE=$(date +'%Y-%m-%d')
+    local DEFAULT_MSG="docs(vocab): flashcard sync $CURRENT_DATE"
+
+    if [[ ! -d "$VAULT_DIR" ]]; then
+        echo "❌ Vault not found at $VAULT_DIR" >&2
+        return 1
+    fi
+
+    pushd "$VAULT_DIR" > /dev/null || return 1
+
+    # 1. Unstage everything first to prevent "accidental" commits
+    git reset > /dev/null 2>&1
+
+    # 2. Stage ONLY the vocabulary subfolder
+    git add "$VOCAB_PATH"
+
+    # 3. Check if that specific folder has changes
+    if [[ -z "$(git status --porcelain "$VOCAB_PATH")" ]]; then
+        echo "System: No changes in Vocabulary DB. Skipping."
+        popd > /dev/null
+        return 0
+    fi
+
+    # 4. Commit and Push
+    local COMMIT_MSG="${1:-$DEFAULT_MSG}"
+    if git commit -m "$COMMIT_MSG"; then
+        echo "🚀 Syncing Vocabulary DB..."
+        git push
+        echo "✅ German flashcards synchronized."
+    else
+        echo "❌ Git commit failed." >&2
+    fi
+
+    popd > /dev/null
+}
+
+# The shorter alias
+alias cards='save-cards'
 # Auto-Backup Function for German obsidian vault Logs 
 save-deutsch-log() {
     # 1. Scope variables locally to avoid environment pollution
@@ -550,5 +592,6 @@ alias gerlog='save-deutsch-log'
 alias dsalog='save-dsa-log'
 alias dots='save-dots'
 alias check='check-links'
+alias cards='save-cards'
 
 alias mklab='f(){ mkdir -p "Lab_$1" && touch "Lab_$1/Notes.md"; unset -f f; }; f'
