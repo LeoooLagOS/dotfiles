@@ -680,9 +680,9 @@ my-cs-notes
 │   │       │   │   └── CCNA3_M01_M02-Exam_Guide.md
 │   │       │   ├── CCNA3_M01.1_01 - OSPF Features and Characteristics.md
 │   │       │   ├── CCNA3_M01.1_02 - OSPF Hierarchical Design.md
-│   │       │   ├── CCNA3_M01.2 - OSPF Packets.md
-│   │       │   ├── CCNA3_M01.3_01 - OSPF Operation.md
-│   │       │   ├── CCNA3_M01.3_02 - Databases.md
+│   │       │   ├── CCNA3_M01.2 - OSPF Packets Types.md
+│   │       │   ├── CCNA3_M01.3_01 - Operational States.md
+│   │       │   ├── CCNA3_M01.3_02 - OSPF Database Synchronization.md
 │   │       │   └── CCNA3_M03 - Network Security Concepts.md
 │   │       ├── Data_Mining
 │   │       │   ├── Class_02_Intro.md
