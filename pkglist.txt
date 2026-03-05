@@ -129,6 +129,7 @@ gcc-c++
 gdm
 gettext
 gfs2-utils
+gh
 ghdl
 ghostscript
 git

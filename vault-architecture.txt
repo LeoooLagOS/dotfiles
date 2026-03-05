@@ -195,6 +195,7 @@ my-cs-notes
 │   │       └── Spanning Tree (Graph Theory).md
 │   ├── 02 Algorithms and Techniques
 │   │   ├── Searching and Patterns
+│   │   │   ├── Fast and Slow Pointers.md
 │   │   │   ├── Kadanes Algorithm.md
 │   │   │   └── Two Pointer Technique.md
 │   │   ├── Sorting
@@ -204,7 +205,8 @@ my-cs-notes
 │   │   └── Dijkstra's Algorithm.md
 │   └── 03 Practice Log
 │       ├── 99_Daily_Output
-│       │   └── DSA_Journal_Feb_2026.md
+│       │   ├── DSA_Journal_Feb_2026.md
+│       │   └── DSA_Journal_March_2026.md
 │       ├── HackerRank
 │       │   ├── 1D Array (Java).md
 │       │   ├── 1D Arrays in C.md
@@ -223,7 +225,10 @@ my-cs-notes
 │       │   ├── Best Time to Buy and Sell Stock (Java).md
 │       │   ├── Contains Duplicate (Java).md
 │       │   ├── Group Anagrams (Python).md
+│       │   ├── Linked List Cycle (Python).md
 │       │   ├── Maximum Subarray (Python).md
+│       │   ├── Middle of the Linked List (Python).md
+│       │   ├── Palindrome Linked List (Python).md
 │       │   ├── Two Sum (Java).md
 │       │   ├── Two Sum (Python).md
 │       │   └── Valid Palindrome (Python).md
@@ -388,6 +393,7 @@ my-cs-notes
 │   │   ├── _Regression Models.md
 │   │   ├── CRISP-DM Process.md
 │   │   ├── Data Mining Variables.md
+│   │   ├── Reducible vs Irreducible Error.md
 │   │   └── Supervised vs Unsupervised Learning.md
 │   └── Resources
 │       └── ISLP-with-python.pdf
@@ -555,6 +561,11 @@ my-cs-notes
 │   │   ├── 02_Hardware_Specs.md
 │   │   └── 03_VHDL_Implementation.md
 │   └── PCAM Image Processor.md
+├── 31_Uni_Labs
+│   └── CCNA3
+│       └── Labs
+│           └── 3.8.8-Explorar_Trafico_DNS
+│               └── 3.8.8-exlorar_trafico_dns_estudiantes.docx
 ├── 40_Natural_Languages
 │   ├── English
 │   │   └── C2_Matery
@@ -589,6 +600,7 @@ my-cs-notes
 │       │   └── Zweiteilige Konnektoren.md
 │       ├── 01_Vocabulary_DB
 │       │   ├── Clothes_Vocab.md
+│       │   ├── Core_Daily_Vocab.md
 │       │   ├── Cybersecurity_Vocab.md
 │       │   ├── Daily_Routine_Vocab.md
 │       │   ├── Distributed_Systems_Vocab.md
@@ -608,7 +620,8 @@ my-cs-notes
 │       │   └── Work_Bureaucracy_Vocab.md
 │       ├── 99_Daily_Output
 │       │   ├── Journal_Feb_2026.md
-│       │   └── Journal_Jan_2026.md
+│       │   ├── Journal_Jan_2026.md
+│       │   └── Journal_Mar_2026.md
 │       ├── Resources
 │       │   ├── panorama-a1pdf(2)_250814_131536.pdf
 │       │   └── Panorama-übungsbuch-a1.pdf
@@ -649,20 +662,28 @@ my-cs-notes
 │       ├── _Fedora Linux (Stable).md
 │       ├── _Fedora Workstation.md
 │       ├── Fedora Rawhide.md
-│       └── Hyprlock Configuration.md
+│       ├── Fedora_Networking_Cheatsheet.md
+│       ├── Fedora_Networking_Lab_Workflow.md
+│       ├── Hyprlock Configuration.md
+│       └── Serial_Communication_Tools.md
 ├── 80_System
 │   └── Vault Structure Philosophy.md
 ├── 81_AI_Logic_and_Prompts
 │   ├── 8th-semester-prompt.md
+│   ├── update-daily-protocol-algorithm.md
 │   └── update-system-prompt.md
 ├── 90_Logs
 │   ├── Academia
 │   │   └── 2026-1
 │   │       ├── CCNA3
+│   │       │   ├── Exams-Guide
+│   │       │   │   └── CCNA3_M01_M02-Exam_Guide.md
 │   │       │   ├── CCNA3_M01.1_01 - OSPF Features and Characteristics.md
 │   │       │   ├── CCNA3_M01.1_02 - OSPF Hierarchical Design.md
 │   │       │   ├── CCNA3_M01.2 - OSPF Packets.md
-│   │       │   └── CCNA3_M01.3 - OSPF Operation.md
+│   │       │   ├── CCNA3_M01.3_01 - OSPF Operation.md
+│   │       │   ├── CCNA3_M01.3_02 - Databases.md
+│   │       │   └── CCNA3_M03 - Network Security Concepts.md
 │   │       ├── Data_Mining
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Methodology.md
@@ -673,7 +694,7 @@ my-cs-notes
 │   │       │   ├── Class_03_Architectures.md
 │   │       │   └── Class_04_Practice_1_Lab.md
 │   │       ├── Mobile_Dev
-│   │       │   └── Class_02_Practice.md
+│   │       │   └── class-2026-03-04.md
 │   │       ├── Net_Admin
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Protocols.md
@@ -688,8 +709,9 @@ my-cs-notes
 │   │   ├── Gym
 │   │   └── Lumbar_Tracker.md
 │   └── Reading
-│       ├── 2026-01-20_Data_Mining_Concepts_Han.md
-│       └── 2026-02-24_ISLP.md
+│       ├── 2026-01-20_ISLP.md
+│       ├── 2026-02-24_ISLP.md
+│       └── 2026-02-27_ISLP.md
 ├── 91_Templates
 │   ├── logs
 │   │   ├── gym
