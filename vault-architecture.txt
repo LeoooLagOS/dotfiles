@@ -553,6 +553,7 @@ my-cs-notes
 ├── 22_Mobile_Development
 │   ├── Android
 │   │   ├── _Android Resource Architecture.md
+│   │   ├── Programming Timers.md
 │   │   └── XML Resource Linking.md
 │   ├── Visual-Programming
 │   ├── _Mobile Apps Development.md
@@ -680,7 +681,8 @@ my-cs-notes
 │   │   └── 2026-1
 │   │       ├── CCNA3
 │   │       │   ├── Exams-Guide
-│   │       │   │   └── CCNA3_M01_M02-Exam_Guide.md
+│   │       │   │   ├── CCNA3_M01_M02-Exam_Guide.md
+│   │       │   │   └── OSPF_Checkpoint_M01_M02_MOC.md
 │   │       │   ├── CCNA3_M01.1_01 - OSPF Features and Characteristics.md
 │   │       │   ├── CCNA3_M01.1_02 - OSPF Hierarchical Design.md
 │   │       │   ├── CCNA3_M01.2 - OSPF Packets Types.md
@@ -697,7 +699,6 @@ my-cs-notes
 │   │       │   ├── Class_03_Architectures.md
 │   │       │   └── Class_04_Practice_1_Lab.md
 │   │       ├── Mobile_Dev
-│   │       │   └── class-2026-03-04.md
 │   │       ├── Net_Admin
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Protocols.md
@@ -713,8 +714,7 @@ my-cs-notes
 │   │   └── Lumbar_Tracker.md
 │   └── Reading
 │       ├── 2026-01-20_ISLP.md
-│       ├── 2026-02-24_ISLP.md
-│       └── 2026-02-27_ISLP.md
+│       └── 2026-02-24_ISLP.md
 ├── 91_Templates
 │   ├── logs
 │   │   ├── gym
