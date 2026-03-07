@@ -279,6 +279,7 @@ my-cs-notes
 │   │   ├── STP Versions (STP, RSTP, PVST, MSTP).md
 │   │   └── STP.md
 │   ├── _Routing_Concepts
+│   │   ├── ACL.md
 │   │   ├── Default Gateway on a Switch.md
 │   │   ├── Default Route.md
 │   │   ├── Directly Connected Route.md
@@ -295,7 +296,8 @@ my-cs-notes
 │   │   ├── Router-on-a-stick.md
 │   │   ├── Routing (Packet Forwarding Process).md
 │   │   ├── Routing Table.md
-│   │   └── Static Routing.md
+│   │   ├── Static Routing.md
+│   │   └── Wildcard Mask.md
 │   ├── _Switching_Concepts
 │   │   ├── Alternate Port (Blocked Port).md
 │   │   ├── Auto-MDIX.md
@@ -680,6 +682,10 @@ my-cs-notes
 │   ├── Academia
 │   │   └── 2026-1
 │   │       ├── CCNA3
+│   │       │   ├── 91_Templates
+│   │       │   │   └── Attachments
+│   │       │   │       ├── Pasted image 20260307101653.png
+│   │       │   │       └── Pasted image 20260307101727.png
 │   │       │   ├── Exams-Guide
 │   │       │   │   ├── CCNA3_M01_M02-Exam_Guide.md
 │   │       │   │   └── OSPF_Checkpoint_M01_M02_MOC.md
@@ -688,7 +694,12 @@ my-cs-notes
 │   │       │   ├── CCNA3_M01.2 - OSPF Packets Types.md
 │   │       │   ├── CCNA3_M01.3_01 - Operational States.md
 │   │       │   ├── CCNA3_M01.3_02 - OSPF Database Synchronization.md
-│   │       │   └── CCNA3_M03 - Network Security Concepts.md
+│   │       │   ├── CCNA3_M02.1_01 - Single-Area OSPFv2 Configuration.md
+│   │       │   ├── CCNA3_M02.1_02 - Router ID Config.md
+│   │       │   ├── CCNA3_M03 - Network Security Concepts.md
+│   │       │   ├── CCNA3_M04.1 - ACL Concepts and Purpose.md
+│   │       │   ├── CCNA3_M04.2 - Wildcard Mask.md
+│   │       │   └── CCNA3_M05.1_1 - Configure Standard IPv4 ACLs.md
 │   │       ├── Data_Mining
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Methodology.md
@@ -698,7 +709,6 @@ my-cs-notes
 │   │       │   ├── Class_02_Serial_Protocols.md
 │   │       │   ├── Class_03_Architectures.md
 │   │       │   └── Class_04_Practice_1_Lab.md
-│   │       ├── Mobile_Dev
 │   │       ├── Net_Admin
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Protocols.md
