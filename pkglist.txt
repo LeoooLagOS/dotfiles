@@ -125,6 +125,7 @@ fprintd-pam
 fwupd
 fzf
 gamemode
+gc
 gcc-c++
 gdm
 gettext
@@ -173,6 +174,7 @@ gnupg2
 golang-bin
 google-noto-sans-cjk-fonts
 google-roboto-mono-fonts
+gpm-libs
 grub2-efi-ia32
 grub2-efi-ia32-cdboot
 grub2-efi-ia32-modules
@@ -302,6 +304,7 @@ network-manager-applet
 nfs-utils
 nmap
 nmap-ncat
+nmh
 nss-mdns
 ntfs-3g
 ntfsprogs
@@ -329,6 +332,7 @@ patch
 patchutils
 pavucontrol
 pciutils
+perl-NKF
 picocom
 pinentry-gnome3
 pinfo
@@ -438,6 +442,7 @@ virt-manager
 virt-viewer
 virtualbox-guest-additions
 vte-profile
+w3m
 wallust
 wget2-wget
 which
