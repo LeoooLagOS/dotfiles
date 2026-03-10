@@ -230,6 +230,7 @@ my-cs-notes
 │       │   ├── Merge Two Sorted Lists (Python).md
 │       │   ├── Middle of the Linked List (Python).md
 │       │   ├── Palindrome Linked List (Python).md
+│       │   ├── Remove Duplicates from Sorted List (Python).md
 │       │   ├── Two Sum (Java).md
 │       │   ├── Two Sum (Python).md
 │       │   └── Valid Palindrome (Python).md
@@ -606,6 +607,7 @@ my-cs-notes
 │       │   └── Zweiteilige Konnektoren.md
 │       ├── 01_Vocabulary_DB
 │       │   ├── Clothes_Vocab.md
+│       │   ├── Connectors_Logic_Vocab.md
 │       │   ├── Core_Daily_Vocab.md
 │       │   ├── Cybersecurity_Vocab.md
 │       │   ├── Daily_Routine_Vocab.md
@@ -653,7 +655,14 @@ my-cs-notes
 │       │   ├── Sossa-Azuela-Juan-Humberto.md
 │       │   └── Villordo-Jimenez-Iclia.md
 │       ├── _Delfin-2026.md
-│       └── D26_IPN_AIRO_ACEPTADO.pdf
+│       ├── CARTA DE EXPOSICIÓN DE MOTIVOS .docx
+│       ├── CARTA DE EXPOSICIÓN DE MOTIVOS .pdf
+│       ├── carta de recomendacion.docx
+│       ├── carta de recomendacion.pdf
+│       ├── D26_IPN_AIRO_ACEPTADO.pdf
+│       ├── voucher-pagado-kardex-legalizado 1.pdf
+│       ├── voucher-pagado-kardex-LeonardoLagos-202275039.pdf
+│       └── voucher_para_kardex-legalizado-leonardo.pdf
 ├── 42_Professional_Identity
 ├── 43_Certifications_and_Roadmaps
 │   └── CCNA3
