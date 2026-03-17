@@ -187,9 +187,11 @@ my-cs-notes
 │   │   └── Big O Notation.md
 │   ├── 01 Data Structures
 │   │   ├── Linear
-│   │   │   └── Arrays.md
+│   │   │   ├── Arrays.md
+│   │   │   └── Stacks.md
 │   │   └── Non Linear
 │   │       ├── Graph (Data Structure).md
+│   │       ├── Hash Map Lookup Tables.md
 │   │       ├── Hash Maps.md
 │   │       ├── Hash Sets.md
 │   │       └── Spanning Tree (Graph Theory).md
@@ -479,8 +481,10 @@ my-cs-notes
 │   │   ├── PHP Form Handling.md
 │   │   └── PHP Sessions.md
 │   ├── Python
-│   │   ├── _Pyhton for DSA.md
-│   │   └── _Python.md
+│   │   ├── _Python for DSA.md
+│   │   ├── _Python.md
+│   │   ├── Python Ternary Operator.md
+│   │   └── Python Truthiness.md
 │   ├── VHDL
 │   │   ├── _VHDL.md
 │   │   └── VHDL Testbench.md
