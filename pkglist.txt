@@ -459,6 +459,7 @@ xdg-desktop-portal-gtk
 xdg-user-dirs-gtk
 xfsprogs
 xorg-x11-drv-nvidia-cuda
+xournalpp
 yad
 yelp
 yyjson

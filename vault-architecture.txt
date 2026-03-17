@@ -231,6 +231,8 @@ my-cs-notes
 │       │   ├── Middle of the Linked List (Python).md
 │       │   ├── Palindrome Linked List (Python).md
 │       │   ├── Remove Duplicates from Sorted List (Python).md
+│       │   ├── Remove Linked List Elements (Python).md
+│       │   ├── Remove Nth Node From End of List (Python).md
 │       │   ├── Two Sum (Java).md
 │       │   ├── Two Sum (Python).md
 │       │   └── Valid Palindrome (Python).md
@@ -291,6 +293,7 @@ my-cs-notes
 │   │   ├── OSPF Hierarchical Design.md
 │   │   ├── OSPF Operational States.md
 │   │   ├── OSPF Packet Types.md
+│   │   ├── OSPF Router ID.md
 │   │   ├── Packet Forwading Decision Process.md
 │   │   ├── Remote Route.md
 │   │   ├── Root Bridge.md
@@ -577,6 +580,7 @@ my-cs-notes
 │   ├── English
 │   │   └── C2_Matery
 │   │       ├── Advanced_Collocations.md
+│   │       ├── C1_Refactor_Log.md
 │   │       ├── C2_Nuance_and_Hedging.md
 │   │       └── Phrasal_Verb_Logic.md
 │   └── German
@@ -636,36 +640,43 @@ my-cs-notes
 │       └── _German.md
 ├── 41_Career_and_Mobility
 │   └── delfin-2026
-│       ├── pdf-tabs
-│       │   ├── D26_IMP_MATS_Arellanes.pdf
-│       │   ├── D26_IPN_AIRO_Sossa.pdf
-│       │   ├── D26_IPN_DATA_Olivares.pdf
-│       │   ├── D26_IPN_IOT_Cantera.pdf
-│       │   ├── D26_IPN_MEDR_Cruz.pdf
-│       │   ├── D26_IPN_NETS_Villordo.pdf
-│       │   ├── D26_IPN_POWR_Ruiz.pdf
-│       │   └── D26_IPN_ROBO_Montiel.pdf
-│       ├── researchers
-│       │   ├── Arellanes-Lozada-Paulina.md
-│       │   ├── Cantera-Cantera-Luis-Alberto.md
-│       │   ├── Cruz-Ortiz-David.md
-│       │   ├── Montiel-Perez-Jesus-Yalja.md
-│       │   ├── Olivares-Ceja-Jesus-Manuel.md
-│       │   ├── Ruiz-Vega-Daniel.md
-│       │   ├── Sossa-Azuela-Juan-Humberto.md
-│       │   └── Villordo-Jimenez-Iclia.md
-│       ├── _Delfin-2026.md
-│       ├── CARTA DE EXPOSICIÓN DE MOTIVOS .docx
-│       ├── CARTA DE EXPOSICIÓN DE MOTIVOS .pdf
-│       ├── carta de recomendacion.docx
-│       ├── carta de recomendacion.pdf
-│       ├── D26_IPN_AIRO_ACEPTADO.pdf
-│       ├── voucher-pagado-kardex-legalizado 1.pdf
-│       ├── voucher-pagado-kardex-LeonardoLagos-202275039.pdf
-│       └── voucher_para_kardex-legalizado-leonardo.pdf
+│       ├── 01_Admin_and_Vouchers
+│       │   ├── Solicitud_oficial_LEO.pdf
+│       │   ├── voucher-pagado-kardex-legalizado 1.pdf
+│       │   ├── voucher-pagado-kardex-LeonardoLagos-202275039.pdf
+│       │   └── voucher_para_kardex-legalizado-leonardo.pdf
+│       ├── 02_Application_Docs
+│       │   ├── CARTA DE EXPOSICIÓN DE MOTIVOS .pdf
+│       │   ├── carta de recomendacion.pdf
+│       │   ├── carta-de-recomendacion-firmada.pdf
+│       │   └── Solicitud Oficial.pdf
+│       ├── 03_Stay_Selection
+│       │   ├── pdf-tabs
+│       │   │   ├── D26_IMP_MATS_Arellanes.pdf
+│       │   │   ├── D26_IPN_AIRO_Sossa.pdf
+│       │   │   ├── D26_IPN_DATA_Olivares.pdf
+│       │   │   ├── D26_IPN_IOT_Cantera.pdf
+│       │   │   ├── D26_IPN_MEDR_Cruz.pdf
+│       │   │   ├── D26_IPN_NETS_Villordo.pdf
+│       │   │   ├── D26_IPN_POWR_Ruiz.pdf
+│       │   │   └── D26_IPN_ROBO_Montiel.pdf
+│       │   └── researchers
+│       │       ├── Arellanes-Lozada-Paulina.md
+│       │       ├── Cantera-Cantera-Luis-Alberto.md
+│       │       ├── Cruz-Ortiz-David.md
+│       │       ├── Montiel-Perez-Jesus-Yalja.md
+│       │       ├── Olivares-Ceja-Jesus-Manuel.md
+│       │       ├── Ruiz-Vega-Daniel.md
+│       │       ├── Sossa-Azuela-Juan-Humberto.md
+│       │       └── Villordo-Jimenez-Iclia.md
+│       ├── 04_Acceptance_Results
+│       │   └── D26_IPN_AIRO_ACEPTADO.pdf
+│       ├── 202275039.pdf
+│       └── _Delfin-2026.md
 ├── 42_Professional_Identity
 ├── 43_Certifications_and_Roadmaps
 │   └── CCNA3
+│       ├── SiPAGO_BUAP_CCNA3-2.pdf
 │       └── Voucher_Pago_CCNA3_BUAP.pdf
 ├── 44_Leadership_and_Soft_Skills
 ├── 45_Bio_Hardware_and_Performance
@@ -691,13 +702,18 @@ my-cs-notes
 │   ├── Academia
 │   │   └── 2026-1
 │   │       ├── CCNA3
-│   │       │   ├── 91_Templates
-│   │       │   │   └── Attachments
-│   │       │   │       ├── Pasted image 20260307101653.png
-│   │       │   │       └── Pasted image 20260307101727.png
 │   │       │   ├── Exams-Guide
 │   │       │   │   ├── CCNA3_M01_M02-Exam_Guide.md
 │   │       │   │   └── OSPF_Checkpoint_M01_M02_MOC.md
+│   │       │   ├── images
+│   │       │   │   ├── activities
+│   │       │   │   │   ├── AE-03 Module4 Extended ACL.jpg
+│   │       │   │   │   ├── AE-03 Module4 Standard ACL.jpg.jpg
+│   │       │   │   │   └── AE-04 Module4 Wildcard.jpg.jpg
+│   │       │   │   └── Attachments
+│   │       │   │       ├── Pasted image 20260307101653.png
+│   │       │   │       ├── Pasted image 20260307101727.png
+│   │       │   │       └── Pasted image 20260311154143.png
 │   │       │   ├── CCNA3_M01.1_01 - OSPF Features and Characteristics.md
 │   │       │   ├── CCNA3_M01.1_02 - OSPF Hierarchical Design.md
 │   │       │   ├── CCNA3_M01.2 - OSPF Packets Types.md
@@ -705,6 +721,7 @@ my-cs-notes
 │   │       │   ├── CCNA3_M01.3_02 - OSPF Database Synchronization.md
 │   │       │   ├── CCNA3_M02.1_01 - Single-Area OSPFv2 Configuration.md
 │   │       │   ├── CCNA3_M02.1_02 - Router ID Config.md
+│   │       │   ├── CCNA3_M02.2_02 - Point to Point OSPF Networks.md
 │   │       │   ├── CCNA3_M03 - Network Security Concepts.md
 │   │       │   ├── CCNA3_M04.1 - ACL Concepts and Purpose.md
 │   │       │   ├── CCNA3_M04.2 - Wildcard Mask.md
@@ -718,6 +735,8 @@ my-cs-notes
 │   │       │   ├── Class_02_Serial_Protocols.md
 │   │       │   ├── Class_03_Architectures.md
 │   │       │   └── Class_04_Practice_1_Lab.md
+│   │       ├── GermanV
+│   │       │   └── 10-03-2026.md
 │   │       ├── Net_Admin
 │   │       │   ├── Class_02_Intro.md
 │   │       │   ├── Class_03_Protocols.md
