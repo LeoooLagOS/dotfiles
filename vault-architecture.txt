@@ -226,6 +226,7 @@ my-cs-notes
 │       ├── LeetCode
 │       │   ├── Best Time to Buy and Sell Stock (Java).md
 │       │   ├── Contains Duplicate (Java).md
+│       │   ├── Evaluate Reverse Polish Notation (Python).md
 │       │   ├── Group Anagrams (Python).md
 │       │   ├── Linked List Cycle (Python).md
 │       │   ├── Maximum Subarray (Python).md
@@ -645,6 +646,9 @@ my-cs-notes
 ├── 41_Career_and_Mobility
 │   └── delfin-2026
 │       ├── 01_Admin_and_Vouchers
+│       │   ├── CURP_LALL040212HPLGPNA2.pdf
+│       │   ├── INE_Leonardo_Lagos_Lopez.pdf
+│       │   ├── Pasaporte Leonardo Lagos López.pdf
 │       │   ├── Solicitud_oficial_LEO.pdf
 │       │   ├── voucher-pagado-kardex-legalizado 1.pdf
 │       │   ├── voucher-pagado-kardex-LeonardoLagos-202275039.pdf
@@ -653,6 +657,7 @@ my-cs-notes
 │       │   ├── CARTA DE EXPOSICIÓN DE MOTIVOS .pdf
 │       │   ├── carta de recomendacion.pdf
 │       │   ├── carta-de-recomendacion-firmada.pdf
+│       │   ├── Solicitud Oficial (1) LEO.pdf
 │       │   └── Solicitud Oficial.pdf
 │       ├── 03_Stay_Selection
 │       │   ├── pdf-tabs
@@ -725,7 +730,8 @@ my-cs-notes
 │   │       │   ├── CCNA3_M01.3_02 - OSPF Database Synchronization.md
 │   │       │   ├── CCNA3_M02.1_01 - Single-Area OSPFv2 Configuration.md
 │   │       │   ├── CCNA3_M02.1_02 - Router ID Config.md
-│   │       │   ├── CCNA3_M02.2_02 - Point to Point OSPF Networks.md
+│   │       │   ├── CCNA3_M02.2_01 - Point to Point OSPF Networks.md
+│   │       │   ├── CCNA3_M02.2_02 - Configure OPSF Using the ip opsf Command.md
 │   │       │   ├── CCNA3_M03 - Network Security Concepts.md
 │   │       │   ├── CCNA3_M04.1 - ACL Concepts and Purpose.md
 │   │       │   ├── CCNA3_M04.2 - Wildcard Mask.md
