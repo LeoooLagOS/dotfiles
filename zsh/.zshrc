@@ -420,7 +420,7 @@ vault-tree() {
     local FILE_TXT="VAULT-STRUCTURE.txt"
     local FILE_MD="VAULT-STRUCTURE.md"
     
-    local TXT_DOTS="$DOTS_DIR/vault-architecture.txt"
+   #local TXT_DOTS="$DOTS_DIR/vault-architecture.txt"
     local TXT_VAULT="$VAULT_DIR/$FILE_TXT"
     local MD_VAULT="$VAULT_DIR/$FILE_MD"
 
