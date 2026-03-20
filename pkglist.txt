@@ -361,6 +361,7 @@ qalculate-gtk
 qcom-wwan-firmware
 qemu-guest-agent
 qemu-kvm
+qpwgraph
 qt5-qtbase
 qt5-qtbase-gui
 qt5-qtdeclarative
@@ -373,6 +374,7 @@ quickshell
 quota
 realmd
 realtek-firmware
+realtime-setup
 rofi
 rootfiles
 rpm
@@ -418,6 +420,7 @@ tabby-terminal
 tar
 tcpdump
 teamd
+tftp-server
 thermald
 thunar-archive-plugin
 thunar-volman
