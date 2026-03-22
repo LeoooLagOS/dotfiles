@@ -86,6 +86,7 @@ default-fonts-other-serif
 deltarpm
 desktop-backgrounds-gnome
 dgop
+dhcp-client
 diffstat
 dms
 dnf5
