@@ -134,6 +134,7 @@ gfs2-utils
 gh
 ghdl
 ghostscript
+gimp
 git
 glib-networking
 glibc
@@ -247,8 +248,7 @@ kexec-tools
 keychain
 kitty
 kmod-nvidia-6.18.10-200.fc43.x86_64
-kmod-nvidia-6.18.6-200.fc43.x86_64
-kmod-nvidia-6.18.7-200.fc43.x86_64
+kmod-nvidia-6.19.9-200.fc43.x86_64
 kvantum
 less
 libertas-firmware
@@ -280,7 +280,7 @@ mailcap
 make
 man-db
 man-pages
-mangowc
+mangowm
 matugen
 mcelog
 mdadm
