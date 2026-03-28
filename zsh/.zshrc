@@ -432,8 +432,8 @@ vault-tree() {
     echo "Status: Generating Multi-Format Vault Maps..."
 
     # 1. Generate TXT
-    lsd --group-directories-first --tree -I ".git" --color=never "$VAULT_DIR" > "$TXT_DOTS"
-    cp "$TXT_DOTS" "$TXT_VAULT"
+    lsd --group-directories-first --tree -I ".git" --color=never "$VAULT_DIR" > "$TXT_VAULT"
+    cp "$TXT_DOTS" 
 
     # 2. Generate Markdown
     {
