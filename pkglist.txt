@@ -47,6 +47,7 @@ bind-utils
 blueman
 bluez-cups
 bluez-tools
+boxes
 brcmfmac-firmware
 brltty
 btop
@@ -59,6 +60,7 @@ codium
 colord
 compsize
 coreutils
+cowsay
 cpio
 crontabs
 cryptsetup
@@ -324,6 +326,7 @@ openssh-server
 orca
 pam_afs_session
 pamixer
+pandoc-cli
 papers
 papers-nautilus
 paps
@@ -421,6 +424,7 @@ tabby-terminal
 tar
 tcpdump
 teamd
+tftp
 tftp-server
 thermald
 thunar-archive-plugin
@@ -432,6 +436,7 @@ toolbox
 totem-video-thumbnailer
 traceroute
 tree
+ttcp
 ubridge
 udisks2-btrfs
 unoconv
