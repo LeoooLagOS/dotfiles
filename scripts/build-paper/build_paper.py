@@ -5,12 +5,13 @@ import os
 import sys
 from pathlib import Path
 
-# --- PORTABLE PATH LOGIC (CORRECTED) ---
-# resolve() first to follow the symlink to the dotfiles folder, then get .parent
+# --- PORTABLE PATH LOGIC ---
 SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = SCRIPT_DIR / "templates"
 CSL_DIR = SCRIPT_DIR / "csl"
+HOME = Path.home()
 
+# Template Configuration
 TEMPLATES = {
     "ieee": {
         "type": "latex",
@@ -33,25 +34,41 @@ def build_command(input_file, template_name):
         return None
 
     tmpl = TEMPLATES[template_name]
-    input_path = Path(input_file)
+    input_path = Path(input_file).resolve()
+    current_dir = input_path.parent
     output_ext = "pdf" if tmpl["type"] == "latex" else "odt"
     output_file = f"{input_path.stem}_{template_name}.{output_ext}"
 
+    # --- IMAGE MANAGEMENT (Resource Path) ---
+    # We tell Pandoc to search for images in these locations:
+    # 1. Current working directory (.)
+    # 2. The directory where the Markdown file lives
+    # 3. An 'attachments' folder inside the Markdown file's directory
+    # 4. Your global Obsidian attachments folder
+    resource_paths = [
+        ".",
+        str(current_dir),
+        str(current_dir / "attachments"),
+        str(HOME / "Documents/my-cs-notes/attachments"),
+    ]
+    resource_path_str = ":".join(resource_paths)
+
+    # Bibliography detection
     bib_files = list(Path(".").glob("*.bib"))
     bib_arg = ["--bibliography", str(bib_files[0])] if bib_files else []
 
-    # Base Pandoc command
-    cmd = ["pandoc", str(input_path), "--citeproc"] + bib_arg
+    # Base Command
+    cmd = [
+        "pandoc",
+        str(input_path),
+        "--citeproc",
+        "--resource-path",
+        resource_path_str,
+    ] + bib_arg
 
-    # CSL Check & Warning
-    if tmpl.get("csl"):
-        if tmpl["csl"].exists():
-            cmd += ["--csl", str(tmpl["csl"])]
-        else:
-            # Alert the user if the CSL is missing instead of failing silently
-            print(
-                f"⚠️  Warning: CSL file not found at {tmpl['csl']}. Using default style."
-            )
+    # CSL and Template logic
+    if tmpl.get("csl") and tmpl["csl"].exists():
+        cmd += ["--csl", str(tmpl["csl"])]
 
     if tmpl["type"] == "latex":
         cmd += ["--template", tmpl["path"], "--pdf-engine", tmpl["engine"]]
@@ -60,9 +77,6 @@ def build_command(input_file, template_name):
 
     cmd += ["-o", output_file]
     return cmd, output_file
-
-
-# ... (el resto del main() se mantiene igual)
 
 
 def main():
@@ -78,13 +92,13 @@ def main():
     result = build_command(args.file, args.type)
     if result:
         command, output_name = result
-        print(f"🏗️  Building '{args.file}'...")
+        print(f"🏗️  Building '{args.file}' with all images...")
         try:
             subprocess.run(command, check=True)
-            print(f"✅ Generated: {output_name}")
+            print(f"✅ Success! Generated: {output_name}")
             subprocess.run(["xdg-open", output_name])
         except subprocess.CalledProcessError:
-            print("❌ Error: Pandoc failed.")
+            print("❌ Error: Pandoc failed to compile.")
 
 
 if __name__ == "__main__":

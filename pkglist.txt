@@ -244,12 +244,14 @@ kbd
 kbd-legacy
 kernel
 kernel-core
+kernel-devel
 kernel-modules
+kernel-modules-core
 kernel-modules-extra
 kexec-tools
 keychain
 kitty
-kmod-nvidia-6.18.10-200.fc43.x86_64
+kmod-nvidia-6.19.10-200.fc43.x86_64
 kmod-nvidia-6.19.9-200.fc43.x86_64
 kvantum
 less
@@ -424,6 +426,8 @@ tabby-terminal
 tar
 tcpdump
 teamd
+texlive-collection-latexrecommended
+texlive-ieeetran
 tftp
 tftp-server
 thermald
