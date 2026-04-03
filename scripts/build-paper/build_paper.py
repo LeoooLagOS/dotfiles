@@ -11,53 +11,54 @@ TEMPLATES_DIR = SCRIPT_DIR / "templates"
 CSL_DIR = SCRIPT_DIR / "csl"
 HOME = Path.home()
 
-# Template Configuration
+# Template Configuration - Updated for Subfolder Structure
 TEMPLATES = {
     "ieee": {
         "type": "latex",
-        "path": str(TEMPLATES_DIR / "ieee.latex"),
+        "path": str(TEMPLATES_DIR / "ieee" / "ieee.latex"),
         "engine": "xelatex",
-        "csl": CSL_DIR / "ieee.csl",
+        "default_csl": "ieee",
     },
-    "academia": {
-        "type": "odt",
-        "path": str(TEMPLATES_DIR / "academia_template.odt"),
-        "engine": None,
-        "csl": None,
+    "academic": {  # Modular Eisvogel Template
+        "type": "latex",
+        "path": str(TEMPLATES_DIR / "academic" / "academic.latex"),
+        "engine": "xelatex",
+        "default_csl": "apa",  # Standard for academic essays
     },
 }
 
 
-def build_command(input_file, template_name):
+def build_command(input_file, template_name, custom_csl=None):
     if template_name not in TEMPLATES:
-        print(f"❌ Error: Template '{template_name}' not defined.")
+        print(f"❌ Error: Template '{template_name}' is not defined.")
         return None
 
     tmpl = TEMPLATES[template_name]
     input_path = Path(input_file).resolve()
     current_dir = input_path.parent
+
+    # Identify the specific subdirectory for this template's assets
+    template_subdir = Path(tmpl["path"]).parent
+
     output_ext = "pdf" if tmpl["type"] == "latex" else "odt"
     output_file = f"{input_path.stem}_{template_name}.{output_ext}"
 
-    # --- IMAGE MANAGEMENT (Resource Path) ---
-    # We tell Pandoc to search for images in these locations:
-    # 1. Current working directory (.)
-    # 2. The directory where the Markdown file lives
-    # 3. An 'attachments' folder inside the Markdown file's directory
-    # 4. Your global Obsidian attachments folder
+    # --- RESOURCE MANAGEMENT (Crucial for Modular Templates) ---
+    # We add the template_subdir so Pandoc can find \input{common.latex}, etc.
     resource_paths = [
         ".",
         str(current_dir),
+        str(template_subdir),
         str(current_dir / "attachments"),
         str(HOME / "Documents/my-cs-notes/attachments"),
     ]
     resource_path_str = ":".join(resource_paths)
 
-    # Bibliography detection
-    bib_files = list(Path(".").glob("*.bib"))
+    # Bibliography detection (finds the first .bib in the document directory)
+    bib_files = list(current_dir.glob("*.bib"))
     bib_arg = ["--bibliography", str(bib_files[0])] if bib_files else []
 
-    # Base Command
+    # Base Pandoc Command
     cmd = [
         "pandoc",
         str(input_path),
@@ -66,10 +67,16 @@ def build_command(input_file, template_name):
         resource_path_str,
     ] + bib_arg
 
-    # CSL and Template logic
-    if tmpl.get("csl") and tmpl["csl"].exists():
-        cmd += ["--csl", str(tmpl["csl"])]
+    # --- CITATION STYLE LOGIC ---
+    style_name = custom_csl if custom_csl else tmpl["default_csl"]
+    csl_path = CSL_DIR / f"{style_name}.csl"
 
+    if csl_path.exists():
+        cmd += ["--csl", str(csl_path)]
+    else:
+        print(f"⚠️ Warning: Citation style '{style_name}' not found in {CSL_DIR}.")
+
+    # --- TEMPLATE ENGINE LOGIC ---
     if tmpl["type"] == "latex":
         cmd += ["--template", tmpl["path"], "--pdf-engine", tmpl["engine"]]
     else:
@@ -80,25 +87,27 @@ def build_command(input_file, template_name):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="lagOS Academic Build System")
+    parser = argparse.ArgumentParser(description="lagOS-station Academic Build System")
     parser.add_argument("file", help="Markdown file to compile")
-    parser.add_argument("--type", default="ieee", help="Template (ieee/academia)")
+    parser.add_argument("--type", default="ieee", help="Template type (ieee/academic)")
+    parser.add_argument("--csl", help="Citation style (apa, ieee, chicago, etc.)")
     args = parser.parse_args()
 
     if not os.path.exists(args.file):
         print(f"❌ Error: File '{args.file}' not found.")
         sys.exit(1)
 
-    result = build_command(args.file, args.type)
+    result = build_command(args.file, args.type, args.csl)
     if result:
         command, output_name = result
-        print(f"🏗️  Building '{args.file}' with all images...")
+        print(f"🏗️  Building '{args.file}' using {args.type} template...")
         try:
             subprocess.run(command, check=True)
             print(f"✅ Success! Generated: {output_name}")
+            # Automatic preview on Fedora
             subprocess.run(["xdg-open", output_name])
         except subprocess.CalledProcessError:
-            print("❌ Error: Pandoc failed to compile.")
+            print("❌ Error: Pandoc failed to compile the document.")
 
 
 if __name__ == "__main__":
