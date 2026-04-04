@@ -233,8 +233,13 @@ $if(dir)$
 $endif$
 
 % set default figure placement to htbp
+%\makeatletter
+%\def\fps@figure{htbp}
+%\makeatother
+% Force images to stay "HERE" [H] using the float package
+\usepackage{float}
 \makeatletter
-\def\fps@figure{htbp}
+\def\fps@figure{H}
 \makeatother
 
 $for(header-includes)$
