@@ -427,7 +427,9 @@ tar
 tcpdump
 teamd
 texlive-collection-latexrecommended
+texlive-footnotebackref
 texlive-ieeetran
+texlive-scheme-full
 tftp
 tftp-server
 thermald
