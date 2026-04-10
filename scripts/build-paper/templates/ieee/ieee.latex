@@ -175,6 +175,19 @@ $if(graphics)$
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+
+% --- Pandoc 3.2.1+ Compatibility Fix ---
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{%
+  \sbox\pandoc@box{#1}%
+  \ifdim\wd\pandoc@box>\linewidth
+    \resizebox{\linewidth}{!}{\usebox\pandoc@box}%
+  \else
+    \usebox\pandoc@box
+  \fi
+}
+\makeatother
 $endif$
 $if(links-as-notes)$
 % Make links footnotes instead of hotlinks:
