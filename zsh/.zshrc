@@ -585,6 +585,7 @@ alias cm='git commit -m'
 alias psh='git push origin main'
 alias pll='git pull origin main'
 alias sv='sudo nvim'
+alias nv='nvim'
 ##---Custom Functions--
 alias vt='vault-tree'
 alias vsync='vault-tree'
