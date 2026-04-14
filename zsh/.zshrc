@@ -155,8 +155,8 @@ sentinel
 save-dots() {
     # 1. Environment & Path Setup
     local DOTS_DIR="$HOME/dotfiles"
-    local PKG_LIST="$DOTS_DIR/pkglist.txt"
-    local FLAT_LIST="$DOTS_DIR/flatpaks.txt"
+    local PKG_LIST="$DOTS_DIR/System/pkglist.txt"
+    local FLAT_LIST="$DOTS_DIR/System/flatpaks.txt"
     local CURRENT_DATE=$(date +'%Y-%m-%d')
     local DEFAULT_MSG="build(sys): snapshot system packages & configs for $CURRENT_DATE"
 
