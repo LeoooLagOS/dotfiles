@@ -1,6 +1,0 @@
-com.bitwarden.desktop
-com.github.tchx84.Flatseal
-com.spotify.Client
-dev.vencord.Vesktop
-md.obsidian.Obsidian
-org.zotero.Zotero
