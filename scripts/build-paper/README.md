@@ -1,14 +1,15 @@
 # 🎓 lagOS Academic Build System
 
-A robust, Python-based CLI tool designed to automate the academic publishing pipeline for the **lagOS-station**. This system streamlines the conversion of Markdown-based research—authored in Obsidian or Neovim—into professional, high-fidelity PDFs using **Pandoc**, **XeLaTeX**, and a modular template engine.
+A robust, Python-based CLI tool designed to automate the academic publishing pipeline for the **lagOS-station**. 
+This system streamlines the conversion of Markdown-based research—authored in Obsidian or Neovim—into professional, high-fidelity PDFs using **Pandoc**, **XeLaTeX**, and a modular template engine.
 
 ## 🏗️ Architecture: Separation of Concerns (SoC)
 
 The system is decoupled into three layers to ensure that style changes never interfere with your research content:
 
-1.  **Content Layer**: Markdown files (`.md`) and research drafts located in your research directories (e.g., `Documents/uni/research/`).
+1.  **Content Layer**: Markdown files (`.md`) and research drafts located in specified research directories (e.g., `Documents/uni/research/`).
 2.  **Logic Layer**: A centralized Python engine (`build_paper.py`) that manages command construction and resource paths.
-3.  **Asset Layer**: Localized **CSL** (Citation Style Language) and **Modular LaTeX** templates stored within your dotfiles for full version control.
+3.  **Asset Layer**: Localized **CSL** (Citation Style Language) and **Modular LaTeX** templates stored within this dotfiles directory for full version control.
 
 ---
 
@@ -35,12 +36,12 @@ build-paper/
 
 ## 🛠️ Prerequisites
 
-To maintain the high-fidelity rendering required for BUAP engineering reports, ensure the following are installed on your Fedora host:
-    - Pandoc 3.x: The core document converter.
-    - TeX Live (Full Scheme): Essential for modular LaTeX components like footnotebackref.sty.
-        - Install via: sudo dnf install texlive-scheme-full.
-    - Python 3.10+: To run the automation logic.
-    - Zotero + Better BibTeX: For managing your My Library.bib research database.
+To maintain the high-fidelity rendering required for engineering, academic or investigation reports, ensure the following are installed on your  host:
+- Pandoc 3.x: The core document converter.
+- TeX Live (Full Scheme): Essential for modular LaTeX components like footnotebackref.sty.
+- Install via: sudo dnf install texlive-scheme-full.
+- Python 3.10+: To run the automation logic.
+- Zotero + Better BibTeX: For managing your My Library.bib research database.
 
 ## 🚀 Installation & Setup
 1. Grant execution permissions:
@@ -56,7 +57,7 @@ To maintain the high-fidelity rendering required for BUAP engineering reports, e
 
 ## 📖 Usage
 
-The tool automatically detects any .bib files in your current working directory to resolve citations via the Pandoc citeproc engine.
+The tool automatically detects any .bib files in the current working directory to resolve citations via the Pandoc citeproc engine.
 1. Generate IEEE Paper (Standard)
 
 Optimized for technical protocols and engineering submissions following IEEE standards.
@@ -78,8 +79,8 @@ build-paper draft.md --type academic --csl ieee
 ```
 ## 🎨 Asset Management
 - Images: The script automatically looks for images in an attachments/ folder relative to your Markdown file.
-- Logos: For the academic template, ensure Logo_BUAP_lightBlue.png is in your project's attachments folder to appear on the title page.
-- Customization: To edit the cover page layout, modify templates/academic/eisvogel-title-page.latex. Your changes are tracked by Git within your dotfiles.
+- Logos: For the academic template, ensure your Logo (`eg. Logo_BUAP_lightBlue.png`) is in your project's attachments folder to appear on the title page.
+- Customization: To edit the cover page layout, modify templates/academic/eisvogel-title-page.latex. 
 
 ## 🤝 Acknowledgements
 
