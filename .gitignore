@@ -9,3 +9,4 @@ credentials
 .env
 .direnv/
 node_modules/
+.initial_startup_done
