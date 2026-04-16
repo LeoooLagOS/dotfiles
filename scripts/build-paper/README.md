@@ -1,14 +1,13 @@
 # 🎓 lagOS Academic Build System
 
-A robust, Python-based CLI tool designed to automate the academic publishing pipeline for the **lagOS-station**. 
-This system streamlines the conversion of Markdown-based research—authored in Obsidian or Neovim—into professional, high-fidelity PDFs using **Pandoc**, **XeLaTeX**, and a modular template engine.
+A robust, Python-based CLI tool designed to automate the academic publishing pipeline for the **lagOS-station**. This system streamlines the conversion of Markdown-based research—authored in **Obsidian** or **Neovim**—into professional, high-fidelity PDFs using **Pandoc**, **XeLaTeX**, and a modular template engine.
 
 ## 🏗️ Architecture: Separation of Concerns (SoC)
 
 The system is decoupled into three layers to ensure that style changes never interfere with your research content:
 
-1.  **Content Layer**: Markdown files (`.md`) and research drafts located in specified research directories (e.g., `Documents/uni/research/`).
-2.  **Logic Layer**: A centralized Python engine (`build_paper.py`) that manages command construction and resource paths.
+1.  **Content Layer**: Markdown files (`.md`) and research drafts located in your project or vault directories.
+2.  **Logic Layer**: A centralized Python engine (`build_paper.py`) that manages command construction, deterministic bibliography detection, and resource paths.
 3.  **Asset Layer**: Localized **CSL** (Citation Style Language) and **Modular LaTeX** templates stored within this dotfiles directory for full version control.
 
 ---
@@ -25,11 +24,11 @@ build-paper/
 │   ├── apa.csl           # APA 7th Edition (Default for Academic)
 │   └── ieee.csl          # IEEE Standard (Default for IEEE)
 └── templates/            # Encapsulated LaTeX templates
+    ├── std-report/       # Daily Driver: Two-column academic layout
+    │   └── std-report.latex # Stability-focused template for BUAP reports
     ├── academic/         # Modular Eisvogel Engine (BUAP Branded)
     │   ├── academic.latex  # Main loader/orchestrator
-    │   ├── common.latex    # Global LaTeX logic
-    │   ├── eisvogel-title-page.latex # Title page logic
-    │   └── ...             # Modular components (fonts, hypersetup, etc.)
+    │   └── ...             # Modular components (fonts, titles, etc.)
     └── ieee/             # Monolithic IEEE Template
         └── ieee.latex    # Single-file IEEE transaction format
 ```
@@ -39,7 +38,7 @@ build-paper/
 To maintain the high-fidelity rendering required for engineering, academic or investigation reports, ensure the following are installed on your  host:
 - Pandoc 3.x: The core document converter.
 - TeX Live (Full Scheme): Essential for modular LaTeX components like footnotebackref.sty.
-- Install via: sudo dnf install texlive-scheme-full.
+    - Install via: sudo dnf install texlive-scheme-full.
 - Python 3.10+: To run the automation logic.
 - Zotero + Better BibTeX: For managing your My Library.bib research database.
 
@@ -57,30 +56,48 @@ To maintain the high-fidelity rendering required for engineering, academic or in
 
 ## 📖 Usage
 
-The tool automatically detects any .bib files in the current working directory to resolve citations via the Pandoc citeproc engine.
-1. Generate IEEE Paper (Standard)
+The tool automatically detects any `.bib` files in the current working directory to resolve citations via the Pandoc citeproc engine.
 
-Optimized for technical protocols and engineering submissions following IEEE standards.
+1. Standard Academic Report (Default)
+
+Optimized for daily documentation and laboratory reports. Uses a clean two-column layout.
+```Bash
+build-paper my_report.md
+```
+2. IEEE Paper
+
+Follows the official IEEE transaction format for technical protocols and engineering submissions.
 ```Bash
 build-paper my_research.md --type ieee
 ```
-2. Generate Academic Report (BUAP Branded)
 
-Uses the modular Eisvogel engine with an "Azul Institucional" (003b5c) cover page and APA citations.
+3. Universal Modular Engine
+
+Uses the Eisvogel foundation for high-customization reports. Settings like title page colors and logos are managed via the Markdown YAML frontmatter.
 ```Bash
-build-paper draft.md --type academic
+build-paper draft.md --type academic --csl apa
 ```
 
-3. Custom Citation Styles
+4. Custom Styles
 
-Override the template's default citation style on the fly (e.g., using IEEE style for an academic report):
-```Bash
+Override the default citation style on the fly:
+```bash
 build-paper draft.md --type academic --csl ieee
 ```
+
+## ⚠️ Known Issues & Troubleshooting
+### APA "Phantom Brackets" (std-report)
+
+In the current MVP version of the std-report template, using APA (author-date) citations can cause an alignment drift in the bibliography.
+- **Symptom:** Citations are pushed into the gutter or display "phantom" indentation where a numeric label would normally be.
+- **Status:** Under investigation for version 1.1.
+- **Workaround:** For mission-critical alignment, use --csl ieee or switch to the academic template type.
+
 ## 🎨 Asset Management
-- Images: The script automatically looks for images in an attachments/ folder relative to your Markdown file.
-- Logos: For the academic template, ensure your Logo (`eg. Logo_BUAP_lightBlue.png`) is in your project's attachments folder to appear on the title page.
-- Customization: To edit the cover page layout, modify templates/academic/eisvogel-title-page.latex. 
+- **Images:** The script automatically looks for images in an attachments/ folder relative to your Markdown file.
+- **Stability Bridge:** The `std-report` template includes logic to ensure wide tables are scaled to fit within a single column.
+- **Logos:** For the academic template, ensure your Logo (`eg. Logo_BUAP_lightBlue.png`) is in your project's attachments folder to appear on the title page.
+- **Customization:** To edit the cover page layout, modify templates/academic/eisvogel-title-page.latex. 
 
 ## 🤝 Acknowledgements
 
