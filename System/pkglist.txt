@@ -96,6 +96,7 @@ dnf5-plugins
 dnsmasq
 dos2unix
 dosfstools
+dotnet-sdk-8.0
 doxygen
 dracut-config-rescue
 dracut-live
@@ -251,8 +252,8 @@ kernel-modules-extra
 kexec-tools
 keychain
 kitty
-kmod-nvidia-6.19.10-200.fc43.x86_64
 kmod-nvidia-6.19.11-200.fc43.x86_64
+kmod-nvidia-6.19.12-200.fc43.x86_64
 kvantum
 less
 libertas-firmware
@@ -378,6 +379,7 @@ qt5ct
 qt6ct
 quickshell
 quota
+rabbitmq-server
 realmd
 realtek-firmware
 realtime-setup
