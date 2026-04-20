@@ -10,10 +10,11 @@ ZSH_THEME=""
 plugins=( 
     git
     dnf
-    ssh-agent
 )
 
 source $ZSH/oh-my-zsh.sh
+# Redirect zcompdump to cache
+export ZSH_COMPDUMP="$XDG_CACHE_HOME/zsh/zcompdump"
 
 # -----------------------------------------------------------
 # 🧠 Fedora System Plugins (Installed via DNF)
@@ -69,8 +70,8 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/id_ed25519
 chmod -R go-rwx ~/.keychain
 
-# Start SSH Agent via Keychain
-eval $(keychain --eval --quiet id_ed25519)
+# Start SSH Agent with a static hostname to prevent directory bloat (wanings suppresed)
+eval $(keychain --eval --quiet --host lagOS-station id_ed25519)
 
 # -----------------------------------------------------------
 # 🚀 Prompt & Languages
@@ -84,11 +85,9 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 [ -s "/home/lag-os/.bun/_bun" ] && source "/home/lag-os/.bun/_bun"
 
 function sentinel() {
-    # Environment-agnostic variables
     local DEV_USER="$USER"
-    local VAULT_DIR="$HOME/Documents/my-cs-notes/"
     
-    # ANSI Color Codes for Professional UI
+    # ANSI Color Codes
     local B='\033[1;34m' # Info
     local G='\033[0;32m' # Success
     local R='\033[0;31m' # Fail
@@ -97,53 +96,29 @@ function sentinel() {
 
     echo -e "${B}===[ 🛡️  SENTINEL SYSTEM CHECK | User: ${DEV_USER} ]===${NC}"
 
-    # 1. IDEMPOTENT SECURITY POLICY
-    # Fixes lax permissions common in dual-boot setups automatically.
+    # 1. SECURITY & VIRTUALIZATION
     printf "🔐 Security: "
-    if [[ -d ~/.ssh ]]; then
-        chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519* 2>/dev/null
-        chmod -R go-rwx ~/.keychain 2>/dev/null
-        echo -e "${G}POLICY_ENFORCED${NC}"
-    else
-        echo -e "${R}SSH_DIR_NOT_FOUND${NC}"
-    fi
-
-    # 2. VIRTUALIZATION ENGINE (KVM/QEMU)
-    # Required for GNS3 and Network Administration labs.
+    [[ -d ~/.ssh/credentials ]] && echo -e "${G}POLICY_ENFORCED${NC}" || echo -e "${R}DIR_MISSING${NC}"
+    
     printf "🌐 Virtual:  "
-    if systemctl is-active --quiet libvirtd; then
-        echo -e "${G}KVM_ACTIVE${NC}"
-    else
-        echo -e "${Y}STARTING_LIBVIRTD...${NC}"
-        sudo systemctl start libvirtd && echo -e "   ↳ ${G}Daemon spawned successfully.${NC}"
-    fi
+    systemctl is-active --quiet libvirtd && echo -e "${G}KVM_ACTIVE${NC}" || echo -e "${Y}KVM_SLEEPING${NC}"
 
-    # 3. RUNTIME INVENTORY
-    # Dynamic versioning for Bun and Go.
+    # 2. RUNTIME INVENTORY (Bullet Points)
+    printf "☕ Java:     "
+    command -v java &>/dev/null && echo -e "${G}$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')${NC}" || echo -e "${R}NOT_FOUND${NC}"
+    
+    printf "🔷 .NET:     "
+    command -v dotnet &>/dev/null && echo -e "${G}$(dotnet --version)${NC}" || echo -e "${R}NOT_FOUND${NC}"
+
+    # 3. INTERPRETERS & COMPILED (Inline)
     printf "⚡ Runtimes: "
     command -v bun &>/dev/null && echo -ne "${G}Bun($(bun --version))${NC} | " || echo -ne "${R}NO_BUN${NC} | "
-    command -v go &>/dev/null && echo -e "${G}Go(Ready)${NC}" || echo -e "${R}NO_GO${NC}"
+    command -v go &>/dev/null && echo -ne "${G}Go($(go version | awk '{print $3}'))${NC} | " || echo -ne "${R}NO_GO${NC} | "
+    command -v python3 &>/dev/null && echo -e "${G}Python($(python3 --version | awk '{print $2}'))${NC}" || echo -e "${R}NO_PY${NC}"
 
-    # 4. GIT IDENTITY VALIDATION
-    # Uses dynamic lookup to ensure the current shell matches your global config.
+    # 4. GIT & VAULT
     printf "🐙 Git Auth: "
-    local CURRENT_GIT_USER=$(git config --global user.name)
-    if [[ -n "$CURRENT_GIT_USER" ]]; then
-        echo -e "${G}${CURRENT_GIT_USER}${NC}"
-    else
-        echo -e "${R}IDENTITY_NOT_SET${NC}"
-    fi
-
-    # 5. REPOSITORY INTEGRITY
-    # Checks the status of your "Second Brain" Obsidian Vault.
-    if [[ -d "$VAULT_DIR/.git" ]]; then
-        printf "📚 Vault:    "
-        if [[ -z $(git -C "$VAULT_DIR" status --porcelain) ]]; then
-            echo -e "${G}CLEAN${NC}"
-        else
-            echo -e "${Y}DIRTY_PENDING_SYNC${NC}"
-        fi
-    fi
+    echo -e "${G}$(git config --global user.name)${NC}"
 
     echo -e "${B}=================================================${NC}"
 }
@@ -433,7 +408,6 @@ vault-tree() {
 
     # 1. Generate TXT
     lsd --group-directories-first --tree -I ".git" --color=never "$VAULT_DIR" > "$TXT_VAULT"
-    cp "$TXT_DOTS" 
 
     # 2. Generate Markdown
     {
@@ -442,10 +416,9 @@ vault-tree() {
         echo "last_updated: $(date +'%Y-%m-%d %H:%M')"
         echo "---"
         echo "# 🌳 Vault Structure Map"
-        echo ""
-        echo '```text'
-        cat "$TXT_DOTS"
-        echo '```'
+        echo -e "\n\`\`\`text"
+        cat "$TXT_VAULT"
+        echo "\`\`\`"
     } > "$MD_VAULT"
 
     echo "📦 Step 2: Atomic Sync (Structure Files Only)..."

@@ -313,6 +313,7 @@ nmap
 nmap-ncat
 nmh
 nss-mdns
+nss-tools
 ntfs-3g
 ntfsprogs
 nvidia-gpu-firmware
@@ -429,6 +430,7 @@ tabby-terminal
 tar
 tcpdump
 teamd
+telegram-desktop
 texlive-collection-latexrecommended
 texlive-footnotebackref
 texlive-ieeetran
