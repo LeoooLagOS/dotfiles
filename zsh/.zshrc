@@ -99,14 +99,28 @@ function sentinel() {
 
     echo -e "${B}===[ 🛡️  SENTINEL SYSTEM CHECK | User: ${DEV_USER} ]===${NC}"
 
-    # 1. SECURITY & VIRTUALIZATION
+    # 1. SECURITY POLICY
     printf "🔐 Security: "
-    [[ -d ~/.ssh/credentials ]] && echo -e "${G}POLICY_ENFORCED${NC}" || echo -e "${R}DIR_MISSING${NC}"
+    if [[ -d ~/.ssh/credentials ]]; then
+        # These are local path operations and do not require sudo
+        chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519* 2>/dev/null
+        echo -e "${G}POLICY_ENFORCED${NC}"
+    else
+        echo -e "${R}DIR_MISSING${NC}"
+    fi
     
+    # 2. VIRTUALIZATION (The logic gate)
     printf "🌐 Virtual:  "
-    systemctl is-active --quiet libvirtd && echo -e "${G}KVM_ACTIVE${NC}" || echo -e "${Y}KVM_SLEEPING${NC}"
+    if systemctl is-active --quiet libvirtd; then
+        # Status check is unprivileged; no password requested here
+        echo -e "${G}KVM_ACTIVE${NC}"
+    else
+        # Only now is sudo invoked, and only once per boot/daemon crash
+        echo -e "${Y}STARTING_LIBVIRTD...${NC}"
+        sudo systemctl start libvirtd && echo -e "    ↳ ${G}Daemon spawned successfully.${NC}"
+    fi
 
-    # 2. RUNTIME INVENTORY (Bullet Points)
+    # 3. RUNTIME INVENTORY (Bullet Points)
     printf "🐍 Python:   "
     command -v python3 &>/dev/null && echo -e "${G}$(python3 --version | awk '{print $2}')${NC}" || echo -e "${R}NOT_FOUND${NC}"
 
@@ -116,13 +130,12 @@ function sentinel() {
     printf "🔷 .NET:     "
     command -v dotnet &>/dev/null && echo -e "${G}$(dotnet --version)${NC}" || echo -e "${R}NOT_FOUND${NC}"
 
-    # 3. FAST RUNTIMES (Inline)
+    # 4. FAST RUNTIMES (Inline)
     printf "⚡ Runtimes: "
     command -v bun &>/dev/null && echo -ne "${G}Bun($(bun --version))${NC} | " || echo -ne "${R}NO_BUN${NC} | "
-    # The 'sed' command here strips the 'go' prefix from 'go1.25.9'
     command -v go &>/dev/null && echo -e "${G}Go($(go version | awk '{print $3}' | sed 's/go//'))${NC}" || echo -e "${R}NO_GO${NC}"
 
-    # 4. GIT IDENTITY
+    # 5. GIT IDENTITY
     printf "🐙 Git Auth: "
     echo -e "${G}$(git config --global user.name)${NC}"
 
