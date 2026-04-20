@@ -10,7 +10,7 @@
 The **lagOS-station** is built on a **Modular Application-Centric** architecture. Unlike standard dotfile repositories that clutter the root directory, this system uses **logical separation** to ensure that each component (Hyprland, Kitty, Shell) remains **environment-agnostic** and easily deployable via **GNU Stow**.
 
 ### Core Philosophy: "Cattle, Not Pets"
-Every component of this workstation is designed to be **idempotent**. By utilizing package lists and declarative symlinking, the entire engineering environment can be reproduced on a clean **Fedora** or **AlmaLinux** host in minutes.
+Every component of this workstation is designed to be **idempotent**. By utilizing package lists and declarative symlinking, the entire engineering environment can be reproduced on a clean **Fedora** host in minutes.
 
 ---
 
@@ -18,32 +18,44 @@ Every component of this workstation is designed to be **idempotent**. By utilizi
 
 ```text
 dotfiles/
-├── config/             # High-level Application Registry (~/.config)
-│   ├── hypr/           # Hyprland WM: Window rules, keybinds, and UI logic
-│   └── kitty/          # GPU-accelerated terminal infrastructure
-├── git/                # Global Git provenance and configurations
+├── config/             # Application Registry (~/.config)
+│   ├── hypr/           # Hyprland WM: Window rules and UI logic
+│   ├── kitty/          # GPU-accelerated terminal infrastructure
+│   └── starship.toml   # The Sentinel: Multi-line stacked prompt logic
+├── git/                # Global Git provenance (~/.gitconfig)
+├── nvim/               # Neovim IDE: LazyVim-based development layer
 ├── scripts/            # The Logic Layer: Custom engineering utilities
-│   ├── build-paper/    # Automated Academic Reporting (Markdown -> IEEE PDF)
+│   ├── build-paper/    # Automated Academic Reporting (MD -> IEEE PDF)
 │   └── lagos-shot/     # Python-powered technical capture utility
 ├── System/             # Infrastructure as Code (IaC) Provisioning
 │   ├── pkglist.txt     # DNF binary requirements
 │   └── flatpaks.txt    # Containerized application registry
-└── zsh/                # Modular shell environment and alias registry
+└── zsh/                # Modular shell and Sentinel System Check
 ```
 
 ## 🛠️ Key Engineering Modules
-1. The Logic Layer (/scripts)
-- **lagos-shot.py:** A robust **Python 3.14 utility** that abstracts regional screen capture. It handles **EXDEV cross-device boundaries** between RAM-based `/tmp` storage and physical drives, automatically injecting absolute Markdown paths into the clipboard for Obsidian integration.
 
-- **build-paper.py:** A **Pandoc/LaTeX** orchestration script designed to compile technical laboratory reports into IEEE-standardized PDFs. It features custom compatibility macros for **Pandoc 3.2+** image bounding and scaling.
-
-2. Desktop Orchestration (`config/hypr`)
+### 1. Desktop Orchestration (`config/hypr`)
 Initially bootstrapped from the JaKooLit framework, the current configuration has been decoupled and flattened.
 -    **Logical Mapping:** All nested .config redundancies have been eliminated for direct mapping.
 -   **Deterministic Keybinds:** Specialized shortcuts for cybersecurity audits and system monitoring.
 
-3. System Provisioning (/System)
+### 2. Neovim IDE (`/nvim`)
+- A **LazyVim** implementation optimized for **Go**, **Python**, and **Markdown** editing, featuring a deterministic plugin lockfile for reproducible development environments.
+
+### 3. The Logic Layer (`/scripts`)
+- **lagos-shot.py:** A robust **Python 3.14 utility** that abstracts regional screen capture. It handles **EXDEV cross-device boundaries** between RAM-based `/tmp` storage and physical drives, automatically injecting absolute Markdown paths into the clipboard for Obsidian integration.
+
+- **build-paper.py:** A **Pandoc/LaTeX** orchestration script designed to compile technical laboratory reports into IEEE-standardized PDFs. It features custom compatibility macros for **Pandoc 3.2+** image bounding and scaling.
+
+### 4. System Provisioning (`/System`)
 Maintains the blueprint for the host machine. By centralizing `pkglist.txt` and `flatpaks.txt`, the environment remains highly portable, facilitating rapid deployment across workstation and server environments used in SOC or Blue Team simulations.
+
+### 5. The Sentinel Shell (`/zsh` & `config/starship.toml`)
+- **Sentinel System Check**: An automated diagnostic function executed upon shell initialization to verify **KVM/libvirt** status, runtime versions (**Java**, **.NET**, **Python**, **Go**), and **Git** identity.
+
+- **Stacked Sentinel Prompt**: A custom **Starship** configuration that provides real-time Git telemetry for the *Maestro Vault* (Obsidian) directly in the command line.
+
 
 ## 🚀 Deployment Workflow
 
@@ -72,7 +84,7 @@ stow -v -t ~/ git
 ## 🕵️ DevSecOps & Best Practices
 -   **Secret Management:** No raw API keys or private tokens are stored within this repository. Environment variables are injected at runtime via local (Git ignored) files.
 
--   **Atomic Commits:** This repository follows the Conventional Commits standard to maintain a clear audit trail of infrastructure changes.
+-   **Atomic Refactoring:** This repository follows the **Conventional Commits** standard to maintain a clear audit trail of infrastructure changes.
 
 -   **Clean Purge Policy:** Legacy backup artifacts and corrupted reparse tags are systematically purged to reduce the system's attack surface and cognitive load.
 
