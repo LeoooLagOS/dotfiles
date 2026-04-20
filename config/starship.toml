@@ -1,0 +1,51 @@
+# 🏗️ lagOS-station Stacked Architecture
+format = """
+$os$username$hostname
+${custom.vault}
+$directory$git_branch$git_status$python$java$dotnet
+$character"""
+
+# 📚 Obsidian Vault Sentinel
+[custom.vault]
+description = "Sync status for Maestro Vault (Uncommitted + Unpushed)"
+# Logic: 
+# 1. Check for modified files (uncommitted)
+# 2. Check for local commits ahead of remote (unpushed)
+command = """
+dir=~/Documents/my-cs-notes
+uncommitted=$(git -C $dir status --porcelain)
+ahead=$(git -C $dir rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
+
+if [ -n "$uncommitted" ] && [ "$ahead" -gt 0 ]; then
+    echo "⚠️ ⬆️ "
+elif [ -n "$uncommitted" ]; then
+    echo "⚠️ "
+elif [ "$ahead" -gt 0 ]; then
+    echo "⬆️ "
+else
+    echo "✅ "
+fi
+"""
+when = "test -d ~/Documents/my-cs-notes/.git"
+format = "[$symbol($output)]($style) "
+symbol = "📚 "
+style = "bold blue"
+
+[directory]
+truncation_length = 4
+truncate_to_repo = false
+home_symbol = "~"
+style = "bold cyan"
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = " "
+style = "bold purple"
+
+[python]
+symbol = "🐍 "
+format = "[$symbol($version )]($style)"
+
+[java]
+symbol = "☕ "
+format = "[$symbol($version )]($style)"
