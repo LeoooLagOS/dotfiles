@@ -56,21 +56,24 @@ alias lla='ls -la'
 alias lt='ls --tree'
 alias update='sudo dnf update'
 
+# -----------------------------------------------------------
+# 🏷️ Custom Programming Aliases
+# -----------------------------------------------------------
 # Android Studio Alias (Native Launcher)
 alias studio='/opt/android-studio/bin/studio > /dev/null 2>&1 &!'
+## Python aliases
+alias py='python3'
+alias python='python3'
 
 # Add Spicetify to Path
 export PATH="$PATH:$HOME/.spicetify"
-# Add Spotify alias  
-alias spotify='flatpak run com.spotify.Client'
-##export PATH=$PATH:/home/lag-os/.spicetify
 
 # fix ssh permissions on startup
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/id_ed25519
 chmod -R go-rwx ~/.keychain
 
-# Start SSH Agent with a static hostname to prevent directory bloat (wanings suppresed)
+# Start SSH Agent with a static hostname to prevent directory bloat (warnings suppresed)
 eval $(keychain --eval --quiet --host lagOS-station id_ed25519)
 
 # -----------------------------------------------------------
@@ -104,19 +107,22 @@ function sentinel() {
     systemctl is-active --quiet libvirtd && echo -e "${G}KVM_ACTIVE${NC}" || echo -e "${Y}KVM_SLEEPING${NC}"
 
     # 2. RUNTIME INVENTORY (Bullet Points)
+    printf "🐍 Python:   "
+    command -v python3 &>/dev/null && echo -e "${G}$(python3 --version | awk '{print $2}')${NC}" || echo -e "${R}NOT_FOUND${NC}"
+
     printf "☕ Java:     "
     command -v java &>/dev/null && echo -e "${G}$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')${NC}" || echo -e "${R}NOT_FOUND${NC}"
     
     printf "🔷 .NET:     "
     command -v dotnet &>/dev/null && echo -e "${G}$(dotnet --version)${NC}" || echo -e "${R}NOT_FOUND${NC}"
 
-    # 3. INTERPRETERS & COMPILED (Inline)
+    # 3. FAST RUNTIMES (Inline)
     printf "⚡ Runtimes: "
     command -v bun &>/dev/null && echo -ne "${G}Bun($(bun --version))${NC} | " || echo -ne "${R}NO_BUN${NC} | "
-    command -v go &>/dev/null && echo -ne "${G}Go($(go version | awk '{print $3}'))${NC} | " || echo -ne "${R}NO_GO${NC} | "
-    command -v python3 &>/dev/null && echo -e "${G}Python($(python3 --version | awk '{print $2}'))${NC}" || echo -e "${R}NO_PY${NC}"
+    # The 'sed' command here strips the 'go' prefix from 'go1.25.9'
+    command -v go &>/dev/null && echo -e "${G}Go($(go version | awk '{print $3}' | sed 's/go//'))${NC}" || echo -e "${R}NO_GO${NC}"
 
-    # 4. GIT & VAULT
+    # 4. GIT IDENTITY
     printf "🐙 Git Auth: "
     echo -e "${G}$(git config --global user.name)${NC}"
 
@@ -569,3 +575,6 @@ alias check='check-links'
 alias cards='save-cards'
 
 alias mklab='f(){ mkdir -p "Lab_$1" && touch "Lab_$1/Notes.md"; unset -f f; }; f'
+
+# Spotify alias  
+alias spotify='flatpak run com.spotify.Client'
