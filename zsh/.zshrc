@@ -54,7 +54,6 @@ alias l='ls -l'
 alias la='ls -a'
 alias lla='ls -la'
 alias lt='ls --tree'
-alias update='sudo dnf update'
 
 # -----------------------------------------------------------
 # 🏷️ Custom Programming Aliases
@@ -144,6 +143,95 @@ function sentinel() {
 
 # Execute sentinel on shell initialization
 sentinel
+
+# --- 🛠️ Senior DevOps System Synchronization Engine ---
+function system_update_sync() {
+    local B='\033[1;34m' G='\033[0;32m' R='\033[0;31m' Y='\033[1;33m' NC='\033[0m'
+    local LOG_PREFIX="[SYSTEM-SYNC]"
+    local START_TIME=$(date +%s)
+    
+    # Internal Logging Helpers
+    log_info()    { echo -e "${B}${LOG_PREFIX}${NC} $1"; }
+    log_success() { echo -e "${G}${LOG_PREFIX} SUCCESS:${NC} $1"; }
+    log_warn()    { echo -e "${Y}${LOG_PREFIX} WARNING:${NC} $1"; }
+    log_error()   { echo -e "${R}${LOG_PREFIX} ERROR:${NC} $1"; }
+
+    echo -e "${B}🔍 Analyzing System State & Calculating Transaction...${NC}"
+
+    # 1. PRE-FLIGHT: Refresh administrative credentials for the analysis
+    sudo -v || return 1
+
+    # 2. PLAN PHASE: Capture metadata via Dry-Runs
+    log_info "Calculating DNF infrastructure changes..."
+    local DNF_SUMMARY=$(sudo dnf upgrade --refresh --assumeno 2>/dev/null | grep -E "Transaction Summary|Install|Upgrade|Remove|Total download size|Is this ok")
+    
+    log_info "Calculating Flatpak application changes..."
+    local FP_SUMMARY=$(flatpak update --dry-run 2>/dev/null | grep -E "Total download|Install|Update")
+
+    # 3. PRESENT THE DEPLOYMENT PLAN
+    echo -e "\n${B}📋 DEPLOYMENT PLAN${NC}"
+    echo -e "-------------------------------------------------"
+    
+    if [[ -n "$DNF_SUMMARY" && ! "$DNF_SUMMARY" =~ "Nothing to do" ]]; then
+        echo -e "${Y}[DNF System Packages]${NC}"
+        echo "$DNF_SUMMARY" | grep -v "Is this ok" | sed 's/^/  /'
+    else
+        echo -e "${G}  DNF: System is already up to date.${NC}"
+    fi
+
+    echo ""
+
+    if [[ -n "$FP_SUMMARY" ]]; then
+        echo -e "${Y}[Flatpak Applications]${NC}"
+        echo "$FP_SUMMARY" | sed 's/^/  /'
+    else
+        echo -e "${G}  Flatpak: All applications are up to date.${NC}"
+    fi
+    echo -e "-------------------------------------------------"
+
+    # 4. SHORT-CIRCUIT: Skip transaction if the system is current
+    if [[ "$DNF_SUMMARY" =~ "Nothing to do" && -z "$FP_SUMMARY" ]]; then
+        log_success "System state is already optimized."
+        echo -ne "${Y}❓ Run maintenance cleanup anyway? [y/N]: ${NC}"
+        read -r response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+            [[ -n "$(whence sys-clean)" ]] && sys-clean || log_error "sys-clean function not found."
+        fi
+        return 0
+    fi
+
+    # 5. THE GATEKEEPER
+    echo -ne "${Y}❓ Proceed with the deployment? [y/N]: ${NC}"
+    read -r response
+    if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        log_warn "Deployment aborted by user."
+        return 0
+    fi
+
+    # 6. EXECUTION PHASE
+    echo -e "\n${B}🚀 Executing Transaction...${NC}"
+    
+    # Fire-and-forget background sudo keep-alive (Disowned to hide PID)
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &!
+
+    # Execute system package upgrades
+    sudo dnf upgrade -y
+    
+    # Execute application-layer updates
+    flatpak update -y
+
+    # Post-deployment cleanup logic
+    if whence sys-clean >/dev/null; then
+        log_info "Initializing post-deployment cleanup..."
+        sys-clean
+    fi
+
+    local END_TIME=$(date +%s)
+    echo -e "\n${G}✨ SYSTEM SYNCHRONIZED SUCCESSFULLY ($((END_TIME - START_TIME))s)${NC}"
+}
+
+# Update alias to point to the new engine
+alias update='system_update_sync'
 
 # Auto-Backup Function
 save-dots() {
@@ -361,13 +449,13 @@ save-deutsch-log() {
     popd > /dev/null
 }
 
-# Auto-Backup Function for DSA Daily Logs 
+# Auto-Backup Function for DSA Daily Logs & Blank Screen Tests
 save-dsa-log() {
     # 1. Scope variables locally
-    # Note: Quotes are critical here because "03 Practice Log" contains spaces
-    local LOG_DIR="$HOME/Documents/my-cs-notes/05_Algorithms_and_Data_Structures/03 Practice Log/99_Daily_Output"
+    # Target the parent Output folder to capture both 01_Practice_Logs and 02_Blank_Screen_Tests
+    local LOG_DIR="$HOME/Documents/my-cs-notes/05_Algorithms_and_Data_Structures/03_Practice_Log/99_Daily_Output"
     local CURRENT_DATE=$(date +'%Y-%m-%d')
-    local DEFAULT_MSG="docs(dsa): update DSA daily log for $CURRENT_DATE"
+    local DEFAULT_MSG="docs(dsa): update DSA daily logs and tests for $CURRENT_DATE"
 
     # 2. Guard Clause: Verify directory existence
     if [[ ! -d "$LOG_DIR" ]]; then
@@ -380,12 +468,12 @@ save-dsa-log() {
 
     # 4. The "Porcelain" Check: Prevent empty commits
     if [[ -z "$(git status --porcelain .)" ]]; then
-        echo "System: No changes detected in the DSA log. Skipping commit."
+        echo "System: No changes detected in the DSA logs or tests. Skipping."
         popd > /dev/null
         return 0
     fi
 
-    echo "Status: Staging DSA logs for $CURRENT_DATE..."
+    echo "Status: Staging DSA activity for $CURRENT_DATE..."
     git add .
 
     # 5. Commit with default or custom message ($1)
@@ -395,7 +483,7 @@ save-dsa-log() {
     if git commit -m "$COMMIT_MSG"; then
         echo "Status: Syncing with remote origin..."
         git push
-        echo "Success: DSA log saved professionally. Keep grinding!"
+        echo "Success: DSA journals and tests synchronized. Keep grinding!"
     else
         echo "Error: Git commit failed." >&2
         popd > /dev/null
@@ -554,19 +642,18 @@ sys-clean() {
     sudo dnf clean all
 
     echo "📦 Cleaning Unused Flatpak Runtimes..."
-    # Removes huge runtimes (like old Nvidia drivers) that nothing uses anymore
     flatpak uninstall --unused -y
 
     echo "📔 Vacuuming System Logs (older than 2 weeks)..."
-    # Keeps logs for debugging, but deletes ancient history
     sudo journalctl --vacuum-time=2weeks
 
-    echo "🗑️ Clearing user cache..."
-    rm -rf ~/.cache/thumbnails/*
-    
-    echo "✨ System Cleaned. Free space reclaimed."
+    echo "🗑️  Clearing user cache..."
+    # FIX: Use find to delete contents silently without globbing errors
+    if [[ -d "$HOME/.cache/thumbnails" ]]; then
+        find "$HOME/.cache/thumbnails" -mindepth 1 -delete 2>/dev/null
+        echo "✨ Thumbnail cache purged."
+    fi
 }
-
 # -----------------------------------------------------------
 # 🏷️ Custom Command Aliases
 # -----------------------------------------------------------
