@@ -253,8 +253,8 @@ kernel-modules-extra
 kexec-tools
 keychain
 kitty
-kmod-nvidia-6.19.11-200.fc43.x86_64
 kmod-nvidia-6.19.12-200.fc43.x86_64
+kmod-nvidia-6.19.13-200.fc43.x86_64
 kvantum
 less
 libertas-firmware
