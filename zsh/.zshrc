@@ -635,24 +635,33 @@ function fix_spotify(){
   fi
 }
 
-# --- 🧹 System Janitor ---
+# --- 🧹 System Janitor (v2.1) ---
 sys-clean() {
-    echo "🧹 Cleaning DNF (Fedora Package Manager)..."
-    sudo dnf autoremove -y
-    sudo dnf clean all
+    local B='\033[1;34m' G='\033[0;32m' NC='\033[0m'
+    
+    echo -e "${B}🧹 Cleaning DNF (Fedora Package Manager)...${NC}"
+    sudo dnf autoremove -y && sudo dnf clean all
 
-    echo "📦 Cleaning Unused Flatpak Runtimes..."
+    echo -e "${B}📦 Cleaning Unused Flatpak Runtimes...${NC}"
     flatpak uninstall --unused -y
 
-    echo "📔 Vacuuming System Logs (older than 2 weeks)..."
+    echo -e "${B}📔 Vacuuming System Logs (older than 2 weeks)...${NC}"
     sudo journalctl --vacuum-time=2weeks
 
-    echo "🗑️  Clearing user cache..."
-    # FIX: Use find to delete contents silently without globbing errors
+    echo -e "${B}🗑️  Clearing user cache...${NC}"
     if [[ -d "$HOME/.cache/thumbnails" ]]; then
         find "$HOME/.cache/thumbnails" -mindepth 1 -delete 2>/dev/null
-        echo "✨ Thumbnail cache purged."
+        echo -e "${G}✨ Thumbnail cache purged.${NC}"
     fi
+    
+    # Packet Tracer specific maintenance
+    if [[ -d "$HOME/pt/logs" ]]; then
+        echo -e "${B}🚀 Purging Packet Tracer debug logs...${NC}"
+        find "$HOME/pt/logs" -type f -name "*.log" -delete 2>/dev/null
+        echo -e "${G}✨ PT logs cleared.${NC}"
+    fi
+
+    echo -e "\n${G}✅ System Janitor: Sanitation Complete.${NC}"
 }
 # -----------------------------------------------------------
 # 🏷️ Custom Command Aliases
