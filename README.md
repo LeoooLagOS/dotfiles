@@ -3,9 +3,8 @@
 [![System](https://img.shields.io/badge/System-Fedora_43-blue?style=for-the-badge&logo=fedora)](https://getfedora.org/)
 [![Shell](https://img.shields.io/badge/Shell-Zsh-orange?style=for-the-badge&logo=zsh)](https://www.zsh.org/)
 [![Manager](https://img.shields.io/badge/Orchestration-GNU_Stow-green?style=for-the-badge)](https://www.gnu.org/software/stow/)
-[![Specialization](https://img.shields.io/badge/Focus-Cybersecurity_%26_DevOps-red?style=for-the-badge)](https://github.com/lag-os)
-[![Security](https://img.shields.io/badge/Provenance-GPG_Signed-success?style=for-the-badge&logo=gnupg)](https://github.com/lag-os)
-
+[![Specialization](https://img.shields.io/badge/Focus-Cybersecurity_%26_DevOps-red?style=for-the-badge)](https://github.com/LeoooLagOS)
+[![Security](https://img.shields.io/badge/Provenance-GPG_Signed-success?style=for-the-badge&logo=gnupg)](https://github.com/LeoooLagOS)
 ## 🏗️ Architectural Overview
 
 The **lagOS-station** is built on a **Modular Application-Centric** architecture. Unlike standard dotfile repositories that clutter the root directory, this system uses **logical separation** to ensure that each component (Hyprland, Kitty, Shell) remains **environment-agnostic** and easily deployable via **GNU Stow**.
