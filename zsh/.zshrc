@@ -48,22 +48,6 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
 
-# Set-up icons for files/directories in terminal using lsd
-alias ls='lsd'
-alias l='ls -l'
-alias la='ls -a'
-alias lla='ls -la'
-alias lt='ls --tree'
-
-# -----------------------------------------------------------
-# 🏷️ Custom Programming Aliases
-# -----------------------------------------------------------
-# Android Studio Alias (Native Launcher)
-alias studio='/opt/android-studio/bin/studio > /dev/null 2>&1 &!'
-## Python aliases
-alias py='python3'
-alias python='python3'
-
 # Add Spicetify to Path
 export PATH="$PATH:$HOME/.spicetify"
 
@@ -229,9 +213,6 @@ function system_update_sync() {
     local END_TIME=$(date +%s)
     echo -e "\n${G}✨ SYSTEM SYNCHRONIZED SUCCESSFULLY ($((END_TIME - START_TIME))s)${NC}"
 }
-
-# Update alias to point to the new engine
-alias update='system_update_sync'
 
 # Auto-Backup Function
 save-dots() {
@@ -403,8 +384,6 @@ save-cards() {
     popd > /dev/null
 }
 
-# The shorter alias
-alias cards='save-cards'
 # Auto-Backup Function for German obsidian vault Logs 
 save-deutsch-log() {
     # 1. Scope variables locally to avoid environment pollution
@@ -663,32 +642,68 @@ sys-clean() {
 
     echo -e "\n${G}✅ System Janitor: Sanitation Complete.${NC}"
 }
+
 # -----------------------------------------------------------
 # 🏷️ Custom Command Aliases
 # -----------------------------------------------------------
-##---Git Shortcuts---
-alias st='git status'
-alias ad='git add .'
+
+# --- 🌍 GLOBAL ALIASES (Works anywhere in the command) ---
+alias -g G='| grep --color=auto'       # Quick filtering
+alias -g L='| less'                   # Quick paging
+alias -g H='| head'                   # Show top results
+alias -g T='| tail'                   # Show bottom results
+alias -g NE='2>/dev/null'              # Silence errors (Nuke Errors)
+alias -g CJ='| jq -C'                 # Colored JSON (if you work with APIs)
+
+# --- 🛰️ NAVIGATION (lsd setup) ---
+alias ls='lsd'
+alias l='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias lt='ls --tree'
+alias lah='ls -lAh'
+alias dev='cd ~/Development'
+
+# --- 🛡️ SYSTEM SAFETY ---
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias update='system_update_sync'
+
+# --- 🏗️ SENIOR GIT WORKFLOW ---
+alias st='git status -sb'
+alias ad='git add'
+alias aa='git add .'
 alias cm='git commit -m'
-alias psh='git push origin main'
-alias pll='git pull origin main'
-alias sv='sudo nvim'
+alias psh='git push origin $(git branch --show-current)'
+alias pll='git pull origin $(git branch --show-current)'
+alias sync='git pull --rebase origin $(git branch --show-current)'
+alias gl="git log --graph --topo-order --pretty=format:'%C(auto)%h%d %s %C(magenta)%C(bold)%ad %C(cyan)%an' --date=short"
+alias gd='git diff'
+alias gds='git diff --staged'
+alias unstage='git restore --staged .'
+alias undo='git reset --soft HEAD~1'
+
+# --- 💻 PROGRAMMING ---
+alias py='python3'
+alias python='python3'
 alias nv='nvim'
-##---Custom Functions--
+alias sv='sudo nvim'
+alias idea='(~/.local/bin/idea . &>/dev/null &!)'
+alias studio='/opt/android-studio/bin/studio > /dev/null 2>&1 &!'
+
+# --- 📚 THE KNOWLEDGE LIBRARIAN ---
 alias vt='vault-tree'
 alias vsync='vault-tree'
 alias gerlog='save-deutsch-log'
 alias dsalog='save-dsa-log'
 alias dots='save-dots'
-alias check='check-links'
 alias cards='save-cards'
+alias check='check-links'
+alias update='system_update_sync'
 
-alias mklab='f(){ mkdir -p "Lab_$1" && touch "Lab_$1/Notes.md"; unset -f f; }; f'
-
-# Spotify alias  
+# --- 🚀 APPS ---
 alias spotify='flatpak run com.spotify.Client'
-# Open current directory in IntelliJ Ultimate (Backgrounded & Disowned)
-alias idea='(~/.local/bin/idea . &>/dev/null &!)'
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
