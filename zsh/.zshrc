@@ -687,3 +687,9 @@ alias mklab='f(){ mkdir -p "Lab_$1" && touch "Lab_$1/Notes.md"; unset -f f; }; f
 
 # Spotify alias  
 alias spotify='flatpak run com.spotify.Client'
+# Open current directory in IntelliJ Ultimate (Backgrounded & Disowned)
+alias idea='(~/.local/bin/idea . &>/dev/null &!)'
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
