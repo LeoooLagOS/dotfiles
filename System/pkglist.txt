@@ -140,6 +140,7 @@ ghdl
 ghostscript
 gimp
 git
+git-delta
 glib-networking
 glibc
 glibc-all-langpacks
