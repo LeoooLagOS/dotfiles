@@ -58,7 +58,7 @@ chmod -R go-rwx ~/.keychain
 
 # Start SSH Agent with a static hostname to prevent directory bloat (warnings suppresed)
 eval $(keychain --eval --quiet --host lagOS-station id_ed25519)
-
+export GPG_TTY=$(tty)
 # -----------------------------------------------------------
 # 🚀 Prompt & Languages
 # -----------------------------------------------------------
