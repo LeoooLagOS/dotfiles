@@ -1,74 +1,89 @@
-#PATH for local and systme scripts 
+# ===========================================================
+# 🏗️ LEVEL 1: ENVIRONMENT & PATHS
+# ===========================================================
+# Build PATH incrementally for clarity
 export PATH="$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
+export PATH="$PATH:$HOME/.spicetify"
 
+# Bun Setup
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "/home/lag-os/.bun/_bun" ] && source "/home/lag-os/.bun/_bun"
+
+# .NET Setup (Optional but recommended for your path)
+[ -d "$HOME/.dotnet/tools" ] && export PATH="$PATH:$HOME/.dotnet/tools"
+
+# XDG & Zsh Internals
 export ZSH="$HOME/.oh-my-zsh"
-
-# We disable the OMZ theme because Starship handles it later
-ZSH_THEME=""
-
-# Only load standard OMZ plugins here
-plugins=( 
-    git
-    dnf
-)
-
-source $ZSH/oh-my-zsh.sh
-# Redirect zcompdump to cache
 export ZSH_COMPDUMP="$XDG_CACHE_HOME/zsh/zcompdump"
 
-# -----------------------------------------------------------
-# 🧠 Fedora System Plugins (Installed via DNF)
-# -----------------------------------------------------------
-# We source these manually because they live in /usr/share, not inside OMZ
+# ===========================================================
+# 🧩 LEVEL 2: FRAMEWORK & PLUGINS
+# ===========================================================
+# Disable OMZ theme (Starship handles the prompt)
+ZSH_THEME=""
+
+# OMZ Core Plugins
+plugins=(git dnf)
+
+# Initialize Oh My Zsh
+source $ZSH/oh-my-zsh.sh
+
+# Fedora System Plugins (DNF-installed)
+# Sourced manually as they live in /usr/share
 [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# -----------------------------------------------------------
-# 🔒 Private Configs
-# -----------------------------------------------------------
-# local/private configurations (Not tracked by Git)
-# later create ~/.zshrc.local for anything secret 
+# ===========================================================
+# ⚙️ LEVEL 3: UTILITIES & PRIVATE CONFIGS
+# ===========================================================
+# Load local/private configurations (Not tracked by Git)
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
-# -----------------------------------------------------------
-# 🎨 Visuals (Pokemon & Fastfetch)
-# -----------------------------------------------------------
-# Display Pokemon-colorscripts piped into Fastfetch
-pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
-
-
-# -----------------------------------------------------------
-# ⚡ Utilities & Keybinds
-# -----------------------------------------------------------
-# Set-up FZF key bindings (CTRL R for fuzzy history finder)
+# FZF initialization (CTRL-R history finder)
 source <(fzf --zsh)
 
+# History Management
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
 
-# Add Spicetify to Path
-export PATH="$PATH:$HOME/.spicetify"
-
-# fix ssh permissions on startup
+# ===========================================================
+# 🛡️ LEVEL 4: SECURITY & IDENTITY (lagOS-station Core)
+# ===========================================================
+# Fix permissions on startup
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/id_ed25519
 chmod -R go-rwx ~/.keychain
 
-# Start SSH Agent with a static hostname to prevent directory bloat (warnings suppresed)
+# Initialize SSH Agent via Keychain
+# Uses static hostname to prevent directory bloat
 eval $(keychain --eval --quiet --host lagOS-station id_ed25519)
-export GPG_TTY=$(tty)
-# -----------------------------------------------------------
-# 🚀 Prompt & Languages
-# -----------------------------------------------------------
-# Start zsh with starship
-eval "$(starship init zsh)"
 
-# Bun setup
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-[ -s "/home/lag-os/.bun/_bun" ] && source "/home/lag-os/.bun/_bun"
+# GPG Environment Setup
+export GPG_TTY=$(tty)
+
+# GPG Identity Helper: Refreshes agent TTY for automated commits
+# Mandatory for Wayland/Hyprland stability
+function gpg-refresh() {
+  gpgconf --launch gpg-agent
+  gpg-connect-agent \
+    "setenviron DISPLAY=$DISPLAY" \
+    "setenviron WAYLAND_DISPLAY=$WAYLAND_DISPLAY" \
+    "updatestartuptty" /bye > /dev/null 2>&1
+}
+
+# ===========================================================
+# 🎨 LEVEL 5: VISUALS & PROMPT
+# ===========================================================
+# Pokémon Colorscripts + Fastfetch (DankMaterial Aesthetic)
+if [[ -o interactive ]]; then
+  pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+fi
+
+# Initialize Starship (Must be last for full shell control)
+eval "$(starship init zsh)"
 
 function sentinel() {
     local DEV_USER="$USER"
@@ -648,12 +663,13 @@ sys-clean() {
 # -----------------------------------------------------------
 
 # --- 🌍 GLOBAL ALIASES (Works anywhere in the command) ---
-alias -g G='| grep --color=auto'       # Quick filtering
+alias -g G='| grep --color=always'      # Quick filtering
 alias -g L='| less'                   # Quick paging
 alias -g H='| head'                   # Show top results
 alias -g T='| tail'                   # Show bottom results
-alias -g NE='2>/dev/null'              # Silence errors (Nuke Errors)
+alias -g NE='2>/dev/null'             # Silence errors (Nuke Errors)
 alias -g CJ='| jq -C'                 # Colored JSON (if you work with APIs)
+alias -g B='| bat'                    # High-performance pager/highlighting
 
 # --- 🛰️ NAVIGATION (lsd setup) ---
 alias ls='lsd'
@@ -679,8 +695,14 @@ alias psh='git push origin $(git branch --show-current)'
 alias pll='git pull origin $(git branch --show-current)'
 alias sync='git pull --rebase origin $(git branch --show-current)'
 alias gl="git log --graph --topo-order --pretty=format:'%C(auto)%h%d %s %C(magenta)%C(bold)%ad %C(cyan)%an' --date=short"
+
+# 🔍 Inspection (Powered by Delta via .gitconfig)
 alias gd='git diff'
 alias gds='git diff --staged'
+
+# 🛠️ Restoration & Undo
+alias rs='git restore'               # Restore files in working directory
+alias rss='git restore --staged'     # Alternative for unstage
 alias unstage='git restore --staged .'
 alias undo='git reset --soft HEAD~1'
 
