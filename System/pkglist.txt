@@ -42,6 +42,7 @@ baobab
 bash
 bash-color-prompt
 bash-completion
+bat
 bc
 bind-utils
 blueman
@@ -210,6 +211,7 @@ gvfs-goa
 gvfs-gphoto2
 gvfs-mtp
 gvfs-smb
+haruna
 hfsplus-tools
 hostname
 hplip
@@ -300,8 +302,6 @@ minicom
 mousepad
 mozilla-openh264
 mpage
-mpv
-mpv-mpris
 mt7xxx-firmware
 mtr
 nautilus
@@ -335,6 +335,7 @@ pamixer
 pandoc-cli
 papers
 papers-nautilus
+papirus-icon-theme
 paps
 parted
 passwdqc
@@ -345,6 +346,7 @@ pciutils
 perl-NKF
 picocom
 pinentry-gnome3
+pinentry-qt
 pinfo
 pipewire-alsa
 pipewire-config-raop
