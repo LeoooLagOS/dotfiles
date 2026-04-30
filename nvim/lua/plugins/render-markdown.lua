@@ -3,7 +3,7 @@ return {
 		"MeanderingProgrammer/render-markdown.nvim",
 		-- In LazyVim, nvim-treesitter is usually already installed.
 		-- We use mini.icons as it is the modern standard for LazyVim setups.
-		dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.icons" },
+		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-mini/mini.icons" },
 		ft = { "markdown", "Avante" },
 		---@module 'render-markdown'
 		---@type render.md.UserConfig
