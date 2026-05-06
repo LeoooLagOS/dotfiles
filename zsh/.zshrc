@@ -726,6 +726,8 @@ alias update='system_update_sync'
 
 # --- 🚀 APPS ---
 alias spotify='flatpak run com.spotify.Client'
+# Cisco Packet Tracer (Force Xwayland & Detach)
+alias pt="QT_QPA_PLATFORM=xcb /opt/pt/packettracer.AppImage > /dev/null 2>&1 &!"
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
