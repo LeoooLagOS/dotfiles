@@ -36,6 +36,7 @@ attr
 audit
 authselect
 avahi
+awww
 b43-fwcutter
 b43-openfwwf
 baobab
@@ -137,7 +138,6 @@ gdm
 gettext
 gfs2-utils
 gh
-ghdl
 ghostscript
 gimp
 git
@@ -153,7 +153,6 @@ gnome-browser-connector
 gnome-calculator
 gnome-calendar
 gnome-characters
-gnome-classic-session
 gnome-clocks
 gnome-color-manager
 gnome-connections
@@ -182,6 +181,7 @@ gnupg2
 golang-bin
 google-noto-sans-cjk-fonts
 google-roboto-mono-fonts
+gping
 gpm-libs
 grub2-efi-ia32
 grub2-efi-ia32-cdboot
@@ -212,6 +212,7 @@ gvfs-gphoto2
 gvfs-mtp
 gvfs-smb
 haruna
+helvum
 hfsplus-tools
 hostname
 hplip
@@ -256,8 +257,8 @@ kernel-modules-extra
 kexec-tools
 keychain
 kitty
-kmod-nvidia-6.19.13-200.fc43.x86_64
-kmod-nvidia-6.19.14-200.fc43.x86_64
+kmod-nvidia-7.0.8-100.fc43.x86_64
+kmod-nvidia-7.0.9-105.fc43.x86_64
 kvantum
 less
 libertas-firmware
@@ -290,7 +291,9 @@ make
 man-db
 man-pages
 mangowm
+mariadb-server
 matugen
+maven
 mcelog
 mdadm
 mediawriter
@@ -304,10 +307,15 @@ mozilla-openh264
 mpage
 mt7xxx-firmware
 mtr
-nautilus
+nagios
+nagios-plugins
 ncurses
 neovim
+net-snmp-agent-libs
+net-snmp-gui
+net-snmp-utils
 net-tools
+nethogs
 network-manager-applet
 nfs-utils
 nmap
@@ -334,7 +342,6 @@ pam_afs_session
 pamixer
 pandoc-cli
 papers
-papers-nautilus
 papirus-icon-theme
 paps
 parted
@@ -362,6 +369,7 @@ policycoreutils
 policycoreutils-python-utils
 polkit
 prefixdevname
+prettyping
 procps-ng
 psacct
 psmisc
@@ -373,6 +381,7 @@ qalculate-gtk
 qcom-wwan-firmware
 qemu-guest-agent
 qemu-kvm
+qjackctl
 qpwgraph
 qt5-qtbase
 qt5-qtbase-gui
@@ -421,7 +430,6 @@ sudo
 sushi
 swappy
 swaybg
-swww
 symlinks
 system-config-printer-udev
 systemd

@@ -1,7 +1,11 @@
 com.bitwarden.desktop
+com.bitwig.BitwigStudio
 com.github.tchx84.Flatseal
 com.spotify.Client
 dev.vencord.Vesktop
+fm.reaper.Reaper
 io.github.iionel.Visu
 md.obsidian.Obsidian
+org.ardour.Ardour
+org.surge_synth_team.surge-xt
 org.zotero.Zotero

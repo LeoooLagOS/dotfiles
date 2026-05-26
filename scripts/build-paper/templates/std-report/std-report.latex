@@ -26,10 +26,6 @@
  {\end{list}}
 
 \newcommand{\CSLBlock}[1]{#1\hfill\break}
-
-% FIX 1: Phantom [] bracket fix.
-% \ifx\relax#1\relax does NOT catch empty strings — only \relax tokens.
-% \ifx&#1& correctly detects a truly empty argument in LaTeX2e.
 \newcommand{\CSLLeftMargin}[1]{\ifx&#1&\else\parbox[t]{\csllabelwidth}{#1}\fi}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
@@ -44,8 +40,6 @@
 \usepackage{graphicx}
 \usepackage{geometry}
 \geometry{margin=1.5cm}
-
-% FIX 2: adjustbox for table width clamping in two-column layout
 \usepackage{adjustbox}
 
 % --- 3. ENGINE-SPECIFIC UNICODE (XeLaTeX) ---
@@ -71,8 +65,6 @@
 }
 
 % --- 5. THE "STABILITY BRIDGE" (Table Fix) ---
-% Redefines longtable -> tabular, now wrapped in adjustbox so wide tables
-% are scaled down to fit the column width instead of overflowing.
 \makeatletter
 \renewenvironment{longtable}[2][]{%
   \begin{center}
@@ -93,7 +85,13 @@
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \makeatother
 
-% --- 6. HEADER LOGIC ---
+% --- 6. SYNTAX HIGHLIGHTING (The Fix) ---
+% Este bloque captura las definiciones de Pandoc para bloques de código.
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+% --- 7. HEADER LOGIC ---
 \title{\textbf{$title$}}
 \author{
 $for(author)$
