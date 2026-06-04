@@ -27,9 +27,15 @@ dotfiles/
 │   └── gpg-agent.conf  # Passphrase caching and pinentry rules
 ├── install.sh          # Idempotent System Bootstrapper
 ├── nvim/               # Neovim IDE: LazyVim-based development layer
-├── scripts/            # The Logic Layer: IDE wrappers and custom utilities
-│   ├── build-paper/    # Automated Academic Reporting (MD -> IEEE PDF)
-│   └── lagos-shot/     # Technical capture and Obsidian injection utility
+├── scripts/            # The Logic Layer: Modular orchestration
+│   ├── build-paper/    # Academic/Research reporting automation
+│   ├── lagos-shot/     # Technical capture and Obsidian injection
+│   ├── lib/            # Python core libraries (Weather, Keybinds Parser)
+│   ├── ops/            # Operational maintenance (sync-dots, repair)
+│   └── wm/             # Unified Window Manager control engine
+│       ├── Brightness.sh
+│       ├── ClipManager.sh
+│       └── ... (All UI/OSD control logic)
 ├── System/             # Infrastructure as Code (IaC) Provisioning
 │   ├── flatpaks.txt    # Application-layer dependency list
 │   └── pkglist.txt     # DNF system-package registry
@@ -44,16 +50,22 @@ The version control layer is optimized for high-velocity code review and cryptog
 - **zdiff3 Conflict Resolution**: Uses the "Common Ancestor" merge style to provide the baseline context during logic conflicts, essential for complex PR resolution.
 - **Cryptographic Identity**: Enforces GPG-signed commits for all infrastructure changes to ensure non-repudiation and verified status on remote repositories.
 
-### 2. The Sentinel Shell (`/zsh`)
-A modular shell environment focused on command-line speed and repository awareness.
-- **Global Macros**: Implements Zsh global aliases (`G`, `L`, `NE`, `CJ`) for rapid text filtering and JSON processing across any command.
-- **Senior Aliases**: Optimized Git and navigation shortcuts designed for atomic commits and rapid context switching between project roots.
-- **Environment Integration**: Deep integration with **SDKMAN!** and **GPG_TTY** to maintain consistent toolchain availability.
+### 2. The Modular Sentinel Shell (`/zsh`)
+A modular, plugin-based shell environment designed for deterministic initialization.
+- **Entrypoint**: `.zshrc` serves as the lightweight bootstrap.
+- **Componentized Logic (`conf.d/`)**:
+    - `00-env.zsh`: Infrastructure variables and SDKMAN initialization.
+    - `20-security.zsh`: GPG agent orchestration and environment hardening.
+    - `30-sentinel.zsh`: Custom shell-based telemetry and status monitors.
+    - `40-plugins.zsh`: Version-controlled plugin management.
+    - `90-aliases.zsh`: "Senior Aliases" for Git efficiency and navigation.
 
 ### 3. The Logic Layer (`/scripts`)
-All application wrappers and custom research tools are managed as discrete, tracked modules in `~/dotfiles/scripts` and symlinked to `~/.local/bin`.
-- **lagos-shot**: A specialized capture utility optimized for rapid technical documentation.
-- **build-paper**: A research-grade orchestration script for automated LaTeX/Markdown compilation.
+All application wrappers and custom research tools are managed as discrete, tracked modules in ~/dotfiles/scripts and symlinked to ~/.local/bin.
+- `wm/`: The consolidated control engine for the Window Manager. Unifies notification management, brightness, and OSD logic, replacing legacy third-party daemons.
+- `lib/`: A library of deterministic Python modules that provide data for shell utilities, ensuring robust exception handling.
+- `ops/`: Operational tooling for infrastructure maintenance, including vault synchronization and dotfile state management.
+- Research Tools: Specialized utilities (build-paper, lagos-shot) optimized for high-performance academic and technical documentation workflows.
 
 ### 4. GPG Infrastructure (`/gpg`)
 Standardizes the cryptographic environment for secure, frictionless engineering sessions.
@@ -133,12 +145,5 @@ After symlinking, refresh the environment and verify the cryptographic chain:
 
 -   **Clean Purge Policy:** Legacy backup artifacts and corrupted reparse tags are systematically purged to reduce the system's attack surface and cognitive load.
 
-## 🚧 Roadmap & Technical Debt
-
-While the infrastructure is stable and declarative, the following architectural improvements are prioritized for the next sprint:
-
-* **Logic Consolidation (High Priority)**: Audit the `config/hypr/scripts` directory to decouple essential UI logic from legacy JaKooLit artifacts.
-* **Shell-to-Python Migration**: Refactor remaining high-complexity Shell scripts into deterministic Python modules to improve exception handling and system portability.
-* **Sentinel Integration**: Establish a bridge between the desktop configuration and the **Sentinel** system monitor for real-time telemetry.
 ---
 Maintained as part of the lagOS-station project, 2026.
