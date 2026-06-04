@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+import os
+import subprocess
+import sys
+
+
+def execute_environment_patch(command_string):
+    return subprocess.run(command_string, shell=True, capture_output=True, text=True)
+
+
+def handle_flatpak_repair():
+    print("🛠️ Initiating integrated Spotify + Spicetify theme injection recovery...")
+
+    # Phase 1: Re-apply theme compiler hooks
+    print("🎨 Invoking Spicetify layout configuration injection...")
+    spicetify_transaction = execute_environment_patch("spicetify restore backup apply")
+
+    if spicetify_transaction.returncode == 0:
+        print("✅ Spicetify theme compiled and injected correctly.")
+    else:
+        print("⚠️ Spicetify hook mismatch. Purging volatile Flatpak cache systems...")
+
+        # Phase 2: Kill runaway processes and flush state cache safely
+        execute_environment_patch("flatpak kill com.spotify.Client")
+
+        cache_target = os.path.expanduser("~/.var/app/com.spotify.Client/cache")
+        if os.path.exists(cache_target):
+            execute_environment_patch(f"rm -rf {cache_target}")
+            print(
+                f"✅ Successfully cleared corrupted application runtime cache at {cache_target}"
+            )
+        else:
+            print("ℹ️ Cache state directory is already clear.")
+
+        print("🚀 Refresh complete. Re-launching application stack...")
+        execute_environment_patch("flatpak run com.spotify.Client &")
+
+
+if __name__ == "__main__":
+    handle_flatpak_repair()

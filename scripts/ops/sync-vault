@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+from datetime import datetime
+
+# Single Source of Truth for the vault location
+VAULT_PATH = os.getenv("VAULT_DIR", os.path.expanduser("~/Documents/my-cs-notes"))
+
+
+def run_git(commands, cwd):
+    try:
+        subprocess.run(
+            ["git"] + commands, cwd=cwd, check=True, capture_output=True, text=True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Git Transaction Error ({cwd}): {e.stderr.strip()}", file=sys.stderr)
+        sys.exit(1)
+
+
+def sync_path(relative_target, label):
+    full_path = os.path.join(VAULT_PATH, relative_target)
+    if not os.path.exists(full_path):
+        print(f"⚠️ Target structure path not found: {full_path}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"📥 [Librarian] Synchronizing {label}...")
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Atomic stage-and-commit sequence
+    run_git(["reset"], VAULT_PATH)
+    run_git(["add", relative_target], VAULT_PATH)
+
+    # Evaluate changes before pushing to keep a clean commit history
+    status_check = subprocess.run(
+        ["git", "status", "--porcelain"], cwd=VAULT_PATH, capture_output=True, text=True
+    )
+    if status_check.stdout.strip():
+        run_git(
+            [
+                "commit",
+                "-m",
+                f"maintenance({label.lower()}): automated sync update ({timestamp})",
+            ],
+            VAULT_PATH,
+        )
+        run_git(["push", "origin", "main"], VAULT_PATH)
+        print(f"✅ {label} database synchronized securely.")
+    else:
+        print(f"ℹ️ No local modifications detected for {label}.")
+
+
+def generate_structure_map():
+    print("🌲 [Librarian] Mapping Knowledge Base structure tree...")
+    try:
+        # Use lsd if available for premium rendering, fallback to standard tree
+        output_file = os.path.join(VAULT_PATH, "vault_structure.txt")
+        with open(output_file, "w") as f:
+            if (
+                subprocess.run(
+                    ["command", "-v", "lsd"], shell=True, stdout=subprocess.DEVNULL
+                ).returncode
+                == 0
+            ):
+                subprocess.run(
+                    ["lsd", "--tree", "--depth", "3"], cwd=VAULT_PATH, stdout=f
+                )
+            else:
+                subprocess.run(["tree", "-L", "3"], cwd=VAULT_PATH, stdout=f)
+        print(f"✅ Vault structure map written successfully to {output_file}")
+    except Exception as e:
+        print(f"❌ Error compiling tree index map: {e}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print(
+            "Usage: sync-vault --cards | --gerlog | --dsalog | --vtree", file=sys.stderr
+        )
+        sys.exit(1)
+
+    flag = sys.argv[1]
+    if flag == "--cards":
+        sync_path("40_Natural_Languages/German/01_Vocabulary_DB", "Cards")
+    elif flag == "--gerlog":
+        sync_path("40_Natural_Languages/German/03_Practice_Log", "German-Practice-Log")
+    elif flag == "--dsalog":
+        sync_path(
+            "05_Algorithms_and_Data_Structures/03_Practice_Log/99_Daily_Output/01_Practice_Logs",
+            "DSA-Log",
+        )
+    elif flag == "--vtree":
+        generate_structure_map()
+    else:
+        print(f"❌ Invalid flag operational parameter: {flag}", file=sys.stderr)
+        sys.exit(1)

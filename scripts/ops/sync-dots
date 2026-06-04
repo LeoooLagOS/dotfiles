@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+
+DOTFILES_ROOT = os.path.expanduser("~/dotfiles")
+
+
+def purge_temporary_buffers():
+    print("🧹 Purging volatile Neovim swap files and artifacts...")
+    purged_count = 0
+    for root, _, files in os.walk(DOTFILES_ROOT):
+        for file in files:
+            if file.endswith((".swp", ".swo", "~")):
+                try:
+                    os.remove(os.path.join(root, file))
+                    purged_count += 1
+                except OSError:
+                    pass
+    if purged_count > 0:
+        print(f"✅ Cleared {purged_count} orphaned swap files.")
+
+
+def backup_system_profile():
+    purge_temporary_buffers()
+    print("🛰️ Synchronizing system profile assets with remote origin...")
+
+    try:
+        # Atomic change indexing
+        subprocess.run(["git", "add", "."], cwd=DOTFILES_ROOT, check=True)
+
+        # Guard against empty garbage commits
+        staged_diff = subprocess.run(
+            ["git", "diff", "--cached", "--quiet"], cwd=DOTFILES_ROOT
+        )
+        if staged_diff.returncode != 0:
+            subprocess.run(
+                [
+                    "git",
+                    "commit",
+                    "-m",
+                    "sys: automated infrastructure tracking snapshot",
+                ],
+                cwd=DOTFILES_ROOT,
+                check=True,
+            )
+            subprocess.run(
+                ["git", "push", "origin", "main"], cwd=DOTFILES_ROOT, check=True
+            )
+            print("✅ Dotfiles profile synchronized successfully.")
+        else:
+            print("ℹ️ System profile state is already up-to-date with repository.")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Profile Sincronization Aborted: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    backup_system_profile()
