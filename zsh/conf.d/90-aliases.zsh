@@ -58,3 +58,4 @@ alias update='system_update_sync'
 # --- 🚀 SANDBOX APPLICATIONS ---
 alias spotify='python3 $HOME/dotfiles/scripts/ops/repair-spotify'
 alias pt="QT_QPA_PLATFORM=xcb /opt/pt/packettracer.AppImage > /dev/null 2>&1 &!"
+alias f="fvm flutter"
