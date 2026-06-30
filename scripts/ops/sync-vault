@@ -53,8 +53,9 @@ def sync_path(relative_target, label):
 def generate_structure_map():
     print("🌲 [Librarian] Mapping Knowledge Base structure tree...")
     try:
-        # Use lsd if available for premium rendering, fallback to standard tree
-        output_file = os.path.join(VAULT_PATH, "vault_structure.txt")
+        output_file_name = "vault_structure.txt"
+        output_file = os.path.join(VAULT_PATH, output_file_name)
+
         with open(output_file, "w") as f:
             if (
                 subprocess.run(
@@ -67,7 +68,12 @@ def generate_structure_map():
                 )
             else:
                 subprocess.run(["tree", "-L", "3"], cwd=VAULT_PATH, stdout=f)
-        print(f"✅ Vault structure map written successfully to {output_file}")
+
+        print(f"✅ Vault structure map written to {output_file}")
+
+        # Automatically sync the generated map file
+        sync_path(output_file_name, "Vault-Tree-Map")
+
     except Exception as e:
         print(f"❌ Error compiling tree index map: {e}", file=sys.stderr)
 
@@ -83,7 +89,7 @@ if __name__ == "__main__":
     if flag == "--cards":
         sync_path("40_Natural_Languages/German/01_Vocabulary_DB", "Cards")
     elif flag == "--gerlog":
-        sync_path("40_Natural_Languages/German/03_Practice_Log", "German-Practice-Log")
+        sync_path("40_Natural_Languages/German/99_Daily_Output", "German-Practice-Log")
     elif flag == "--dsalog":
         sync_path(
             "05_Algorithms_and_Data_Structures/03_Practice_Log/99_Daily_Output/01_Practice_Logs",
