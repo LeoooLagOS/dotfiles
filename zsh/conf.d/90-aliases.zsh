@@ -59,3 +59,4 @@ alias update='system_update_sync'
 alias spotify='python3 $HOME/dotfiles/scripts/ops/repair-spotify'
 alias pt="QT_QPA_PLATFORM=xcb /opt/pt/packettracer.AppImage > /dev/null 2>&1 &!"
 alias f="fvm flutter"
+alias eeg="cd $HOME/Development/BCI-Robotic-Arm && source venv/bin/activate && python src/EEG_Studio/run.py > /dev/null 2>&1 &!"
