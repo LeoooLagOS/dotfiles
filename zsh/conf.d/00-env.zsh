@@ -21,6 +21,10 @@ export PATH="$PATH:$HOME/.spicetify"
 # FVM / Flutter
 export PATH="$HOME/fvm/bin:$PATH"
 
+# Android SDK & Tools
+export ANDROID_HOME="$HOME/.local/share/android/Sdk"
+export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin"
+
 # Bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$PATH:$BUN_INSTALL/bin"
