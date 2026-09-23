@@ -1,0 +1,35 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+
+% Eliminar números de página
+\pagestyle{empty}
+
+% Estilo de las secciones (similar a tu PDF actual)
+\titleformat{\section}{\Large\bfseries\uppercase}{}{0pt}{}[\titlerule]
+\titlespacing{\section}{0pt}{12pt}{8pt}
+
+% Ajuste de listas para que sean compactas como en tu PDF
+\setlist[itemize]{leftmargin=*, noitemsep, topsep=2pt, partopsep=0pt, parsep=0pt}
+
+% Definición necesaria para las listas de Pandoc
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\begin{document}
+
+% Encabezado extraído de las variables del YAML de Markdown
+\begin{center}
+  {\Huge \textbf{$title$}} \\ \vspace{6pt}
+  $address$ | $phone$ | \href{mailto:$email$}{$email$} \\ \vspace{2pt}
+  \href{$linkedin_url$}{LinkedIn} | \href{$github_url$}{GitHub}
+\end{center}
+
+\vspace{8pt}
+
+$body$
+
+\end{document}
