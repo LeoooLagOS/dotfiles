@@ -10,3 +10,6 @@ credentials
 .direnv/
 node_modules/
 .initial_startup_done
+config/hypr/rofi/.current_wallpaper*
+config/hypr/wallpaper_effects/.wallpaper_base*
+config/hypr/wallpaper_effects/.wallpaper_current_eDP-1
