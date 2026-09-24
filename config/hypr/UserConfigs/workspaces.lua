@@ -17,3 +17,4 @@
 -- })
 hl.workspace_rule({ workspace = "2", monitor = "HDMI-A-1", layout = "dwindle" })
 hl.workspace_rule({ workspace = "3", monitor = "HDMI-A-1", layout = "dwindle" })
+hl.workspace_rule({ workspace = "2", monitor = "eDP-1", layout = "dwindle" })
