@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
 # source https://wiki.archlinux.org/title/Hyprland#Using_a_script_to_change_wallpaper_every_X_minutes
 
 # This script will randomly go through the files of a directory, setting it
@@ -7,9 +12,13 @@
 #
 # NOTE: this script uses bash (not POSIX shell) for the RANDOM variable
 
-wallust_refresh=$HOME/.config/hypr/scripts/RefreshNoWaybar.sh
+wallust_refresh=${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RefreshNoWaybar.sh
+SCRIPTSDIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
+# shellcheck source=/dev/null
+. "$SCRIPTSDIR/WallpaperCmd.sh"
 
 focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
+wallpaper_base="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_base_${focused_monitor}"
 
 if [[ $# -lt 1 ]] || [[ ! -d $1   ]]; then
 	echo "Usage:
@@ -17,7 +26,7 @@ if [[ $# -lt 1 ]] || [[ ! -d $1   ]]; then
 	exit 1
 fi
 
-# Edit below to control the images transition
+# Edit below to control the images transition (swww/awww)
 export SWWW_TRANSITION_FPS=60
 export SWWW_TRANSITION_TYPE=simple
 
@@ -31,12 +40,15 @@ while true; do
 		done \
 		| sort -n | cut -d':' -f2- \
 		| while read -r img; do
-			swww img -o $focused_monitor "$img"
+			resize_mode="$(wallpaper_resize_mode "$img" "$focused_monitor")"
+			"$WWW_CMD" img -o "$focused_monitor" --resize "$resize_mode" "$img"
+			mkdir -p "$(dirname "$wallpaper_base")"
+			cp -f "$img" "$wallpaper_base" || true
 			# Regenerate colors from the exact image path to avoid cache races
-			$HOME/.config/hypr/scripts/WallustSwww.sh "$img"
+			${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/WallustSwww.sh "$img"
 			# Refresh UI components that depend on wallust output
 			$wallust_refresh
 			sleep $INTERVAL
-			
+
 		done
 done

@@ -1,24 +1,38 @@
 #!/usr/bin/env bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
 # This script for selecting wallpapers (SUPER W)
 
 # WALLPAPERS PATH
 terminal=kitty
 PICTURES_DIR="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")"
 wallDIR="$PICTURES_DIR/wallpapers"
-SCRIPTSDIR="$HOME/.config/hypr/scripts"
-wallpaper_current="$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
+SCRIPTSDIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
+# shellcheck source=/dev/null
+. "$SCRIPTSDIR/WallpaperCmd.sh"
+wallpaper_current="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_current"
+wallpaper_link="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/.current_wallpaper"
+wallpaper_base="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_base"
 
 # Directory for swaync
-iDIR="$HOME/.config/swaync/images"
-iDIRi="$HOME/.config/swaync/icons"
+iDIR="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/images"
+iDIRi="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/icons"
 
-# swww transition config
+# swww/awww transition config
 FPS=60
 TYPE="any"
 DURATION=2
 BEZIER=".43,1.19,1,.4"
-SWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION --transition-bezier $BEZIER"
+if [[ "$WWW_CMD" == "swww" || "$WWW_CMD" == "awww" ]]; then
+  SWWW_PARAMS=(--transition-fps "$FPS" --transition-type "$TYPE" --transition-duration "$DURATION" --transition-bezier "$BEZIER")
+else
+  SWWW_PARAMS=()
+fi
+
 
 # Check if package bc exists
 if ! command -v bc &>/dev/null; then
@@ -27,8 +41,12 @@ if ! command -v bc &>/dev/null; then
 fi
 
 # Variables
-rofi_theme="$HOME/.config/rofi/config-wallpaper.rasi"
+rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-wallpaper.rasi"
 focused_monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+
+per_monitor_wallpaper_current="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_current_${focused_monitor}"
+per_monitor_wallpaper_link="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/.current_wallpaper_${focused_monitor}"
+per_monitor_wallpaper_base="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_base_${focused_monitor}"
 
 # Ensure focused_monitor is detected
 if [[ -z "$focused_monitor" ]]; then
@@ -44,19 +62,14 @@ icon_size=$(echo "scale=1; ($monitor_height * 3) / ($scale_factor * 150)" | bc)
 adjusted_icon_size=$(echo "$icon_size" | awk '{if ($1 < 15) $1 = 20; if ($1 > 25) $1 = 25; print $1}')
 rofi_override="element-icon{size:${adjusted_icon_size}%;}"
 
-# Kill existing wallpaper daemons for video
+# Kill existing wallpaper daemons for video on the focused monitor only
 kill_wallpaper_for_video() {
-  swww kill 2>/dev/null
-  pkill mpvpaper 2>/dev/null
-  pkill swaybg 2>/dev/null
-  pkill hyprpaper 2>/dev/null
+  pkill -f "mpvpaper.*$focused_monitor" 2>/dev/null
 }
 
-# Kill existing wallpaper daemons for image
+# Kill existing wallpaper daemons for image on the focused monitor only
 kill_wallpaper_for_image() {
-  pkill mpvpaper 2>/dev/null
-  pkill swaybg 2>/dev/null
-  pkill hyprpaper 2>/dev/null
+  pkill -f "mpvpaper.*$focused_monitor" 2>/dev/null
 }
 
 # Retrieve wallpapers (both images & videos)
@@ -66,7 +79,19 @@ mapfile -d '' PICS < <(find -L "${wallDIR}" -type f \( \
   -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.webm" \) -print0)
 
 RANDOM_PIC="${PICS[$((RANDOM % ${#PICS[@]}))]}"
-RANDOM_PIC_NAME=". random"
+RANDOM_PIC_NAME="$(basename "$RANDOM_PIC")"
+
+CURRENT_MON_PIC_PATH=$("$WWW_CMD" query 2>/dev/null | grep "$focused_monitor" | awk '{print $NF}')
+if [[ -z "$CURRENT_MON_PIC_PATH" ]]; then
+  if [[ -L "$wallpaper_link" ]]; then
+    CURRENT_MON_PIC_PATH="$(readlink -f "$wallpaper_link")"
+  elif [[ -f "$wallpaper_link" ]]; then
+    CURRENT_MON_PIC_PATH="$wallpaper_link"
+  elif [[ -f "$wallpaper_current" ]]; then
+    CURRENT_MON_PIC_PATH="$wallpaper_current"
+  fi
+fi
+CURRENT_MON_PIC_NAME=$(basename "$CURRENT_MON_PIC_PATH")
 
 # Rofi command
 rofi_command="rofi -i -show -dmenu -config $rofi_theme -theme-str $rofi_override"
@@ -75,7 +100,10 @@ rofi_command="rofi -i -show -dmenu -config $rofi_theme -theme-str $rofi_override
 menu() {
   IFS=$'\n' sorted_options=($(sort <<<"${PICS[*]}"))
 
-  printf "%s\x00icon\x1f%s\n" "$RANDOM_PIC_NAME" "$RANDOM_PIC"
+  printf "%s\x00icon\x1f%s\n" "Random: $RANDOM_PIC_NAME" "$RANDOM_PIC"
+  if [[ -n "$CURRENT_MON_PIC_PATH" ]]; then
+    printf "%s\x00icon\x1f%s\n" "Current: $CURRENT_MON_PIC_NAME" "$CURRENT_MON_PIC_PATH"
+  fi
 
   for pic_path in "${sorted_options[@]}"; do
     pic_name=$(basename "$pic_path")
@@ -102,11 +130,12 @@ menu() {
 
 modify_startup_config() {
   local selected_file="$1"
-  local startup_config="$HOME/.config/hypr/UserConfigs/Startup_Apps.conf"
+  local startup_config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/UserConfigs/Startup_Apps.conf"
 
   # Check if it's a live wallpaper (video)
   if [[ "$selected_file" =~ \.(mp4|mkv|mov|webm)$ ]]; then
     # For video wallpapers:
+    sed -i '/^\s*exec-once\s*=\s*\$scriptsDir\/WallpaperDaemon\.sh\s*$/s/^/\#/' "$startup_config"
     sed -i '/^\s*exec-once\s*=\s*swww-daemon\s*--format\s*xrgb\s*$/s/^/\#/' "$startup_config"
     sed -i '/^\s*#\s*exec-once\s*=\s*mpvpaper\s*.*$/s/^#\s*//;' "$startup_config"
 
@@ -117,6 +146,7 @@ modify_startup_config() {
     echo "Configured for live wallpaper (video)."
   else
     # For image wallpapers:
+    sed -i '/^\s*#\s*exec-once\s*=\s*\$scriptsDir\/WallpaperDaemon\.sh\s*$/s/^\s*#\s*//;' "$startup_config"
     sed -i '/^\s*#\s*exec-once\s*=\s*swww-daemon\s*--format\s*xrgb\s*$/s/^\s*#\s*//;' "$startup_config"
 
     sed -i '/^\s*exec-once\s*=\s*mpvpaper\s*.*$/s/^/\#/' "$startup_config"
@@ -131,18 +161,31 @@ apply_image_wallpaper() {
 
   kill_wallpaper_for_image
 
-  if ! pgrep -x "swww-daemon" >/dev/null; then
-    echo "Starting swww-daemon..."
-    swww-daemon --format xrgb &
-  fi
+  wallpaper_ensure_daemon
+  local resize_mode
+  resize_mode="$(wallpaper_resize_mode "$image_path" "$focused_monitor")"
+  "$WWW_CMD" img -o "$focused_monitor" --resize "$resize_mode" "$image_path" "${SWWW_PARAMS[@]}" || {
+    sleep 0.2
+    "$WWW_CMD" img -o "$focused_monitor" --resize "$resize_mode" "$image_path" "${SWWW_PARAMS[@]}"
+  }
+  "$WWW_CMD" img -o "$focused_monitor" --resize "$resize_mode" "$image_path" "${SWWW_PARAMS[@]}"
 
-  swww img -o "$focused_monitor" "$image_path" $SWWW_PARAMS
+  # Persist per-monitor wallpaper selection
+  mkdir -p "$(dirname "$per_monitor_wallpaper_current")" "$(dirname "$per_monitor_wallpaper_link")"
+  ln -sf "$image_path" "$per_monitor_wallpaper_link" || true
+  cp -f "$image_path" "$per_monitor_wallpaper_current" || true
+  mkdir -p "$(dirname "$per_monitor_wallpaper_base")"
+  cp -f "$image_path" "$per_monitor_wallpaper_base" || true
+  cp -f "$image_path" "$wallpaper_base" || true
 
   # Run additional scripts (pass the image path to avoid cache race conditions)
-  "$SCRIPTSDIR/WallustSwww.sh" "$image_path"
-  sleep 2
+  if ! "$SCRIPTSDIR/WallustSwww.sh" "$image_path"; then
+    notify-send -i "$iDIR/error.png" "Wallust failed" "Wallpaper theme not refreshed"
+    return 1
+  fi
+  sleep 0.5
   "$SCRIPTSDIR/Refresh.sh"
-  sleep 1
+  sleep 0.3
 
 }
 
@@ -156,30 +199,42 @@ apply_video_wallpaper() {
   fi
   kill_wallpaper_for_video
 
-  # Apply video wallpaper using mpvpaper
-  mpvpaper '*' -o "load-scripts=no no-audio --loop" "$video_path" &
+  # Apply video wallpaper only to the focused monitor
+  mpvpaper "$focused_monitor" -o "load-scripts=no no-audio --loop" "$video_path" &
 }
 
 # Main function
 main() {
+  "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
   choice=$(menu | $rofi_command)
   choice=$(echo "$choice" | xargs)
   RANDOM_PIC_NAME=$(echo "$RANDOM_PIC_NAME" | xargs)
+  raw_choice="$choice"
+  choice="${choice#Random: }"
+  choice="${choice#Current: }"
 
   if [[ -z "$choice" ]]; then
     echo "No choice selected. Exiting."
     exit 0
   fi
 
-  # Handle random selection correctly
-  if [[ "$choice" == "$RANDOM_PIC_NAME" ]]; then
-    choice=$(basename "$RANDOM_PIC")
+  # Resolve selection directly when using Random/Current entries
+  if [[ "$raw_choice" == Random:\ * ]]; then
+    selected_file="$RANDOM_PIC"
+  elif [[ "$raw_choice" == Current:\ * && -n "$CURRENT_MON_PIC_PATH" ]]; then
+    selected_file="$CURRENT_MON_PIC_PATH"
+  elif [[ -f "$choice" ]]; then
+    selected_file="$choice"
+  else
+    # Handle random selection by name when needed
+    if [[ "$choice" == "$RANDOM_PIC_NAME" ]]; then
+      choice=$(basename "$RANDOM_PIC")
+    fi
+    choice_basename=$(basename "$choice" | sed 's/\(.*\)\.[^.]*$/\1/')
+
+    # Search for the selected file in the wallpapers directory, including subdirectories
+    selected_file=$(find "$wallDIR" -iname "$choice_basename.*" -print -quit)
   fi
-
-  choice_basename=$(basename "$choice" | sed 's/\(.*\)\.[^.]*$/\1/')
-
-  # Search for the selected file in the wallpapers directory, including subdirectories
-  selected_file=$(find "$wallDIR" -iname "$choice_basename.*" -print -quit)
 
   if [[ -z "$selected_file" ]]; then
     echo "File not found. Selected choice: $choice"

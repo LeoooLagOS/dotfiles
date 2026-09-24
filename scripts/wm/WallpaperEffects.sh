@@ -1,61 +1,90 @@
 #!/usr/bin/env bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  #
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
 # Wallpaper Effects using ImageMagick (SUPER SHIFT W)
 
 # Variables
 terminal=kitty
-wallpaper_current="$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
-wallpaper_output="$HOME/.config/hypr/wallpaper_effects/.wallpaper_modified"
-SCRIPTSDIR="$HOME/.config/hypr/scripts"
+wallpaper_current="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_current"
+wallpaper_output="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_modified"
+wallpaper_base="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_base"
+wallpaper_link="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/.current_wallpaper"
+SCRIPTSDIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
+# shellcheck source=/dev/null
+. "$SCRIPTSDIR/WallpaperCmd.sh"
 focused_monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
-rofi_theme="$HOME/.config/rofi/config-wallpaper-effect.rasi"
+per_monitor_wallpaper_base="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_base_${focused_monitor}"
+per_monitor_wallpaper_current="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects/.wallpaper_current_${focused_monitor}"
+per_monitor_wallpaper_link="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/.current_wallpaper_${focused_monitor}"
+rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-wallpaper-effect.rasi"
 
 # Directory for swaync
-iDIR="$HOME/.config/swaync/images"
-iDIRi="$HOME/.config/swaync/icons"
+iDIR="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/images"
+iDIRi="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/icons"
 
-# swww transition config
+# swww/awww transition config
 FPS=60
 TYPE="wipe"
 DURATION=2
 BEZIER=".43,1.19,1,.4"
-SWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION --transition-bezier $BEZIER"
+if [[ "$WWW_CMD" == "swww" || "$WWW_CMD" == "awww" ]]; then
+    SWWW_PARAMS=(--transition-fps "$FPS" --transition-type "$TYPE" --transition-duration "$DURATION" --transition-bezier "$BEZIER")
+else
+    SWWW_PARAMS=()
+fi
 
 # Define ImageMagick effects
 declare -A effects=(
     ["No Effects"]="no-effects"
-    ["Black & White"]="magick $wallpaper_current -colorspace gray -sigmoidal-contrast 10,40% $wallpaper_output"
-    ["Blurred"]="magick $wallpaper_current -blur 0x10 $wallpaper_output"
-    ["Charcoal"]="magick $wallpaper_current -charcoal 0x5 $wallpaper_output"
-    ["Edge Detect"]="magick $wallpaper_current -edge 1 $wallpaper_output"
-    ["Emboss"]="magick $wallpaper_current -emboss 0x5 $wallpaper_output"
-    ["Frame Raised"]="magick $wallpaper_current +raise 150 $wallpaper_output"
-    ["Frame Sunk"]="magick $wallpaper_current -raise 150 $wallpaper_output"
-    ["Negate"]="magick $wallpaper_current -negate $wallpaper_output"
-    ["Oil Paint"]="magick $wallpaper_current -paint 4 $wallpaper_output"
-    ["Posterize"]="magick $wallpaper_current -posterize 4 $wallpaper_output"
-    ["Polaroid"]="magick $wallpaper_current -polaroid 0 $wallpaper_output"
-    ["Sepia Tone"]="magick $wallpaper_current -sepia-tone 65% $wallpaper_output"
-    ["Solarize"]="magick $wallpaper_current -solarize 80% $wallpaper_output"
-    ["Sharpen"]="magick $wallpaper_current -sharpen 0x5 $wallpaper_output"
-    ["Vignette"]="magick $wallpaper_current -vignette 0x3 $wallpaper_output"
-    ["Vignette-black"]="magick $wallpaper_current -background black -vignette 0x3 $wallpaper_output"
-    ["Zoomed"]="magick $wallpaper_current -gravity Center -extent 1:1 $wallpaper_output"
+    ["Black & White"]="magick $wallpaper_base -colorspace gray -sigmoidal-contrast 10,40% $wallpaper_output"
+    ["Blurred"]="magick $wallpaper_base -blur 0x10 $wallpaper_output"
+    ["Charcoal"]="magick $wallpaper_base -charcoal 0x5 $wallpaper_output"
+    ["Edge Detect"]="magick $wallpaper_base -edge 1 $wallpaper_output"
+    ["Emboss"]="magick $wallpaper_base -emboss 0x5 $wallpaper_output"
+    ["Frame Raised"]="magick $wallpaper_base +raise 150 $wallpaper_output"
+    ["Frame Sunk"]="magick $wallpaper_base -raise 150 $wallpaper_output"
+    ["Negate"]="magick $wallpaper_base -negate $wallpaper_output"
+    ["Oil Paint"]="magick $wallpaper_base -paint 4 $wallpaper_output"
+    ["Posterize"]="magick $wallpaper_base -posterize 4 $wallpaper_output"
+    ["Polaroid"]="magick $wallpaper_base -polaroid 0 $wallpaper_output"
+    ["Sepia Tone"]="magick $wallpaper_base -sepia-tone 65% $wallpaper_output"
+    ["Solarize"]="magick $wallpaper_base -solarize 80% $wallpaper_output"
+    ["Sharpen"]="magick $wallpaper_base -sharpen 0x5 $wallpaper_output"
+    ["Vignette"]="magick $wallpaper_base -vignette 0x3 $wallpaper_output"
+    ["Vignette-black"]="magick $wallpaper_base -background black -vignette 0x3 $wallpaper_output"
+    ["Zoomed"]="magick $wallpaper_base -gravity Center -extent 1:1 $wallpaper_output"
 )
+persist_wallpaper_state() {
+    local source_wallpaper="$1"
+    [ -n "$source_wallpaper" ] && [ -f "$source_wallpaper" ] || return 0
+
+    mkdir -p "$(dirname "$wallpaper_current")" "$(dirname "$wallpaper_link")"
+    cp -f "$source_wallpaper" "$wallpaper_current" || true
+    ln -sf "$source_wallpaper" "$wallpaper_link" || true
+
+    if [[ -n "$focused_monitor" ]]; then
+        cp -f "$source_wallpaper" "$per_monitor_wallpaper_current" || true
+        ln -sf "$source_wallpaper" "$per_monitor_wallpaper_link" || true
+    fi
+}
 
 # Function to apply no effects
 no-effects() {
-    swww img -o "$focused_monitor" "$wallpaper_current" $SWWW_PARAMS &&
-    wait $!
-    wallust run "$wallpaper_current" -s &&
-    wait $!
-    # Refresh rofi, waybar, wallust palettes
-	sleep 2
-	"$SCRIPTSDIR/Refresh.sh"
+    local resize_mode
+    resize_mode="$(wallpaper_resize_mode "$wallpaper_base" "$focused_monitor")"
+    "$WWW_CMD" img -o "$focused_monitor" --resize "$resize_mode" "$wallpaper_base" "${SWWW_PARAMS[@]}" || return 1
+    persist_wallpaper_state "$wallpaper_base"
 
     notify-send -u low -i "$iDIR/ja.png" "No wallpaper" "effects applied"
     # copying wallpaper for rofi menu
-    cp "$wallpaper_current" "$wallpaper_output"
+    cp "$wallpaper_base" "$wallpaper_output"
+    if [ -x "$SCRIPTSDIR/WallustSwww.sh" ]; then
+        "$SCRIPTSDIR/WallustSwww.sh" "$wallpaper_base" >/dev/null 2>&1 || true
+    fi
 }
 
 # Function to run rofi menu
@@ -66,31 +95,41 @@ main() {
         [[ "$effect" != "No Effects" ]] && options+=("$effect")
     done
 
+    "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
     choice=$(printf "%s\n" "${options[@]}" | LC_COLLATE=C sort | rofi -dmenu -i -config $rofi_theme)
 
     # Process user choice
     if [[ -n "$choice" ]]; then
+        if [[ -f "$per_monitor_wallpaper_base" ]]; then
+            wallpaper_base="$per_monitor_wallpaper_base"
+        fi
+        if [[ ! -f "$wallpaper_base" ]]; then
+            mkdir -p "$(dirname "$wallpaper_base")"
+            cp -f "$wallpaper_current" "$wallpaper_base" || true
+        fi
         if [[ "$choice" == "No Effects" ]]; then
             no-effects
         elif [[ "${effects[$choice]+exists}" ]]; then
             # Apply selected effect
             notify-send -u normal -i "$iDIR/ja.png"  "Applying:" "$choice effects"
-            eval "${effects[$choice]}"
-            
+            if ! eval "${effects[$choice]}"; then
+                notify-send -u critical -i "$iDIR/error.png" "Wallpaper effect failed" "$choice could not be applied"
+                return 1
+            fi
+
             # intial kill process
             for pid in swaybg mpvpaper; do
-            killall -SIGUSR1 "$pid"
+            killall -SIGUSR1 "$pid" 2>/dev/null || true
             done
 
             sleep 1
-            swww img -o "$focused_monitor" "$wallpaper_output" $SWWW_PARAMS &
-
-            sleep 2
-  
-            wallust run "$wallpaper_output" -s &
-            sleep 1
-            # Refresh rofi, waybar, wallust palettes
-            "${SCRIPTSDIR}/Refresh.sh"
+            local resize_mode
+            resize_mode="$(wallpaper_resize_mode "$wallpaper_output" "$focused_monitor")"
+            "$WWW_CMD" img -o "$focused_monitor" --resize "$resize_mode" "$wallpaper_output" "${SWWW_PARAMS[@]}"
+            persist_wallpaper_state "$wallpaper_output"
+            if [ -x "$SCRIPTSDIR/WallustSwww.sh" ]; then
+                "$SCRIPTSDIR/WallustSwww.sh" "$wallpaper_output" >/dev/null 2>&1 || true
+            fi
             notify-send -u low -i "$iDIR/ja.png" "$choice" "effects applied"
         else
             echo "Effect '$choice' not recognized."
