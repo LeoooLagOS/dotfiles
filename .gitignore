@@ -14,3 +14,8 @@ node_modules/
 #ignore Wallpapers 
 config/hypr/rofi/.current_wallpaper*
 config/hypr/wallpaper_effects/*
+config/hypr/rofi/wallust/colors-rofi.rasi
+config/hypr/wallust/wallust-hyprland.conf
+config/kitty/kitty-themes/01-Wallust.conf
+config/hypr/workspaces.conf
+config/hypr/UserConfigs/workspaces.lua
