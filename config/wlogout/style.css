@@ -1,0 +1,85 @@
+/* ----------- 💫 https://github.com/LinuxBeginnings 💫 -------- */
+/* wallust-wlogout */
+
+/* Importing wallust colors */
+@import '../../.config/waybar/wallust/colors-waybar.css';
+
+window {
+    font-size: 24pt;
+    color: @foreground;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+button {
+    background-repeat: no-repeat;
+    background-position: center 35%;
+    background-size: 70px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 25px;
+    
+    margin: 220px 20px; 
+    
+    transition: all 0.2s ease-in-out;
+    outline-style: none;
+}
+
+button:focus, button:active {
+    outline-style: none;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    /* El ícono crece visualmente, pero la pastilla mantiene su tamaño */
+    background-size: 80px; 
+    border-radius: 40px;
+}
+
+/* Adjust the size of the icon or content inside the button */
+button span {
+    font-size: 1.2em; /* Increase the font size */
+}
+
+
+#lock {
+    background-image: image(url("./icons/lock-2-line.svg"));
+}
+#lock:hover {
+    background-image: image(url("./icons/lock-2-fill.svg"));
+}
+
+#logout {
+    background-image: image(url("./icons/logout-box-r-line.svg"));
+}
+#logout:hover {
+    background-image: image(url("./icons/logout-box-r-fill.svg"));
+}
+
+#suspend {
+    background-image: image(url("./icons/hotel-bed-line.svg"));
+}
+#suspend:hover {
+    background-image: image(url("./icons/hotel-bed-fill.svg"));
+}
+
+#shutdown {
+    background-image: image(url("./icons/shut-down-line.svg"));
+}
+#shutdown:hover {
+    background-image: image(url("./icons/shut-down-fill.svg"));
+}
+
+#reboot {
+    background-image: image(url("./icons/restart-line.svg"));
+}
+#reboot:hover {
+    background-image: image(url("./icons/restart-fill.svg"));
+}
+
+#hibernate {
+    background-image: image(url("./icons/moon-clear-line.svg"));
+}
+#hibernate:hover {
+    background-image: image(url("./icons/moon-clear-fill.svg"));
+}
