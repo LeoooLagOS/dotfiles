@@ -7,11 +7,11 @@
 
 -- KoolDots Hyprland Lua config entrypoint.
 -- Mirrors hyprland.conf include order for features currently supported by Lua config.
-local configHome = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
+local configHome = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/dotfiles/config")
 local hyprDir = configHome .. "/hypr"
 
 local function load_module(name)
-  dofile(hyprDir .. "/lua/" .. name .. ".lua")
+	dofile(hyprDir .. "/lua/" .. name .. ".lua")
 end
 
 -- In Lua workflow, runtime config is loaded from split files under:
