@@ -5,10 +5,10 @@
     "keybind" : "l"
 }
 {
-    "label" : "reboot",
-    "action" : "systemctl reboot",
-    "text" : "Reboot",
-    "keybind" : "r"
+    "label" : "logout",
+    "action" : "$HOME/.config/hypr/scripts/Logout.sh",
+    "text" : "Logout",
+    "keybind" : "e"
 }
 {
     "label" : "shutdown",
@@ -17,10 +17,10 @@
     "keybind" : "s"
 }
 {
-    "label" : "logout",
-    "action" : "$HOME/.config/hypr/scripts/Logout.sh",
-    "text" : "Logout",
-    "keybind" : "e"
+    "label" : "reboot",
+    "action" : "systemctl reboot",
+    "text" : "Reboot",
+    "keybind" : "r"
 }
 {
     "label" : "suspend",
