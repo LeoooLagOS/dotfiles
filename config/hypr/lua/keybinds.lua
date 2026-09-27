@@ -14,35 +14,35 @@
 --   4) description text
 local keybind_helpers = nil
 do
-  local source = (debug.getinfo(1, "S") or {}).source or ""
-  local source_path = source:match("^@(.+)$")
-  local source_dir = source_path and source_path:match("^(.*)/[^/]+$") or nil
-  local home = os.getenv("HOME") or ""
-  local candidate_paths = {
-    source_dir and (source_dir .. "/keybind_helpers.lua") or nil,
-    home ~= "" and (home .. "/.config/hypr/lua/keybind_helpers.lua") or nil,
-    home ~= "" and (home .. "/.config/hypr/keybind_helpers.lua") or nil,
-  }
+	local source = (debug.getinfo(1, "S") or {}).source or ""
+	local source_path = source:match("^@(.+)$")
+	local source_dir = source_path and source_path:match("^(.*)/[^/]+$") or nil
+	local home = os.getenv("HOME") or ""
+	local candidate_paths = {
+		source_dir and (source_dir .. "/keybind_helpers.lua") or nil,
+		home ~= "" and (home .. "/.config/hypr/lua/keybind_helpers.lua") or nil,
+		home ~= "" and (home .. "/.config/hypr/keybind_helpers.lua") or nil,
+	}
 
-  local tried_paths = {}
-  for _, helper_path in ipairs(candidate_paths) do
-    if helper_path then
-      table.insert(tried_paths, helper_path)
-      local f = io.open(helper_path, "r")
-      if f then
-        f:close()
-        local loaded_ok, loaded_helpers = pcall(dofile, helper_path)
-        if loaded_ok and type(loaded_helpers) == "table" and loaded_helpers.unbind_default_keys then
-          keybind_helpers = loaded_helpers
-          break
-        end
-      end
-    end
-  end
+	local tried_paths = {}
+	for _, helper_path in ipairs(candidate_paths) do
+		if helper_path then
+			table.insert(tried_paths, helper_path)
+			local f = io.open(helper_path, "r")
+			if f then
+				f:close()
+				local loaded_ok, loaded_helpers = pcall(dofile, helper_path)
+				if loaded_ok and type(loaded_helpers) == "table" and loaded_helpers.unbind_default_keys then
+					keybind_helpers = loaded_helpers
+					break
+				end
+			end
+		end
+	end
 
-  if not keybind_helpers then
-    error("Failed to load keybind_helpers.lua from: " .. table.concat(tried_paths, ", "))
-  end
+	if not keybind_helpers then
+		error("Failed to load keybind_helpers.lua from: " .. table.concat(tried_paths, ", "))
+	end
 end
 local window_api = keybind_helpers.window_api
 local exec_cmd = keybind_helpers.exec_cmd
@@ -59,87 +59,87 @@ keybind_helpers.unbind_default_keys()
 -- ==================================================
 -- Section: Application launchers and utility scripts
 local app_binds = {
-  {
-    "SUPER",
-    "D",
-    "pkill rofi || true; $HOME/.config/hypr/scripts/RofiFocusedWallpaperLink.sh >/dev/null 2>&1 || true; rofi -show drun -modi drun,filebrowser,run,window -config $HOME/.config/hypr/rofi/config.rasi",
-    "app launcher",
-  },
-  { "SUPER", "B", 'xdg-open "https://"', "open default browser" },
-  { "SUPER", "A", "$HOME/.config/hypr/scripts/OverviewToggle.sh", "desktop overview" },
-  { "SUPER CTRL", "A", "pkill rofi || true && ags -t 'overview'", "Ags overview" },
-  { "SUPER", "Return", "$HOME/.config/hypr/scripts/LaunchTerminal.sh '$term'", "Open terminal" },
-  {
-    "SUPER",
-    "E",
-    "$HOME/.config/hypr/scripts/LaunchFileManager.sh '$files' '$term'",
-    "file manager",
-  },
-  { "SUPER", "C", "$HOME/.config/hypr/scripts/rofi-ssh-menu.sh", "SSH session manager" },
-  { "SUPER", "T", "$HOME/.config/hypr/scripts/ThemeChanger.sh", "Global theme switcher using Wallust" },
-  { "SUPER", "H", "$HOME/.config/hypr/scripts/KeyHints.sh", "help / cheat sheet" },
-  { "SUPER ALT", "R", "$HOME/.config/hypr/scripts/Refresh.sh", "refresh bar and menus" },
-  { "SUPER ALT", "E", "$HOME/.config/hypr/scripts/RofiEmoji.sh", "emoji menu" },
-  { "SUPER", "S", "$HOME/.config/hypr/scripts/RofiSearch.sh", "web search" },
-  {
-    "SUPER CTRL",
-    "S",
-    "$HOME/.config/hypr/scripts/RofiFocusedWallpaperLink.sh >/dev/null 2>&1 || true; rofi -show window -config $HOME/.config/hypr/rofi/config.rasi",
-    "window switcher",
-  },
-  { "SUPER ALT", "O", "$HOME/.config/hypr/scripts/ChangeBlur.sh", "toggle blur" },
-  { "SUPER SHIFT", "G", "$HOME/.config/hypr/scripts/GameMode.sh", "toggle game mode" },
-  { "SUPER ALT", "L", "$HOME/.config/hypr/scripts/ChangeLayout.sh toggle", "toggle layouts" },
-  { "SUPER ALT", "V", "$HOME/.config/hypr/scripts/ClipManager.sh", "clipboard manager" },
-  { "CTRL ALT", "D", "$HOME/.config/hypr/scripts/Dock.sh", "toggle dock" },
-  { "SUPER CTRL", "R", "$HOME/.config/hypr/scripts/RofiThemeSelector.sh", "rofi theme selector" },
-  {
-    "SUPER CTRL SHIFT",
-    "R",
-    "pkill rofi || true && $HOME/.config/hypr/scripts/RofiThemeSelector-modified.sh",
-    "rofi theme selector (modified)",
-  },
-  { "SUPER CTRL", "K", "$HOME/.config/hypr/scripts/Kitty_themes.sh", "Kitty theme selector" },
-  { "SUPER CTRL", "G", "$HOME/.config/hypr/scripts/Ghostty_themes.sh", "Ghostty theme selector" },
-  {
-    "SUPER SHIFT",
-    "B",
-    "$HOME/.config/hypr/UserScripts/RainbowBorders-low-cpu.sh  --run-once",
-    "Set static Rainbow Border",
-  },
-  {
-    "SUPER SHIFT",
-    "H",
-    "$HOME/.config/hypr/scripts/Toggle-Active-Window-Audio.sh",
-    "Toggle Mute/Unmute for Active-Window",
-  },
-  {
-    "ALT SHIFT",
-    "S",
-    "$HOME/.config/hypr/scripts/hyprshot.sh -m region -o $HOME/Pictures/Screenshots",
-    "Hyprshot Screen Capture",
-  },
-  { "SUPER ALT", "SPACE", "$HOME/.config/hypr/scripts/Float-all-Windows.sh", "Float all windows" },
-  { "SUPER CTRL", "SPACE", "$HOME/.config/hypr/scripts/float.all.samesize.lua", "Float all windows same size" },
-  -- NOTE: Dropterminal is currently certified only with kitty. Not all terminals behave correctly as a dropdown.
-  { "SUPER SHIFT", "Return", "$HOME/.config/hypr/scripts/Dropterminal.sh kitty", "DropDown terminal" },
-  { "SUPER ALT", "mouse_down", "$HOME/.config/hypr/scripts/Zoom.sh in", "zoom in" },
-  { "SUPER ALT", "mouse_up", "$HOME/.config/hypr/scripts/Zoom.sh out", "zoom out" },
-  { "SUPER CTRL ALT", "B", "pkill -SIGUSR1 waybar", "toggle waybar on/off" },
-  { "SUPER CTRL", "B", "$HOME/.config/hypr/scripts/WaybarStyles.sh", "waybar styles menu" },
-  { "SUPER ALT", "B", "$HOME/.config/hypr/scripts/WaybarLayout.sh", "waybar layout menu" },
-  { "SUPER", "N", "$HOME/.config/hypr/scripts/Hyprsunset.sh toggle", "Toggle Hyprsunset - night light" },
-  { "SUPER SHIFT", "M", "$HOME/.config/hypr/UserScripts/RofiBeats.sh", "online music" },
-  { "SUPER", "W", "$HOME/.config/hypr/scripts/WallpaperSelect.sh", "select wallpaper" },
-  { "SUPER SHIFT", "W", "$HOME/.config/hypr/scripts/WallpaperEffects.sh", "wallpaper effects" },
-  { "CTRL ALT", "W", "$HOME/.config/hypr/scripts/WallpaperRandom.sh", "random wallpaper" },
-  { "SUPER SHIFT", "K", "$HOME/.config/hypr/scripts/KeyBinds.sh", "search keybinds" },
-  { "SUPER SHIFT", "A", "$HOME/.config/hypr/scripts/Animations.sh", "animations menu" },
-  { "SUPER SHIFT", "O", "$HOME/.config/hypr/scripts/ZshChangeTheme.sh", "change oh-my-zsh theme" },
-  { "SUPER ALT", "C", "$HOME/.config/hypr/UserScripts/RofiCalc.sh", "calculator" },
+	{
+		"SUPER",
+		"D",
+		"pkill rofi || true; $HOME/.config/hypr/scripts/RofiFocusedWallpaperLink.sh >/dev/null 2>&1 || true; rofi -show drun -modi drun,filebrowser,run,window,calc -config $HOME/.config/hypr/rofi/config.rasi",
+		"app launcher",
+	},
+	{ "SUPER", "B", 'xdg-open "https://"', "open default browser" },
+	{ "SUPER", "A", "$HOME/.config/hypr/scripts/OverviewToggle.sh", "desktop overview" },
+	{ "SUPER CTRL", "A", "pkill rofi || true && ags -t 'overview'", "Ags overview" },
+	{ "SUPER", "Return", "$HOME/.config/hypr/scripts/LaunchTerminal.sh '$term'", "Open terminal" },
+	{
+		"SUPER",
+		"E",
+		"$HOME/.config/hypr/scripts/LaunchFileManager.sh '$files' '$term'",
+		"file manager",
+	},
+	{ "SUPER", "C", "$HOME/.config/hypr/scripts/rofi-ssh-menu.sh", "SSH session manager" },
+	{ "SUPER", "T", "$HOME/.config/hypr/scripts/ThemeChanger.sh", "Global theme switcher using Wallust" },
+	{ "SUPER", "H", "$HOME/.config/hypr/scripts/KeyHints.sh", "help / cheat sheet" },
+	{ "SUPER ALT", "R", "$HOME/.config/hypr/scripts/Refresh.sh", "refresh bar and menus" },
+	{ "SUPER ALT", "E", "$HOME/.config/hypr/scripts/RofiEmoji.sh", "emoji menu" },
+	{ "SUPER", "S", "$HOME/.config/hypr/scripts/RofiSearch.sh", "web search" },
+	{
+		"SUPER CTRL",
+		"S",
+		"$HOME/.config/hypr/scripts/RofiFocusedWallpaperLink.sh >/dev/null 2>&1 || true; rofi -show window -config $HOME/.config/hypr/rofi/config.rasi",
+		"window switcher",
+	},
+	{ "SUPER ALT", "O", "$HOME/.config/hypr/scripts/ChangeBlur.sh", "toggle blur" },
+	{ "SUPER SHIFT", "G", "$HOME/.config/hypr/scripts/GameMode.sh", "toggle game mode" },
+	{ "SUPER ALT", "L", "$HOME/.config/hypr/scripts/ChangeLayout.sh toggle", "toggle layouts" },
+	{ "SUPER ALT", "V", "$HOME/.config/hypr/scripts/ClipManager.sh", "clipboard manager" },
+	{ "CTRL ALT", "D", "$HOME/.config/hypr/scripts/Dock.sh", "toggle dock" },
+	{ "SUPER CTRL", "R", "$HOME/.config/hypr/scripts/RofiThemeSelector.sh", "rofi theme selector" },
+	{
+		"SUPER CTRL SHIFT",
+		"R",
+		"pkill rofi || true && $HOME/.config/hypr/scripts/RofiThemeSelector-modified.sh",
+		"rofi theme selector (modified)",
+	},
+	{ "SUPER CTRL", "K", "$HOME/.config/hypr/scripts/Kitty_themes.sh", "Kitty theme selector" },
+	{ "SUPER CTRL", "G", "$HOME/.config/hypr/scripts/Ghostty_themes.sh", "Ghostty theme selector" },
+	{
+		"SUPER SHIFT",
+		"B",
+		"$HOME/.config/hypr/UserScripts/RainbowBorders-low-cpu.sh  --run-once",
+		"Set static Rainbow Border",
+	},
+	{
+		"SUPER SHIFT",
+		"H",
+		"$HOME/.config/hypr/scripts/Toggle-Active-Window-Audio.sh",
+		"Toggle Mute/Unmute for Active-Window",
+	},
+	{
+		"ALT SHIFT",
+		"S",
+		"$HOME/.config/hypr/scripts/hyprshot.sh -m region -o $HOME/Pictures/Screenshots",
+		"Hyprshot Screen Capture",
+	},
+	{ "SUPER ALT", "SPACE", "$HOME/.config/hypr/scripts/Float-all-Windows.sh", "Float all windows" },
+	{ "SUPER CTRL", "SPACE", "$HOME/.config/hypr/scripts/float.all.samesize.lua", "Float all windows same size" },
+	-- NOTE: Dropterminal is currently certified only with kitty. Not all terminals behave correctly as a dropdown.
+	{ "SUPER SHIFT", "Return", "$HOME/.config/hypr/scripts/Dropterminal.sh kitty", "DropDown terminal" },
+	{ "SUPER ALT", "mouse_down", "$HOME/.config/hypr/scripts/Zoom.sh in", "zoom in" },
+	{ "SUPER ALT", "mouse_up", "$HOME/.config/hypr/scripts/Zoom.sh out", "zoom out" },
+	{ "SUPER CTRL ALT", "B", "pkill -SIGUSR1 waybar", "toggle waybar on/off" },
+	{ "SUPER CTRL", "B", "$HOME/.config/hypr/scripts/WaybarStyles.sh", "waybar styles menu" },
+	{ "SUPER ALT", "B", "$HOME/.config/hypr/scripts/WaybarLayout.sh", "waybar layout menu" },
+	{ "SUPER", "N", "$HOME/.config/hypr/scripts/Hyprsunset.sh toggle", "Toggle Hyprsunset - night light" },
+	{ "SUPER SHIFT", "M", "$HOME/.config/hypr/UserScripts/RofiBeats.sh", "online music" },
+	{ "SUPER", "W", "$HOME/.config/hypr/scripts/WallpaperSelect.sh", "select wallpaper" },
+	{ "SUPER SHIFT", "W", "$HOME/.config/hypr/scripts/WallpaperEffects.sh", "wallpaper effects" },
+	{ "CTRL ALT", "W", "$HOME/.config/hypr/scripts/WallpaperRandom.sh", "random wallpaper" },
+	{ "SUPER SHIFT", "K", "$HOME/.config/hypr/scripts/KeyBinds.sh", "search keybinds" },
+	{ "SUPER SHIFT", "A", "$HOME/.config/hypr/scripts/Animations.sh", "animations menu" },
+	{ "SUPER SHIFT", "O", "$HOME/.config/hypr/scripts/ZshChangeTheme.sh", "change oh-my-zsh theme" },
+	{ "SUPER ALT", "C", "$HOME/dotfiles/scripts/wm/RofiCalc.sh", "calculator" },
 }
 for _, app in ipairs(app_binds) do
-  bind(app[1], app[2], exec_cmd(app[3]), { description = app[4] })
+	bind(app[1], app[2], exec_cmd(app[3]), { description = app[4] })
 end
 --
 --
@@ -208,127 +208,127 @@ bind("SUPER", "F", dispatch("fullscreen", "1"), { description = "maximize window
 bind("SUPER", "SPACE", dispatch("togglefloating", ""), { description = "Float current window" })
 bind("SUPER CTRL", "O", dispatch("setprop", "active opaque toggle"), { description = "toggle active window opacity" })
 bind(
-  "ALT",
-  "Shift_L",
-  exec_cmd("$HOME/.config/hypr/scripts/KeyboardLayout.sh switch"),
-  { description = "switch keyboard layout globally", locked = true }
+	"ALT",
+	"Shift_L",
+	exec_cmd("$HOME/.config/hypr/scripts/KeyboardLayout.sh switch"),
+	{ description = "switch keyboard layout globally", locked = true }
 )
 bind(
-  "ALT",
-  "Shift_R",
-  exec_cmd("$HOME/.config/hypr/scripts/KeyboardLayout.sh switch"),
-  { description = "switch keyboard layout globally (right shift)", locked = true }
+	"ALT",
+	"Shift_R",
+	exec_cmd("$HOME/.config/hypr/scripts/KeyboardLayout.sh switch"),
+	{ description = "switch keyboard layout globally (right shift)", locked = true }
 )
 bind(
-  "SHIFT",
-  "Alt_L",
-  exec_cmd("$HOME/.config/hypr/scripts/Tak0-Per-Window-Switch.sh"),
-  { description = "switch keyboard layout per-window", locked = true }
+	"SHIFT",
+	"Alt_L",
+	exec_cmd("$HOME/.config/hypr/scripts/Tak0-Per-Window-Switch.sh"),
+	{ description = "switch keyboard layout per-window", locked = true }
 )
 bind(
-  "SHIFT",
-  "Alt_R",
-  exec_cmd("$HOME/.config/hypr/scripts/Tak0-Per-Window-Switch.sh"),
-  { description = "switch keyboard layout per-window (right alt)", locked = true }
+	"SHIFT",
+	"Alt_R",
+	exec_cmd("$HOME/.config/hypr/scripts/Tak0-Per-Window-Switch.sh"),
+	{ description = "switch keyboard layout per-window (right alt)", locked = true }
 )
 bind(
-  "SUPER CTRL",
-  "F9",
-  dispatch("movecurrentworkspacetomonitor", "l"),
-  { description = "move workspace to left monitor" }
+	"SUPER CTRL",
+	"F9",
+	dispatch("movecurrentworkspacetomonitor", "l"),
+	{ description = "move workspace to left monitor" }
 )
 bind(
-  "SUPER CTRL",
-  "F10",
-  dispatch("movecurrentworkspacetomonitor", "r"),
-  { description = "move workspace to right monitor" }
+	"SUPER CTRL",
+	"F10",
+	dispatch("movecurrentworkspacetomonitor", "r"),
+	{ description = "move workspace to right monitor" }
 )
 bind(
-  "SUPER CTRL",
-  "F11",
-  dispatch("movecurrentworkspacetomonitor", "u"),
-  { description = "move workspace to up monitor" }
+	"SUPER CTRL",
+	"F11",
+	dispatch("movecurrentworkspacetomonitor", "u"),
+	{ description = "move workspace to up monitor" }
 )
 bind(
-  "SUPER CTRL",
-  "F12",
-  dispatch("movecurrentworkspacetomonitor", "d"),
-  { description = "move workspace to down monitor" }
+	"SUPER CTRL",
+	"F12",
+	dispatch("movecurrentworkspacetomonitor", "d"),
+	{ description = "move workspace to down monitor" }
 )
 bind("CTRL ALT", "Delete", exec_cmd("$HOME/.config/hypr/scripts/Logout.sh"), { description = "exit Hyprland" })
 bind("SUPER", "Q", dispatch("killactive", ""), { description = "close active window" })
 bind(
-  "SUPER SHIFT",
-  "Q",
-  exec_cmd("$HOME/.config/hypr/scripts/KillActiveProcess.sh"),
-  { description = "Terminate active process" }
+	"SUPER SHIFT",
+	"Q",
+	exec_cmd("$HOME/.config/hypr/scripts/KillActiveProcess.sh"),
+	{ description = "Terminate active process" }
 )
 bind("CTRL ALT", "L", exec_cmd("$HOME/.config/hypr/scripts/LockScreen.sh"), { description = "lock screen" })
 bind("CTRL ALT", "P", exec_cmd("$HOME/.config/hypr/scripts/Wlogout.sh"), { description = "powermenu" })
 bind("SUPER SHIFT", "N", exec_cmd("swaync-client -t -sw"), { description = "notification panel" })
 bind(
-  "SUPER SHIFT",
-  "E",
-  exec_cmd("$HOME/.config/hypr/scripts/Kool_Quick_Settings.sh"),
-  { description = "Quick settings menu" }
+	"SUPER SHIFT",
+	"E",
+	exec_cmd("$HOME/.config/hypr/scripts/Kool_Quick_Settings.sh"),
+	{ description = "Quick settings menu" }
 )
 
 -- Section: Layout and tiling controls
 bind("SUPER CTRL", "D", dispatch("layoutmsg", "removemaster"), { description = "remove master" })
 bind("SUPER", "I", dispatch("layoutmsg", "addmaster"), { description = "add master" })
 bind(
-  "SUPER",
-  "j",
-  exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh cycle-next"),
-  { description = "cycle next (layout-aware)" }
+	"SUPER",
+	"j",
+	exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh cycle-next"),
+	{ description = "cycle next (layout-aware)" }
 )
 bind(
-  "SUPER",
-  "k",
-  exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh cycle-prev"),
-  { description = "cycle previous (layout-aware)" }
+	"SUPER",
+	"k",
+	exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh cycle-prev"),
+	{ description = "cycle previous (layout-aware)" }
 )
 bind("SUPER CTRL", "Return", dispatch("layoutmsg", "swapwithmaster"), { description = "swap with master" })
 bind("SUPER SHIFT", "I", dispatch("layoutmsg", "togglesplit"), { description = "toggle split (dwindle)" })
 bind("SUPER", "P", dispatch("pseudo", ""), { description = "toggle pseudo (dwindle)" })
 bind("SUPER", "M", raw_dispatch_cmd("splitratio 0.3"), { description = "set split ratio 0.3" })
 bind(
-  "SUPER ALT",
-  "1",
-  exec_cmd("$HOME/.config/hypr/scripts/ChangeLayout.sh dwindle"),
-  { description = "layout dwindle" }
+	"SUPER ALT",
+	"1",
+	exec_cmd("$HOME/.config/hypr/scripts/ChangeLayout.sh dwindle"),
+	{ description = "layout dwindle" }
 )
 bind("SUPER ALT", "2", exec_cmd("$HOME/.config/hypr/scripts/ChangeLayout.sh master"), { description = "layout master" })
 bind(
-  "SUPER ALT",
-  "3",
-  exec_cmd("$HOME/.config/hypr/scripts/ChangeLayout.sh scrolling"),
-  { description = "layout scrolling" }
+	"SUPER ALT",
+	"3",
+	exec_cmd("$HOME/.config/hypr/scripts/ChangeLayout.sh scrolling"),
+	{ description = "layout scrolling" }
 )
 bind(
-  "SUPER ALT",
-  "4",
-  exec_cmd("$HOME/.config/hypr/scripts/ChangeLayout.sh monocle"),
-  { description = "layout monocle" }
+	"SUPER ALT",
+	"4",
+	exec_cmd("$HOME/.config/hypr/scripts/ChangeLayout.sh monocle"),
+	{ description = "layout monocle" }
 )
 bind("SUPER SHIFT", "period", dispatch("layoutmsg", "move +col"), { description = "move to right column" })
 bind("SUPER SHIFT", "comma", dispatch("layoutmsg", "move -col"), { description = "move to left column" })
 bind("SUPER ALT", "comma", dispatch("layoutmsg", "swapcol l"), { description = "swap columns left" })
 bind("SUPER ALT", "period", dispatch("layoutmsg", "swapcol r"), { description = "swap columns right" })
 bind(
-  "SUPER ALT",
-  "H",
-  exec_cmd("hyprctl keyword scrolling:direction right"),
-  { description = "Horizonal scroll right" }
+	"SUPER ALT",
+	"H",
+	exec_cmd("hyprctl keyword scrolling:direction right"),
+	{ description = "Horizonal scroll right" }
 )
 bind("SUPER CTRL", "V", exec_cmd("hyprctl keyword scrolling:direction down"), { description = "Vertical Scroll down" })
 bind(
-  "SUPER ALT",
-  "S",
-  exec_cmd(
-    'bash -c \'[[ $(hyprctl getoption scrolling:direction -j | jq -r ".str") == "right" ]] && hyprctl keyword scrolling:direction down || hyprctl keyword scrolling:direction right\''
-  ),
-  { description = "toggle scrolling V/H" }
+	"SUPER ALT",
+	"S",
+	exec_cmd(
+		'bash -c \'[[ $(hyprctl getoption scrolling:direction -j | jq -r ".str") == "right" ]] && hyprctl keyword scrolling:direction down || hyprctl keyword scrolling:direction right\''
+	),
+	{ description = "toggle scrolling V/H" }
 )
 -- Section: Hyprview expose controls
 -- "smartgrid", "justified", "masonry", "bands", "hero", "spiral"
@@ -336,269 +336,254 @@ bind(
 -- Bound later (after SUPER SHIFT/CTRL tab workspace/group binds) so the combo is not overwritten.
 local col_width_presets = { 0.25, 0.33, 0.5, 0.66, 0.75, 1.0 }
 local function _as_number(v)
-  if type(v) == "number" then
-    return v
-  end
-  if type(v) == "string" then
-    return tonumber(v)
-  end
-  return nil
+	if type(v) == "number" then
+		return v
+	end
+	if type(v) == "string" then
+		return tonumber(v)
+	end
+	return nil
 end
 local function _window_width(win)
-  if type(win) ~= "table" then
-    return nil
-  end
-  local sz = win.size
-  if type(sz) == "number" then
-    return sz
-  end
-  if type(sz) == "table" then
-    return _as_number(sz[1] or sz.width or sz.w)
-  end
-  return nil
+	if type(win) ~= "table" then
+		return nil
+	end
+	local sz = win.size
+	if type(sz) == "number" then
+		return sz
+	end
+	if type(sz) == "table" then
+		return _as_number(sz[1] or sz.width or sz.w)
+	end
+	return nil
 end
 local function _monitor_width(win)
-  local mon = type(win) == "table" and win.monitor or nil
-  if type(mon) == "table" then
-    local w = _as_number(mon.width or mon.w or (type(mon.size) == "table" and (mon.size[1] or mon.size.width)))
-    if w ~= nil then
-      return w
-    end
-  end
-  if hl.get_active_monitor then
-    local active_mon = hl.get_active_monitor()
-    if type(active_mon) == "table" then
-      local w = _as_number(
-        active_mon.width
-          or active_mon.w
-          or (type(active_mon.size) == "table" and (active_mon.size[1] or active_mon.size.width))
-      )
-      if w ~= nil then
-        return w
-      end
-    end
-  end
-  return nil
+	local mon = type(win) == "table" and win.monitor or nil
+	if type(mon) == "table" then
+		local w = _as_number(mon.width or mon.w or (type(mon.size) == "table" and (mon.size[1] or mon.size.width)))
+		if w ~= nil then
+			return w
+		end
+	end
+	if hl.get_active_monitor then
+		local active_mon = hl.get_active_monitor()
+		if type(active_mon) == "table" then
+			local w = _as_number(
+				active_mon.width
+					or active_mon.w
+					or (type(active_mon.size) == "table" and (active_mon.size[1] or active_mon.size.width))
+			)
+			if w ~= nil then
+				return w
+			end
+		end
+	end
+	return nil
 end
-bind("SUPER", "R", exec_cmd("bash $HOME/.config/hypr/scripts/ScrollCycleColumnWidth.sh"), { description = "cycle column width preset (scrolling)" })
+bind(
+	"SUPER",
+	"R",
+	exec_cmd("bash $HOME/.config/hypr/scripts/ScrollCycleColumnWidth.sh"),
+	{ description = "cycle column width preset (scrolling)" }
+)
 bind("ALT", "Tab", exec_cmd("$HOME/.config/hypr/scripts/LuaCycleWindow.sh next"), { description = "cycle next window" })
 
 -- Section: Audio, media, and hardware keys
 bind(
-  "",
-  "xf86audioraisevolume",
-  exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --inc"),
-  { description = "volume up", locked = true, ["repeat"] = true }
+	"",
+	"xf86audioraisevolume",
+	exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --inc"),
+	{ description = "volume up", locked = true, ["repeat"] = true }
 )
 bind(
-  "",
-  "xf86audiolowervolume",
-  exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --dec"),
-  { description = "volume down", locked = true, ["repeat"] = true }
+	"",
+	"xf86audiolowervolume",
+	exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --dec"),
+	{ description = "volume down", locked = true, ["repeat"] = true }
 )
 bind(
-  "ALT",
-  "xf86audioraisevolume",
-  exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --inc-precise"),
-  { description = "volume up precise", locked = true, ["repeat"] = true }
+	"ALT",
+	"xf86audioraisevolume",
+	exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --inc-precise"),
+	{ description = "volume up precise", locked = true, ["repeat"] = true }
 )
 bind(
-  "ALT",
-  "xf86audiolowervolume",
-  exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --dec-precise"),
-  { description = "volume down precise", locked = true, ["repeat"] = true }
+	"ALT",
+	"xf86audiolowervolume",
+	exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --dec-precise"),
+	{ description = "volume down precise", locked = true, ["repeat"] = true }
 )
 bind(
-  "",
-  "xf86AudioMicMute",
-  exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --toggle-mic"),
-  { description = "toggle mic mute", locked = true }
+	"",
+	"xf86AudioMicMute",
+	exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --toggle-mic"),
+	{ description = "toggle mic mute", locked = true }
 )
 bind(
-  "",
-  "xf86audiomute",
-  exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --toggle"),
-  { description = "toggle mute", locked = true }
+	"",
+	"xf86audiomute",
+	exec_cmd("$HOME/.config/hypr/scripts/Volume.sh --toggle"),
+	{ description = "toggle mute", locked = true }
 )
 bind("", "xf86Sleep", exec_cmd("systemctl suspend"), { description = "sleep", locked = true })
 bind(
-  "",
-  "xf86Rfkill",
-  exec_cmd("$HOME/.config/hypr/scripts/AirplaneMode.sh"),
-  { description = "airplane mode", locked = true }
+	"",
+	"xf86Rfkill",
+	exec_cmd("$HOME/.config/hypr/scripts/AirplaneMode.sh"),
+	{ description = "airplane mode", locked = true }
 )
 bind(
-  "",
-  "xf86AudioPlayPause",
-  exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
-  { description = "play/pause", locked = true }
+	"",
+	"xf86AudioPlayPause",
+	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
+	{ description = "play/pause", locked = true }
 )
 bind(
-  "",
-  "xf86AudioPause",
-  exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
-  { description = "pause", locked = true }
+	"",
+	"xf86AudioPause",
+	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
+	{ description = "pause", locked = true }
 )
 bind(
-  "",
-  "xf86AudioPlay",
-  exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
-  { description = "play", locked = true }
+	"",
+	"xf86AudioPlay",
+	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
+	{ description = "play", locked = true }
 )
 bind(
-  "",
-  "xf86AudioNext",
-  exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --nxt"),
-  { description = "next track", locked = true }
+	"",
+	"xf86AudioNext",
+	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --nxt"),
+	{ description = "next track", locked = true }
 )
 bind(
-  "",
-  "xf86AudioPrev",
-  exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --prv"),
-  { description = "previous track", locked = true }
+	"",
+	"xf86AudioPrev",
+	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --prv"),
+	{ description = "previous track", locked = true }
 )
 bind(
-  "",
-  "xf86audiostop",
-  exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --stop"),
-  { description = "stop", locked = true }
+	"",
+	"xf86audiostop",
+	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --stop"),
+	{ description = "stop", locked = true }
 )
 bind(
-  "",
-  "xf86MonBrightnessDown",
-  exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --dec"),
-  { description = "decrease monitor brightness", locked = true, ["repeat"] = true }
+	"",
+	"xf86MonBrightnessDown",
+	exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --dec"),
+	{ description = "decrease monitor brightness", locked = true, ["repeat"] = true }
 )
 bind(
-  "",
-  "xf86MonBrightnessUp",
-  exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --inc"),
-  { description = "increase monitor brightness", locked = true, ["repeat"] = true }
+	"",
+	"xf86MonBrightnessUp",
+	exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --inc"),
+	{ description = "increase monitor brightness", locked = true, ["repeat"] = true }
 )
 bind(
-  "CTRL ALT",
-  "equal",
-  exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --inc"),
-  { description = "increase brightness", locked = true, ["repeat"] = true }
+	"CTRL ALT",
+	"equal",
+	exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --inc"),
+	{ description = "increase brightness", locked = true, ["repeat"] = true }
 )
 bind(
-  "CTRL ALT",
-  "minus",
-  exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --dec"),
-  { description = "decrease brightness", locked = true, ["repeat"] = true }
+	"CTRL ALT",
+	"minus",
+	exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --dec"),
+	{ description = "decrease brightness", locked = true, ["repeat"] = true }
 )
 bind(
-  "CTRL ALT",
-  "KP_Add",
-  exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --inc"),
-  { description = "increase brightness (numpad)", locked = true, ["repeat"] = true }
+	"CTRL ALT",
+	"KP_Add",
+	exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --inc"),
+	{ description = "increase brightness (numpad)", locked = true, ["repeat"] = true }
 )
 bind(
-  "CTRL ALT",
-  "KP_Subtract",
-  exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --dec"),
-  { description = "decrease brightness (numpad)", locked = true, ["repeat"] = true }
+	"CTRL ALT",
+	"KP_Subtract",
+	exec_cmd("$HOME/.config/hypr/scripts/Brightness.sh --dec"),
+	{ description = "decrease brightness (numpad)", locked = true, ["repeat"] = true }
 )
 bind(
-  "",
-  "xf86KbdBrightnessDown",
-  exec_cmd("$HOME/.config/hypr/scripts/BrightnessKbd.sh --dec"),
-  { description = "decrease keyboard brightness", locked = true, ["repeat"] = true }
+	"",
+	"xf86KbdBrightnessDown",
+	exec_cmd("$HOME/.config/hypr/scripts/BrightnessKbd.sh --dec"),
+	{ description = "decrease keyboard brightness", locked = true, ["repeat"] = true }
 )
 bind(
-  "",
-  "xf86KbdBrightnessUp",
-  exec_cmd("$HOME/.config/hypr/scripts/BrightnessKbd.sh --inc"),
-  { description = "increase keyboard brightness", locked = true, ["repeat"] = true }
+	"",
+	"xf86KbdBrightnessUp",
+	exec_cmd("$HOME/.config/hypr/scripts/BrightnessKbd.sh --inc"),
+	{ description = "increase keyboard brightness", locked = true, ["repeat"] = true }
 )
 bind(
-  "",
-  "xf86KbdLightOnOff",
-  exec_cmd("$HOME/.config/hypr/scripts/BrightnessKbd.sh --cycle"),
-  { description = "cycle keyboard brightness", locked = true }
+	"",
+	"xf86KbdLightOnOff",
+	exec_cmd("$HOME/.config/hypr/scripts/BrightnessKbd.sh --cycle"),
+	{ description = "cycle keyboard brightness", locked = true }
 )
-bind(
-  "",
-  "xf86TouchpadToggle",
-  exec_cmd("$HOME/.config/hypr/scripts/TouchPad.sh"),
-  { description = "disable touchpad" }
-)
-bind(
-  "",
-  "xf86Launch1",
-  exec_cmd("rog-control-center"),
-  { description = "ASUS Armory crate button" }
-)
-bind(
-  "",
-  "xf86Launch3",
-  exec_cmd("asusctl led-mode -n"),
-  { description = "FN+F4 Switch keyboard RGB profile" }
-)
-bind(
-  "",
-  "xf86Launch4",
-  exec_cmd("asusctl profile -n"),
-  { description = "FN+F5 change of fan profiles" }
-)
+bind("", "xf86TouchpadToggle", exec_cmd("$HOME/.config/hypr/scripts/TouchPad.sh"), { description = "disable touchpad" })
+bind("", "xf86Launch1", exec_cmd("rog-control-center"), { description = "ASUS Armory crate button" })
+bind("", "xf86Launch3", exec_cmd("asusctl led-mode -n"), { description = "FN+F4 Switch keyboard RGB profile" })
+bind("", "xf86Launch4", exec_cmd("asusctl profile -n"), { description = "FN+F5 change of fan profiles" })
 
 -- Section: Screenshot bindings
 bind("SUPER", "Print", exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --now"), { description = "screenshot now" })
 bind(
-  "SUPER SHIFT",
-  "Print",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --area"),
-  { description = "screenshot (area)" }
+	"SUPER SHIFT",
+	"Print",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --area"),
+	{ description = "screenshot (area)" }
 )
 bind(
-  "SUPER CTRL",
-  "Print",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in5"),
-  { description = "screenshot in 5s" }
+	"SUPER CTRL",
+	"Print",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in5"),
+	{ description = "screenshot in 5s" }
 )
 bind(
-  "SUPER CTRL SHIFT",
-  "Print",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in10"),
-  { description = "screenshot in 10s" }
+	"SUPER CTRL SHIFT",
+	"Print",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in10"),
+	{ description = "screenshot in 10s" }
 )
 bind(
-  "ALT",
-  "Print",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --active"),
-  { description = "screenshot active window" }
+	"ALT",
+	"Print",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --active"),
+	{ description = "screenshot active window" }
 )
 bind(
-  "SUPER SHIFT",
-  "S",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --swappy"),
-  { description = "screenshot (swappy)" }
+	"SUPER SHIFT",
+	"S",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --swappy"),
+	{ description = "screenshot (swappy)" }
 )
 -- Screenshot keybindings using F6 (no PrintSrc button)
 bind("SUPER", "F6", exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --now"), { description = "screenshot" })
 bind(
-  "SUPER SHIFT",
-  "F6",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --area"),
-  { description = "screenshot (area)" }
+	"SUPER SHIFT",
+	"F6",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --area"),
+	{ description = "screenshot (area)" }
 )
 bind(
-  "SUPER CTRL",
-  "F6",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in5"),
-  { description = "screenshot (5 secs delay)" }
+	"SUPER CTRL",
+	"F6",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in5"),
+	{ description = "screenshot (5 secs delay)" }
 )
 bind(
-  "SUPER ALT",
-  "F6",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in10"),
-  { description = "screenshot (10 secs delay)" }
+	"SUPER ALT",
+	"F6",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --in10"),
+	{ description = "screenshot (10 secs delay)" }
 )
 bind(
-  "ALT",
-  "F6",
-  exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --active"),
-  { description = "screenshot (active window only)" }
+	"ALT",
+	"F6",
+	exec_cmd("$HOME/.config/hypr/scripts/ScreenShot.sh --active"),
+	{ description = "screenshot (active window only)" }
 )
 -- Keep legacy script-based resize bindings commented for quick rollback during Lua API migration.
 -- These call ResizeActive.sh and are preserved in case native hl.dsp/hl.window resize behavior regresses.
@@ -651,23 +636,23 @@ bind("SUPER CTRL", "right", dispatch("movewindow", "r"), { description = "move w
 bind("SUPER CTRL", "up", dispatch("movewindow", "u"), { description = "move window up" })
 bind("SUPER CTRL", "down", dispatch("movewindow", "d"), { description = "move window down" })
 bind(
-  "SUPER ALT",
-  "left",
-  exec_cmd("$HOME/.config/hypr/scripts/LuaSwapWindow.sh l"),
-  { description = "swap window left" }
+	"SUPER ALT",
+	"left",
+	exec_cmd("$HOME/.config/hypr/scripts/LuaSwapWindow.sh l"),
+	{ description = "swap window left" }
 )
 bind(
-  "SUPER ALT",
-  "right",
-  exec_cmd("$HOME/.config/hypr/scripts/LuaSwapWindow.sh r"),
-  { description = "swap window right" }
+	"SUPER ALT",
+	"right",
+	exec_cmd("$HOME/.config/hypr/scripts/LuaSwapWindow.sh r"),
+	{ description = "swap window right" }
 )
 bind("SUPER ALT", "up", exec_cmd("$HOME/.config/hypr/scripts/LuaSwapWindow.sh u"), { description = "swap window up" })
 bind(
-  "SUPER ALT",
-  "down",
-  exec_cmd("$HOME/.config/hypr/scripts/LuaSwapWindow.sh d"),
-  { description = "swap window down" }
+	"SUPER ALT",
+	"down",
+	exec_cmd("$HOME/.config/hypr/scripts/LuaSwapWindow.sh d"),
+	{ description = "swap window down" }
 )
 bind("SUPER", "G", dispatch("togglegroup", ""), { description = "toggle group" })
 bind("SUPER", "Tab", dispatch("changegroupactive", "f"), { description = "Change Group Forward" })
@@ -676,28 +661,28 @@ bind("SUPER CTRL", "J", dispatch("moveintogroup", "l"), { description = "Move le
 bind("SUPER CTRL", "L", dispatch("moveintogroup", "r"), { description = "Move Right into group" })
 bind("SUPER CTRL", "H", dispatch("moveoutofgroup", ""), { description = "Move active out of group" })
 bind(
-  "SUPER",
-  "left",
-  exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-left"),
-  { description = "focus left (layout-aware)" }
+	"SUPER",
+	"left",
+	exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-left"),
+	{ description = "focus left (layout-aware)" }
 )
 bind(
-  "SUPER",
-  "right",
-  exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-right"),
-  { description = "focus right (layout-aware)" }
+	"SUPER",
+	"right",
+	exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-right"),
+	{ description = "focus right (layout-aware)" }
 )
 bind(
-  "SUPER",
-  "up",
-  exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-up"),
-  { description = "focus up (layout-aware)" }
+	"SUPER",
+	"up",
+	exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-up"),
+	{ description = "focus up (layout-aware)" }
 )
 bind(
-  "SUPER",
-  "down",
-  exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-down"),
-  { description = "focus down (layout-aware)" }
+	"SUPER",
+	"down",
+	exec_cmd("$HOME/.config/hypr/scripts/LayoutKeybindDispatch.sh focus-down"),
+	{ description = "focus down (layout-aware)" }
 )
 
 -- Section: Workspace navigation and assignment
@@ -720,10 +705,10 @@ bind("SUPER SHIFT", "tab", dispatch("workspace", "e-1"), { description = "previo
 -- Hyprview: SUPER CTRL+Tab (avoids SUPER SHIFT+Tab used by previous workspace / group back)
 local qs_hyprview_layout = "smartgrid"
 bind(
-  "SUPER CTRL",
-  "tab",
-  exec_cmd("$HOME/.config/hypr/scripts/toggle-qs-hyprview.sh " .. qs_hyprview_layout),
-  { description = "Hyprview Toggle" }
+	"SUPER CTRL",
+	"tab",
+	exec_cmd("$HOME/.config/hypr/scripts/toggle-qs-hyprview.sh " .. qs_hyprview_layout),
+	{ description = "Hyprview Toggle" }
 )
 bind("SUPER SHIFT", "U", dispatch("movetoworkspace", "special"), { description = "move to special workspace" })
 bind("SUPER", "U", dispatch("togglespecialworkspace", ""), { description = "toggle special workspace" })
@@ -773,10 +758,10 @@ bind("SUPER CTRL", "code:16", dispatch("movetoworkspacesilent", "7"), { descript
 bind("SUPER CTRL", "code:17", dispatch("movetoworkspacesilent", "8"), { description = "move silently to workspace 8" })
 bind("SUPER CTRL", "code:18", dispatch("movetoworkspacesilent", "9"), { description = "move silently to workspace 9" })
 bind(
-  "SUPER CTRL",
-  "code:19",
-  dispatch("movetoworkspacesilent", "10"),
-  { description = "move silently to workspace 10" }
+	"SUPER CTRL",
+	"code:19",
+	dispatch("movetoworkspacesilent", "10"),
+	{ description = "move silently to workspace 10" }
 )
 -- Keep legacy silent relative move-to-workspace script binds commented for rollback during Lua API migration.
 -- Native movetoworkspacesilent dispatch below replaces LuaMoveWindowWorkspaceRelative.sh usage.
@@ -793,16 +778,16 @@ bind(
 --   { description = "move silently to next workspace" }
 -- )
 bind(
-  "SUPER CTRL",
-  "bracketleft",
-  dispatch("movetoworkspacesilent", "-1"),
-  { description = "move silently to previous workspace" }
+	"SUPER CTRL",
+	"bracketleft",
+	dispatch("movetoworkspacesilent", "-1"),
+	{ description = "move silently to previous workspace" }
 )
 bind(
-  "SUPER CTRL",
-  "bracketright",
-  dispatch("movetoworkspacesilent", "+1"),
-  { description = "move silently to next workspace" }
+	"SUPER CTRL",
+	"bracketright",
+	dispatch("movetoworkspacesilent", "+1"),
+	{ description = "move silently to next workspace" }
 )
 -- Keep legacy scroll/period/comma workspace focus script binds commented for rollback during Lua API migration.
 -- Native workspace dispatch below replaces LuaFocusWorkspaceRelative.sh usage.

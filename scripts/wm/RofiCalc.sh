@@ -1,30 +1,18 @@
 #!/usr/bin/env bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */
-# /* Calculator (using qalculate) and rofi */
-# /* Submitted by: https://github.com/JosephArmas */
-
-rofi_theme="$HOME/.config/rofi/config-calc.rasi"
+# /* ---- 💫 KoolDots 💫 ---- */
+# /* Calculator (using rofi-calc and qalculate) */
 
 # Kill Rofi if already running before execution
 if pgrep -x "rofi" >/dev/null; then
-    pkill rofi
+  pkill rofi
+  sleep 0.1
 fi
 
-# main function
-
-while true; do
-    result=$(
-        rofi -i -dmenu \
-            -config $rofi_theme \
-            -mesg "$result      =    $calc_result"
-    )
-
-    if [ $? -ne 0 ]; then
-        exit
-    fi
-
-    if [ -n "$result" ]; then
-        calc_result=$(qalc -t "$result")
-        echo "$calc_result" | wl-copy
-    fi
-done
+# Launch the native rofi-calc plugin with the current Hyprland theme
+# Pressing Enter will copy the result to the clipboard
+rofi -show calc \
+  -modi calc \
+  -no-show-match \
+  -no-sort \
+  -calc-command "echo -n '{result}' | wl-copy" \
+  -config "$HOME/.config/hypr/rofi/config.rasi"
