@@ -7,10 +7,13 @@
 # ==================================================
 # Switch Starship prompt configs via Rofi.
 
-CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/dotfiles/config}"
 STARSHIP_DIR="$CONFIG_HOME/starship"
 HYPR_STARSHIP_DIR="$CONFIG_HOME/hypr/starship"
-STARSHIP_CONFIG="$CONFIG_HOME/starship.toml"
+
+# CORRECCIÓN: El enlace debe crearse en ~/.config, no en el repositorio
+STARSHIP_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/starship.toml"
+
 BACKUP_FILE="$STARSHIP_CONFIG.original"
 ROFI_THEME="$CONFIG_HOME/hypr/rofi/config-starship.rasi"
 RESTORE_LABEL="Restore original prompt"
@@ -30,7 +33,7 @@ if [[ ! -d "$STARSHIP_DIR" ]]; then
   exit 1
 fi
 
-mapfile -t available_prompts < <(find "$STARSHIP_DIR" -maxdepth 1 -type f -name "*.toml" -printf "%f\n" 2>/dev/null | sort -V)
+mapfile -t available_prompts < <(find -L "$STARSHIP_DIR" -maxdepth 1 -type f -name "*.toml" -printf "%f\n" 2>/dev/null | sort -V)
 
 if [[ ${#available_prompts[@]} -eq 0 ]]; then
   echo "No Starship prompt files found in $STARSHIP_DIR"
