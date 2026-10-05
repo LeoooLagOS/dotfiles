@@ -12,3 +12,6 @@
 -- hl.env("GDK_SCALE", "1")
 -- hl.env("QT_SCALE_FACTOR", "1")
 hl.env("WEATHER_UNITS", "metric")
+-- Qt apps use GTK3 theme in Hyprland (overridden from environment.d so KDE is unaffected)
+hl.env("QT_QPA_PLATFORMTHEME", "gtk3")
+hl.env("QT_QPA_PLATFORMTHEME_QT6", "gtk3")
