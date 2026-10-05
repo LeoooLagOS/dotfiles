@@ -1,6 +1,6 @@
 # 🚀 lagOS-station: Enterprise-Grade Desktop Infrastructure
 
-[![System](https://img.shields.io/badge/System-Fedora_43-blue?style=for-the-badge&logo=fedora)](https://getfedora.org/)
+[![System](https://img.shields.io/badge/System-Fedora_44-blue?style=for-the-badge&logo=fedora)](https://getfedora.org/)
 [![Shell](https://img.shields.io/badge/Shell-Zsh-orange?style=for-the-badge&logo=zsh)](https://www.zsh.org/)
 [![Manager](https://img.shields.io/badge/Orchestration-GNU_Stow-green?style=for-the-badge)](https://www.gnu.org/software/stow/)
 [![Specialization](https://img.shields.io/badge/Focus-Cybersecurity_%26_DevOps-red?style=for-the-badge)](https://github.com/LeoooLagOS)
@@ -25,9 +25,12 @@ dotfiles/
 │   ├── hypr/           # Hyprland WM Core
 │   │   ├── configs/    # Base configurations
 │   │   ├── lua/        # Dynamic keybind engine and rule parser
-│   │   └── rofi/       # Modular Rofi themes and plugin configurations
+│   │   ├── rofi/       # Modular Rofi themes and plugin configurations
+│   │   ├── UserConfigs/        # Personal overrides (startup, env, window rules)
+│   │   └── monitors.*.example  # Display layout templates (real files are git-ignored)
 │   ├── kitty/          # GPU-accelerated terminal configuration
-│   └── starship.toml   # Cross-shell prompt customization
+│   ├── starship/       # Selectable Starship prompt profiles
+│   └── wlogout/        # Glassmorphism logout menu
 ├── git/                # Global Git provenance: Delta & GPG Signing
 ├── gpg/                # GPG Environment: Agent logic and TTL cache
 │   └── gpg-agent.conf  # Passphrase caching and pinentry rules
@@ -59,6 +62,8 @@ The Window Manager configuration relies on a custom Lua interpreter to generate 
 
 - **Computational Interface:** Features a native integration with `rofi-calc` and `qalculate`, allowing instant mathematical operations and automatic clipboard piping via `wl-copy` directly from the OS overlay.
 
+- **Screen Sharing & Theming:** Autostarts `xwaylandvideobridge` (hidden via window rule) so X11 apps like Discord and OBS can capture Wayland screens, and themes Qt apps through the `gtk3` platform theme only inside Hyprland, leaving KDE untouched.
+
 ### 2. Global Git Provenance (/git)
 
 The version control layer is optimized for high-velocity code review and cryptographic security.
@@ -88,7 +93,7 @@ All application wrappers and custom research tools are managed as discrete, trac
 
 - `lib/`: A library of deterministic Python modules that provide data for shell utilities, ensuring robust exception handling.
 
-- `ops/`: Operational tooling for infrastructure maintenance, including vault synchronization and dotfile state management.
+- `ops/`: Operational tooling for infrastructure maintenance, including vault synchronization and dotfile state management. `sync-dots` commits and pushes changes to **tracked files only** (`git add -u`) and lists any new files for manual review, so nothing private is published by accident.
 
 ### 5. System Provisioning (/System)
 
@@ -141,6 +146,24 @@ stow -v -t ~/.local/bin scripts
 stow -v -t ~/.config nvim
 ```
 
+## 🖥️ Machine-Specific Configuration (Not Tracked)
+
+Some state is personal or hardware-specific, so it lives outside version control. Create it once per machine:
+
+```bash
+# 1. Display layout: copy the templates, then edit (or regenerate with nwg-displays)
+cd ~/dotfiles/config/hypr
+cp monitors.conf.example monitors.conf
+cp monitors.lua.example monitors.lua
+cp UserConfigs/monitors.lua.example UserConfigs/monitors.lua
+
+# 2. Weather home location (format: City, State, Country)
+mkdir -p ~/.config/lagos
+echo "City, State, Country" > ~/.config/lagos/weather-home
+```
+
+The weather toggle keybind (`ToggleWeatherLoc.sh`) switches between IP-based location and the home location, storing the active choice in `~/.local/state/lagos/weather-place`.
+
 ## ⚙️ Post-Deployment Verification
 
 After symlinking, initialize the dynamic keybinds and verify the cryptographic chain:
@@ -156,6 +179,8 @@ After symlinking, initialize the dynamic keybinds and verify the cryptographic c
 ## 🕵️ DevSecOps & Best Practices
 
 - **Secret Management:** No raw API keys or private tokens are stored within this repository. Environment variables are injected at runtime via local (Git ignored) files.
+
+- **Privacy by Default:** Location data and hardware identifiers (monitor models and serials) are kept in local, untracked files. `.gitignore` also guards against `*.local` overrides, `.env.*` files, keys, SSH directories and shell histories.
 
 - **Atomic Refactoring:** This repository follows the Conventional Commits standard to maintain a clear audit trail of infrastructure changes.
 
