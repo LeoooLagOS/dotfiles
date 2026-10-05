@@ -9,12 +9,14 @@
 
 set -Eeuo pipefail
 
-readonly SCRIPT_NAME="$(basename "$0")"
-readonly DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_NAME="$(basename "$0")"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_NAME DOTFILES_DIR
 readonly EXPECTED_DIR="$HOME/dotfiles"
 readonly CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
 readonly STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/lagos"
-readonly TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+readonly TIMESTAMP
 readonly BACKUP_DIR="$STATE_DIR/backups/$TIMESTAMP"
 readonly LOG_FILE="$STATE_DIR/install-$TIMESTAMP.log"
 
@@ -99,10 +101,19 @@ confirm() {
   [[ $reply =~ ^[Yy]([Ee][Ss])?$ ]]
 }
 
-# Prints the non-empty, non-comment lines of a list file.
-read_list() {
-  [[ -f $1 ]] || die "list not found: $1"
-  grep -vE '^[[:space:]]*(#|$)' "$1" | sed 's/[[:space:]]*$//'
+# Loads the non-empty, non-comment lines of list file $2 into array $1.
+# Runs in the current shell so a missing file aborts the whole script.
+load_list() {
+  local -n _list=$1
+  local line
+  [[ -f $2 ]] || die "list not found: $2"
+  _list=()
+  while IFS= read -r line || [[ -n $line ]]; do
+    line="${line%%#*}"
+    line="${line//[[:space:]]/}"
+    [[ -n $line ]] && _list+=("$line")
+  done <"$2"
+  return 0
 }
 
 has_step() {
@@ -243,14 +254,16 @@ step_repos() {
   fi
 
   local enabled copr
+  local -a coprs
+  load_list coprs "$COPR_LIST"
   enabled="$(dnf repolist --enabled 2>/dev/null || true)"
-  while IFS= read -r copr; do
+  for copr in "${coprs[@]}"; do
     if grep -q "copr:copr.fedorainfracloud.org:${copr/\//:} " <<<"$enabled"; then
       ok "COPR $copr already enabled"
     else
       run sudo dnf copr enable -y "$copr"
     fi
-  done < <(read_list "$COPR_LIST")
+  done
 
   run flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
   ok "Flathub configured"
@@ -258,21 +271,25 @@ step_repos() {
 
 step_packages() {
   step "DNF packages"
-  local -a packages=()
+  local -a listed packages=()
   local pkg has_nvidia=0
+  load_list listed "$PKG_LIST"
 
   if command -v lspci &>/dev/null && lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
     has_nvidia=1
   fi
 
-  while IFS= read -r pkg; do
+  for pkg in "${listed[@]}"; do
     [[ $pkg =~ $PKG_EXCLUDE_REGEX ]] && continue
     [[ $has_nvidia -eq 0 && $pkg =~ $NVIDIA_PKG_REGEX ]] && continue
     packages+=("$pkg")
-  done < <(read_list "$PKG_LIST")
+  done
 
-  [[ $has_nvidia -eq 1 ]] && info "NVIDIA GPU detected: including driver packages" \
-    || info "no NVIDIA GPU detected: skipping driver packages"
+  if [[ $has_nvidia -eq 1 ]]; then
+    info "NVIDIA GPU detected: including driver packages"
+  else
+    info "no NVIDIA GPU detected: skipping driver packages"
+  fi
   info "installing ${#packages[@]} packages (unavailable ones are skipped)"
 
   run sudo dnf install -y --skip-unavailable "${packages[@]}"
@@ -281,13 +298,14 @@ step_packages() {
 
 step_flatpaks() {
   step "Flatpaks"
-  local -a apps=()
+  local -a listed apps=()
   local app
-  while IFS= read -r app; do
+  load_list listed "$FLATPAK_LIST"
+  for app in "${listed[@]}"; do
     # Skip the header row of `flatpak list --columns=application` exports.
     [[ $app == "Application" ]] && continue
     apps+=("$app")
-  done < <(read_list "$FLATPAK_LIST")
+  done
 
   [[ ${#apps[@]} -gt 0 ]] || { info "no Flatpaks listed"; return 0; }
   run flatpak install -y --noninteractive flathub "${apps[@]}"
