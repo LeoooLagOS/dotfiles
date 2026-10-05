@@ -1,0 +1,19 @@
+# COPR repositories required by pkglist.txt (owner/project), one per line.
+# Enabled by install.sh before installing packages.
+alternateved/eza
+atim/lazydocker
+atim/lazygit
+atim/starship
+avengemedia/danklinux
+avengemedia/dms
+erikreider/SwayNotificationCenter
+errornointernet/packages
+lihaohong/yazi
+opuk/bottom
+phracek/PyCharm
+scottames/awww
+scottames/ghostty
+sdegler/hyprland
+tofik/nwg-shell
+wezfurlong/wezterm-nightly
+yorickpeterse/stylua
