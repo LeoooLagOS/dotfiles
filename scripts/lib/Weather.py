@@ -69,10 +69,25 @@ ENV_LAT = os.getenv("WEATHER_LAT")
 ENV_LON = os.getenv("WEATHER_LON")
 # Optional manual place override for tooltip (and optional forward geocoding)
 ENV_PLACE = os.getenv("WEATHER_PLACE")
-# Manual place name set inside this file. If set (non-empty), this takes top priority for display
-# and, if coordinates are not provided, will be used to geocode latitude/longitude.
-# Example: MANUAL_PLACE = "Concord, NH, US"
-MANUAL_PLACE: Optional[str] = "Puebla, Puebla, Mexico"  # Set your city HERE
+# Manual place name read from a local state file outside the repo (managed by ToggleWeatherLoc.sh).
+# If set (non-empty), this takes top priority for display and, if coordinates are not provided,
+# will be used to geocode latitude/longitude. File contents example: "Concord, NH, US"
+PLACE_STATE_PATH: Path = (
+    Path(os.getenv("XDG_STATE_HOME") or Path.home() / ".local" / "state")
+    / "lagos"
+    / "weather-place"
+)
+
+
+def read_manual_place() -> Optional[str]:
+    try:
+        place = PLACE_STATE_PATH.read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    return place or None
+
+
+MANUAL_PLACE: Optional[str] = read_manual_place()
 
 # Location icon in tooltip (default to a standard emoji to avoid missing glyphs)
 LOC_ICON = os.getenv("WEATHER_LOC_ICON", "📍")

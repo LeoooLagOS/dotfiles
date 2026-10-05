@@ -2,18 +2,25 @@
 
 scriptsDir="$HOME/dotfiles/scripts/wm"
 PY_SCRIPT="$scriptsDir/../lib/Weather.py"
-# Write your manual Location; format: City, State, Country
-CITY="Puebla, Puebla, Mexico"
+# Home location lives outside the repo; format: City, State, Country
+HOME_PLACE_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/lagos/weather-home"
+# Active manual location read by Weather.py; absent means Network mode
+PLACE_STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/lagos/weather-place"
 
-# Check if the variable is empty (Network mode)
-if grep -q 'MANUAL_PLACE: Optional\[str\] = ""' "$PY_SCRIPT"; then
-  # Switch to Manual mode
-  sed -i 's/MANUAL_PLACE: Optional\[str\] = ""/MANUAL_PLACE: Optional\[str\] = "'"$CITY"'"/' "$PY_SCRIPT"
-  MODE="Fixed ($CITY)"
-else
+if [ -s "$PLACE_STATE_FILE" ]; then
   # Switch to Network mode
-  sed -i 's/MANUAL_PLACE: Optional\[str\] = ".*"/MANUAL_PLACE: Optional\[str\] = ""/' "$PY_SCRIPT"
+  rm -f "$PLACE_STATE_FILE"
   MODE="Network (Dynamic)"
+else
+  CITY="$(head -n1 "$HOME_PLACE_FILE" 2>/dev/null)"
+  if [ -z "$CITY" ]; then
+    notify-send "🌤️ Weather Module" "No home location set.\nWrite it to <b>$HOME_PLACE_FILE</b>" -t 5000
+    exit 1
+  fi
+  # Switch to Manual mode
+  mkdir -p "$(dirname "$PLACE_STATE_FILE")"
+  printf '%s\n' "$CITY" >"$PLACE_STATE_FILE"
+  MODE="Fixed ($CITY)"
 fi
 
 # Clear cache and force silent regeneration
