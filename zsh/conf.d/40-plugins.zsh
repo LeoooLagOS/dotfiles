@@ -19,7 +19,11 @@ source <(fzf --zsh)
 
 # Visual Dashboard Engine Output (Fires on every interactive shell)
 if [ -n "$PS1" ]; then
-  pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+  if command -v pokemon-colorscripts &>/dev/null; then
+    pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+  elif command -v fastfetch &>/dev/null; then
+    fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
+  fi
   
   # Trigger the sentinel audit check directly underneath the dashboard graphics
   sentinel

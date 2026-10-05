@@ -24,6 +24,7 @@ readonly PKG_LIST="$DOTFILES_DIR/System/pkglist.txt"
 readonly COPR_LIST="$DOTFILES_DIR/System/coprs.txt"
 readonly FLATPAK_LIST="$DOTFILES_DIR/System/flatpaks.txt"
 readonly DEFAULT_STARSHIP_PROFILE="2-line-nixos"
+readonly POKEMON_COLORSCRIPTS_REPO="https://gitlab.com/phoneybadger/pokemon-colorscripts.git"
 
 # Packages from the system snapshot that must never be installed on a deployed
 # host (live-ISO tooling, kernel-pinned kmods rebuilt by akmod) or that only
@@ -42,6 +43,7 @@ readonly LINKS=(
   "config/kitty:$CONFIG_DIR/kitty"
   "config/starship:$CONFIG_DIR/starship"
   "config/wlogout:$CONFIG_DIR/wlogout"
+  "config/fastfetch:$CONFIG_DIR/fastfetch"
   "nvim:$CONFIG_DIR/nvim"
   "scripts/build-paper/build_paper.py:$HOME/.local/bin/build-paper"
   "scripts/lagos-shot/lagos-shot.py:$HOME/.local/bin/lagos-shot"
@@ -141,7 +143,7 @@ Steps (in order):
   flatpaks   Install Flatpaks from System/flatpaks.txt
   links      Symlink configs into \$HOME (existing files are backed up)
   local      Create machine-specific files from *.example templates
-  shell      Install Oh My Zsh and set zsh as the login shell
+  shell      Install Oh My Zsh and pokemon-colorscripts, set zsh as login shell
 
 Examples:
   $SCRIPT_NAME --dry-run
@@ -387,6 +389,21 @@ step_local() {
 
 step_shell() {
   step "Shell"
+
+  if command -v pokemon-colorscripts &>/dev/null; then
+    ok "pokemon-colorscripts installed"
+  elif [[ $DRY_RUN -eq 1 ]]; then
+    run git clone --depth=1 "$POKEMON_COLORSCRIPTS_REPO" "<tmpdir>"
+    run sudo "<tmpdir>/install.sh"
+  else
+    # Not packaged for Fedora; its installer puts it under /usr/local.
+    local tmp
+    tmp="$(mktemp -d)"
+    git clone --depth=1 "$POKEMON_COLORSCRIPTS_REPO" "$tmp/pokemon-colorscripts"
+    (cd "$tmp/pokemon-colorscripts" && sudo ./install.sh)
+    rm -rf "$tmp"
+    ok "pokemon-colorscripts installed"
+  fi
 
   if [[ -d $HOME/.oh-my-zsh ]]; then
     ok "Oh My Zsh installed"

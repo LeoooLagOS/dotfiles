@@ -29,6 +29,7 @@ dotfiles/
 │   │   ├── UserConfigs/        # Personal overrides (startup, env, window rules)
 │   │   └── monitors.*.example  # Display layout templates (real files are git-ignored)
 │   ├── kitty/          # GPU-accelerated terminal configuration
+│   ├── fastfetch/      # System info dashboard shown on shell start
 │   ├── starship/       # Selectable Starship prompt profiles
 │   └── wlogout/        # Glassmorphism logout menu
 ├── git/                # Global Git provenance: Delta & GPG Signing
@@ -121,7 +122,7 @@ git clone git@github.com:LeoooLagOS/dotfiles.git ~/dotfiles
 | `flatpaks` | Installs `System/flatpaks.txt` from Flathub |
 | `links` | Symlinks configs into `$HOME`; anything already there is moved to `~/.local/state/lagos/backups/<timestamp>/` |
 | `local` | Creates machine-specific files from the `*.example` templates and asks for the weather home location |
-| `shell` | Installs Oh My Zsh and sets zsh as the login shell |
+| `shell` | Installs Oh My Zsh and `pokemon-colorscripts`, and sets zsh as the login shell |
 
 ```bash
 cd ~/dotfiles
