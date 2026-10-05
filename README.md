@@ -2,13 +2,13 @@
 
 [![System](https://img.shields.io/badge/System-Fedora_44-blue?style=for-the-badge&logo=fedora)](https://getfedora.org/)
 [![Shell](https://img.shields.io/badge/Shell-Zsh-orange?style=for-the-badge&logo=zsh)](https://www.zsh.org/)
-[![Manager](https://img.shields.io/badge/Orchestration-GNU_Stow-green?style=for-the-badge)](https://www.gnu.org/software/stow/)
+[![Manager](https://img.shields.io/badge/Orchestration-Bash_Bootstrapper-green?style=for-the-badge&logo=gnubash)](install.sh)
 [![Specialization](https://img.shields.io/badge/Focus-Cybersecurity_%26_DevOps-red?style=for-the-badge)](https://github.com/LeoooLagOS)
 [![Security](https://img.shields.io/badge/Provenance-GPG_Signed-success?style=for-the-badge&logo=gnupg)](https://github.com/LeoooLagOS)
 
 ## 🏗️ Architectural Overview
 
-The **lagOS-station** is built on a **Modular Application-Centric** architecture. Unlike standard dotfile repositories that clutter the root directory, this system uses **logical separation** to ensure that each component (Hyprland, Kitty, Shell) remains **environment-agnostic** and easily deployable via **GNU Stow**. 
+The **lagOS-station** is built on a **Modular Application-Centric** architecture. Unlike standard dotfile repositories that clutter the root directory, this system uses **logical separation** to ensure that each component (Hyprland, Kitty, Shell) remains **environment-agnostic** and easily deployable via a single idempotent bootstrapper (`install.sh`). 
 
 Recent infrastructure upgrades have introduced a **Dynamic Lua Abstraction Layer** for window manager configuration, enforcing strict DRY principles and single-source-of-truth pathing across all shell and UI integrations.
 
@@ -34,7 +34,7 @@ dotfiles/
 ├── git/                # Global Git provenance: Delta & GPG Signing
 ├── gpg/                # GPG Environment: Agent logic and TTL cache
 │   └── gpg-agent.conf  # Passphrase caching and pinentry rules
-├── install.sh          # Idempotent System Bootstrapper
+├── install.sh          # Idempotent System Bootstrapper (repos, packages, links, shell)
 ├── nvim/               # Neovim IDE: LazyVim-based development layer
 ├── scripts/            # The Logic Layer: Modular orchestration
 │   ├── build-paper/    # Academic/Research reporting automation
@@ -46,6 +46,7 @@ dotfiles/
 │       ├── RofiLauncher.sh   # Multi-module application/file launcher
 │       └── ...               # All UI/OSD control logic
 ├── System/             # Infrastructure as Code (IaC) Provisioning
+│   ├── coprs.txt       # COPR repositories required by the package list
 │   ├── flatpaks.txt    # Application-layer dependency list
 │   └── pkglist.txt     # DNF system-package registry
 └── zsh/                # Modular shell: Senior Aliases and Sentinel logic
@@ -99,56 +100,50 @@ All application wrappers and custom research tools are managed as discrete, trac
 
 Adopts an Infrastructure-as-Code (IaC) approach to workstation state management.
 
-- **Declarative Lists:** Tracks system-level dependencies via `pkglist.txt` (DNF) and application-layer tools via `flatpaks.txt`.
+- **Declarative Lists:** Tracks system-level dependencies via `pkglist.txt` (DNF), the COPR repositories they come from via `coprs.txt`, and application-layer tools via `flatpaks.txt`.
 
 ## 📋 Prerequisites
 
-Before deploying, ensure the core system engine, window manager, terminal emulator, and Rofi plugins are installed. On Fedora, provision via DNF:
-Code snippet
+A fresh **Fedora Workstation** install with `git`, and this repository cloned to `~/dotfiles` (several configs reference that path):
 
 ```bash
-# 1. Install Core Infrastructure & UI
-# stow: Symlink farm manager | hyprland/kitty: Desktop environment and terminal
-sudo dnf install stow hyprland kitty zsh -y
-
-# 2. Install Development & Security Tooling
-# git-delta: Syntax-highlighting pager | gnupg2: Cryptographic signing
-sudo dnf install git-delta gnupg2 pinentry-gnome3 python3-pathlib -y
-
-# 3. Install Rofi-Wayland & Computational Dependencies
-# Required for native launcher modules and RofiCalc.sh
-sudo dnf install rofi-wayland wl-clipboard qalc libqalculate-devel meson ninja-build -y
+git clone git@github.com:LeoooLagOS/dotfiles.git ~/dotfiles
 ```
 
 ## 🚀 Deployment Workflow
 
-This repository utilizes **GNU Stow** to manage symbolic links across the `$HOME` directory.
+`install.sh` provisions the whole workstation. Every step is idempotent, so it is safe to re-run after pulling changes.
 
-### 📥 Installation & Synchronization
-
-From the root of the `~/dotfiles` directory, invoke the orchestration to establish the environment:
+| Step | What it does |
+|---|---|
+| `repos` | Enables RPM Fusion, Flathub and the COPRs in `System/coprs.txt` |
+| `packages` | Installs `System/pkglist.txt` via DNF (skips live-ISO packages, and NVIDIA drivers when no NVIDIA GPU is present) |
+| `flatpaks` | Installs `System/flatpaks.txt` from Flathub |
+| `links` | Symlinks configs into `$HOME`; anything already there is moved to `~/.local/state/lagos/backups/<timestamp>/` |
+| `local` | Creates machine-specific files from the `*.example` templates and asks for the weather home location |
+| `shell` | Installs Oh My Zsh and sets zsh as the login shell |
 
 ```bash
-# 1. Establish Identity & Security Infrastructure
-stow -v -t ~/ git
-stow -v -t ~/.gnupg gpg
+cd ~/dotfiles
 
-# 2. Inject Modular Shell Settings
-stow -v -t ~/ zsh
+# Preview every change without touching the system
+./install.sh --dry-run
 
-# 3. Synchronize Application Configurations
-stow -v -t ~/.config config
+# Full provisioning
+./install.sh
 
-# 4. Deploy Logic Layer (Scripts)
-stow -v -t ~/.local/bin scripts
+# Only refresh symlinks and local files (e.g. after pulling)
+./install.sh --only links,local
 
-# 5. Load Development Environments
-stow -v -t ~/.config nvim
+# Unattended, without Flatpaks
+./install.sh --yes --skip flatpaks
 ```
+
+Each run is logged to `~/.local/state/lagos/install-<timestamp>.log`. See `./install.sh --help` for all options.
 
 ## 🖥️ Machine-Specific Configuration (Not Tracked)
 
-Some state is personal or hardware-specific, so it lives outside version control. Create it once per machine:
+Some state is personal or hardware-specific, so it lives outside version control. The `local` step of `install.sh` creates it; to do it by hand:
 
 ```bash
 # 1. Display layout: copy the templates, then edit (or regenerate with nwg-displays)
@@ -166,7 +161,7 @@ The weather toggle keybind (`ToggleWeatherLoc.sh`) switches between IP-based loc
 
 ## ⚙️ Post-Deployment Verification
 
-After symlinking, initialize the dynamic keybinds and verify the cryptographic chain:
+After provisioning, initialize the dynamic keybinds and verify the cryptographic chain:
 
 - **Hyprland Engine:** `hyprctl reload` (Compiles Lua paths into memory)
 
