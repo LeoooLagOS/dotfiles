@@ -24,3 +24,18 @@ config/hypr/UserConfigs/workspaces.lua
 config/hypr/monitors.conf
 config/hypr/monitors.lua
 config/hypr/UserConfigs/monitors.lua
+
+# Local overrides and secrets that must never reach the public repo
+*.local
+*.local.zsh
+*.local.lua
+.env.*
+.ssh/
+*.key
+*.gpg
+*_history
+.zsh_history
+
+# Python bytecode
+__pycache__/
+*.pyc
