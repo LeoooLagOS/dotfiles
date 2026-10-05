@@ -8,6 +8,7 @@
 -- User monitor overrides for Lua workflow.
 -- MonitorProfiles.sh writes selected Lua monitor profiles into this file.
 -- Keep custom hl.monitor(...) entries here so upgrades preserve them.
+-- This file is git-ignored; copy monitors.lua.example to monitors.lua to start.
 
 -- Example:
 -- hl.monitor({

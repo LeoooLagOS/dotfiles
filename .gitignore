@@ -19,3 +19,8 @@ config/hypr/wallust/wallust-hyprland.conf
 config/kitty/kitty-themes/01-Wallust.conf
 config/hypr/workspaces.conf
 config/hypr/UserConfigs/workspaces.lua
+
+# Machine-specific display layout (templates: *.example)
+config/hypr/monitors.conf
+config/hypr/monitors.lua
+config/hypr/UserConfigs/monitors.lua

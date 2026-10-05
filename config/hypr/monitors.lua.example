@@ -1,0 +1,10 @@
+-- Machine-specific monitor layout (monitors.lua is git-ignored).
+-- Copy to monitors.lua and adjust, or generate it with nwg-displays.
+-- Find outputs and descriptions with: hyprctl monitors all
+
+hl.monitor({
+    output = "",
+    mode = "preferred",
+    position = "auto",
+    scale = 1,
+})

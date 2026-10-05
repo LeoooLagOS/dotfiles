@@ -1,0 +1,9 @@
+# Machine-specific monitor layout (monitors.conf is git-ignored).
+# Copy to monitors.conf and adjust, or generate it with nwg-displays.
+# Find outputs and descriptions with: hyprctl monitors all
+
+monitor=,preferred,auto,1
+
+# Example: disable the laptop panel, use an external monitor only
+# monitor=desc:<Laptop Panel Vendor Model>,disable
+# monitor=desc:<External Vendor Model>,1920x1080@100.0,0x0,1.0
