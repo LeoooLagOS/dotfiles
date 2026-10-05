@@ -89,6 +89,8 @@ local exec_once = user_startup_helper.exec_once
 
 -- Add custom startup commands:
 local startup_commands = {
+  -- Xwayland screen sharing bridge (for Discord, OBS, etc.)
+  "xwaylandvideobridge",
   -- "kdeconnect-app",
   -- "blueman-applet",
   -- "$HOME/.config/hypr/UserScripts/RainbowBorders.sh",
