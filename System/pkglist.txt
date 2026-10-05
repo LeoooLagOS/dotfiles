@@ -26,8 +26,6 @@ alsa-ucm
 alsa-utils
 amd-gpu-firmware
 amd-ucode-firmware
-anaconda-install-env-deps
-anaconda-live
 at
 at-spi2-atk
 at-spi2-core
@@ -102,7 +100,6 @@ dosfstools
 dotnet-sdk-8.0
 doxygen
 dracut-config-rescue
-dracut-live
 dracut-network
 dynamips
 e2fsprogs
@@ -217,7 +214,6 @@ hfsplus-tools
 hostname
 hplip
 hunspell
-hyperv-daemons
 hypridle
 hyprland
 hyprlock
@@ -257,8 +253,6 @@ kernel-modules-extra
 kexec-tools
 keychain
 kitty
-kmod-nvidia-7.0.8-100.fc43.x86_64
-kmod-nvidia-7.0.9-105.fc43.x86_64
 kvantum
 less
 libertas-firmware
@@ -277,7 +271,6 @@ libvirt-daemon-config-network
 libvirt-daemon-kvm
 libvirt-devel
 linux-firmware
-livesys-scripts
 localsearch
 logrotate
 loupe
@@ -332,7 +325,6 @@ nwg-displays
 nwg-look
 nxpwireless-firmware
 okular
-open-vm-tools-desktop
 openh264
 opensc
 openssh-clients
@@ -379,7 +371,6 @@ python3-pyquery
 qadwaitadecorations-qt5
 qalculate-gtk
 qcom-wwan-firmware
-qemu-guest-agent
 qemu-kvm
 qjackctl
 qpwgraph
@@ -418,8 +409,6 @@ smartmontools
 snapshot
 sos
 speech-dispatcher
-spice-vdagent
-spice-webdavd
 sssd-common
 sssd-kcm
 sssd-proxy
@@ -471,7 +460,6 @@ vim-minimal
 virt-install
 virt-manager
 virt-viewer
-virtualbox-guest-additions
 vte-profile
 w3m
 wallust
