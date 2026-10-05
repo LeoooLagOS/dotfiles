@@ -16,8 +16,8 @@ if pidof rofi > /dev/null; then
 fi
 
 "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
-sed '1,/^# # DATA # #$/d' "$0" | \
-rofi -i -dmenu -mesg "$msg" -config $rofi_theme | \
+sed '1,/^: <<'"'"'DATA'"'"'$/d; /^DATA$/,$d' "$0" | \
+rofi -i -dmenu -mesg "$msg" -config "$rofi_theme" | \
 awk '{print $1}' | \
 head -n 1 | \
 tr -d '\n' | \
@@ -25,7 +25,9 @@ wl-copy
 
 exit
 
-# # DATA # #
+# Emoji list, read by the sed command above; never executed.
+# shellcheck disable=SC2317
+: <<'DATA'
 😀 grinning face face smile happy joy :D grin
 😃 grinning face with big eyes face happy joy haha :D :) smile funny
 😄 grinning face with smiling eyes face happy joy funny haha laugh like :D :) smile
@@ -1875,3 +1877,4 @@ ycap  symbol blue-square twitter
 🫧 bubbles soap fun carbonation sparkling
 🪪 identification card document
 🟰 heavy equals sign math
+DATA

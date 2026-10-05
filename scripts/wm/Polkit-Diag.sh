@@ -108,7 +108,7 @@ apply_override() {
                 echo -e "$msg" >&3; echo -e "$msg"
 
                 # Capture file write
-                if out=$(echo "$OVERRIDE_CONTENT" > "$OVERRIDE_FILE" 2>&1); then
+                if out=$(echo "$OVERRIDE_CONTENT" 2>&1 >"$OVERRIDE_FILE"); then
                     msg="  [OK] Successfully wrote override file."
                 else
                     msg="  [ERROR] Failed to write override file.\n  Details: $out"

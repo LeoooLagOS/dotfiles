@@ -141,7 +141,7 @@ create_theme_list()
 {
     OLDIFS=${IFS}
     IFS='|'
-    for themen in ${theme_names[@]}
+    for themen in "${theme_names[@]}"
     do
         echo "${themen}"
     done
@@ -174,7 +174,7 @@ Please update your config file if you have local modifications.</span>"""
         then
             THEME_FLAG="-theme ${themes[${SELECTED}]}"
         fi
-        RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} ${MORE_FLAGS[@]} -cycle -selected-row "${SELECTED}" -mesg "${MESG}")
+        RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} "${MORE_FLAGS[@]}" -cycle -selected-row "${SELECTED}" -mesg "${MESG}")
         RTR=$?
         if [ "${RTR}" = 10 ]
         then
