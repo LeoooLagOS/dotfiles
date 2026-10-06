@@ -19,13 +19,14 @@ Each directory documents itself; start from the one you need.
 
 | Directory | Purpose |
 |---|---|
-| [`config/`](config/README.md) | Application configs linked into `~/.config` (Hyprland, Kitty, Quickshell, Starship, Fastfetch, wlogout) |
+| [`config/`](config/README.md) | Application configs linked into `~/.config` (Hyprland, Waybar, SwayNC, Kitty, Quickshell, Starship, Fastfetch, wlogout) |
 | [`git/`](git/README.md) | Global Git identity, Delta pager and GPG signing (also covers `gpg/`) |
 | [`nvim/`](nvim/README.md) | LazyVim-based Neovim IDE |
 | [`scripts/`](scripts/README.md) | The logic layer: WM control, Python libraries, ops tooling and CLI tools |
 | [`System/`](System/README.md) | Declarative package, COPR and Flatpak lists |
 | [`zsh/`](zsh/README.md) | Modular zsh shell, aliases and the Sentinel auditor |
 | `install.sh` | Idempotent system bootstrapper (see below) |
+| `.kooldots-base` | The KoolDots commit the desktop configs are synced to (see [Upstream updates](#-upstream-updates-kooldots)) |
 
 ## 📋 Prerequisites
 
@@ -83,6 +84,20 @@ echo "City, State, Country" > ~/.config/lagos/weather-home
 ```
 
 The weather toggle keybind (`ToggleWeatherLoc.sh`) switches between IP-based location and the home location, storing the active choice in `~/.local/state/lagos/weather-place`.
+
+## 🔄 Upstream Updates (KoolDots)
+
+The Hyprland, Waybar, SwayNC, Kitty, wlogout, Fastfetch, Starship and Quickshell configs and `scripts/wm` started as [KoolDots](https://github.com/LinuxBeginnings/Hyprland-Dots) v2.3.26.4 and were restructured here, so this repo shares no git history with upstream. **Do not run KoolDots' own `copy.sh` or upgrade scripts**: they replace `~/.config/hypr` and the other linked directories with fresh copies.
+
+Instead, `kooldots-sync` (in [`scripts/ops`](scripts/README.md#ops--maintenance-tooling)) replays what upstream changed since the commit recorded in `.kooldots-base` as a 3-way merge, remapping upstream paths onto this layout:
+
+```bash
+kooldots-sync          # versions and what changed, per directory
+kooldots-sync log      # upstream commit messages since the base
+kooldots-sync apply    # merge, then resolve conflicts, test and commit
+```
+
+See [`config/hypr`](config/hypr/README.md#upstream-updates) for the full workflow. Hyprland itself is a package (`sdegler/hyprland` COPR) and updates with `sudo dnf upgrade`.
 
 ## ⚙️ Post-Deployment Verification
 

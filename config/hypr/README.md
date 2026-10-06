@@ -51,6 +51,40 @@ The `local` step of `install.sh` creates the monitor files from their templates.
 - **Qt theming:** Qt apps use the `gtk3` platform theme inside Hyprland only, leaving KDE untouched.
 - **Rofi calculator:** `rofi-calc` with a `qalculate` backend; results are copied with `wl-copy`.
 
+## Upstream updates
+
+This config is a restructured fork of [KoolDots](https://github.com/LinuxBeginnings/Hyprland-Dots) (`Hyprland-Dots` repo), based on the commit in [`.kooldots-base`](../../.kooldots-base) (v2.3.26.4 at the time of writing). The repo shares no git history with upstream, and upstream's `copy.sh` and upgrade scripts would overwrite this layout, so **never run them here**. Use `kooldots-sync` (`scripts/ops`) instead.
+
+It adds a `kooldots` remote (partial clone: no wallpapers or other file contents until a diff needs them), then replays every upstream change since the base as a per-file `git apply --3way`, remapping paths:
+
+| Upstream | Here |
+|---|---|
+| `config/hypr/scripts/`, `config/hypr/UserScripts/` | `scripts/wm/` |
+| `config/hypr/UserScripts/Weather.py` | `scripts/lib/Weather.py` |
+| `config/hypr/`, `config/waybar/`, `config/swaync/`, `config/kitty/`, `config/wlogout/`, `config/fastfetch/`, `config/starship/`, `config/quickshell/{overview,qs-hyprview}` | same path |
+
+Workflow, starting from a clean tree (commit first; the merge goes through the index):
+
+```bash
+kooldots-sync             # base vs upstream version, files changed per directory
+kooldots-sync log         # upstream commits since the base: read these first
+kooldots-sync diff config/hypr/configs   # inspect one upstream path
+kooldots-sync apply       # merge; advances and stages .kooldots-base
+git diff --name-only --diff-filter=U    # files with conflict markers: fix, then git add
+git diff --cached         # review everything
+hyprctl reload            # test
+git commit -m "chore(kooldots): sync to vX.Y.Z"
+```
+
+Things to know:
+
+- **Conflicts** appear where you and upstream changed the same lines (keybinds, `hyprland.lua`, hyprlock). Resolve them before running `dots`, which commits tracked files as they are.
+- **Deletions are not applied by default.** Upstream often deletes a path because it moved it (e.g. Kitty themes into `UserConfigs/kitty-themes`, Waybar into `hypr/waybar`), and deleting the old copy would break a linked directory. `apply` lists them; remove them with `git rm` once the new location works, or rerun with `--with-deletions`.
+- **Lua/conf twins:** if upstream changes only one of a pair, mirror it in the other.
+- **Big jumps** can be split: `kooldots-sync --to <commit> apply` syncs to an intermediate commit.
+- **Git-ignored files** (`monitors.*`, `workspaces.*`) are never touched.
+- To give up on a sync before committing: `git reset --hard HEAD`.
+
 ## Applying changes
 
 ```bash

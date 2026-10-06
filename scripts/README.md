@@ -40,6 +40,7 @@ Upstream ships helpers for other distros (`*NixOS*`, `*Ubuntu*`, `debian-*`); th
 |---|---|---|
 | `sync-dots` | `dots` | Removes editor swap files, stages **tracked files only** (`git add -u`), commits and pushes to `main`. New untracked files are listed for manual review, so nothing private is published by accident |
 | `sync-vault` | `vt`, `gerlog`, `dsalog`, `cards` | Commits and pushes one area of the notes vault at `$VAULT_DIR` (`--vtree` also regenerates the vault tree map) |
+| `kooldots-sync` | | Brings [KoolDots](https://github.com/LinuxBeginnings/Hyprland-Dots) updates into this repo as a 3-way merge from the commit in `.kooldots-base`, remapping upstream paths (`config/hypr/scripts` → `wm/`, and so on). `status`, `log`, `diff [path]`, `apply`; see [`config/hypr`](../config/hypr/README.md#upstream-updates) |
 | `repair-spotify` | `spotify` | Re-applies Spicetify; if that fails, kills the Spotify Flatpak, clears its cache and relaunches it |
 
 ## Adding a script
