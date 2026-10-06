@@ -44,6 +44,8 @@ readonly LINKS=(
   "config/starship:$CONFIG_DIR/starship"
   "config/wlogout:$CONFIG_DIR/wlogout"
   "config/fastfetch:$CONFIG_DIR/fastfetch"
+  "config/quickshell/overview:$CONFIG_DIR/quickshell/overview"
+  "config/quickshell/qs-hyprview:$CONFIG_DIR/quickshell/qs-hyprview"
   "nvim:$CONFIG_DIR/nvim"
   "scripts/build-paper/build_paper.py:$HOME/.local/bin/build-paper"
   "scripts/lagos-shot/lagos-shot.py:$HOME/.local/bin/lagos-shot"
