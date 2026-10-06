@@ -23,14 +23,17 @@ build-paper/
 ├── csl/                  # Citation Style Language folder
 │   ├── apa.csl           # APA 7th Edition (Default for Academic)
 │   └── ieee.csl          # IEEE Standard (Default for IEEE)
+├── cv-ats-classic/       # ATS-friendly CV template (standalone, see below)
 └── templates/            # Encapsulated LaTeX templates
     ├── std-report/       # Daily Driver: Two-column academic layout
     │   └── std-report.latex # Stability-focused template for BUAP reports
     ├── academic/         # Modular Eisvogel Engine (BUAP Branded)
     │   ├── academic.latex  # Main loader/orchestrator
+    │   ├── template_academic.md # Starter document with frontmatter
     │   └── ...             # Modular components (fonts, titles, etc.)
     └── ieee/             # Monolithic IEEE Template
-        └── ieee.latex    # Single-file IEEE transaction format
+        ├── ieee.latex    # Single-file IEEE transaction format
+        └── template_ieee.md # Starter document with frontmatter
 ```
 
 ## 🛠️ Prerequisites
@@ -43,20 +46,18 @@ To maintain the high-fidelity rendering required for engineering, academic or in
 - Zotero + Better BibTeX: For managing your My Library.bib research database.
 
 ## 🚀 Installation & Setup
-1. Grant execution permissions:
 
-    ```Bash
-    chmod +x ~/dotfiles/scripts/build-paper/build_paper.py
-    ```
-2. Create a symbolic link to your local bin (ensure ~/.local/bin is in your $PATH):
+The `links` step of the repository's `install.sh` links `build_paper.py` to `~/.local/bin/build-paper`:
 
-    ```Bash
-    ln -s ~/dotfiles/scripts/build-paper/build_paper.py ~/.local/bin/build-paper
-    ```
+```Bash
+~/dotfiles/install.sh --only links
+```
+
+`~/.local/bin` is already on `PATH` through `zsh/conf.d/00-env.zsh`.
 
 ## 📖 Usage
 
-The tool automatically detects any `.bib` files in the current working directory to resolve citations via the Pandoc citeproc engine.
+Citations are resolved with Pandoc citeproc. The bibliography is `<name>.bib` next to the Markdown file if it exists; otherwise the first `.bib` file in the current directory is used. Add `-v` / `--verbose` to print the generated Pandoc command.
 
 1. Standard Academic Report (Default)
 
@@ -94,10 +95,20 @@ In the current MVP version of the std-report template, using APA (author-date) c
 - **Workaround:** For mission-critical alignment, use --csl ieee or switch to the academic template type.
 
 ## 🎨 Asset Management
-- **Images:** The script automatically looks for images in an attachments/ folder relative to your Markdown file.
+- **Images:** The script looks for images in an `attachments/` folder next to your Markdown file, and in `~/Documents/my-cs-notes/attachments` (the Obsidian vault) when it exists.
 - **Stability Bridge:** The `std-report` template includes logic to ensure wide tables are scaled to fit within a single column.
 - **Logos:** For the academic template, ensure your Logo (`eg. Logo_BUAP_lightBlue.png`) is in your project's attachments folder to appear on the title page.
 - **Customization:** To edit the cover page layout, modify templates/academic/eisvogel-title-page.latex. 
+
+## 📄 CV Template (cv-ats-classic)
+
+`cv-ats-classic/` holds an ATS-friendly résumé template. It is not one of the `--type` options; build it with Pandoc directly:
+
+```Bash
+cd ~/dotfiles/scripts/build-paper/cv-ats-classic
+cp template_ats-classic.md ~/cv.md   # fill in the frontmatter and sections
+pandoc ~/cv.md --template ats-classic.latex --pdf-engine=xelatex -o ~/cv.pdf
+```
 
 ## 🤝 Acknowledgements
 
