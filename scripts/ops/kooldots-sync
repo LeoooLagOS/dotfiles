@@ -1,0 +1,344 @@
+#!/usr/bin/env bash
+# ==============================================================================
+#  kooldots-sync — pull KoolDots (Hyprland-Dots) updates into this repository
+#
+#  This repo is a restructured fork of KoolDots with no shared git history, so
+#  updates are brought in as a diff: everything upstream changed between the
+#  recorded base commit and the target is replayed as a 3-way merge, with
+#  upstream paths remapped onto this repo's layout (see MAPPINGS).
+# ==============================================================================
+
+set -Eeuo pipefail
+
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
+DOTFILES_DIR="$(git -C "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" rev-parse --show-toplevel)"
+readonly DOTFILES_DIR
+readonly REMOTE="kooldots"
+readonly REMOTE_URL="https://github.com/LinuxBeginnings/Hyprland-Dots.git"
+readonly BRANCH="main"
+readonly BASE_FILE="$DOTFILES_DIR/.kooldots-base"
+
+# Upstream path -> local path, most specific first. A path is handled by the
+# first mapping that contains it; upstream paths matching none are ignored.
+readonly MAPPINGS=(
+  "config/hypr/UserScripts/Weather.py:scripts/lib/Weather.py"
+  "config/hypr/UserScripts:scripts/wm"
+  "config/hypr/scripts:scripts/wm"
+  "config/hypr:config/hypr"
+  "config/waybar:config/waybar"
+  "config/swaync:config/swaync"
+  "config/kitty:config/kitty"
+  "config/wlogout:config/wlogout"
+  "config/fastfetch:config/fastfetch"
+  "config/starship:config/starship"
+  "config/quickshell/overview:config/quickshell/overview"
+  "config/quickshell/qs-hyprview:config/quickshell/qs-hyprview"
+)
+
+FETCH=1
+WITH_DELETIONS=0
+TARGET="$REMOTE/$BRANCH"
+
+# ------------------------------------------------------------------------------
+# Output
+# ------------------------------------------------------------------------------
+
+if [[ -t 1 ]]; then
+  readonly C_RESET=$'\e[0m' C_BOLD=$'\e[1m' C_DIM=$'\e[2m'
+  readonly C_BLUE=$'\e[34m' C_GREEN=$'\e[32m' C_YELLOW=$'\e[33m' C_RED=$'\e[31m'
+else
+  readonly C_RESET='' C_BOLD='' C_DIM='' C_BLUE='' C_GREEN='' C_YELLOW='' C_RED=''
+fi
+
+step() { printf '\n%s==> %s%s\n' "$C_BOLD$C_BLUE" "$*" "$C_RESET"; }
+info() { printf '  %s•%s %s\n' "$C_DIM" "$C_RESET" "$*"; }
+ok()   { printf '  %s✓%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
+warn() { printf '  %s!%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; }
+die()  { printf '%serror:%s %s\n' "$C_RED$C_BOLD" "$C_RESET" "$*" >&2; exit 1; }
+
+usage() {
+  cat <<EOF
+Usage: $SCRIPT_NAME [options] [command] [args]
+
+Bring KoolDots updates into ~/dotfiles as a reviewable 3-way merge.
+
+Commands:
+  status         Base and upstream versions, and what changed (default)
+  log            Upstream commits since the base that touch mapped paths
+  diff [PATH]    Upstream changes since the base (optionally for one upstream path)
+  apply          Replay the changes onto this repo and advance the base
+  set-base REF   Record REF as the base without applying anything
+
+Options:
+      --to REF     Target commit instead of $REMOTE/$BRANCH (e.g. to sync in steps)
+      --no-fetch   Use the already fetched upstream refs
+      --with-deletions
+                   Also apply upstream deletions (by default they are only listed,
+                   since upstream often deletes a path because it moved it)
+  -h, --help       Show this help
+
+Typical update:
+  $SCRIPT_NAME             # what is new?
+  $SCRIPT_NAME log         # read the upstream commit messages
+  $SCRIPT_NAME apply       # merge it in, then resolve conflicts, test, commit
+EOF
+}
+
+# ------------------------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------------------------
+
+g() { git -C "$DOTFILES_DIR" "$@"; }
+
+ensure_remote() {
+  if ! g remote get-url "$REMOTE" &>/dev/null; then
+    g remote add "$REMOTE" "$REMOTE_URL"
+    # Partial clone: upstream history without wallpapers and other blobs.
+    # Blobs needed by a diff are fetched on demand.
+    g config "remote.$REMOTE.promisor" true
+    g config "remote.$REMOTE.partialclonefilter" blob:none
+    info "added remote $REMOTE ($REMOTE_URL)"
+  fi
+  if [[ $FETCH -eq 1 ]]; then
+    g fetch --quiet --filter=blob:none "$REMOTE" "$BRANCH"
+  fi
+}
+
+read_base() {
+  [[ -s $BASE_FILE ]] || die "no base recorded in ${BASE_FILE/#$HOME/\~} (see: $SCRIPT_NAME set-base REF)"
+  local base
+  base="$(sed -n 's/^commit=//p' "$BASE_FILE")"
+  [[ -n $base ]] || die "malformed ${BASE_FILE/#$HOME/\~}: missing commit="
+  g cat-file -e "$base^{commit}" 2>/dev/null || die "base $base not found; run without --no-fetch"
+  printf '%s' "$base"
+}
+
+# KoolDots marks its release with an empty config/hypr/v<version> file.
+version_of() {
+  g ls-tree --name-only "$1" config/hypr/ | sed -n 's#^config/hypr/\(v[0-9][0-9.]*\)$#\1#p' | head -1
+}
+
+write_base() {
+  local commit
+  commit="$(g rev-parse "$1^{commit}")"
+  {
+    echo "# KoolDots commit this repo is synced to; managed by scripts/ops/$SCRIPT_NAME"
+    echo "commit=$commit"
+    echo "version=$(version_of "$commit")"
+    echo "date=$(g log -1 --format=%cs "$commit")"
+  } >"$BASE_FILE"
+}
+
+# Upstream path -> local path, or non-zero when no mapping applies.
+map_path() {
+  local upath=$1 entry from to
+  for entry in "${MAPPINGS[@]}"; do
+    from=${entry%%:*} to=${entry#*:}
+    if [[ $upath == "$from" ]]; then
+      printf '%s' "$to"; return 0
+    elif [[ $upath == "$from/"* ]]; then
+      printf '%s/%s' "$to" "${upath#"$from/"}"; return 0
+    fi
+  done
+  return 1
+}
+
+upstream_paths() {
+  local entry
+  for entry in "${MAPPINGS[@]}"; do printf '%s\n' "${entry%%:*}"; done
+}
+
+local_paths() {
+  local entry
+  for entry in "${MAPPINGS[@]}"; do printf '%s\n' "${entry#*:}"; done | sort -u
+}
+
+# ------------------------------------------------------------------------------
+# Commands
+# ------------------------------------------------------------------------------
+
+cmd_status() {
+  local base target changes
+  base="$(read_base)"
+  target="$(g rev-parse "$TARGET^{commit}")"
+
+  step "KoolDots sync status"
+  info "base:     $(version_of "$base") ${base:0:9} ($(g log -1 --format=%cs "$base"))"
+  info "upstream: $(version_of "$target") ${target:0:9} ($(g log -1 --format=%cs "$target"))"
+
+  if [[ $base == "$target" ]]; then
+    ok "up to date"
+    return 0
+  fi
+
+  mapfile -t pathspec < <(upstream_paths)
+  changes="$(g diff --no-renames --name-status "$base" "$target" -- "${pathspec[@]}")"
+  if [[ -z $changes ]]; then
+    ok "no changes to mapped paths; '$SCRIPT_NAME apply' just advances the base"
+    return 0
+  fi
+
+  info "$(g rev-list --count "$base..$target" -- "${pathspec[@]}") upstream commits touch mapped paths"
+  printf '\n  %-9s %-9s %-9s %s\n' "added" "modified" "deleted" "local path"
+  local status upath lpath
+  declare -A added=() modified=() deleted=()
+  while IFS=$'\t' read -r status upath; do
+    lpath="$(map_path "$upath")" || continue
+    local top
+    top="$(cut -d/ -f1-2 <<<"$lpath")"
+    case $status in
+      A) added[$top]=$(( ${added[$top]:-0} + 1 )) ;;
+      D) deleted[$top]=$(( ${deleted[$top]:-0} + 1 )) ;;
+      *) modified[$top]=$(( ${modified[$top]:-0} + 1 )) ;;
+    esac
+  done <<<"$changes"
+  local key
+  for key in $(printf '%s\n' "${!added[@]}" "${!modified[@]}" "${!deleted[@]}" | sort -u); do
+    printf '  %-9s %-9s %-9s %s\n' "${added[$key]:-0}" "${modified[$key]:-0}" "${deleted[$key]:-0}" "$key"
+  done
+  printf '\nNext: %s log  |  %s diff [PATH]  |  %s apply\n' "$SCRIPT_NAME" "$SCRIPT_NAME" "$SCRIPT_NAME"
+}
+
+cmd_log() {
+  local base
+  base="$(read_base)"
+  mapfile -t pathspec < <(upstream_paths)
+  g log --no-merges --format='%C(yellow)%h%C(reset) %cs %s' "$base..$TARGET" -- "${pathspec[@]}"
+}
+
+cmd_diff() {
+  local base
+  base="$(read_base)"
+  if [[ $# -gt 0 ]]; then
+    g diff "$base" "$TARGET" -- "$@"
+  else
+    mapfile -t pathspec < <(upstream_paths)
+    g diff "$base" "$TARGET" -- "${pathspec[@]}"
+  fi
+}
+
+cmd_apply() {
+  local base target
+  base="$(read_base)"
+  target="$(g rev-parse "$TARGET^{commit}")"
+  [[ $base != "$target" ]] || { ok "already at $(version_of "$target") ${target:0:9}"; return 0; }
+
+  # git apply --3way works through the index, so mapped paths must be committed.
+  mapfile -t lpaths < <(local_paths)
+  if ! g diff --quiet HEAD -- "${lpaths[@]}" || [[ -n $(g ls-files --unmerged) ]]; then
+    die "uncommitted changes under mapped paths; commit or stash them first"
+  fi
+
+  step "Applying KoolDots $(version_of "$base") -> $(version_of "$target")"
+  mapfile -t pathspec < <(upstream_paths)
+  # One full diff downloads every needed blob in a single batch; the per-file
+  # diffs below would otherwise fetch them one at a time.
+  g diff --no-renames --full-index --binary "$base" "$target" -- "${pathspec[@]}" >/dev/null
+
+  local -a applied=() conflicted=() failed=() skipped=() deletions=()
+  local status upath lpath out
+  while IFS=$'\t' read -r status upath; do
+    lpath="$(map_path "$upath")" || continue
+
+    if [[ $status == D && $WITH_DELETIONS -eq 0 ]]; then
+      deletions+=("$lpath")
+      continue
+    fi
+
+    if g check-ignore -q --no-index -- "$lpath"; then
+      skipped+=("$lpath (git-ignored, machine-specific)")
+      continue
+    fi
+
+    # Each file gets its own patch so one failure does not block the rest.
+    # --relative/--directory rewrite the upstream path into the local one;
+    # basenames are identical in every mapping.
+    if out="$(g diff --no-renames --full-index --binary --relative="$(dirname "$upath")" \
+                "$base" "$target" -- "$upath" |
+              g apply --3way --directory="$(dirname "$lpath")" 2>&1)"; then
+      applied+=("$status $lpath")
+    elif grep -q 'with conflicts' <<<"$out"; then
+      conflicted+=("$lpath")
+    else
+      failed+=("$status $lpath: $(tail -1 <<<"$out")")
+    fi
+  done < <(g diff --no-renames --name-status "$base" "$target" -- "${pathspec[@]}")
+
+  write_base "$target"
+  g add -- "$BASE_FILE"
+
+  ok "${#applied[@]} files updated cleanly"
+  if [[ ${#conflicted[@]} -gt 0 ]]; then
+    warn "${#conflicted[@]} files have conflict markers to resolve:"
+    printf '      %s\n' "${conflicted[@]}"
+  fi
+  if [[ ${#failed[@]} -gt 0 ]]; then
+    warn "${#failed[@]} changes could not be applied; port them by hand ($SCRIPT_NAME diff <upstream path>):"
+    printf '      %s\n' "${failed[@]}"
+  fi
+  if [[ ${#deletions[@]} -gt 0 ]]; then
+    warn "${#deletions[@]} upstream deletions not applied (upstream may have moved these; check before removing):"
+    printf '%s\n' "${deletions[@]}" | cut -d/ -f1-3 | sort | uniq -c | sed 's/^/     /'
+    info "once confirmed, remove them with git rm, or redo the sync with --with-deletions"
+  fi
+  if [[ ${#skipped[@]} -gt 0 ]]; then
+    info "${#skipped[@]} skipped:"
+    printf '      %s\n' "${skipped[@]}"
+  fi
+
+  cat <<EOF
+
+Base advanced to $(version_of "$target") ${target:0:9} (staged in .kooldots-base).
+Next:
+  1. Resolve conflicts: git diff --name-only --diff-filter=U
+     (edit, then git add <file>; do not run 'dots' before this is done)
+  2. Review everything: git diff --cached
+  3. Mirror Lua/conf twins if upstream changed only one, then: hyprctl reload
+  4. Commit: git commit -m "chore(kooldots): sync to $(version_of "$target")"
+To abandon: git reset --hard HEAD
+EOF
+}
+
+cmd_set_base() {
+  [[ $# -eq 1 ]] || die "set-base needs a commit"
+  g cat-file -e "$1^{commit}" 2>/dev/null || die "unknown commit: $1"
+  write_base "$1"
+  ok "base set to $(version_of "$1") $(g rev-parse --short "$1"); commit .kooldots-base"
+}
+
+# ------------------------------------------------------------------------------
+# Main
+# ------------------------------------------------------------------------------
+
+main() {
+  local -a args=()
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --to) [[ $# -ge 2 ]] || die "--to needs a commit"; TARGET=$2; shift ;;
+      --no-fetch) FETCH=0 ;;
+      --with-deletions) WITH_DELETIONS=1 ;;
+      -h|--help) usage; exit 0 ;;
+      *) args+=("$1") ;;
+    esac
+    shift
+  done
+  set -- "${args[@]}"
+
+  local cmd=${1:-status}
+  [[ $# -gt 0 ]] && shift
+
+  ensure_remote
+  g cat-file -e "$TARGET^{commit}" 2>/dev/null || die "unknown target: $TARGET"
+
+  case $cmd in
+    status) cmd_status ;;
+    log) cmd_log ;;
+    diff) cmd_diff "$@" ;;
+    apply) cmd_apply ;;
+    set-base) cmd_set_base "$@" ;;
+    *) die "unknown command '$cmd' (see --help)" ;;
+  esac
+}
+
+main "$@"
