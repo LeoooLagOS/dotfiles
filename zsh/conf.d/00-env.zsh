@@ -19,7 +19,8 @@ export PATH="$PATH:$HOME/.spicetify"
 # Executed afterwards so they can override operating system versions.
 
 # FVM / Flutter
-export PATH="$HOME/fvm/bin:$PATH"
+export FVM_CACHE_PATH="$HOME/.local/share/fvm"
+export PATH="$FVM_CACHE_PATH/bin:$PATH"
 
 # Android SDK & Tools
 export ANDROID_HOME="$HOME/.local/share/android/Sdk"
@@ -34,7 +35,7 @@ export PATH="$PATH:$BUN_INSTALL/bin"
 [ -d "$HOME/.dotnet/tools" ] && export PATH="$PATH:$HOME/.dotnet/tools"
 
 # Go
-export GOPATH="$HOME/go"
+export GOPATH="$HOME/.local/share/go"
 export GOBIN="$GOPATH/bin"
 export PATH="$PATH:/usr/local/go/bin:$GOBIN"
 
