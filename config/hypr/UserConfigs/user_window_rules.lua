@@ -140,12 +140,13 @@ local apply_window_rule = user_window_rules_helper.apply_window_rule
 --   center = true,
 -- })
 
--- xwaylandvideobridge is a background Wayland→X11 screen sharing bridge; keep it invisible
+-- xwaylandvideobridge is a background Wayland→X11 screen sharing bridge; keep it invisible.
+-- Parked on a special workspace (not pinned) so waybar doesn't count it on every workspace.
 apply_window_rule({
   name = "user-xwaylandvideobridge-hide",
   match = { class = "^xwaylandvideobridge$" },
   float = true,
-  pin = true,
+  workspace = "special:videobridge silent",
   no_blur = true,
   no_initial_focus = true,
   opacity = 0,
