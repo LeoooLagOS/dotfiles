@@ -6,102 +6,26 @@
 [![Specialization](https://img.shields.io/badge/Focus-Cybersecurity_%26_DevOps-red?style=for-the-badge)](https://github.com/LeoooLagOS)
 [![Security](https://img.shields.io/badge/Provenance-GPG_Signed-success?style=for-the-badge&logo=gnupg)](https://github.com/LeoooLagOS)
 
-## 🏗️ Architectural Overview
-
-The **lagOS-station** is built on a **Modular Application-Centric** architecture. Unlike standard dotfile repositories that clutter the root directory, this system uses **logical separation** to ensure that each component (Hyprland, Kitty, Shell) remains **environment-agnostic** and easily deployable via a single idempotent bootstrapper (`install.sh`). 
-
-Recent infrastructure upgrades have introduced a **Dynamic Lua Abstraction Layer** for window manager configuration, enforcing strict DRY principles and single-source-of-truth pathing across all shell and UI integrations.
+The **lagOS-station** is a **Modular Application-Centric** workstation: each component (Hyprland, Kitty, Shell, Neovim) lives in its own directory and is deployed by a single idempotent bootstrapper, `install.sh`.
 
 ### Core Philosophy: "Cattle, Not Pets"
-Every component of this workstation is designed to be **idempotent**. By utilizing package lists, dynamic path resolution, and declarative symlinking, the entire engineering environment can be reproduced on a clean **Fedora** host in minutes.
+Every component is **idempotent**. Package lists, dynamic path resolution and declarative symlinking let the whole environment be reproduced on a clean **Fedora** host in minutes.
 
 ---
 
-## 🌳 Directory Structure
+## 🌳 Repository Map
 
-```text
-dotfiles/
-├── config/             # Application Registry (~/.config)
-│   ├── hypr/           # Hyprland WM Core
-│   │   ├── configs/    # Base configurations
-│   │   ├── lua/        # Dynamic keybind engine and rule parser
-│   │   ├── rofi/       # Modular Rofi themes and plugin configurations
-│   │   ├── UserConfigs/        # Personal overrides (startup, env, window rules)
-│   │   └── monitors.*.example  # Display layout templates (real files are git-ignored)
-│   ├── kitty/          # GPU-accelerated terminal configuration
-│   ├── fastfetch/      # System info dashboard shown on shell start
-│   ├── starship/       # Selectable Starship prompt profiles
-│   └── wlogout/        # Glassmorphism logout menu
-├── git/                # Global Git provenance: Delta & GPG Signing
-├── gpg/                # GPG Environment: Agent logic and TTL cache
-│   └── gpg-agent.conf  # Passphrase caching and pinentry rules
-├── install.sh          # Idempotent System Bootstrapper (repos, packages, links, shell)
-├── nvim/               # Neovim IDE: LazyVim-based development layer
-├── scripts/            # The Logic Layer: Modular orchestration
-│   ├── build-paper/    # Academic/Research reporting automation
-│   ├── lagos-shot/     # Technical capture and Obsidian injection
-│   ├── lib/            # Python core libraries (Weather, Keybinds Parser)
-│   ├── ops/            # Operational maintenance (sync-dots, repair)
-│   └── wm/             # Unified Window Manager control engine
-│       ├── RofiCalc.sh       # Native computational interface (qalc backend)
-│       ├── RofiLauncher.sh   # Multi-module application/file launcher
-│       └── ...               # All UI/OSD control logic
-├── System/             # Infrastructure as Code (IaC) Provisioning
-│   ├── coprs.txt       # COPR repositories required by the package list
-│   ├── flatpaks.txt    # Application-layer dependency list
-│   └── pkglist.txt     # DNF system-package registry
-└── zsh/                # Modular shell: Senior Aliases and Sentinel logic
-```
+Each directory documents itself; start from the one you need.
 
-## 🛠️ Key Engineering Modules
-### 1. Hyprland UI & Dynamic Lua Engine (config/hypr/lua)
-
-The Window Manager configuration relies on a custom Lua interpreter to generate keybinds dynamically, eliminating hardcoded paths.
-
-- **Variable Interpolation:** Maps repository-specific paths (e.g., `$scriptsDir`) directly to execution commands, ensuring dotfiles remain portable across environments.
-
-- **Rofi Modularity:** Integrates an advanced application launcher with extensible modules (drun, filebrowser, window, calc).
-
-- **Computational Interface:** Features a native integration with `rofi-calc` and `qalculate`, allowing instant mathematical operations and automatic clipboard piping via `wl-copy` directly from the OS overlay.
-
-- **Screen Sharing & Theming:** Autostarts `xwaylandvideobridge` (hidden via window rule) so X11 apps like Discord and OBS can capture Wayland screens, and themes Qt apps through the `gtk3` platform theme only inside Hyprland, leaving KDE untouched.
-
-### 2. Global Git Provenance (/git)
-
-The version control layer is optimized for high-velocity code review and cryptographic security.
-
-- **Delta Pager:** Implements a high-performance, syntax-highlighting pager for all git, diff, and grep outputs, providing an IDE-like experience in the terminal.
-
-- **zdiff3 Conflict Resolution:** Uses the *"Common Ancestor" merge style* to provide the baseline context during logic conflicts.
-
-- **Cryptographic Identity:** Enforces GPG-signed commits for all infrastructure changes to ensure non-repudiation and verified status on remote repositories.
-
-### 3. The Modular Sentinel Shell (/zsh)
-
-A modular, plugin-based shell environment designed for deterministic initialization.
-
-Componentized Logic (`conf.d/`):
-- `00-env.zsh`: Infrastructure variables and SDKMAN initialization.
-
-- `20-security.zsh`: GPG agent orchestration and environment hardening.
-
-- `30-sentinel.zsh`: Custom shell-based telemetry and status monitors.
-
-### 4. The Logic Layer (`/scripts`)
-
-All application wrappers and custom research tools are managed as discrete, tracked modules in `~/dotfiles/scripts`.
-
-- `wm/`: The consolidated control engine. Unifies notification management, brightness, clipboard interfaces, and UI menus.
-
-- `lib/`: A library of deterministic Python modules that provide data for shell utilities, ensuring robust exception handling.
-
-- `ops/`: Operational tooling for infrastructure maintenance, including vault synchronization and dotfile state management. `sync-dots` commits and pushes changes to **tracked files only** (`git add -u`) and lists any new files for manual review, so nothing private is published by accident.
-
-### 5. System Provisioning (/System)
-
-Adopts an Infrastructure-as-Code (IaC) approach to workstation state management.
-
-- **Declarative Lists:** Tracks system-level dependencies via `pkglist.txt` (DNF), the COPR repositories they come from via `coprs.txt`, and application-layer tools via `flatpaks.txt`.
+| Directory | Purpose |
+|---|---|
+| [`config/`](config/README.md) | Application configs linked into `~/.config` (Hyprland, Kitty, Quickshell, Starship, Fastfetch, wlogout) |
+| [`git/`](git/README.md) | Global Git identity, Delta pager and GPG signing (also covers `gpg/`) |
+| [`nvim/`](nvim/README.md) | LazyVim-based Neovim IDE |
+| [`scripts/`](scripts/README.md) | The logic layer: WM control, Python libraries, ops tooling and CLI tools |
+| [`System/`](System/README.md) | Declarative package, COPR and Flatpak lists |
+| [`zsh/`](zsh/README.md) | Modular zsh shell, aliases and the Sentinel auditor |
+| `install.sh` | Idempotent system bootstrapper (see below) |
 
 ## 📋 Prerequisites
 
@@ -162,24 +86,15 @@ The weather toggle keybind (`ToggleWeatherLoc.sh`) switches between IP-based loc
 
 ## ⚙️ Post-Deployment Verification
 
-After provisioning, initialize the dynamic keybinds and verify the cryptographic chain:
-
-- **Hyprland Engine:** `hyprctl reload` (Compiles Lua paths into memory)
-
-- **Shell:** source `~/.zshrc`
-
-- **Identity Check:** `git config --get user.signingkey` (Should return 0D06886B74ED962C)
-
-- **Plugin Compilation:** Ensure `rofi-calc` is built using `Meson/Ninja` from the root directory if not bundled via DNF.
+- **Hyprland:** `hyprctl reload`
+- **Shell:** `source ~/.zshrc`
+- **Signing identity:** see [`git/`](git/README.md#verification)
 
 ## 🕵️ DevSecOps & Best Practices
 
-- **Secret Management:** No raw API keys or private tokens are stored within this repository. Environment variables are injected at runtime via local (Git ignored) files.
-
+- **Secret Management:** No raw API keys or private tokens are stored in this repository. Environment variables are injected at runtime via local, Git-ignored files.
 - **Privacy by Default:** Location data and hardware identifiers (monitor models and serials) are kept in local, untracked files. `.gitignore` also guards against `*.local` overrides, `.env.*` files, keys, SSH directories and shell histories.
-
-- **Atomic Refactoring:** This repository follows the Conventional Commits standard to maintain a clear audit trail of infrastructure changes.
-
-- **Single Source of Truth:** All bash execution paths are defined internally via Lua abstraction to prevent hardcoded symlink drift.
+- **Atomic Refactoring:** Commits follow the Conventional Commits standard to keep a clear audit trail.
+- **Single Source of Truth:** Script paths are resolved through the Hyprland Lua layer instead of being hardcoded.
 
 *Maintained as part of the lagOS-station project, 2026.*
