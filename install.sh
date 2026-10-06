@@ -41,6 +41,8 @@ readonly LINKS=(
   "gpg/gpg-agent.conf:$HOME/.gnupg/gpg-agent.conf"
   "config/hypr:$CONFIG_DIR/hypr"
   "config/kitty:$CONFIG_DIR/kitty"
+  "config/waybar:$CONFIG_DIR/waybar"
+  "config/swaync:$CONFIG_DIR/swaync"
   "config/starship:$CONFIG_DIR/starship"
   "config/wlogout:$CONFIG_DIR/wlogout"
   "config/fastfetch:$CONFIG_DIR/fastfetch"
