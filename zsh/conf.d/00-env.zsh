@@ -65,3 +65,4 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
+setopt hist_ignore_space   # prefix a command with a space to keep it out of history
