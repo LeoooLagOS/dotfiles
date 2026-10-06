@@ -487,12 +487,24 @@ terminal_exists() {
 }
 
 # Function to check if a window address exists
+# True when the dropdown terminal is identifiable by DROPDOWN_KITTY_CLASS
+uses_dropdown_class() {
+  [[ "$TERMINAL_CMD" == *"$DROPDOWN_KITTY_CLASS"* ]]
+}
+
+# Check the address exists and, when possible, that it is really our terminal.
+# Without the class check, a stale/mis-detected address (e.g. xwaylandvideobridge
+# spawning at the same time on login) gets toggled instead of the terminal.
 window_exists() {
   local addr="$1"
-  if [ -n "$addr" ]; then
-    hyprctl clients -j 2>/dev/null | jq -e --arg ADDR "$addr" 'any(.[]; .address == $ADDR)' >/dev/null 2>&1
-  else
+  if [ -z "$addr" ]; then
     return 1
+  fi
+  if uses_dropdown_class; then
+    hyprctl clients -j 2>/dev/null | jq -e --arg ADDR "$addr" --arg CLASS "$DROPDOWN_KITTY_CLASS" \
+      'any(.[]; .address == $ADDR and ((.class == $CLASS) or (.initialClass == $CLASS)))' >/dev/null 2>&1
+  else
+    hyprctl clients -j 2>/dev/null | jq -e --arg ADDR "$addr" 'any(.[]; .address == $ADDR)' >/dev/null 2>&1
   fi
 }
 
@@ -766,8 +778,10 @@ spawn_terminal() {
       break
     fi
 
+    # Fall back to "any new window" only when the terminal has no known class;
+    # otherwise unrelated windows opening concurrently get picked up.
     local count_after=$(echo "$windows_after" | jq 'length')
-    if [ "$count_after" -gt "$count_before" ]; then
+    if ! uses_dropdown_class && [ "$count_after" -gt "$count_before" ]; then
       new_addr=$(comm -13 \
         <(echo "$windows_before" | jq -r '.[].address' | sort) \
         <(echo "$windows_after" | jq -r '.[].address' | sort) |
