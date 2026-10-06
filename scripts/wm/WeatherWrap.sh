@@ -2,8 +2,10 @@
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Weather entrypoint: prefer Python (Open‑Meteo), fallback to legacy Bash (wttr.in)
 
-SCRIPT_DIR="$(dirname "$0")"
-PY_SCRIPT="$SCRIPT_DIR/Weather.py"
+# Resolve symlinks (~/.config/hypr/{scripts,UserScripts} -> scripts/wm);
+# Weather.py lives in the sibling lib/ directory.
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+PY_SCRIPT="$SCRIPT_DIR/../lib/Weather.py"
 BASH_FALLBACK="$SCRIPT_DIR/Weather.sh"
 
 # Function to check network connectivity
