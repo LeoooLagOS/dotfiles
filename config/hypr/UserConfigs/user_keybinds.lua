@@ -97,3 +97,13 @@ bind(
 	exec_cmd("$HOME/dotfiles/scripts/wm/ToggleWeatherLoc.sh"),
 	{ description = "Toggle Weather Location" }
 )
+
+-- The default XF86AudioPlayPause bind is aliased to XF86AudioPlay, so the Play
+-- key had two binds and toggled twice (no net change). Keep a single one.
+unbind("", "XF86AudioPlay")
+bind(
+	"",
+	"XF86AudioPlay",
+	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
+	{ description = "play/pause", locked = true }
+)
