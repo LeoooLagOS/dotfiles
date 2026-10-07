@@ -90,6 +90,7 @@ ensure_hyprland_env
 stop_proc "wlogout"
 HYPRCTL_BIN="$(command -v hyprctl || true)"
 HYPRSHUTDOWN_BIN="$(command -v hyprshutdown || true)"
+TIMEOUT_BIN="$(command -v timeout || true)"
 UWSM_BIN="$(command -v uwsm || true)"
 LOGINCTL_BIN="$(command -v loginctl || true)"
 if [ -n "$LOGINCTL_BIN" ] && [ -n "${XDG_SESSION_ID:-}" ]; then
