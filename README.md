@@ -19,11 +19,11 @@ Each directory documents itself; start from the one you need.
 
 | Directory | Purpose |
 |---|---|
-| [`config/`](config/README.md) | Application configs linked into `~/.config` (Hyprland, Waybar, SwayNC, Kitty, Quickshell, Starship, Fastfetch, wlogout) |
+| [`config/`](config/README.md) | Application configs linked into `~/.config` (Hyprland, Waybar, SwayNC, Kitty, Quickshell, Starship, Fastfetch, power menu icons) |
 | [`git/`](git/README.md) | Global Git identity, Delta pager and GPG signing (also covers `gpg/`) |
 | [`nvim/`](nvim/README.md) | LazyVim-based Neovim IDE |
 | [`scripts/`](scripts/README.md) | The logic layer: WM control, Python libraries, ops tooling and CLI tools |
-| [`System/`](System/README.md) | Declarative package, COPR and Flatpak lists |
+| [`System/`](System/README.md) | Declarative package, COPR and Flatpak lists, plus `/etc` files (USB wake, lid behavior) |
 | [`zsh/`](zsh/README.md) | Modular zsh shell, aliases and the Sentinel auditor |
 | `install.sh` | Idempotent system bootstrapper (see below) |
 | `.kooldots-base` | The KoolDots commit the desktop configs are synced to (see [Upstream updates](#-upstream-updates-kooldots)) |
@@ -82,6 +82,8 @@ cp UserConfigs/monitors.lua.example UserConfigs/monitors.lua
 mkdir -p ~/.config/lagos
 echo "City, State, Country" > ~/.config/lagos/weather-home
 ```
+
+`install.sh` doesn't touch `/etc`. The udev and logind files in `System/etc/` are copied by hand; see [`System/`](System/README.md#etc--system-config).
 
 The weather toggle keybind (`ToggleWeatherLoc.sh`) switches between IP-based location and the home location, storing the active choice in `~/.local/state/lagos/weather-place`.
 

@@ -11,7 +11,7 @@ Configuration for every desktop application, linked into `~/.config` by the `lin
 | [`quickshell/`](quickshell/README.md) | `~/.config/quickshell/{overview,qs-hyprview}` | Workspace overview and window exposé |
 | [`starship/`](starship/README.md) | `~/.config/starship` | Selectable prompt profiles |
 | [`fastfetch/`](fastfetch/README.md) | `~/.config/fastfetch` | System info dashboard shown on shell start |
-| `wlogout/` | `~/.config/wlogout` | Logout / power menu (below) |
+| `wlogout/` | `~/.config/wlogout` | Icons for the power menu (below); `layout` and `style.css` are kept only for upstream syncs |
 
 Most of these started as [KoolDots](https://github.com/LinuxBeginnings/Hyprland-Dots) configs; `scripts/ops/kooldots-sync` brings in upstream updates (see the [root README](../README.md#-upstream-updates-kooldots)).
 

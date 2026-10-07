@@ -49,6 +49,9 @@ The `local` step of `install.sh` creates the monitor files from their templates.
 - **Overviews:** `SUPER + A` opens the Quickshell workspace overview, `SUPER CTRL + Tab` the window exposé; see [`config/quickshell`](../quickshell/README.md).
 - **Screen sharing:** `xwaylandvideobridge` is autostarted so X11 apps (Discord, OBS) can capture Wayland screens. A window rule makes it invisible and parks it on `special:videobridge` so it never covers other windows.
 - **Qt theming:** Qt apps use the `gtk3` platform theme inside Hyprland only, leaving KDE untouched.
+- **Docking:** `UserConfigs/user_laptops.lua` turns the laptop panel (`eDP-1`) off while any external monitor is connected and back on when it's unplugged. The lid switch goes through the same check, so opening the lid while docked keeps the panel off. Don't add an `eDP-1` rule to `UserConfigs/monitors.lua`; it loads later and would override this.
+- **Power menu:** `scripts/Wlogout.sh` opens `PowerMenu.py` (hold-to-confirm, see [`config/`](../README.md#-power-menu)). Its background blur is the `powermenu` rule in `UserConfigs/user_layer_rules.lua`.
+- **Idle and lock:** `hypridle.conf` turns the screen off through `hyprctl dispatch`, and `key_press_enables_dpms` (in `UserConfigs/user_settings.lua`) lets any key wake it. `scripts/LockScreen.sh` starts hyprlock directly when hypridle is stopped by the Waybar idle inhibitor.
 - **Rofi calculator:** `rofi-calc` with a `qalculate` backend; results are copied with `wl-copy`.
 
 ## Upstream updates
