@@ -107,3 +107,26 @@ bind(
 	exec_cmd("$HOME/.config/hypr/scripts/MediaCtrl.sh --pause"),
 	{ description = "play/pause", locked = true }
 )
+
+-- SUPER SHIFT + { / } moves the active window one workspace left/right on the
+-- monitor and follows it. The default bracket binds pass -1/+1 as numbers,
+-- which Hyprland reads as workspace IDs, so they're replaced. Binds match the
+-- unshifted key, so { and } are bound as bracketleft/bracketright.
+unbind("SUPER SHIFT", "bracketleft")
+unbind("SUPER SHIFT", "bracketright")
+bind("SUPER SHIFT", "bracketleft", function()
+	hl.dispatch(hl.dsp.window.move({ workspace = "r-1" }))
+end, { description = "move window to left workspace" })
+bind("SUPER SHIFT", "bracketright", function()
+	hl.dispatch(hl.dsp.window.move({ workspace = "r+1" }))
+end, { description = "move window to right workspace" })
+
+-- SUPER CTRL + [ / ] does the same without following the window.
+unbind("SUPER CTRL", "bracketleft")
+unbind("SUPER CTRL", "bracketright")
+bind("SUPER CTRL", "bracketleft", function()
+	hl.dispatch(hl.dsp.window.move({ workspace = "r-1", follow = false }))
+end, { description = "move window silently to left workspace" })
+bind("SUPER CTRL", "bracketright", function()
+	hl.dispatch(hl.dsp.window.move({ workspace = "r+1", follow = false }))
+end, { description = "move window silently to right workspace" })
