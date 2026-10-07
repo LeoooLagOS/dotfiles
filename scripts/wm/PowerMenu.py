@@ -27,8 +27,8 @@ COLORS = os.path.join(CONFIG, "waybar", "wallust", "colors-waybar.css")
 # (key, label, icon, command, needs hold)
 ACTIONS = [
     ("l", "Lock", "lock-2", f"{SCRIPTS}/LockScreen.sh", False),
-    ("u", "Logout", "logout-box-r", f"{SCRIPTS}/Logout.sh", True),
-    ("o", "Shutdown", "shut-down", "systemctl poweroff", True),
+    ("o", "Logout", "logout-box-r", f"{SCRIPTS}/Logout.sh", True),
+    ("p", "Shutdown", "shut-down", "systemctl poweroff", True),
     ("r", "Reboot", "restart", "systemctl reboot", True),
     ("s", "Suspend", "hotel-bed", f"{SCRIPTS}/LockScreen.sh; sleep 1; systemctl suspend", True),
 ]
