@@ -39,6 +39,14 @@ hl.config({
   },
 })
 
+-- Wake the screen on any key, not just mouse movement, after hypridle turns
+-- DPMS off.
+hl.config({
+  misc = {
+    key_press_enables_dpms = true,
+  },
+})
+
 -- Example:
 -- hl.config({
 --   general = {
