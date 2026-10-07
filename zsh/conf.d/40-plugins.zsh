@@ -25,6 +25,6 @@ if [ -n "$PS1" ]; then
     fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
   fi
   
-  # Trigger the sentinel audit check directly underneath the dashboard graphics
-  sentinel
+  # Sentinel audit under the dashboard: first shell after boot, then hourly
+  sentinel_auto
 fi

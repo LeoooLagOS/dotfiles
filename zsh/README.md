@@ -21,10 +21,10 @@ The numeric prefix sets load order; add new layers with a prefix that places the
 
 ## Sentinel auditor
 
-Every interactive shell shows a [Fastfetch](../config/fastfetch/README.md) dashboard followed by `sentinel`, which:
+Every interactive shell shows a [Fastfetch](../config/fastfetch/README.md) dashboard. Underneath it, `sentinel_auto` runs `sentinel` on the first shell after boot and then at most once an hour (the timestamp is kept in `$XDG_RUNTIME_DIR/sentinel.last`). Run `sentinel` by hand at any time. It:
 
 1. enforces `~/.ssh` permissions;
-2. checks `libvirtd` and starts it if needed (prompts for `sudo`);
+2. checks `libvirtd`: it's fine if the daemon or `libvirtd.socket` (which starts it on demand) is active, otherwise it starts the daemon (prompts for `sudo`);
 3. reports Python, Java, .NET, Bun and Go versions;
 4. shows the Git identity.
 

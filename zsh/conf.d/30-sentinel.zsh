@@ -27,6 +27,9 @@ function sentinel() {
     printf "🌐 Virtual:  "
     if systemctl is-active --quiet libvirtd; then
         echo -e "${G}KVM_ACTIVE${NC}"
+    elif systemctl is-active --quiet libvirtd.socket; then
+        # libvirtd exits after 2 min idle; the socket restarts it on demand.
+        echo -e "${G}KVM_ON_DEMAND${NC}"
     else
         echo -e "${Y}STARTING_LIBVIRTD...${NC}"
         sudo systemctl start libvirtd && echo -e "    ↳ ${G}Daemon spawned successfully.${NC}"
@@ -52,4 +55,16 @@ function sentinel() {
     echo -e "${G}$(git config --global user.name)${NC}"
 
     echo -e "${B}=================================================${NC}"
+}
+
+# Run sentinel on the first shell after boot, then at most once an hour.
+# The stamp lives in $XDG_RUNTIME_DIR, which is wiped on logout/shutdown.
+function sentinel_auto() {
+    zmodload -F zsh/datetime p:EPOCHSECONDS
+    local stamp="${XDG_RUNTIME_DIR:-/tmp}/sentinel.last"
+    local last
+    [[ -r $stamp ]] && last=$(<$stamp)
+    (( EPOCHSECONDS - ${last:-0} < 3600 )) && return
+    sentinel
+    print $EPOCHSECONDS >| $stamp
 }
