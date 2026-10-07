@@ -1,0 +1,5 @@
+# Logitech G213 keyboard (046d:c336) and LIGHTSPEED receiver for the G502 (046d:c539).
+# power/wakeup: let them wake the PC from suspend (USB wake is off by default).
+# power/control: keep them out of autosuspend so they survive resume instead of
+# disconnecting and staying gone until replugged.
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="c336|c539", ATTR{power/wakeup}="enabled", ATTR{power/control}="on"

@@ -22,3 +22,19 @@ Add or remove lines by hand. `pkglist.txt` is kept in byte order (`LC_ALL=C sort
 ```bash
 ./install.sh --dry-run --only repos,packages,flatpaks
 ```
+
+## `etc/` — system config
+
+Files under `etc/` mirror their path under `/etc`. `install.sh` doesn't deploy them; copy them by hand:
+
+```bash
+sudo cp System/etc/udev/rules.d/90-usb-input-wakeup.rules /etc/udev/rules.d/
+sudo udevadm control --reload && sudo udevadm trigger --subsystem-match=usb --action=add
+sudo install -Dm644 System/etc/systemd/logind.conf.d/10-lid.conf /etc/systemd/logind.conf.d/10-lid.conf
+sudo systemctl kill -s HUP systemd-logind
+```
+
+| File | Purpose |
+|---|---|
+| `udev/rules.d/90-usb-input-wakeup.rules` | Lets the USB keyboard/mouse wake from suspend and keeps them connected across resume |
+| `systemd/logind.conf.d/10-lid.conf` | Don't suspend on lid close while on AC (clamshell with external monitor) |
