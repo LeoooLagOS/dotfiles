@@ -48,3 +48,12 @@ local apply_layer_rule = user_layer_rules_helper.apply_layer_rule
 --   blur = true,
 --   ignore_alpha = 0,
 -- })
+
+-- Power menu (scripts/wm/PowerMenu.py): blur what's behind it so the buttons
+-- stay readable over busy windows.
+apply_layer_rule({
+  name = "user-powermenu-blur",
+  match = { namespace = "powermenu" },
+  blur = true,
+  ignore_alpha = 0,
+})

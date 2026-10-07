@@ -30,10 +30,11 @@ Upstream KoolDots has since moved Waybar to `~/.config/hypr/waybar`; until that 
 
 The notification center and its quick-settings panel, from KoolDots: `config.json` (layout, widgets, buttons), `style.css` and the `icons/` and `images/` it uses. Reload with `swaync-client -R -rs`.
 
-## 🚪 wlogout
+## 🚪 Power menu
 
-A glassmorphism power menu (lock, logout, suspend, hibernate, reboot, shutdown).
+The power menu is `scripts/wm/PowerMenu.py`, a GTK layer-shell window that replaced wlogout (wlogout runs an action on the first keypress).
 
-- `layout` defines the buttons and the commands they run.
-- `style.css` styles the menu; `icons/` holds the line/fill SVG pairs for each button.
-- It is opened by `scripts/wm/Wlogout.sh`, which sizes the button margins to the focused monitor's resolution and toggles the menu off if it is already open.
+- **L** locks immediately. **U** (logout), **O** (shutdown), **R** (reboot) and **S** (suspend) must be held for 500 ms; the tile fills while held and drains if released early. Holding the left mouse button works the same way, and Esc closes the menu.
+- It reuses `config/wlogout/icons/` and the wallust colors from `waybar/wallust/colors-waybar.css`. `config/wlogout/layout` and `style.css` are no longer used.
+- `scripts/wm/Wlogout.sh` (still called by Waybar, swaync and Ctrl+Alt+P) toggles it open and closed.
+- The blurred background comes from the `powermenu` layer rule in `hypr/UserConfigs/user_layer_rules.lua`.
