@@ -11,6 +11,7 @@ ln -sf ~/.config/starship/lag-os-01.toml ~/.config/starship.toml
 | Profile | Style |
 |---|---|
 | `lag-os-01.toml` | lagOS house style |
+| `lag-os-02.toml` | `2-line-nixos` colors, path shown as `~/first/second/.../last-but-one/last` |
 | `1-line-*.toml`, `purple-1line.toml`, `simple-prompt.toml`, `vill-minimalist.toml` | Single-line prompts |
 | `2-line-*.toml`, `classic.toml` | Two-line prompts |
 | `chris-titus.toml`, `eric-dubois.toml`, `nobara.toml`, `ranbow.toml` | Profiles adapted from other distros and creators |
