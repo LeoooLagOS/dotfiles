@@ -17,7 +17,11 @@ iDIR="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/images"
 rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-wallpaper.rasi"
 lock_cache_dir="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpaper_effects"
 lock_wallpaper_link="$lock_cache_dir/.hyprlock_current"
+# Desktop wallpaper copy (kept up to date by WallustSwww.sh / WallpaperSelect.sh).
+# By default hyprlock uses it, so the lock screen follows the desktop; choosing
+# a wallpaper here pins the lock screen to it until "Same as the desktop".
 lock_wallpaper_current="$lock_cache_dir/.wallpaper_current"
+FOLLOW_NAME="Same as the desktop (follows it)"
 video_cache_dir="$HOME/.cache/hyprlock_preview"
 find_notify_send() {
   local candidate=""
@@ -175,8 +179,15 @@ fi
 RANDOM_PIC="${PICS[$((RANDOM % ${#PICS[@]}))]}"
 RANDOM_PIC_NAME="Random: $(basename "$RANDOM_PIC")"
 
+# Following the desktop = hyprlock.conf points at .wallpaper_current
+following_desktop=false
+grep -qE "^[[:space:]]*path[[:space:]]*=.*/\.wallpaper_current[[:space:]]*$" \
+  "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf" 2>/dev/null && following_desktop=true
+
 current_lock_path=""
-if [ -L "$lock_wallpaper_link" ]; then
+if $following_desktop; then
+  :
+elif [ -L "$lock_wallpaper_link" ]; then
   current_lock_path="$(readlink -f "$lock_wallpaper_link" 2>/dev/null || true)"
 elif [ -f "$lock_wallpaper_link" ]; then
   current_lock_path="$lock_wallpaper_link"
@@ -214,6 +225,7 @@ rofi_command="rofi -i -show -dmenu -config $rofi_theme -theme-str $rofi_override
 
 menu() {
   IFS=$'\n' sorted_options=($(sort <<<"${PICS[*]}"))
+  printf "%s\x00icon\x1f%s\n" "$FOLLOW_NAME$($following_desktop && echo ' · in use')" "$lock_wallpaper_current"
   printf "%s\x00icon\x1f%s\n" "$RANDOM_PIC_NAME" "$RANDOM_PIC"
   if [ -n "$current_monitor_name" ]; then
     printf "%s\x00icon\x1f%s\n" "$current_monitor_name" "$current_monitor_path"
@@ -287,10 +299,6 @@ set_hyprlock_wallpaper() {
     notify_err "Failed for $target_monitor: could not update hyprlock wallpaper link"
     return 1
   fi
-  if ! cp -f "$final_path" "$lock_wallpaper_current"; then
-    notify_err "Failed for $target_monitor: could not update lock fallback wallpaper"
-    return 1
-  fi
 
   update_hyprlock_config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf" "$lock_wallpaper_link"
   update_hyprlock_config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock-2k.conf" "$lock_wallpaper_link"
@@ -314,6 +322,17 @@ set_hyprlock_wallpaper() {
   return 0
 }
 
+# Back to the default: the lock screen shows the desktop wallpaper
+follow_desktop() {
+  local conf
+  for conf in hyprlock.conf hyprlock-2k.conf hyprlock-1080p.conf; do
+    update_hyprlock_config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/$conf" "\$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
+  done
+  rm -f "$lock_wallpaper_link"
+  pkill -USR1 hyprlock 2>/dev/null || true
+  notify_ok "Lock screen follows the desktop wallpaper"
+}
+
 main() {
   "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
   choice=$(menu | $rofi_command)
@@ -323,6 +342,10 @@ main() {
     exit 0
   fi
 
+  if [[ "$choice" == "$FOLLOW_NAME"* ]]; then
+    follow_desktop
+    return
+  fi
   if [[ "$choice" == "$RANDOM_PIC_NAME" ]]; then
     set_hyprlock_wallpaper "$RANDOM_PIC" "$focused_monitor" || exit 1
     return
