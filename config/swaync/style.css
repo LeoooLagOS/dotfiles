@@ -1,250 +1,344 @@
-/* ----------- 💫 https://github.com/LinuxBeginnings 💫 -------- */
-/* swaync colors - wallust from waybar.css */
+/* =============================================================================
+   swaync style — Apple-style rounded cards with wallust colors
+   =============================================================================
 
+   Layout of this file (top → bottom):
+
+     1. Palette ............ colors (wallust + fixed critical palette)
+     2. Base ............... font and global resets
+     3. Notification card .. shared by floating popups AND the panel list
+     4. Critical card ...... variant for urgency=critical (fixed, not wallust)
+     5. Floating popups .... the toasts that appear at the top of the screen
+     6. Panel shell ........ the control-center container + its backdrop
+     7. Panel zones ........ one section per widget, in the same order as
+                             "widgets" in config.json
+
+   Each widget in config.json gets a CSS class `.widget-<name>`. To restyle one
+   zone, edit only its section in part 7. See README.md for how to add, remove
+   or reorder zones.
+
+   Reload after editing:  swaync-client -rs
+   ============================================================================= */
+
+
+/* =============================================================================
+   1. PALETTE
+   ============================================================================= */
+
+/* Colors follow the wallpaper via wallust (regenerated on wallpaper change) */
 @import '../../.config/waybar/wallust/colors-waybar.css';
 
-@define-color noti-border-color @color12;
-@define-color noti-bg rgba(0, 0, 0, 0.8);
-@define-color noti-bg-alt @background-alt;
-@define-color noti-bg-hover @background;
-@define-color text-color @foreground;
+/* Translucent so Hyprland's blur (layer rules for swaync) shows through */
+@define-color bg        alpha(@background, 0.72);
+@define-color bg-alt    mix(@background, @color0, 0.5);
+@define-color bg-hover  @color0;
+@define-color border    alpha(@color12, 0.35);
+@define-color fg        @foreground;
+@define-color fg-dim    alpha(@foreground, 0.7);
+@define-color accent    @color12;
+@define-color critical  @color9;
 
+/* Critical notifications: fixed dark frosted palette, independent of wallpaper */
+@define-color crit-bg     rgba(32, 32, 34, 0.72);
+@define-color crit-border rgba(255, 255, 255, 0.10);
+@define-color crit-fg     #f2f2f2;
+@define-color crit-fg-dim rgba(235, 235, 245, 0.62);
+@define-color crit-mark   #ff453a;
+
+
+/* =============================================================================
+   2. BASE
+   ============================================================================= */
+
+/* JetBrainsMono Nerd Font is a fallback for the icon glyphs in the buttons */
 * {
-    font-family: "JetBrains Mono Nerd Font";
-    font-weight: bold;
+    font-family: "Inter", "Inter Variable", "JetBrainsMono Nerd Font", sans-serif;
+    font-weight: normal;
     font-size: 1rem;
+    text-shadow: none;
+    box-shadow: none;
 }
 
-.control-center .notification-row:focus,
-.control-center .notification-row:hover {
-    opacity: 1;
-    background: @noti-bg;
-    border-radius: 10px;
-}
+
+/* =============================================================================
+   3. NOTIFICATION CARD (shared by popups and the panel list)
+   ============================================================================= */
 
 .notification-row {
     outline: none;
 }
 
-.notification {
-	/*color: @text-color;*/
-    background: @noti-bg;
-    padding: 3px 10px 3px 6px;
-    border-radius: 10px;
-    border: 2px solid @noti-border-color;
-}
-
-.notification-default-action {
-    margin: 0;
-    padding: 0;
-    border-radius: 10px;
-}
-
-.close-button {
-    background: #f7768e;
-    color: @noti-bg;
-    text-shadow: none;
-    padding: 0;
-    border-radius: 10px;
-    margin-top: 5px;
-    margin-right: 5px;
-}
-
-.close-button:hover {
-    box-shadow: none;
-    background: #f7768e;
-    transition: all .15s ease-in-out;
-    border: none;
-}
-
-
-.notification-action {
-    border: 1px solid @noti-border-color;
-    border-top: none;
-    border-radius: 10px;
-}
-
-
-.notification-default-action:hover,
-.notification-action:hover {
-    color: @text-color;
-    background: @noti-bg;
-}
-
-
-.notification-default-action {
-    border-radius: 10px;
-    margin: 5px;
-}
-
-.notification-default-action:not(:only-child) {
-    border-bottom-left-radius: 7px;
-    border-bottom-right-radius: 7px;
-}
-
-.notification-action:first-child {
-    border-bottom-left-radius: 10px;
-    background: @noti-bg;
-}
-
-.notification-action:last-child {
-    border-bottom-right-radius: 10px;
-    background: @noti-bg-alt;
-}
-
-.inline-reply {
-    margin-top: 8px;
-}
-
-.inline-reply-entry {
-    background: @noti-bg;
-    color: @text-color;
-    caret-color: @text-color;
-    border: 1px solid @noti-border-color;
-    border-radius: 10px;
-}
-
-.inline-reply-button {
-	font-size: 0.5rem;
-    margin-left: 4px;
-    background: @noti-bg;
-    border: 1px solid @noti-border-color;
-    border-radius: 10px;
-    color: @text-color;
-}
-
-.inline-reply-button:disabled {
-    background: initial;
-    color: @text-color;
-    border: 1px solid transparent;
-}
-
-.inline-reply-button:hover {
-    background: @noti-bg-hover;
-}
-
-.body-image {
-    margin-top: 6px;
-    color: @text-color;
-    border-radius: 10px;
-}
-
-.summary {
-    font-size: 1rem;
-    font-weight: bold;
+.notification-row:focus,
+.notification-row:hover {
     background: transparent;
-    color: @text-color;
-    text-shadow: none;
+}
+
+/* The card itself */
+.notification {
+    background: @bg;
+    color: @fg;
+    padding: 12px 14px;
+    margin: 6px 0;
+    border-radius: 18px;
+    border: 1px solid @border;
+}
+
+.notification.low {
+    opacity: 0.85;
+}
+
+/* --- Text --- */
+.summary {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: @fg;
+    background: transparent;
 }
 
 .time {
-    font-size: 1rem;
-    font-weight: bold;
+    font-size: 0.85rem;
+    color: @fg-dim;
     background: transparent;
-    color: @text-color;
-    text-shadow: none;
-    margin-right: 18px;
+    margin-right: 24px;
 }
 
 .body {
     font-size: 1rem;
-    font-weight: bold;
+    color: @fg-dim;
     background: transparent;
-    color: @text-color;
-    text-shadow: none;
 }
 
-.control-center {
-    background: @noti-bg;
-    border: 1px solid @noti-border-color;
-	color: @text-color;
+.body-image {
+    margin-top: 6px;
     border-radius: 10px;
 }
 
-.control-center-list {
+/* --- Click area and action buttons (e.g. "Open" / "Delete") --- */
+.notification-default-action,
+.notification-action {
+    margin: 0;
+    padding: 4px;
+    border-radius: 10px;
+    background: transparent;
+    border: none;
+    color: @fg;
+}
+
+.notification-default-action:hover,
+.notification-action:hover {
+    background: @bg-hover;
+}
+
+/* Must stay after the rule above (same specificity) */
+.notification-action {
+    border-top: 1px solid @border;
+    border-radius: 0;
+}
+
+/* --- Close (×) button --- */
+.close-button {
+    background: transparent;
+    color: @fg-dim;
+    padding: 0;
+    margin: 6px 6px 0 0;
+    border: none;
+    border-radius: 50%;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.close-button:hover {
+    background: @bg-hover;
+    color: @fg;
+}
+
+/* --- Inline reply (messaging apps) --- */
+.inline-reply {
+    margin-top: 6px;
+}
+
+.inline-reply-entry {
+    background: @bg-alt;
+    color: @fg;
+    caret-color: @fg;
+    border: 1px solid @border;
+    border-radius: 10px;
+}
+
+.inline-reply-button {
+    margin-left: 4px;
+    background: @bg-alt;
+    border: 1px solid @border;
+    border-radius: 10px;
+    color: @fg;
+}
+
+.inline-reply-button:disabled {
+    background: transparent;
+    color: @fg-dim;
+    border: 1px solid transparent;
+}
+
+.inline-reply-button:hover {
+    background: @bg-hover;
+}
+
+/* --- Groups (stacked cards from the same app) --- */
+.notification-group {
+    background: transparent;
+    border-radius: 18px;
+}
+
+.notification-group:focus,
+.notification-group:hover,
+.notification-group .notification-row:hover {
     background: transparent;
 }
 
-.control-center-list-placeholder {
-    opacity: 0.5;
+.notification-group-headers {
+    color: @fg;
 }
+
+
+/* =============================================================================
+   4. CRITICAL CARD (urgency=critical — fixed palette, Apple style)
+   ============================================================================= */
+
+.notification.critical,
+.control-center .notification.critical {
+    background: @crit-bg;
+    border: 1px solid @crit-border;
+    border-radius: 18px;
+    padding: 12px 14px;
+}
+
+.notification.critical .notification-default-action,
+.notification.critical .notification-action {
+    border-radius: 14px;
+}
+
+/* Summary becomes the small red "⚠ CRITICAL" header; the body carries the title */
+.notification.critical .summary {
+    color: @crit-mark;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.notification.critical .body {
+    color: @crit-fg;
+}
+
+.notification.critical .time,
+.notification.critical .close-button {
+    color: @crit-fg-dim;
+}
+
+.notification.critical .close-button {
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.notification.critical .notification-default-action:hover,
+.notification.critical .close-button:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: @crit-fg;
+}
+
+
+/* =============================================================================
+   5. FLOATING POPUPS
+   Size, position and timeouts live in config.json
+   ("notification-window-width", "positionX/Y", "timeout*").
+   ============================================================================= */
 
 .floating-notifications {
     background: transparent;
 }
 
+
+/* =============================================================================
+   6. PANEL SHELL (control center)
+   Width/height/margins live in config.json ("control-center-*").
+   ============================================================================= */
+
+/* The panel container */
+.control-center {
+    background: @bg;
+    color: @fg;
+    border: 1px solid @border;
+    border-radius: 22px;
+}
+
+/* Fullscreen transparent backdrop behind the panel (Hyprland blurs it) */
 .blank-window {
     background: alpha(black, 0.1);
 }
 
-.widget-title {
-    color: @text-color;
-    background: @noti-bg-alt;
-    padding: 3px 6px;
-    margin: 5px;
-    font-size: 1rem;
-    border-radius: 10px;
-}
 
-.widget-title>button {
-    font-size: 0.75rem;
-    color: @text-color;
-    border-radius: 10px;
-	background: transparent;
-	border: 0.5px solid @noti-border-color;
-}
+/* =============================================================================
+   7. PANEL ZONES — one section per widget, in config.json "widgets" order
+   ============================================================================= */
 
-/* clear button */
-.widget-title>button:hover {
-    background: @text-color;
-    color: red;
-}
-
+/* -----------------------------------------------------------------------------
+   ZONE: Do Not Disturb                                   widget: "dnd"
+   ----------------------------------------------------------------------------- */
 .widget-dnd {
-    background: @noti-bg-alt;
-    padding: 3px 6px;
-    margin: 5px;
+    margin: 8px;
+    font-size: 0.9rem;
+    color: @fg;
+}
+
+.widget-dnd > switch {
     border-radius: 10px;
-    font-size: 0.5rem;
-    color: @noti-border-color;
+    border: 1px solid @border;
+    background: @bg-alt;
 }
 
-.widget-dnd>switch {
+.widget-dnd > switch:checked {
+    background: @accent;
+}
+
+.widget-dnd > switch slider {
+    background: @fg-dim;
+    border-radius: 2px;
+}
+
+.widget-dnd > switch:checked slider {
+    background: @bg;
+}
+
+/* -----------------------------------------------------------------------------
+   ZONE: Quick buttons (power, lock, bluetooth…)          widget: "buttons-grid"
+   ----------------------------------------------------------------------------- */
+.widget-buttons-grid {
+    font-size: large;
+    padding: 2px;
+    margin: 8px;
+    background: transparent;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+    margin: 2px;
+    background: @bg-alt;
+    border: 1px solid @border;
     border-radius: 10px;
-    border: 1px solid #7aa2f7;
-    background: @noti-border-color;
+    color: @fg;
 }
 
-.widget-dnd>switch:checked {
-    background: #f7768e;
-    border: 1px solid #f7768e;
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+    background: @bg-hover;
 }
 
-.widget-dnd>switch slider {
-    background: @noti-bg;
-    border-radius: 10px;
-}
-
-.widget-dnd>switch:checked slider {
-    background: @noti-bg;
-    border-radius: 10px;
-}
-
-.widget-label {
-    margin: 5px;
-}
-
-.widget-label>label {
-    font-size: 1rem;
-    color: @text-color;
-}
-
+/* -----------------------------------------------------------------------------
+   ZONE: Media — now playing                              widget: "mpris"
+   ----------------------------------------------------------------------------- */
 .widget-mpris {
-    color: @text-color;
-    background: @noti-bg;
-    padding: 3px 6px;
-    margin: 5px;
-    border-radius: 10px;
+    color: @fg;
+    background: @bg-alt;
+    padding: 4px 6px;
+    margin: 8px;
+    border: 1px solid @border;
+    border-radius: 14px;
 }
 
 .widget-mpris > box > button {
@@ -252,78 +346,152 @@
 }
 
 .widget-mpris-player {
-    padding: 3px 6px;
-    margin: 5px;
+    padding: 4px 6px;
+    margin: 4px;
 }
 
 .widget-mpris-title {
-    font-weight: 100;
-    font-size: 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .widget-mpris-subtitle {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    color: @fg-dim;
 }
 
-.widget-buttons-grid {
+/* -----------------------------------------------------------------------------
+   ZONE: Volume and Brightness                  widgets: "volume", "backlight"
+   ----------------------------------------------------------------------------- */
+.widget-volume,
+.widget-backlight {
+    background: @bg-alt;
+    padding: 4px;
+    margin: 8px 8px 4px;
+    border: 1px solid @border;
+    border-radius: 14px;
     font-size: large;
-	color: @noti-border-color;
-    padding: 2px;
-    margin: 5px;
-    border-radius: 10px;
-    background: @noti-bg-alt;
+    color: @fg;
 }
 
-.widget-buttons-grid>flowbox>flowboxchild>button {
-    margin: 1px;
-    background: @noti-bg;
-    border-radius: 10px;
-    color: @text-color;
-}
-
-/* individual buttons */
-.widget-buttons-grid>flowbox>flowboxchild>button:hover {
-    background: @text-color;
-    color: @noti-bg-hover;
-}
-
-.widget-menubar>box>.menu-button-bar>button {
-    border: none;
+.widget-volume > box > button {
     background: transparent;
-}
-
-.topbar-buttons>button {
-    border: none;
-    background: transparent;
-}
-
-.widget-volume {
-    background: @noti-bg-alt;
-    padding: 2px;
-    margin: 10px 10px 5px 10px;
-    border-radius: 10px;
-    font-size: x-large;
-    color: @text-color;
-}
-
-.widget-volume>box>button {
-    background: @noti-border-color;
     border: none;
 }
 
+/* Per-app volume list (expand arrow on the volume widget) */
 .per-app-volume {
-    background-color: @noti-bg;
+    background-color: @bg;
     padding: 4px 8px 8px;
     margin: 0 8px 8px;
-    border-radius: 10px;
-	color: @text-color;
+    border-radius: 14px;
+    color: @fg;
 }
 
-.widget-backlight {
-    background: @noti-bg-alt;
-    padding: 5px;
-    margin: 10px 10px 5px 10px;
+/* Slider look — shared by volume, backlight and any "slider" widget */
+scale trough {
+    background: @border;
+    border-radius: 2px;
+    min-height: 4px;
+}
+
+scale highlight {
+    background: @accent;
+    border-radius: 2px;
+}
+
+scale slider {
+    background: @fg;
+    border-radius: 50%;
+    min-width: 10px;
+    min-height: 10px;
+}
+
+/* -----------------------------------------------------------------------------
+   ZONE: "Notifications" header + Clear button            widget: "title"
+   ----------------------------------------------------------------------------- */
+.widget-title {
+    color: @fg;
+    margin: 8px 8px 0;
+}
+
+.widget-title > label {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.widget-title > button {
+    font-size: 0.8rem;
+    color: @fg-dim;
+    background: transparent;
+    border: 1px solid @border;
     border-radius: 10px;
-    font-size: x-large;
-    color: @text-color;
+}
+
+.widget-title > button:hover {
+    color: @fg;
+    background: @bg-hover;
+}
+
+/* -----------------------------------------------------------------------------
+   ZONE: Notification list                                widget: "notifications"
+   Card look comes from parts 3–4; these rules only adapt it to the panel.
+   ----------------------------------------------------------------------------- */
+.control-center-list {
+    background: transparent;
+}
+
+.control-center .control-center-list {
+    margin: 0;
+    padding: 0;
+}
+
+/* "No Notifications" placeholder */
+.control-center-list-placeholder {
+    opacity: 0.4;
+}
+
+/* Wider cards with tighter spacing than the popups */
+.control-center .notification-row .notification-background {
+    padding: 4px 0;
+}
+
+.control-center .notification {
+    background: @bg-alt;
+    margin: 0;
+    padding: 18px 16px;
+}
+
+.control-center .notification-row:focus,
+.control-center .notification-row:hover {
+    background: transparent;
+}
+
+/* No keyboard-focus ring around cards */
+.control-center .notification-row,
+.control-center .notification-row:focus,
+.control-center .notification-group,
+.control-center .notification-group:focus {
+    outline: none;
+}
+
+/* -----------------------------------------------------------------------------
+   UNUSED ZONES — styled so they look right if added to config.json
+   ----------------------------------------------------------------------------- */
+
+/* Static text block                                      widget: "label" */
+.widget-label {
+    margin: 8px;
+}
+
+.widget-label > label {
+    font-size: 0.9rem;
+    color: @fg;
+}
+
+/* Buttons with dropdown menus                            widget: "menubar" */
+.widget-menubar > box > .menu-button-bar > button,
+.topbar-buttons > button {
+    border: none;
+    background: transparent;
 }
