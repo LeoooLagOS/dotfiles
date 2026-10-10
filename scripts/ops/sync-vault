@@ -85,7 +85,8 @@ def deck_name(path):
 def sync_cards(dry_run=False):
     """Commit review-data changes from every deck in the vault, wherever it lives."""
     print("📥 [Librarian] Collecting flashcard reviews...")
-    changed = git_out(["diff", "--name-only", "HEAD", "--", "*.md"]).splitlines()
+    # -z: NUL-separated raw paths; otherwise git quotes non-ASCII names (e.g. "M\303\266bel")
+    changed = git_out(["diff", "-z", "--name-only", "HEAD", "--", "*.md"]).split("\0")[:-1]
     synced, skipped, per_deck = [], [], Counter()
     for path in changed:
         reviews = review_only_changes(path)
