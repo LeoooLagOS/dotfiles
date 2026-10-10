@@ -57,3 +57,51 @@ apply_layer_rule({
   blur = true,
   ignore_alpha = 0,
 })
+
+-- Frosted background for the swaync notification panel (its CSS background is translucent)
+apply_layer_rule({
+  name = "user-swaync-control-center-blur",
+  match = { namespace = "swaync-control-center" },
+  blur = true,
+  -- 0 = also blur the fullscreen transparent backdrop, so the whole screen
+  -- gets a soft blur while the panel is open
+  ignore_alpha = 0,
+})
+
+-- Quickshell panel blur: on unless ~/.config/lagos/panel-blur says "off"
+-- (scripts/wm/PanelBlur.sh, or the panel's Settings → Appearance → Blur, which
+-- also change these two rules live)
+local panel_blur = true
+do
+  local f = io.open((os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")) .. "/lagos/panel-blur", "r")
+  if f then
+    panel_blur = (f:read("*l") or "on") ~= "off"
+    f:close()
+  end
+end
+
+-- Quickshell panel (config/quickshell/panel): fullscreen transparent layer,
+-- only the translucent card is blurred
+apply_layer_rule({
+  name = "user-quickshell-panel-blur",
+  match = { namespace = "quickshell:panel" },
+  blur = panel_blur,
+  ignore_alpha = 0.05,
+})
+
+-- Quickshell panel dim: click-through layer with a ~10% backdrop, so
+-- ignore_alpha = 0 softly blurs the whole screen while the pointer is on the panel
+apply_layer_rule({
+  name = "user-quickshell-panel-dim-blur",
+  match = { namespace = "quickshell:panel-dim" },
+  blur = panel_blur,
+  ignore_alpha = 0,
+})
+
+-- Quickshell notification popups (config/quickshell/panel): frosted cards
+apply_layer_rule({
+  name = "user-quickshell-notifications-blur",
+  match = { namespace = "quickshell:notifications" },
+  blur = true,
+  ignore_alpha = 0.05,
+})

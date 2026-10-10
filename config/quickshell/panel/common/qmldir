@@ -1,0 +1,22 @@
+singleton Config 1.0 Config.qml
+singleton Theme 1.0 Theme.qml
+Zone 1.0 Zone.qml
+Label 1.0 Label.qml
+Glyph 1.0 Glyph.qml
+IconButton 1.0 IconButton.qml
+Bar 1.0 Bar.qml
+SliderRow 1.0 SliderRow.qml
+ToggleTile 1.0 ToggleTile.qml
+StatRow 1.0 StatRow.qml
+singleton WeatherIcons 1.0 WeatherIcons.qml
+NotificationCard 1.0 NotificationCard.qml
+Dropdown 1.0 Dropdown.qml
+TextField 1.0 TextField.qml
+EventForm 1.0 EventForm.qml
+FocusRing 1.0 FocusRing.qml
+Chip 1.0 Chip.qml
+singleton Settings 1.0 Settings.qml
+QuickTile 1.0 QuickTile.qml
+Segmented 1.0 Segmented.qml
+Switch 1.0 Switch.qml
+ValueSlider 1.0 ValueSlider.qml

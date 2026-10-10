@@ -18,7 +18,11 @@ set -euo pipefail
 #   HYPRSUNSET_ICON_MODE  sunset|blue  (default: sunset)
 
 STATE_FILE="$HOME/.cache/.hyprsunset_state"
-TARGET_TEMP="${HYPRSUNSET_TEMP:-4500}"
+# Temperature: $HYPRSUNSET_TEMP, else the one chosen in the Quickshell panel
+# (Controls → Night light, saved to ~/.config/lagos/nightlight-temp), else 4500
+TEMP_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/lagos/nightlight-temp"
+SAVED_TEMP="$(tr -cd '0-9' 2>/dev/null <"$TEMP_FILE" || true)"
+TARGET_TEMP="${HYPRSUNSET_TEMP:-${SAVED_TEMP:-4500}}"
 ICON_MODE="${HYPRSUNSET_ICON_MODE:-sunset}"
 
 ensure_state() {

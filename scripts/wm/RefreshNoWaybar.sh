@@ -34,12 +34,17 @@ done
 # quit ags & relaunch ags
 ags -q && ags &
 
-# quit quickshell & relaunch quickshell
-pkill qs && qs --log-rules "$QS_TEXTINPUT_LOG_RULE" &
+# Quit the Quickshell overviews so they pick up the new wallust colors; their
+# toggle scripts start them again on demand. The side panel (qs -c panel)
+# reloads its colors live, so it keeps running. (This used to `pkill qs` and
+# relaunch a non-existent "default" config.)
+for pid in $(pgrep -x qs); do
+  tr '\0' ' ' <"/proc/$pid/cmdline" 2>/dev/null | grep -q -- '-c panel' && continue
+  kill "$pid" 2>/dev/null
+done
 
 
-# reload swaync
-(swaync-client -R -rs --skip-wait >/dev/null 2>&1 &)
+# Notifications: handled by the Quickshell panel (no swaync to reload)
 
 # Relaunching rainbow borders based on selected mode
 sleep 1

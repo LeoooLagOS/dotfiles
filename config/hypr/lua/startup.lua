@@ -50,7 +50,8 @@ local startup_commands = {
   "nm-applet",
   -- nm-tray now optional for ubuntu
   -- "nm-tray",
-  "systemctl --user start swaync.service || swaync",
+  -- Notifications: the Quickshell panel (UserConfigs/user_startup.lua) replaces swaync
+  -- "systemctl --user start swaync.service || swaync",
   scriptsDir .. "/PortalHyprland.sh",
   'qs --log-rules "qt.qpa.wayland.textinput.warning=false" -c overview',
   'qs --log-rules "qt.qpa.wayland.textinput.warning=false" -p $HOME/.config/quickshell/qs-hyprview',

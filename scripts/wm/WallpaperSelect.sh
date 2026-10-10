@@ -206,34 +206,41 @@ apply_video_wallpaper() {
 # Main function
 main() {
   "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
-  choice=$(menu | $rofi_command)
-  choice=$(echo "$choice" | xargs)
-  RANDOM_PIC_NAME=$(echo "$RANDOM_PIC_NAME" | xargs)
-  raw_choice="$choice"
-  choice="${choice#Random: }"
-  choice="${choice#Current: }"
-
-  if [[ -z "$choice" ]]; then
-    echo "No choice selected. Exiting."
-    exit 0
-  fi
-
-  # Resolve selection directly when using Random/Current entries
-  if [[ "$raw_choice" == Random:\ * ]]; then
-    selected_file="$RANDOM_PIC"
-  elif [[ "$raw_choice" == Current:\ * && -n "$CURRENT_MON_PIC_PATH" ]]; then
-    selected_file="$CURRENT_MON_PIC_PATH"
-  elif [[ -f "$choice" ]]; then
-    selected_file="$choice"
+  # A path argument applies that file directly (used by the Quickshell panel's
+  # wallpaper picker); without one, show the rofi menu.
+  if [[ -n "${1:-}" && -f "$1" ]]; then
+    selected_file="$1"
   else
-    # Handle random selection by name when needed
-    if [[ "$choice" == "$RANDOM_PIC_NAME" ]]; then
-      choice=$(basename "$RANDOM_PIC")
-    fi
-    choice_basename=$(basename "$choice" | sed 's/\(.*\)\.[^.]*$/\1/')
+    choice=$(menu | $rofi_command)
+    choice=$(echo "$choice" | xargs)
+    RANDOM_PIC_NAME=$(echo "$RANDOM_PIC_NAME" | xargs)
+    raw_choice="$choice"
+    choice="${choice#Random: }"
+    choice="${choice#Current: }"
 
-    # Search for the selected file in the wallpapers directory, including subdirectories
-    selected_file=$(find "$wallDIR" -iname "$choice_basename.*" -print -quit)
+    if [[ -z "$choice" ]]; then
+      echo "No choice selected. Exiting."
+      exit 0
+    fi
+
+    # Resolve selection directly when using Random/Current entries
+    if [[ "$raw_choice" == Random:\ * ]]; then
+      selected_file="$RANDOM_PIC"
+    elif [[ "$raw_choice" == Current:\ * && -n "$CURRENT_MON_PIC_PATH" ]]; then
+      selected_file="$CURRENT_MON_PIC_PATH"
+    elif [[ -f "$choice" ]]; then
+      selected_file="$choice"
+    else
+      # Handle random selection by name when needed
+      if [[ "$choice" == "$RANDOM_PIC_NAME" ]]; then
+        choice=$(basename "$RANDOM_PIC")
+      fi
+      choice_basename=$(basename "$choice" | sed 's/\(.*\)\.[^.]*$/\1/')
+
+      # Search for the selected file in the wallpapers directory, including subdirectories
+      selected_file=$(find "$wallDIR" -iname "$choice_basename.*" -print -quit)
+    fi
+
   fi
 
   if [[ -z "$selected_file" ]]; then
@@ -253,8 +260,8 @@ main() {
 }
 
 # Check if rofi is already running
-if pidof rofi >/dev/null; then
+if [[ -z "${1:-}" ]] && pidof rofi >/dev/null; then
   pkill rofi
 fi
 
-main
+main "$@"

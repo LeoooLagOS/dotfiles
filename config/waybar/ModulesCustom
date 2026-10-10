@@ -177,7 +177,7 @@
 
 "custom/swaync": {
 	"tooltip": true,
-	"tooltip-format": "Left Click: Launch Notification Center\nRight Click: Do not Disturb",
+	"tooltip-format": "Left Click: Notifications\nRight Click: Do not Disturb",
 	"format": "{} {icon} ",
 	"format-icons": {
 		"notification": "<span foreground='red'><sup></sup></span>",
@@ -190,10 +190,13 @@
 		"dnd-inhibited-none": ""
 	},
 	"return-type": "json",
-	"exec-if": "which swaync-client",
-	"exec": "swaync-client -swb",
-	"on-click": "sleep 0.1 && swaync-client -t -sw",
-	"on-click-right": "swaync-client -d -sw",
+	// Notifications are handled by the Quickshell panel (config/quickshell/panel),
+	// which signals this module (RTMIN+11) on every change
+	"exec": "$HOME/dotfiles/scripts/wm/NotifStatus.sh",
+	"interval": "once",
+	"signal": 11,
+	"on-click": "$HOME/dotfiles/scripts/wm/PanelToggle.sh Notifications",
+	"on-click-right": "qs -c panel ipc call panel toggleDnd",
 	"escape": true,
 },
 // NOTE:! This is mainly for Arch and Arch Based Distros  depend: pacman-contrib

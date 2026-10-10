@@ -1,0 +1,30 @@
+# Quickshell side panel (config/quickshell/panel), which is also the only
+# notification daemon (owns org.freedesktop.Notifications).
+#
+# Running it as a service keeps the bus name in one place:
+# - systemd starts a single instance, whether the trigger is login
+#   (graphical-session.target), Hyprland's startup, PanelToggle.sh or D-Bus
+#   activation (config/dbus-1/services/org.freedesktop.Notifications.service);
+# - it is restarted if it ever crashes, so notifications keep arriving;
+# - swaync.service is masked by install.sh, so it can't take the name first.
+#
+# Restart after editing QML: not needed (Quickshell reloads live). To restart
+# anyway: systemctl --user restart quickshell-panel
+[Unit]
+Description=Quickshell side panel and notification daemon
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.Notifications
+ExecStart=/usr/bin/qs --log-rules qt.qpa.wayland.textinput.warning=false -c panel
+Restart=always
+RestartSec=1
+# Apps launched from the panel (kitty, wlogout, settings…) live in this
+# service's cgroup; only stop qs itself so they survive a restart
+KillMode=process
+
+[Install]
+WantedBy=graphical-session.target

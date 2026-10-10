@@ -48,6 +48,9 @@ readonly LINKS=(
   "config/fastfetch:$CONFIG_DIR/fastfetch"
   "config/quickshell/overview:$CONFIG_DIR/quickshell/overview"
   "config/quickshell/qs-hyprview:$CONFIG_DIR/quickshell/qs-hyprview"
+  "config/quickshell/panel:$CONFIG_DIR/quickshell/panel"
+  "config/systemd/user/quickshell-panel.service:$CONFIG_DIR/systemd/user/quickshell-panel.service"
+  "config/dbus-1/services/org.freedesktop.Notifications.service:$HOME/.local/share/dbus-1/services/org.freedesktop.Notifications.service"
   "nvim:$CONFIG_DIR/nvim"
   "scripts/build-paper/build_paper.py:$HOME/.local/bin/build-paper"
   "scripts/lagos-shot/lagos-shot.py:$HOME/.local/bin/lagos-shot"
@@ -358,6 +361,18 @@ step_links() {
   else
     run ln -s "$CONFIG_DIR/starship/$DEFAULT_STARSHIP_PROFILE.toml" "$starship_toml"
     ok "${starship_toml/#$HOME/\~} -> $DEFAULT_STARSHIP_PROFILE"
+  fi
+
+  # The Quickshell panel is the only notification daemon: run it as a user
+  # service, and mask swaync so it can never take org.freedesktop.Notifications
+  # first (e.g. D-Bus-activated by a stray swaync-client at login).
+  if systemctl --user show-environment >/dev/null 2>&1; then
+    run systemctl --user daemon-reload
+    run systemctl --user mask swaync.service
+    run systemctl --user enable quickshell-panel.service
+    ok "notifications: quickshell-panel.service enabled, swaync.service masked"
+  else
+    warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service"
   fi
 }
 

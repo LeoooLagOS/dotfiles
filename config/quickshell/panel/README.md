@@ -1,0 +1,466 @@
+# panel — Quickshell side panel
+
+A modular panel built from **zones** and organised in **tabs**:
+
+| Tab | Zones |
+|---|---|
+| Overview | weather + clock · profile (centered under the Overview tab, click → Controls) · notifications — calendar with events · system stats (click → Controls), media (compact) |
+| Calendar | month grid · agenda (selected day + next 7 days, refresh, **new event** form) · to-do list (tasks and ideas) |
+| Notifications | toolbar: Classify (critical / messages / system / other / per app) · Search · Sort (newest, oldest, app, urgency) · Do Not Disturb · Clear; list centered at 50% width |
+| Media | large art, track info, volume (vertical slider) and audio-output picker buttons, controls, cava visualizer as seekable progress, player picker |
+| Weather | 24-hour temperature chart (curve, icons, rain %, sunrise/sunset) + compact hourly strip · current conditions with sunrise/sunset and six detail tiles + 7-day forecast |
+| Wallpapers | thumbnail grid of `~/Pictures/wallpapers` with folder filter; click to apply |
+| Controls | identity bar (⚙ settings · lock · power) · 9 quick toggles · output / microphone / brightness · detail pane (System + power profile, or a toggle's detail) — ⚙ opens **Settings** (see [Controls and Settings](#controls-and-settings)) |
+
+It opens on the **focused monitor**, sized from that screen's usable area
+(screen minus waybar/reserved space): **50% of the width**, centered (25% free
+on each side), and **50% of the height**, just below the bar. Colors follow
+the wallpaper (wallust), like waybar and swaync.
+
+| | |
+|---|---|
+| Toggle | `SUPER ALT + N` or `SUPER CTRL SHIFT + N` → `scripts/wm/PanelToggle.sh` |
+| Notifications | `SUPER SHIFT + N` or the waybar bell → `PanelToggle.sh Notifications`; right-click the bell for Do Not Disturb |
+| IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`) |
+| Keys | full keyboard control — see [Keyboard](#keyboard) |
+| Autostart | user service `quickshell-panel.service` (`config/systemd/user/`), see [Notifications](#notifications) |
+| Blur | layer rules `quickshell:panel` (card) and `quickshell:panel-dim` (screen) in `config/hypr/UserConfigs/user_layer_rules.lua` |
+| Closing | the keybind, `Esc`, or a click outside the card. Only the card takes input: outside it you can keep using other windows. The screen is dimmed while the pointer is over the card. Outside clicks are seen through a non-consuming `mouse:272` bind added with `hyprctl eval` only while the panel is open (`services/PanelState.qml`) |
+| Logs | `qs log -c panel` |
+
+QML edits reload live. Full restart: `systemctl --user restart quickshell-panel`; logs also in `journalctl --user -u quickshell-panel`.
+
+---
+
+## Keyboard
+
+The panel works without a mouse. Open it with `SUPER ALT + N` (Overview) or
+`SUPER SHIFT + N` (Notifications); the keyboard goes to the panel while it is open.
+
+| Keys | Action |
+|---|---|
+| `Ctrl+Tab` / `Ctrl+Shift+Tab` | next / previous tab |
+| `Ctrl+1` … `Ctrl+7` | jump to a tab (Notifications, Media, Weather, Overview, Calendar, Wallpapers, Controls) |
+| `Tab` / `Shift+Tab` | move between controls (a ring shows the focused one) |
+| `Enter` / `Space` | press the focused button, chip, tile or card |
+| `Esc` | close the open menu / popover / form / expanded list, else the panel |
+| **Media tab** (no control focused) | `Space` play/pause · `←` `→` previous/next track |
+| Sliders | `←` `→` ±5% · `Home` / `End` |
+| Dropdowns | `Enter` open · `↑` `↓` choose · `Enter` pick · `Esc` close |
+| Volume popover | `↑` `↓` ±5% · `M` mute |
+| Output popover | `↑` `↓` move · `Enter` pick |
+| Calendar grid | arrows move the day (±1 / ±7) · `PgUp` / `PgDn` month · `Home` today |
+| Wallpapers grid | arrows move · `Enter` applies |
+| Notification card | `Enter` default action · `Delete` / `Backspace` dismiss |
+| To-do row | `Space` complete · `Enter` edit · `Delete` remove |
+| Wi-Fi / Bluetooth row | `Enter` connect / disconnect; on the tile `→` opens settings |
+| Search / text fields | `Esc` clears, a second `Esc` closes the panel |
+
+For new zones: `Chip` and `IconButton` are keyboard-ready; any other
+clickable item needs `activeFocusOnTab: true`, `Keys.onReturnPressed` and a
+`FocusRing {}` child.
+
+---
+
+## Layout
+
+```
+panel/
+├── shell.qml              entry point + IPC handler
+├── Panel.qml              per-monitor layers (click-through dim + card), tab bar
+├── NotificationPopups.qml notification popups (top center of the focused monitor)
+├── TabPage.qml            builds a tab from its rows in Config
+├── Cell.qml               one grid cell: stacked zones or a nested row of cells
+├── common/
+│   ├── Config.qml         ← tabs, their grid of zones, sizes, commands
+│   ├── Settings.qml       user settings (JSON) + the schema the Settings view is built from
+│   ├── Theme.qml          colors (wallust, four modes), radii, fonts
+│   ├── Zone.qml           card container every zone uses
+│   ├── WeatherIcons.qml   WMO code → icon / description
+│   ├── NotificationCard.qml  one notification (popups and the Notifications tab)
+│   ├── Dropdown.qml       pill button with an option list
+│   ├── TextField.qml      rounded text input
+│   ├── EventForm.qml      new local event form
+│   ├── QuickTile, Segmented, Switch, ValueSlider   Controls / Settings building blocks
+│   ├── Label, Glyph, IconButton, Bar, SliderRow, StatRow, ToggleTile
+│   └── qmldir
+├── services/              data sources (singletons), shared by zones
+│   ├── PanelState.qml     open/closed, current tab, Controls view / detail / Settings section
+│   ├── Profile.qml        full name, user@host, distro + logo, WM
+│   ├── Audio.qml          default output/input, device lists, short device names
+│   ├── Toggles.qml        night light, caffeine, airplane mode, game mode
+│   ├── SystemSettings.qml applies system settings (hypridle, battery alerts, login power profile, wallpaper rotation) + About info
+│   ├── SystemStats.qml    runs scripts/sysstats.sh (2 s while open, 60 s closed)
+│   ├── Weather.qml        runs waybar's Weather.py + reads its Open-Meteo cache
+│   ├── Events.qml         scripts/events.py: month on screen, next 7 days, reminders, add/remove
+│   ├── Todos.qml          to-do list in ~/.config/lagos/todo.json
+│   ├── Forecast.qml       runs scripts/forecast.py (hourly + 7-day)
+│   ├── Media.qml          MPRIS players, the one shown, progress, audio outputs
+│   ├── Cava.qml           audio visualizer bars (runs cava only while shown)
+│   ├── Wallpapers.qml     runs scripts/wallpapers.py; applies via WallpaperSelect.sh
+│   ├── Brightness.qml     brightnessctl
+│   ├── Notifs.qml         notification daemon: history, popups, DND, waybar state
+│   └── qmldir
+├── zones/                 one file per zone
+│   ├── NowZone.qml          weather (temp, low/high, wind, AQI, visibility, pressure) + clock with rotating facts
+│   ├── NotificationsZone.qml  count badge, latest as a card; ⌄ expands it over the column (Panel.qml)
+│   ├── NotificationListZone.qml  full list grouped by app
+│   ├── ProfileZone.qml      avatar, full name, user@host, distro, uptime (click → Controls)
+│   ├── CalendarZone.qml     month grid + selected day's events (props: showDayEvents)
+│   ├── AgendaZone.qml       selected day + next 7 days, new-event form, refresh
+│   ├── TodoZone.qml         tasks and ideas
+│   ├── SystemZone.qml       CPU, memory, temp, disk, battery (+ power profile in Controls)
+│   ├── MediaMiniZone.qml    compact player: big art, title, 5 buttons, progress
+│   ├── MediaZone.qml        full player
+│   ├── TemperatureChartZone.qml   24-hour chart (Canvas)
+│   ├── WeatherCurrentZone.qml / HourlyForecastZone.qml / DailyForecastZone.qml
+│   ├── WallpapersZone.qml
+│   ├── WifiZone.qml / BluetoothZone.qml   (Controls detail panes)
+│   ├── SlidersZone.qml      output, microphone, brightness, with their devices
+│   ├── ControlCenter.qml    the whole Controls tab (see Controls and Settings)
+│   └── controls/            its parts: IdentityBar, SettingsView + SettingRow,
+│                            DeviceList and the detail panes (*Detail.qml); has a qmldir
+└── scripts/
+    ├── sysstats.sh        CPU, memory, temp, disk, battery, uptime as JSON
+    ├── events.py          calendar events as JSON (needs the venv, see below)
+    ├── forecast.py        Open-Meteo hourly/daily forecast (cached 30 min)
+    ├── cava.conf          cava in raw mode (PulseAudio input) for services/Cava.qml
+    └── wallpapers.py      wallpaper list + background thumbnail generation
+```
+
+Zones only **display** data; services **fetch** it. A zone that needs new data
+gets a new service (or a `Process` inside the zone if nothing else needs it).
+
+---
+
+## Editing the layout
+
+Everything is in `common/Config.qml`. Each tab is a list of **rows**; a row
+has **cells**; a cell either stacks **zones** or splits into a nested row of
+cells (so any grid can be described):
+
+```qml
+{
+    name: "Overview", icon: "\uf009",
+    rows: [
+        { height: 0.25, cells: [
+            { width: 0.66, cells: [                       // nested row
+                { width: 0.58, zones: ["NowZone"] },
+                { width: 0.42, zones: ["ProfileZone"] }
+            ] },
+            { width: 0.34, zones: ["NotificationsZone"] }
+        ] },
+        { height: 0.75, cells: [
+            { width: 0.66, zones: ["CalendarZone"] },
+            { width: 0.34, zones: ["SystemZone", "MediaMiniZone"] }   // stacked
+        ] }
+    ]
+}
+```
+
+- `height` / `width` are fractions of the tab / row (they should add up to 1).
+- Zones in a cell stack top → bottom; the **last one fills** the leftover height,
+  unless entries give their share: `zones: [{ zone: "A", height: 0.6 }, { zone: "B", height: 0.4 }]`.
+- `props` sets properties on a zone: `{ zone: "CalendarZone", props: { showDayEvents: false } }`.
+- `link` makes a zone a shortcut: `{ zone: "SystemZone", link: "Controls" }` opens
+  Controls on click, where the same zone pulses in the accent color and takes
+  keyboard focus (`PanelState.goTo`, `Zone.flash()`). Overview's Profile and
+  System use it.
+- **Add a tab**: add an entry with `name`, `icon` (Nerd Font glyph) and `rows`.
+- **Move a zone**: move its name to another cell or tab.
+- **Resize the panel**: Settings → Panel → Size (`widthFraction` / `heightFraction`
+  in Config read it).
+- A zone that uses another zone *as a type* (not through Config) must load it
+  by path with a `Loader`, like `Cell.qml` does: Quickshell only resolves types
+  from directories that have a `qmldir` (`common/`, `services/`, `zones/controls/`).
+
+### Adding a zone
+
+Create `zones/<Name>Zone.qml` and put `"<Name>Zone"` in a cell. Example:
+
+```qml
+import QtQuick
+import QtQuick.Layouts
+import "../common"
+import "../services"
+
+// ZONE: Hello — what this zone shows
+Zone {
+    title: "Hello"          // optional header (omit for no header)
+    icon: ""          // optional Nerd Font glyph
+    // centered: true       // center content vertically (zones without header)
+    // clickable: true; onClicked: …   // make the whole card clickable
+
+    RowLayout {
+        width: parent.width
+        Label { text: "Uptime: " + SystemStats.uptime; Layout.fillWidth: true }
+        IconButton { icon: ""; onClicked: console.log("clicked") }
+    }
+}
+```
+
+A zone that should use all the height it is given (like the calendar) sets
+its content's `height: root.height - 2 * Theme.zonePadding` (with `id: root`
+on the Zone).
+
+Building blocks from `common/`:
+
+| Component | Use |
+|---|---|
+| `Zone` | Card with optional `title`/`icon` (or `badge`) header; `actions: [...]` (header buttons), `centered`, `clickable` |
+| `Dropdown` | Pill that opens an option list: `options: [{label, value}]`, `value`, `onSelected` |
+| `Label` | Text in the panel font; `dim: true` for secondary text |
+| `Glyph` | Nerd Font icon — `text: ""` ([cheat sheet](https://www.nerdfonts.com/cheat-sheet)); codepoints above FFFF use `"\u{f059d}"` |
+| `IconButton` | Rounded icon button; `active: true` fills it with the accent |
+| `Bar` | Thin progress bar, `value` 0..1 (animates only when the value changes) |
+| `StatRow` | Icon + label + value + `Bar` (`ratio`); `warn` turns the value red |
+| `SliderRow` | Icon + draggable slider, `value` 0..1, `onMoved: v => …` |
+| `ToggleTile` | Quick-settings tile: `icon`, `label`, `status`, `active`; `onToggled`, `onSettingsClicked` |
+
+Tips:
+
+- Write icons as `"\uXXXX"` escapes with an editor; shell heredocs may turn
+  them into raw glyphs (they still work, but are hard to read).
+- Declare frequently updated rows statically (like `SystemZone`): a
+  `Repeater` over an array rebuilt on every update recreates its delegates,
+  which resets their animations.
+- Prefer plain positioners (`Row`, `Column`, `Grid`) with explicit sizes when
+  a size depends on the parent's height — `*Layout` types can create binding
+  loops there (see `CalendarZone`).
+- Running a command: `Quickshell.execDetached(["bash", "-c", "kitty"])`.
+  For command output, use a `Process` with a `StdioCollector`
+  (see `services/SystemStats.qml`).
+
+---
+
+## Calendar events
+
+`scripts/events.py` (run in a private venv, see below):
+
+```sh
+events.py list FROM TO [--force]   # events between two dates; --force skips the Outlook cache
+events.py add                      # new local event, JSON on stdin
+events.py delete UID               # delete a local event
+```
+
+Sources:
+
+1. **Evolution webcal subscriptions** (`~/.config/evolution/sources/*.source`) —
+   the published Outlook (BUAP) calendar. The URL is read from Evolution at
+   runtime (never stored in this repo); the `.ics` is cached in
+   `~/.cache/quickshell-panel/` (mode 600) for 15 minutes. Read-only: changes
+   made in Outlook (phone, web) show up once Microsoft republishes the feed
+   (minutes to a couple of hours) plus the cache; the agenda's refresh button
+   forces a download. Offline, the last copy is used.
+2. **Local `.ics` files** in `~/.config/lagos/calendars/`. Events created from
+   the panel go to `panel.ics` there (stored in UTC, with a VALARM for the
+   chosen reminder) and can be deleted from the agenda.
+
+**Importance and reminders.** Outlook events are treated as important (★) and
+get a **critical** notification 15 minutes before they start (critical =
+shown even with Do Not Disturb). Published Outlook calendars don't include
+their alarms, so the panel schedules them itself. Events marked *High
+importance* in Outlook (`X-MICROSOFT-CDO-IMPORTANCE:2`) show an amber ★ and
+"High importance" in the reminder. Local events notify (normal urgency)
+according to their own reminder. All-day events don't notify. Sent reminders
+are remembered in `~/.local/state/quickshell-panel/reminded.json`, so a
+restart doesn't repeat them. Reminders work while the panel is running
+(it starts with the session).
+
+Recurring events and timezones are expanded with `icalendar` and
+`recurring-ical-events`:
+
+```sh
+python3 -m venv ~/.local/share/quickshell-panel/venv
+~/.local/share/quickshell-panel/venv/bin/pip install icalendar recurring-ical-events
+```
+
+## To-do list
+
+Tasks and ideas in `~/.config/lagos/todo.json` (`services/Todos.qml`):
+optional due date (Today / Tomorrow), overdue dates in red, click the text to
+edit, the circle to complete, "Clear done" removes completed items.
+
+---
+
+## Look
+
+Colors live in `common/Theme.qml`, in three layers:
+
+1. **Wallpaper (wallust)** — surfaces and accents, reloaded whenever wallust
+   regenerates `~/.config/waybar/wallust/colors-waybar.css`.
+2. **Neutral text** — near-white with a hint of the wallpaper, so the accent
+   stands out instead of everything sharing one hue.
+3. **Semantic colors (fixed)** — data reads the same on any wallpaper.
+
+### Modes
+
+Two independent switches, saved with the other settings (Settings → Appearance,
+or IPC). The Controls "Dark mode" tile flips dark/light **for now** only
+(`Theme.override`, not saved):
+
+| | Normal | Inverted |
+|---|---|---|
+| **Dark** | the original theme: neutral dark surfaces, wallpaper accent | surfaces in the accent's hue, deep (L 19–33%); accent near-white |
+| **Light** | neutral light surfaces tinted with the accent hue; accent darkened to 3:1 | surfaces in the accent's hue, pastel (L 73–86%); accent deep ink |
+
+- **Light/dark** can follow the system: `System` reads `~/.local/state/hypr/theme_mode`,
+  written by `scripts/wm/DarkLight.sh`, and switches live.
+- **Inverted** uses the accent's hue at a fixed lightness and capped saturation,
+  never the raw wallust color, so a loud wallpaper doesn't produce a loud panel.
+  A grey accent borrows the hue of `accent2`.
+- Outside the original theme, text is pushed to 4.5:1 and accents, semantic and
+  data colors to 3:1 against `bgAlt` (`Theme.ensure`). Card opacity rises to
+  82–88% so the blur doesn't turn grey over a dark desktop.
+- Critical notifications keep their own fixed dark palette in every mode.
+- Mockup used to choose them: https://claude.ai/artifact/UAFXLfseG4gy5sZMWwZeDJ
+
+| Token | Use |
+|---|---|
+| `bg` / `bgAlt` | panel (72% opaque in the original theme, blurred) / zone surfaces |
+| `base` / `scrim` | opaque panel color / translucent layer over images and inset fields |
+| `onAccent` / `onAccent2` / `onColor(c)` | text and icons drawn on top of `accent`, `accent2` or any filled color |
+| `tabBg` / `tabFg` / `tabIcon` / `tabLine` | selected tab: tinted in normal modes, solid pill in inverted ones |
+| `border`, `track` | near-neutral outlines / empty part of bars and sliders |
+| `fg` / `fgDim` | text / secondary text (neutral) |
+| `accent` | state (active button, selected tab, today, played part) and the hero data of a zone (current temperature, track title, System header/icons) |
+| `accentSoft` | accent blended with the text color, for large elements (clock, weather description) |
+| `vivid` | saturated accent for the showy bits (cava, 24-hour chart) |
+| `accent2` | secondary highlights (event dots/bars, avatar): the palette color whose hue is farthest from the accent, skipping hues that look like warn/bad/good (falls back to lavender) |
+| `good` / `warn` / `bad` | levels: `Theme.level(ratio, warnAt, badAt)` (normal = good), `Theme.lowLevel(...)` for battery-like values. Green/amber/red by default; if the wallust palette already has that hue, the level takes the complementary hue of the clashing palette color (`avoidPalette`). Critical notifications always use red (`critical`) |
+| `rain` | rain chance (≥ 50% highlighted) |
+| `tempColor(t)` | temperature scale cold → hot (7-day range bars) |
+| `aqiColor(aqi)` | official US EPA AQI colors, fixed: green · yellow · orange · red · purple · maroon |
+
+Guideline: ~60% neutral surfaces, ~30% text, ~10% accent. When adding a zone,
+use `accent` for state and at most one hero element, semantic colors for data,
+and neutral text for everything else. `Zone { accentHeader: true }` colors a
+zone's header; `StatRow { iconColor: … }` its icons.
+
+Fonts: Inter for text, Inter Display SemiBold for the clock (`clockFont`),
+JetBrainsMono Nerd Font for icons.
+
+---
+
+## Notifications
+
+The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
+`NotificationServer`); swaync is no longer started. It:
+
+- shows popups at the top center of the focused monitor (`NotificationPopups.qml`)
+  for 3 s (low), 6 s (normal) or 30 s (critical); hovering pauses them.
+  Popups are hidden while the panel is open and muted by Do Not Disturb
+  (critical ones still show).
+- keeps the history until dismissed (Notifications tab). Transient
+  notifications are dropped when their popup ends. The history lives in
+  memory: restarting the panel clears it.
+- styles cards like the old swaync setup: wallust colors, 18 px corners, and a
+  fixed dark card with the summary as a small red header for critical ones.
+- runs the `default` action when a card is clicked; other actions are buttons.
+- classifies notifications for the tab's filter (`Notifs.kind`): critical
+  (urgency), messages (`im.*`/`email.*` category or a known chat/mail app),
+  system (`device.*`/`network.*` or a known system tool), other apps. Edit
+  `messagingApps` / `systemApps` in `services/Notifs.qml` to tune it.
+- persists Do Not Disturb in `~/.local/state/quickshell-panel/dnd`.
+- writes `count dnd` to `~/.cache/quickshell-panel/notifs` and signals waybar
+  (`pkill -RTMIN+11 waybar`); the bell module (`custom/swaync` in
+  `config/waybar/ModulesCustom`) runs `scripts/wm/NotifStatus.sh`.
+
+Startup and fallbacks:
+
+- Runs as the user service `quickshell-panel.service`
+  (`config/systemd/user/`, `Type=dbus`, `Restart=always`), so exactly one copy
+  owns `org.freedesktop.Notifications` and a crash is restarted within a second.
+  It starts with `graphical-session.target`; `user_startup.lua` and
+  `PanelToggle.sh` only `systemctl --user start` it (a no-op if running).
+- `config/dbus-1/services/org.freedesktop.Notifications.service` (linked to
+  `~/.local/share/dbus-1/services/`, which wins over `/usr/share`) makes D-Bus
+  start that same service, not swaync or Plasma, if a notification arrives
+  while nothing owns the bus name.
+- `swaync.service` is masked, so nothing (e.g. a stray `swaync-client`) can
+  D-Bus-activate swaync and take the name first. The swaync lines in
+  `config/hypr/lua/startup.lua` and `configs/Startup_Apps.conf` are commented
+  out, and `scripts/wm/Refresh.sh` no longer relaunches it.
+- `install.sh` creates both links, masks swaync and enables the service.
+
+Check who owns the bus: `busctl --user status org.freedesktop.Notifications | grep UserUnit`
+
+**Back to swaync:** `systemctl --user disable --now quickshell-panel`,
+`systemctl --user unmask swaync.service`, remove the D-Bus link, uncomment the
+swaync startup line, start `swaync`, and restore the `custom/swaync` module and
+the `SUPER SHIFT + N` bind (git history has the old versions).
+
+## Controls and Settings
+
+**Controls** (`zones/ControlCenter.qml`) is the "right now" tab:
+
+- **Identity bar** — avatar, name, `user@host · distro on WM · uptime`, battery,
+  and **⚙ Settings · lock · power menu**.
+- **Toggles** — click toggles; **›** shows its detail in the right pane;
+  right-click opens its Settings section (DND, dark mode, caffeine).
+
+  | Tile | Does | Detail |
+  |---|---|---|
+  | Wi-Fi | NetworkManager on/off | networks (`WifiZone`) |
+  | Bluetooth | adapter on/off (unblocks rfkill first) | paired devices (`BluetoothZone`) |
+  | Do Not Disturb | `Notifs.dnd` | 1 hour / until 7:00 / until off |
+  | Dark mode | dark ↔ light for now | inverted switch, link to the default |
+  | Night light | `scripts/wm/Hyprsunset.sh toggle` (same as SUPER N) | temperature, live via `hyprctl hyprsunset`, saved to `~/.config/lagos/nightlight-temp` for the script |
+  | Caffeine | `systemd-inhibit --what=idle` (hypridle honors it) | 30 min / 1 hour / until off |
+  | Airplane mode | `rfkill block` Wi-Fi + Bluetooth; off restores what was on | — |
+  | Game mode | `scripts/wm/GameMode.sh` (state: Hyprland animations off) | — |
+  | Microphone | mute the default source | input device |
+
+- **Sound & display** — output, microphone, brightness; click the device name
+  to choose another one.
+- **Detail pane** — System (stats + **power profile**, tuned-ppd /
+  power-profiles-daemon) unless a toggle's detail is open. `Esc` closes a
+  detail, then the panel.
+
+**Settings** (⚙, or `qs -c panel ipc call panel settings [section]`) replaces
+the tab's content: sections on the left, rows on the right, generated from the
+schema in `common/Settings.qml`. Changes apply at once and a toast offers
+**Undo**; each section can be reset. `← Settings` or `Esc` goes back.
+
+Values live in `~/.config/lagos/panel-settings.json` (first run takes the mode
+from the old `panel-theme.json`). Rows marked **SYSTEM** change files outside
+the panel; `services/SystemSettings.qml` applies them:
+
+| Setting | Applied by |
+|---|---|
+| Idle timeouts, "not while media is playing" | writes `~/.config/lagos/hypridle.conf` (variables `source`d by `config/hypr/hypridle.conf`, which keeps the defaults) and restarts hypridle |
+| Battery alert levels | writes `~/.config/lagos/battery-alerts`, read by `scripts/wm/BatteryNotify.sh` every 30 s |
+| Power profile at login | set once per boot when the panel starts |
+| Wallpaper rotation | a timer picks a random wallpaper and applies it like the Wallpapers tab |
+| Blur | `scripts/wm/PanelBlur.sh on\|off\|toggle\|status`: saves `~/.config/lagos/panel-blur` (read by `UserConfigs/user_layer_rules.lua` when Hyprland loads) and replaces the two panel layer rules live with `hyprctl eval` |
+| Where menus open (rofi) | `scripts/wm/RofiPosition.sh bottom\|center\|toggle\|status`: writes `config/hypr/rofi/position.rasi` (imported last by the Lagos rofi theme) |
+| Colors from the wallpaper | `scripts/wm/WallustToggle.sh on\|off\|toggle\|status`: saves `~/.config/lagos/wallust`; when off, `WallustSwww.sh` updates the wallpaper links but skips wallust, so every caller (wallpaper picker, DarkLight, effects…) keeps the current palette; back on recolors from the current wallpaper |
+
+Blur and wallust can also be changed from a terminal or a keybind with those
+scripts; their state files are the source of truth and the Settings switches
+follow them. Opacity has a script too: `scripts/wm/PanelOpacity.sh 80 | +5 | -5 | status`
+(50–100%; light and inverted modes add 10–16% on top).
+
+Panel settings (opacity, animations, open tab, close on outside click, dim,
+size, quiet hours, popup duration, history limit, week start, event refresh)
+are read live by `Theme`, `Config`, `PanelState` and `Notifs`.
+
+**Add a setting:** a default in `Settings.defaults`, a row in its section of
+`Settings.sections`, and read `Settings.v.<key>` where it matters (a system one
+also goes in `SystemSettings`).
+
+## Data sources
+
+| Zone | Source |
+|---|---|
+| Profile / identity bar | `services/Profile.qml`: `getent passwd`, `hostname`, `/etc/os-release`, `~/.face` avatar (initials if missing) |
+| Notifications | D-Bus `org.freedesktop.Notifications` (this panel is the server) |
+| Weather / WeatherNow | `scripts/lib/Weather.py` → `~/.cache/open_meteo_cache.json` (location: see `scripts/wm/ToggleWeatherLoc.sh`) |
+| Clock | `SystemClock` |
+| Calendar | local clock + `scripts/events.py`; week start and refresh: Settings → Weather & calendar |
+| System | `/proc/stat`, `/proc/meminfo`, coretemp hwmon, `df /`, `/sys/class/power_supply` |
+| Media | MPRIS over D-Bus (`services/Media.qml`; the `playerctld` proxy is skipped, it duplicated the active player); volume and outputs are the system's (PipeWire default sink); visualizer: `cava -p scripts/cava.conf` while the Media tab is open (this cava build has no PipeWire input, so it uses `pulse`) |
+| Forecast | `scripts/forecast.py` → Open-Meteo forecast + air-quality API (US AQI), same coordinates as waybar's weather cache |
+| Wallpapers | `~/Pictures/wallpapers` (`wallpaperDir` in Config); thumbnails in `~/.cache/quickshell-panel/thumbs/`; applied with `scripts/wm/WallpaperSelect.sh <file>` (awww + wallust + bar refresh) |
+| Sliders | `services/Audio.qml` (PipeWire default sink/source, device lists), `brightnessctl` |
+| Wi-Fi / Bluetooth | `Quickshell.Networking` (NetworkManager), `Quickshell.Bluetooth` (BlueZ); new Wi-Fi networks open `nmcli --ask` in kitty; arrows open `nm-connection-editor` / `blueman-manager` |

@@ -215,6 +215,13 @@ ln -sf "$wallpaper_path" "$rofi_link" || true
 mkdir -p "$(dirname "$wallpaper_current")"
 cp -f "$wallpaper_path" "$wallpaper_current" || true
 
+# Colors from the wallpaper can be turned off (scripts/wm/WallustToggle.sh, or the
+# Quickshell panel's Settings → Wallpaper): keep the current palette and stop here.
+# The wallpaper links above are still updated so everything knows the new one.
+if [[ "$(cat "${XDG_CONFIG_HOME:-$HOME/.config}/lagos/wallust" 2>/dev/null || echo on)" == off ]]; then
+  exit 0
+fi
+
 # Ensure Ghostty directory exists so Wallust can write target even if Ghostty isn't installed
 mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/ghostty" || true
 wait_for_templates() {

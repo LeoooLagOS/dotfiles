@@ -1,0 +1,12 @@
+AirplaneDetail 1.0 AirplaneDetail.qml
+AppearanceDetail 1.0 AppearanceDetail.qml
+CaffeineDetail 1.0 CaffeineDetail.qml
+DeviceList 1.0 DeviceList.qml
+DndDetail 1.0 DndDetail.qml
+GameDetail 1.0 GameDetail.qml
+IdentityBar 1.0 IdentityBar.qml
+MicDetail 1.0 MicDetail.qml
+NightDetail 1.0 NightDetail.qml
+OutputDetail 1.0 OutputDetail.qml
+SettingRow 1.0 SettingRow.qml
+SettingsView 1.0 SettingsView.qml

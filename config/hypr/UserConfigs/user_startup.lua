@@ -91,6 +91,11 @@ local exec_once = user_startup_helper.exec_once
 local startup_commands = {
   -- Xwayland screen sharing bridge (for Discord, OBS, etc.)
   "xwaylandvideobridge",
+  -- Quickshell side panel + notification daemon (replaces swaync), toggled with
+  -- SUPER ALT + N (scripts/wm/PanelToggle.sh). Runs as a user service so only
+  -- one copy ever owns the notification bus (config/systemd/user/); it is also
+  -- started by graphical-session.target, this is just a safety net.
+  "systemctl --user start quickshell-panel.service",
   -- Battery level notifications (50%, 20%, 10%, 5%)
   "$HOME/.config/hypr/UserScripts/BatteryNotify.sh",
   -- "kdeconnect-app",

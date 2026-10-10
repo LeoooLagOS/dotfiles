@@ -6,9 +6,9 @@ Configuration for every desktop application, linked into `~/.config` by the `lin
 |---|---|---|
 | [`hypr/`](hypr/README.md) | `~/.config/hypr` | Hyprland WM: Lua config engine, rules, Rofi, theming |
 | `waybar/` | `~/.config/waybar` | Status bar ([below](#-waybar)) |
-| `swaync/` | `~/.config/swaync` | Notification center ([below](#-swaync)) |
+| `swaync/` | `~/.config/swaync` | Former notification center, replaced by the Quickshell panel ([below](#-swaync)) |
 | [`kitty/`](kitty/README.md) | `~/.config/kitty` | GPU-accelerated terminal and its theme library |
-| [`quickshell/`](quickshell/README.md) | `~/.config/quickshell/{overview,qs-hyprview}` | Workspace overview and window exposé |
+| [`quickshell/`](quickshell/README.md) | `~/.config/quickshell/{overview,qs-hyprview,panel}` | Workspace overview, window exposé and side panel |
 | [`starship/`](starship/README.md) | `~/.config/starship` | Selectable prompt profiles |
 | [`fastfetch/`](fastfetch/README.md) | `~/.config/fastfetch` | System info dashboard shown on shell start |
 | `wlogout/` | `~/.config/wlogout` | Icons for the [power menu](#-power-menu) |
@@ -28,7 +28,7 @@ Upstream KoolDots has since moved Waybar to `~/.config/hypr/waybar`; until that 
 
 ## 🔔 SwayNC
 
-The notification center and its quick-settings panel, from KoolDots: `config.json` (layout, widgets, buttons), `style.css` and the `icons/` and `images/` it uses. Reload with `swaync-client -R -rs`.
+**Not in use** — notifications are now handled by the [Quickshell panel](quickshell/panel/README.md#notifications). Kept for reference: the notification center and its quick-settings panel, from KoolDots: `config.json` (layout, widgets, buttons), `style.css` and the `icons/` and `images/` it uses. Reload with `swaync-client -R -rs`.
 
 ## 🚪 Power menu
 

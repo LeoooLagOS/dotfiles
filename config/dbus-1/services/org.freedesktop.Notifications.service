@@ -1,0 +1,9 @@
+# Notifications are handled by the Quickshell panel (config/quickshell/panel),
+# not swaync. Linked to ~/.local/share/dbus-1/services/ by install.sh; files
+# there take precedence over /usr/share/dbus-1/services/ (swaync, Plasma),
+# so if a notification arrives while nothing owns the bus name, D-Bus starts
+# the panel through systemd (config/systemd/user/quickshell-panel.service).
+[D-BUS Service]
+Name=org.freedesktop.Notifications
+Exec=/usr/bin/false
+SystemdService=quickshell-panel.service

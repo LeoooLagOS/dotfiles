@@ -91,6 +91,30 @@ local dispatch = user_keybinds_helper.dispatch
 local bind = user_keybinds_helper.bind
 local unbind = user_keybinds_helper.unbind
 
+-- SUPER SHIFT + N used to open swaync; notifications now live in the panel
+unbind("SUPER SHIFT", "N")
+bind(
+	"SUPER SHIFT",
+	"N",
+	exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh Notifications"),
+	{ description = "notifications (Quickshell panel)" }
+)
+
+-- Quickshell side panel (profile, weather, calendar, system, media…)
+-- Opened with SUPER ALT + N or SUPER CTRL SHIFT + N
+bind(
+	"SUPER ALT",
+	"N",
+	exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh"),
+	{ description = "side panel (Quickshell)" }
+)
+bind(
+	"SUPER CTRL SHIFT",
+	"N",
+	exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh"),
+	{ description = "side panel (Quickshell), alternate" }
+)
+
 bind(
 	"SUPER SHIFT",
 	"L",

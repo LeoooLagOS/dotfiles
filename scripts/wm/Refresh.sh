@@ -38,8 +38,14 @@ if command -v ags >/dev/null 2>&1; then
   ags >/dev/null 2>&1 &
 fi
 
-# quit quickshell & relaunch quickshell
-pkill qs && qs --log-rules "$QS_TEXTINPUT_LOG_RULE" &
+# Quit the Quickshell overviews so they pick up the new wallust colors; their
+# toggle scripts start them again on demand. The side panel (qs -c panel)
+# reloads its colors live, so it keeps running. (This used to `pkill qs` and
+# relaunch a non-existent "default" config.)
+for pid in $(pgrep -x qs); do
+  tr '\0' ' ' <"/proc/$pid/cmdline" 2>/dev/null | grep -q -- '-c panel' && continue
+  kill "$pid" 2>/dev/null
+done
 
 # some process to kill (exclude waybar and swaync to avoid restart loops)
 for pid in $(pidof rofi ags swaybg); do
@@ -129,19 +135,9 @@ restart_waybar() {
 
 restart_waybar
 
-# relaunch swaync if not running, then reload config and CSS in-place
-if is_swaync_systemd; then
-  if ! systemctl --user is-active --quiet swaync.service 2>/dev/null; then
-    systemctl --user start swaync.service >/dev/null 2>&1 &
-  fi
-else
-  sleep 0.3
-  if ! pidof swaync >/dev/null 2>&1; then
-    swaync >/dev/null 2>&1 &
-  fi
-fi
-# reload swaync config and CSS (asynchronous to prevent DBus timeout delays)
-(swaync-client -R -rs --skip-wait >/dev/null 2>&1 &)
+# Notifications are handled by the Quickshell panel (config/quickshell/panel),
+# not swaync, so swaync is no longer relaunched here. The panel reloads the
+# wallust colors live.
 
 # reload / restart nwg-dock-hyprland if running
 if pgrep -x "nwg-dock-hyprla" >/dev/null 2>&1 || pgrep -x "nwg-dock-hyprland" >/dev/null 2>&1 || pgrep -f "nwg-dock-hyprland" >/dev/null 2>&1; then
