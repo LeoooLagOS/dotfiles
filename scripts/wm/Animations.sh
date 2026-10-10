@@ -28,12 +28,12 @@ if [[ -f "$lua_entry" || -f "$legacy_lua_entry" ]]; then
   hypr_config_mode="lua"
   animation_ext="lua"
   target_animation_file="$UserConfigs/user_animations.lua"
-  msg='❗NOTE:❗ This will copy animations into user_animations.lua'
+  msg='Copies the chosen animations into user_animations.lua'
 else
   hypr_config_mode="conf"
   animation_ext="conf"
   target_animation_file="$UserConfigs/UserAnimations.conf"
-  msg='❗NOTE:❗ This will copy animations into UserAnimations.conf'
+  msg='Copies the chosen animations into UserAnimations.conf'
 fi
 
 # list of animation files, sorted alphabetically with numbers first

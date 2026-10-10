@@ -172,7 +172,7 @@ show_update_window() {
     rofi_msg+="• Most current version detected:  <b>${new_v}</b>\n\n"
     rofi_msg+="Changelog: ${CHANGELOG_URL}"
 
-    local opt_changelog="🌐 View Changelog (Opens in Browser)"
+    local opt_changelog="View changelog (opens in the browser)"
     local opt_ok=" OK (Close)"
 
     local choice

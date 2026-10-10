@@ -1,0 +1,154 @@
+/* Lagos — rofi theme matching the Quickshell panel (config/quickshell/panel):
+ * Inter, the panel's dark palette from wallust (lagos-* tokens, generated from
+ * config/hypr/wallust/templates/colors-rofi.rasi), 22/14/10 px corners, the
+ * accent at 20% for the selection. A card ~760 px wide whose height follows
+ * its lines; where it opens (bottom edge or centered) is position.rasi, imported
+ * at the end (scripts/wm/RofiPosition.sh). Launcher configs (config-*.rasi) only change the layout:
+ * columns, lines, width, placeholder. */
+
+@import "~/.config/hypr/rofi/wallust/colors-rofi.rasi"
+@import "~/.config/hypr/rofi/0-shared-fonts.rasi"
+
+configuration {
+  show-icons:      true;
+  hover-select:    true;
+  me-select-entry: "MouseSecondary";
+  me-accept-entry: "MousePrimary";
+  display-drun:    "Apps";
+  display-run:     "Run";
+  display-window:  "Windows";
+  display-filebrowser: "Files";
+  display-calc:    "Calc";
+  drun-display-format: "{name}";
+}
+
+* {
+  background-color: transparent;
+  text-color:       @lagos-fg;
+  margin:  0;
+  padding: 0;
+  spacing: 0;
+}
+
+window {
+  location:         center;
+  anchor:           center;
+  width:            760px;
+  background-color: @lagos-surface;
+  border:           1px solid;
+  border-color:     @lagos-border;
+  border-radius:    22px;
+}
+
+mainbox {
+  padding:  14px;
+  spacing:  10px;
+  children: [ "inputbar", "message", "listview", "mode-switcher" ];
+}
+
+/* ---- Search ---- */
+inputbar {
+  padding:          11px 14px;
+  spacing:          10px;
+  background-color: @lagos-zone;
+  border:           1px solid;
+  border-color:     @lagos-border;
+  border-radius:    14px;
+  children:         [ "icon-search", "entry" ];
+}
+icon-search {
+  expand:         false;
+  filename:       "search-symbolic";
+  size:           18px;
+  vertical-align: 0.5;
+}
+entry {
+  vertical-align:    0.5;
+  placeholder:       "Search";
+  placeholder-color: @lagos-fg-dim;
+  cursor:            text;
+}
+
+/* ---- Note from the script (-mesg) ---- */
+message {
+  background-color: @lagos-zone;
+  border-radius:    12px;
+  padding:          9px 14px;
+}
+textbox {
+  text-color:     @lagos-fg-dim;
+  vertical-align: 0.5;
+  markup:         true;
+}
+
+/* ---- Results ---- */
+listview {
+  columns:       2;
+  lines:         6;
+  spacing:       4px;
+  fixed-height:  true;
+  fixed-columns: true;
+  scrollbar:     false;
+  cycle:         true;
+}
+element {
+  padding:       9px 12px;
+  spacing:       12px;
+  border-radius: 10px;
+  cursor:        pointer;
+}
+element normal.normal, element alternate.normal {
+  background-color: transparent;
+  text-color:       @lagos-fg;
+}
+element normal.active, element alternate.active {
+  text-color: @lagos-accent;
+}
+element normal.urgent, element alternate.urgent {
+  text-color: @lagos-urgent;
+}
+element selected.normal, element selected.active, element selected.urgent {
+  background-color: @lagos-accent-soft;
+  text-color:       @lagos-fg;
+}
+element-icon {
+  size:           26px;
+  vertical-align: 0.5;
+  cursor:         inherit;
+}
+element-text {
+  vertical-align: 0.5;
+  text-color:     inherit;
+  highlight:      bold;
+  cursor:         inherit;
+}
+
+scrollbar {
+  handle-width:  3px;
+  handle-color:  @lagos-accent;
+  border-radius: 2px;
+}
+
+/* ---- Modes (SUPER D: Apps · Files · Run · Windows · Calc) ---- */
+mode-switcher {
+  spacing: 4px;
+}
+button {
+  padding:       7px;
+  border-radius: 10px;
+  text-color:    @lagos-fg-dim;
+  cursor:        pointer;
+}
+button selected {
+  background-color: @lagos-accent-soft;
+  text-color:       @lagos-fg;
+}
+
+error-message {
+  padding:          14px;
+  background-color: @lagos-surface;
+  border-radius:    14px;
+}
+
+/* ---- Where it opens: bottom (slides up) or center ---- */
+@import "~/.config/hypr/rofi/position.rasi"

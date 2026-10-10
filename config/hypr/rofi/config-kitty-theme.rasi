@@ -1,68 +1,14 @@
-/* ---- 💫 https://github.com/LinuxBeginnings 💫 ---- */
-/* Oh My ZSH Theme */
+/* Kitty themes — scripts/wm/Kitty_themes.sh
+ * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
+@import "~/.config/hypr/rofi/config.rasi"
 
-@import "~/.config/hypr/rofi/config.rasi"  
+entry { placeholder: "Choose a Kitty theme · Enter previews, Ctrl+S applies"; }
 
-/* ---- Configuration ---- */ 
-configuration {
-  modi: "drun";
-}
-
-/* ---- Window ---- */
-window {
-  width: inherit;
-  height: inherit;
-  border-radius: 15px;
-}
-
-mainbox {
-  children: [ "inputbar" , "listview" ];
-}
-
-/* ---- Listbox ---- */
-listbox {
-  border-radius: 12px;
-}
-
-/* ---- Inputbar ---- */
-inputbar {
-  padding: 14px;
-  border-radius: 10px;
-}
-
-entry {
-  expand: true;
-  placeholder: " 🐾  Choose Kitty theme: Enter to Preview; CTRL S to Apply";
-}
-
-/* ---- Listview ---- */
 listview {
-  columns: 3;
-  lines: 4;
-  spacing: 4px;
-  border-radius: 10px;
-  cycle: true;
+  columns: 2;
+  lines:   9;
 }
 
-/* ---- Element ---- */
-element {
-  orientation: horizontal;
-}
-
-/* ---- Message ---- */
-message {
-  border-radius: 10px;
-}
-
-textbox {
-  padding: 15px;
-}
-
-/* ---- Element ---- */
-element-icon {
-  size: 0%;
-}
-element-text {
-  horizontal-align: 0.0;
-  margin: 5px 30px 5px 30px;
-}
+element { spacing: 0; }
+element-icon { size: 0; }
+element-text { horizontal-align: 0.0; }

@@ -1,16 +1,10 @@
-/* ---- 💫 https://github.com/LinuxBeginnings 💫 ---- */
-/* KoolDots - Global rofi fonts */
+/* Global rofi fonts — Inter, like the Quickshell panel. Icons (Nerd Font
+ * glyphs) and emoji fall back to the fonts that have them. */
 
-/* This is where you can change fonts and sizes */
-
-
-/*****-- Fonts Size and Font Size -----*****/
 configuration {
-font: "JetBrainsMono Nerd Font SemiBold 13";
+  font: "Inter Medium 11";
 }
 
-
-/*****-- Elements Font Size -----*****/
 element-text {
-font: "JetBrainsMono Nerd Font SemiBold 11";
+  font: "Inter 11";
 }

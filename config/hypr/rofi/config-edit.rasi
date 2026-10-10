@@ -1,55 +1,14 @@
-/* ---- 💫 https://github.com/LinuxBeginnings 💫 ---- */
-/* KooL Hyprland Edit Rofi Config */
+/* Quick settings and edit menus — scripts/wm/Kool_Quick_Settings.sh (also the fallback of Ghostty_themes.sh)
+ * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
+@import "~/.config/hypr/rofi/config.rasi"
 
-@import "~/.config/hypr/rofi/config.rasi"  
+entry { placeholder: "Search"; }
 
-/* ---- Mainbox ---- */
-mainbox {
-  children:
-    [ "inputbar", "message", "listview"];
-}
-
-
-/* ---- Configuration ---- */ 
-configuration {
-  modi: "drun";
-}
-
-/* ---- Window ---- */
-window {
-   width: 70%;
-   height: inherit;
-}
-
-
-/* ---- Listview ---- */
 listview {
-  columns: 3;
-  lines: 6;
-  fixed-height: false;
-  scrollbar: true;
-  spacing: 6px;
-  cycle: true;
+  columns: 2;
+  lines:   9;
 }
 
-/* ---- Entry input ---- */
-entry {
-  expand: true;
-  placeholder: " 💫  Customize KooL Hyprland  💫";
-  horizontal-align: 0.5;
-}
-
-
-/* ---- Elements ---- */
-element {
-  orientation: horizontal;
-}
-
-element-icon {
-  size: 0%;
-}
-element-text {
-  horizontal-align: 0.0;
-  margin: 0px;
-  padding: 0px;
-}
+element { spacing: 0; }
+element-icon { size: 0; }
+element-text { horizontal-align: 0.0; }

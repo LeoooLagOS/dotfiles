@@ -159,7 +159,8 @@ scale_factor=$(hyprctl monitors -j | jq -r --arg mon "$focused_monitor" '.[] | s
 monitor_height=$(hyprctl monitors -j | jq -r --arg mon "$focused_monitor" '.[] | select(.name == $mon) | .height')
 icon_size=$(echo "scale=1; ($monitor_height * 3) / ($scale_factor * 150)" | bc)
 adjusted_icon_size=$(echo "$icon_size" | awk '{if ($1 < 15) $1 = 20; if ($1 > 25) $1 = 25; print $1}')
-rofi_override="element-icon{size:${adjusted_icon_size}%;}"
+# Thumbnail size: fixed, set in rofi/config-wallpaper.rasi (Lagos theme)
+rofi_override="window{}"
 
 mapfile -d '' PICS < <(find -L "${wallDIR}" -type f \( \
   -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o \

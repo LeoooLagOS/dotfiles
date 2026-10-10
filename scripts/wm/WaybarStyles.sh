@@ -14,7 +14,7 @@ waybar_styles="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/style"
 waybar_style="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/style.css"
 SCRIPTSDIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
 rofi_config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-waybar-style.rasi"
-msg=' 🎌 NOTE: Some waybar STYLES NOT fully compatible with some LAYOUTS'
+msg='Some styles don’t fully match every layout'
 
 # Apply selected style
 apply_style() {
@@ -36,7 +36,7 @@ main() {
 
     # mark the active style and record its index
     default_row=0
-    MARKER="👉"
+    MARKER="●"
     for i in "${!options[@]}"; do
         if [[ "${options[i]}" == "$current_name" ]]; then
             options[i]="$MARKER ${options[i]}"

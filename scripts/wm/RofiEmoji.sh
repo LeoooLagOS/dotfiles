@@ -8,7 +8,7 @@
 
 # Variables
 rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-emoji.rasi"
-msg='** note ** 👀 Click or Return to choose || Ctrl V to Paste'
+msg='<b>Enter</b> or click copies it  ·  <b>Ctrl+V</b> pastes'
 
 # Check if rofi is already running
 if pidof rofi > /dev/null; then

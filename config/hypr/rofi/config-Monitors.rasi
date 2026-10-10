@@ -1,43 +1,14 @@
-/* ---- 💫 https://github.com/LinuxBeginnings 💫 ---- */
-/* Monitor Profiles Menu */
+/* Monitor profiles — scripts/wm/MonitorProfiles.sh
+ * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
+@import "~/.config/hypr/rofi/config.rasi"
 
-@import "~/.config/hypr/rofi/config.rasi" 
+entry { placeholder: "Choose a monitor profile"; }
 
-/* ---- Mainbox ---- */
-mainbox {
-  children:
-    [ "inputbar", "message", "listview"];
-}
-
-/* ---- Window ---- */
-window {
-  width: inherit;
-  height: inherit;
-}
-
-/* ---- Entry ---- */ 
-entry {
-  width: 43%;
-  placeholder: " 💻 Search / Choose which Monitor Profiles to load";
-  horizontal-align: 0.5;
-}
-
-/* ---- Listview ---- */
 listview {
-  columns: 2;
-  lines: 3;
-  fixed-height: false;
-  margin: 10px;
-  scrollbar: true;
-  cycle: true;
+  columns: 1;
+  lines:   6;
 }
 
-/* ---- Elements ---- */
-element-icon {
-  size: 0%;
-}
-element-text {
-  horizontal-align: 0.5;
-  vertical-align: 0.0;
-  margin: 5px 30px 5px 30px;
-}
+element { spacing: 0; }
+element-icon { size: 0; }
+element-text { horizontal-align: 0.0; }

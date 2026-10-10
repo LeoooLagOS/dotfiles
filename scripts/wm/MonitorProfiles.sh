@@ -45,11 +45,11 @@ rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-Monitors.rasi"
 if [[ "$hypr_config_mode" == "lua" ]]; then
     profile_ext="lua"
     target="$target_lua_user"
-    msg="❗NOTE:❗ This will overwrite ${XDG_CONFIG_HOME:-$HOME/.config}/hypr/UserConfigs/monitors.lua"
+    msg="Overwrites ~/.config/hypr/UserConfigs/monitors.lua"
 else
     profile_ext="conf"
     target="$target_conf"
-    msg="❗NOTE:❗ This will overwrite ${XDG_CONFIG_HOME:-$HOME/.config}/hypr/monitors.conf"
+    msg="Overwrites ~/.config/hypr/monitors.conf"
 fi
 
 # Define the list of files to ignore

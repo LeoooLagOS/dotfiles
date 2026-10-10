@@ -1,0 +1,6 @@
+/* Where the menus open — written by scripts/wm/RofiPosition.sh (bottom | center) */
+window {
+  location: south;
+  anchor:   south;
+  y-offset: -10px;
+}

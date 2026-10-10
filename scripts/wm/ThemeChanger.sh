@@ -90,7 +90,7 @@ clear_global_theme() {
   rm -f "$global_theme_file" "$legacy_global_theme_file"
 }
 
-MARKER="👉"
+MARKER="●"
 WALLPAPER_THEME_OPT="Theme set by wallpaper"
 
 build_theme_list() {

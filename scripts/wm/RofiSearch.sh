@@ -34,7 +34,7 @@ fi
 
 # Rofi theme and message
 rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-search.rasi"
-msg='‼️ **note** ‼️ search via default web browser'
+msg='Opens in your default browser'
 
 # Kill Rofi if already running before execution
 if pgrep -x "rofi" >/dev/null; then

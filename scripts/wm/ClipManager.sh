@@ -9,7 +9,7 @@
 
 # Variables
 rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-clipboard.rasi"
-msg='👀 **note**  CTRL DEL = cliphist del (entry)   or   ALT DEL - cliphist wipe (all)'
+msg='<b>Ctrl+Del</b> delete entry  ·  <b>Alt+Del</b> wipe all'
 # Actions:
 # CTRL Del to delete an entry
 # ALT Del to wipe clipboard contents

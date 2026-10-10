@@ -14,7 +14,7 @@ waybar_layouts="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/configs"
 waybar_config="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/config"
 SCRIPTSDIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
 rofi_config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-waybar-layout.rasi"
-msg=' 🎌 NOTE: Some waybar LAYOUT NOT fully compatible with some STYLES'
+msg='Some layouts don’t fully match every style'
 
 # Apply selected configuration
 apply_config() {
@@ -34,7 +34,7 @@ main() {
 
     # Mark and locate the active layout
     default_row=0
-    MARKER="👉"
+    MARKER="●"
     for i in "${!options[@]}"; do
         if [[ "${options[i]}" == "$current_name" ]]; then
             options[i]="$MARKER ${options[i]}"

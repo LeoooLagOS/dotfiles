@@ -1,69 +1,31 @@
-/* ---- 💫 https://github.com/LinuxBeginnings 💫 ---- */
-/* Main Config (wallpaper) */
+/* Wallpaper picker — scripts/wm/WallpaperSelect.sh, HyprlockWallpaperSelect.sh
+ * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
+@import "~/.config/hypr/rofi/config.rasi"
 
-@import "~/.config/hypr/rofi/config.rasi"  
+window  { width: 960px; }
+mainbox { children: [ "inputbar", "listview" ]; }
+entry   { placeholder: "Search wallpapers"; }
 
-/* ---- Configuration ---- */ 
-configuration {
-  modi: "drun";
-}
-
-window {
-  width: 75%;
-  height: inherit;
-}
-
-/* ---- Mainbox ---- */
-mainbox {
-  children:
-    [ "inputbar", "listview"];
-}
-
-entry {
-  expand: true;
-  placeholder: " 🎞️ Search / Choose Wallpaper";
-  horizontal-align: 0.5;
-  horizontal-align: 0.5;
-}
-
-/* ---- Listview ---- */
+/* A grid of thumbnails, names below them */
 listview {
-  columns: 6;
-  lines: 2;
-  spacing: 20px;
-  padding: 10px;
-  columns: 6;
-  lines: 2;
-  flow: horizontal;
-  fixed-width: true;
+  columns:      5;
+  lines:        2;
+  flow:         horizontal;
   fixed-height: true;
-  cycle: true;
+  spacing:      8px;
 }
-
-/* ---- Element ---- */
 element {
-  orientation: vertical;
-  padding: 0px;
-  spacing: 0px;
-  border-radius: 10px;
-  padding: 0px;
-  margin: 0px;
+  orientation:   vertical;
+  padding:       8px;
+  spacing:       6px;
+  border-radius: 14px;
 }
-
-element selected.normal {
-  background-color: transparent;
-}
-
 element-icon {
-    text-color:                  inherit;
-    size:                        10%;
-    margin:                      -30px;
-    cursor:                      inherit;
-}
-
-element-text {
-  vertical-align: 0.5;
+  size:          150px;
+  border-radius: 10px;
   horizontal-align: 0.5;
-  padding: 6px;
-  margin: 6px;
+}
+element-text {
+  horizontal-align: 0.5;
+  font: "Inter 9";
 }

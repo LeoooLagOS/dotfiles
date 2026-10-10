@@ -1,45 +1,16 @@
-/* ---- 💫 https://github.com/LinuxBeginnings 💫 ---- */
-/* Main config Rofi Beats Config menu */
+/* RofiBeats menu — scripts/wm/RofiBeats.sh
+ * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
+@import "~/.config/hypr/rofi/config.rasi"
 
-@import "~/.config/hypr/rofi/config.rasi"  
+window { width: 460px; }
 
-/* ---- Mainbox ---- */
-mainbox {
-  children:
-    [ "inputbar", "listview"];
-}
+entry { placeholder: "Music"; }
 
-/* ---- Entry ---- */ 
-entry {
-  expand: false;
-  width: 25%;
-  width: 25%;
-  placeholder: " 📻 Choose Music Source";
-  horizontal-align: 0.5;
-  horizontal-align: 0.5;
-}
-
-/* ---- Window ---- */
-window {
-  width: 28%;
-  height: inherit;
-}
-
-/* ---- Listview ---- */
 listview {
-  fixed-columns: false;
-  scrollbar: false;
-  colums: 1;
-  lines: 4;
-  spacing: 6px;
-  cycle: true;
+  columns: 1;
+  lines:   4;
 }
 
-/* ---- Element ---- */
-element-icon {
-  	size: 0%;
-}
-element-text {
-    horizontal-align: 0.5;
-    
-}
+element { spacing: 0; }
+element-icon { size: 0; }
+element-text { horizontal-align: 0.0; }

@@ -28,7 +28,7 @@ lua_system_keybinds="$hypr_dir/configs/system_keybinds.lua"
 lua_legacy_system_keybinds="$hypr_dir/UserConfigs/system_keybinds.lua"
 lua_overrides="$hypr_dir/UserConfigs/user_overrides.lua"
 rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-keybinds.rasi"
-msg='☣️ NOTE ☣️: Clicking with Mouse or Pressing ENTER will have NO function'
+msg='Reference only: Enter and clicks do nothing'
 
 # detect active Hyprland config mode (Lua entrypoint vs legacy .conf includes)
 lua_entry="$hypr_dir/hyprland.lua"
@@ -72,4 +72,7 @@ fi
 
 # use rofi to display the keybinds
 "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
-printf '%s\n' "$display_keybinds" | rofi -dmenu -i -config "$rofi_theme" -mesg "$msg"
+# Keys in bold, then the description (pango markup; rofi still matches the plain text)
+printf '%s\n' "$display_keybinds" |
+  sed -e 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g' -e 's/^\([^ ]*\) — /<b>\1<\/b>   /' |
+  rofi -dmenu -i -markup-rows -config "$rofi_theme" -mesg "$msg"

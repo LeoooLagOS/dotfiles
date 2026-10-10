@@ -90,7 +90,7 @@ fi
 configs="$hypr_dir/configs"
 UserConfigs="$hypr_dir/UserConfigs"
 rofi_theme="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-edit.rasi"
-msg=' ⁉️ Choose what to do ⁉️'
+msg='Choose what to do'
 iDIR="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/images"
 scriptsDir="$hypr_dir/scripts"
 UserScripts="$hypr_dir/UserScripts"
@@ -670,7 +670,7 @@ show_category_menu() {
   local options=""
 
   case "$category" in
-  "[[ User Settings ]]")
+  "User settings  ›")
     options=$(
       cat <<EOF
 Edit User Defaults
@@ -688,7 +688,7 @@ Select Hyprview Layout
 EOF
     )
     ;;
-  "[[ System Settings ]]")
+  "System settings  ›")
     options=$(
       cat <<EOF
 Edit System Default Keybinds
@@ -699,7 +699,7 @@ Edit System Default Settings
 EOF
     )
     ;;
-  "[[ Toggle Options ]]")
+  "Toggles  ›")
     local weather_label
     weather_label="$(get_weather_units_label)"
     options=$(
@@ -710,7 +710,7 @@ Toggle Game Mode
 EOF
     )
     ;;
-  "[[ Misc ]]")
+  "More  ›")
     options=$(
       cat <<EOF
 Change Starship Prompt
@@ -742,25 +742,25 @@ EOF
     {
       printf "%s\n" "$options"
       printf "\n"
-      printf "[ SUPER+SHIFT+E to return to main menu ]\n"
+      printf "‹  Back to the main menu\n"
     } | rofi -i -dmenu -config "$rofi_theme" \
       -mesg "$category" \
       -theme-str 'listview { lines: 8; }'
   )
   [[ -z "$sub_choice" ]] && return
-  [[ "$sub_choice" == "[ SUPER+SHIFT+E to return to main menu ]" ]] && return
+  [[ "$sub_choice" == "‹  Back to the main menu" ]] && return
   handle_choice "$sub_choice" "$quick_settings_monitor"
 }
 
 show_main_menu() {
   local weather_label
   weather_label="$(get_weather_units_label)"
-  printf '%s\n' "[ Settings ]"
-  printf '%b\n' "[[ User Settings ]]\x00meta\x1fEdit User Defaults Edit User Keybinds Edit User ENV variables Edit User Startup Apps overlay Edit User Window Rules overlay Edit User Layer Rules overlay Edit User Settings Edit User Decorations Edit User Animations Edit User Laptop Settings Edit User Monitor config Select Hyprview Layout"
-  printf '%b\n' "[[ System Settings ]]\x00meta\x1fEdit System Default Keybinds Edit System Default Startup Apps Edit System Default Window Rules Edit System Default Layer Rules Edit System Default Settings"
-  printf '%b\n' "[[ Toggle Options ]]\x00meta\x1fToggle Waybar Weather units C F Toggle Waybar Clock 12H 24H Toggle Game Mode"
-  printf '%b\n' "[[ Misc ]]\x00meta\x1fChange Starship Prompt Set SDDM Wallpaper Choose Kitty Terminal Theme Choose Ghostty Terminal Theme Configure Workspace Rules nwg-displays GTK Settings nwg-look QT Apps Settings qt6ct QT Apps Settings qt5ct Set Hyprlock Wallpaper Choose Hyprland Animations Choose Monitor Profiles Choose Rofi Themes Search for Keybinds Switch Dark-Light Theme Rainbow Borders Mode"
-  printf '%s\n' "[ Quick Links]"
+  printf '%b\n' "<span size='small' weight='bold' alpha='60%'>CATEGORIES</span>\x00nonselectable\x1ftrue"
+  printf '%b\n' "User settings  ›\x00meta\x1fEdit User Defaults Edit User Keybinds Edit User ENV variables Edit User Startup Apps overlay Edit User Window Rules overlay Edit User Layer Rules overlay Edit User Settings Edit User Decorations Edit User Animations Edit User Laptop Settings Edit User Monitor config Select Hyprview Layout"
+  printf '%b\n' "System settings  ›\x00meta\x1fEdit System Default Keybinds Edit System Default Startup Apps Edit System Default Window Rules Edit System Default Layer Rules Edit System Default Settings"
+  printf '%b\n' "Toggles  ›\x00meta\x1fToggle Waybar Weather units C F Toggle Waybar Clock 12H 24H Toggle Game Mode"
+  printf '%b\n' "More  ›\x00meta\x1fChange Starship Prompt Set SDDM Wallpaper Choose Kitty Terminal Theme Choose Ghostty Terminal Theme Configure Workspace Rules nwg-displays GTK Settings nwg-look QT Apps Settings qt6ct QT Apps Settings qt5ct Set Hyprlock Wallpaper Choose Hyprland Animations Choose Monitor Profiles Choose Rofi Themes Search for Keybinds Switch Dark-Light Theme Rainbow Borders Mode"
+  printf '%b\n' "<span size='small' weight='bold' alpha='60%'>QUICK LINKS</span>\x00nonselectable\x1ftrue"
   printf '%s\n' "Set User Keybinds"
   printf '%s\n' "Set User Decorations"
   printf '%s\n' "Set Hyprlock paper"
@@ -808,16 +808,17 @@ main() {
   "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
 
   choice=$(
-    show_main_menu | rofi -i -dmenu -config "$rofi_theme" \
-      -mesg "Left: Categories • Right: Quick Links" \
+    # Rows 0 and 5 are the column titles (markup, not selectable): start on row 1
+    show_main_menu | rofi -i -dmenu -markup-rows -selected-row 1 -config "$rofi_theme" \
+      -mesg "Categories on the left, quick links on the right" \
       -theme-str 'listview { columns: 2; lines: 5; }'
   )
 
   case "$choice" in
-  "[[ User Settings ]]" | "[[ System Settings ]]" | "[[ Toggle Options ]]" | "[[ Misc ]]")
+  "User settings  ›" | "System settings  ›" | "Toggles  ›" | "More  ›")
     show_category_menu "$choice" "$quick_settings_monitor"
     ;;
-  "[ Settings ]" | "[[ Quick Links]]")
+  "Categories" | "Quick links")
     return
     ;;
   "Set User Keybinds" | "Set User Decorations" | "Set Hyprlock paper" | "Set User ENV variables")
