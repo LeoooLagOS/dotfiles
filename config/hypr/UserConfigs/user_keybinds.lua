@@ -115,6 +115,22 @@ bind(
 	{ description = "side panel (Quickshell), alternate" }
 )
 
+-- Panel look and desktop toggles (scripts/wm/*.sh; the panel's Settings show the same values)
+local scripts = "$HOME/.config/hypr/scripts/"
+bind("SUPER ALT", "P", exec_cmd("qs -c panel ipc call panel settings ''"), { description = "panel settings" })
+bind("SUPER ALT", "G", exec_cmd(scripts .. "PanelBlur.sh toggle"), { description = "panel blur on/off" })
+bind("SUPER ALT", "minus", exec_cmd(scripts .. "PanelOpacity.sh -5"), { description = "panel more transparent", repeating = true })
+bind("SUPER ALT", "equal", exec_cmd(scripts .. "PanelOpacity.sh +5"), { description = "panel more opaque", repeating = true })
+bind("SUPER ALT", "W", exec_cmd(scripts .. "WallustToggle.sh toggle"), { description = "colors from the wallpaper (wallust) on/off" })
+bind("SUPER ALT", "I", exec_cmd("qs -c panel ipc call panel caffeine"), { description = "caffeine: keep the screen awake on/off" })
+bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
+
+-- Menus that had no shortcut
+bind("SUPER ALT", "M", exec_cmd(scripts .. "MonitorProfiles.sh"), { description = "monitor profiles" })
+bind("SUPER ALT", "K", exec_cmd(scripts .. "HyprlockWallpaperSelect.sh"), { description = "lock screen wallpaper" })
+bind("SUPER ALT", "T", exec_cmd(scripts .. "ChangeStarshipPrompt.sh"), { description = "Starship prompt style" })
+bind("SUPER", "J", exec_cmd(scripts .. "JavaManager.sh"), { description = "Java versions (install / set default)" })
+
 bind(
 	"SUPER SHIFT",
 	"L",
