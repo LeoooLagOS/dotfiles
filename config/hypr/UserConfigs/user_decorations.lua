@@ -38,8 +38,8 @@ hl.config({
     },
     blur = {
       enabled = true,
-      size = 6,
-      passes = 3,
+      size = 4,      -- was 6 / 3 passes (~48px); now ~15% of that for a subtle blur
+      passes = 1,
       new_optimizations = true,
       xray = false,
       ignore_opacity = true,
