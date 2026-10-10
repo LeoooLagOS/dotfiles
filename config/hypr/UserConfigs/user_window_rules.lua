@@ -151,3 +151,16 @@ apply_window_rule({
   no_initial_focus = true,
   opacity = 0,
 })
+
+-- Big centered low-battery alert from UserScripts/BatteryNotify.sh
+apply_window_rule({
+  name = "user-battery-alert",
+  match = { title = "^BatteryAlert$" },
+  float = true,
+  center = true,
+  pin = true,
+  rounding = 20,     -- matches the CSS border-radius in BatteryNotify.sh
+  border_size = 0,
+  dim_around = true,
+  no_shadow = true,  -- the global shadow is a colored glow; would look like a second border
+})
