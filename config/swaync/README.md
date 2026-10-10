@@ -13,7 +13,6 @@ opened with `Super+Shift+N`.
 |---------------|-----------------------------------------------------------------------|
 | `config.json` | **What** is shown: panel zones and their order, sizes, timeouts, position |
 | `style.css`   | **How** it looks: colors, fonts, spacing, corners (one section per zone) |
-| `*.bak`, `*.pre-*` | Backups of earlier styles — safe to delete                       |
 
 Apply changes without restarting:
 
