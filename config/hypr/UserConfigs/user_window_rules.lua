@@ -164,3 +164,11 @@ apply_window_rule({
   dim_around = true,
   no_shadow = true,  -- the global shadow is a colored glow; would look like a second border
 })
+
+-- Plots from the calculator (scripts/wm/CalcPlot.sh, gnuplot's Qt window)
+apply_window_rule({
+  name = "user-calc-plot",
+  match = { class = "^(gnuplot_qt)$" },
+  float = true,
+  center = true,
+})

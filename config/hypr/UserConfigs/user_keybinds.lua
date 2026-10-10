@@ -125,6 +125,11 @@ bind("SUPER ALT", "W", exec_cmd(scripts .. "WallustToggle.sh toggle"), { descrip
 bind("SUPER ALT", "I", exec_cmd("qs -c panel ipc call panel caffeine"), { description = "caffeine: keep the screen awake on/off" })
 bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
 
+-- App launcher: RofiLauncher.sh adds inline math (quickcalc) to the Apps tab
+unbind("SUPER", "D")
+bind("SUPER", "D", exec_cmd(scripts .. "RofiLauncher.sh"), { description = "app launcher (type math for an instant answer)" })
+bind("", "XF86Calculator", exec_cmd(scripts .. "RofiCalc.sh"), { description = "calculator" })
+
 -- Menus that had no shortcut
 bind("SUPER ALT", "M", exec_cmd(scripts .. "MonitorProfiles.sh"), { description = "monitor profiles" })
 bind("SUPER ALT", "K", exec_cmd(scripts .. "HyprlockWallpaperSelect.sh"), { description = "lock screen wallpaper" })

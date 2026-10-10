@@ -175,6 +175,7 @@ gnome-weather
 gns3-gui
 gns3-server
 gnupg2
+gnuplot
 golang-bin
 google-noto-sans-cjk-fonts
 google-roboto-mono-fonts
@@ -257,6 +258,7 @@ kvantum
 less
 libertas-firmware
 libglvnd-gles
+libqalculate-devel
 libreoffice-calc
 libreoffice-emailmerge
 libreoffice-graphicfilter
@@ -369,6 +371,7 @@ ptyxis
 python3-pip
 python3-pyquery
 qadwaitadecorations-qt5
+qalculate
 qalculate-gtk
 qcom-wwan-firmware
 qemu-kvm
@@ -389,6 +392,7 @@ realmd
 realtek-firmware
 realtime-setup
 rofi
+rofi-devel
 rootfiles
 rpm
 rpmfusion-free-release
@@ -468,6 +472,7 @@ which
 whois
 wireplumber
 wireshark
+wl-clipboard
 wlogout
 words
 wpa_supplicant

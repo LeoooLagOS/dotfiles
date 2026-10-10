@@ -378,6 +378,14 @@ step_links() {
 
 step_local() {
   step "Machine-specific files"
+
+  # Inline math in the app launcher (SUPER D): a rofi plugin built from source
+  if pkg-config --exists rofi libqalculate 2>/dev/null; then
+    run "$DOTFILES_DIR/scripts/rofi-quickcalc/build.sh" >/dev/null
+    ok "rofi quickcalc plugin built (~/.local/lib/rofi)"
+  else
+    warn "rofi-devel / libqalculate-devel missing: SUPER D works without inline math (run scripts/rofi-quickcalc/build.sh once they are installed)"
+  fi
   local file
   for file in "${LOCAL_TEMPLATES[@]}"; do
     if [[ -e $DOTFILES_DIR/$file ]]; then

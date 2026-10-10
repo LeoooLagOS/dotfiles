@@ -1,25 +1,23 @@
-/* ---- 💫 https://github.com/LinuxBeginnings 💫 ---- */
-/* Main Config Calculator */
-/* Submitted by: https://github.com/JosephArmas */
+/* Calculator — scripts/wm/RofiCalc.sh (SUPER ALT C)
+ * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi).
+ * The message is the live result (large); the list is the history. */
+@import "~/.config/hypr/rofi/config.rasi"
 
-@import "~/.config/hypr/rofi/config.rasi" 
+window  { width: 640px; }
+mainbox { children: [ "inputbar", "message", "listview" ]; }
+entry   { placeholder: "Calculate"; }
 
-/* ---- Mainbox ---- */
-mainbox {
-  children: [ "entry", "message" ];
-  height: inherit;
+message { padding: 14px 16px; }
+textbox {
+  font:       "Inter Display SemiBold 20";
+  text-color: @lagos-fg;
 }
 
-/* ---- Window ---- */
-window {
-  width: 30%;
-  height: inherit;
+listview {
+  columns: 1;
+  lines:   6;
 }
-
-/* ---- Entry ---- */
-entry {
-  expand: true;
-  placeholder: " 🧮 Calculate";
-}
-
-listview {enable: false;}
+element { spacing: 0; }
+element-icon { size: 0; }
+element-text { horizontal-align: 0.0; text-color: @lagos-fg-dim; }
+element selected.normal element-text { text-color: @lagos-fg; }
