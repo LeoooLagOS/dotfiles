@@ -54,6 +54,12 @@ ShellRoot {
         function themeMode(mode: string): void { if (["system", "dark", "light"].includes(mode)) Theme.setMode(mode); }
         function toggleInverted(): void { Theme.setInverted(!Theme.chosenInverted); }
         function currentTheme(): string { return (Theme.chosenLight ? "light" : "dark") + (Theme.chosenInverted ? " inverted" : "") + " (" + Theme.modeSetting + ", " + Theme.scope + ")"; }
+        // Keybinds (SUPER SHIFT + letter): open on that tab, or close if it's the one shown
+        function tabToggle(name: string): void {
+            const i = Config.tabs.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
+            if (PanelState.open && i === PanelState.tab) PanelState.open = false;
+            else tab(name);
+        }
         function tab(name: string): void {
             const i = Config.tabs.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
             PanelState.open = true;

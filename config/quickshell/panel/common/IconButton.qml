@@ -7,6 +7,7 @@ Rectangle {
     property alias icon: glyph.text
     property alias iconSize: glyph.font.pixelSize
     property bool active: false
+    property color iconColor: active ? Theme.accentText : Theme.fg
     signal clicked()
 
     activeFocusOnTab: visible && enabled
@@ -24,7 +25,7 @@ Rectangle {
     Glyph {
         id: glyph
         anchors.centerIn: parent
-        color: root.active ? Theme.accentText : Theme.fg
+        color: root.iconColor
     }
 
     MouseArea {

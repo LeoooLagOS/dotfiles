@@ -7,7 +7,7 @@ A modular panel built from **zones** and organised in **tabs**:
 | Overview | weather + clock · profile (centered under the Overview tab, click → Controls) · notifications — calendar with events · system stats (click → Controls), media (compact) |
 | Calendar | month grid · agenda (selected day + next 7 days, refresh, **new event** form) · to-do list (tasks and ideas) |
 | Notifications | toolbar: Classify (critical / messages / system / other / per app) · Search · Sort (newest, oldest, app, urgency) · Do Not Disturb · Clear; list centered at 50% width |
-| Media | large art, track info, volume (vertical slider) and audio-output picker buttons, controls, cava visualizer as seekable progress, player picker; a corner button switches to the **radio** view (same layout: station logo, station chips, what's on air, previous / play-stop / next station, listening time) |
+| Media | large art, track info, volume (vertical slider) and audio-output picker buttons, controls, cava visualizer as seekable progress, player picker; a corner button switches to the **radio** view (same layout: station logo, station chips, what's on air, previous / play-stop / next station, listening time; 🔍 finds stations by name or frequency in radio-browser.info, Mexico only by default, to listen or save, and lists yours to remove; a record button under volume / output saves the stream to `~/Music/Radio`) |
 | Weather | 24-hour temperature chart (curve, icons, rain %, sunrise/sunset) + compact hourly strip · current conditions with sunrise/sunset and six detail tiles + 7-day forecast |
 | Wallpapers | thumbnail grid of `~/Pictures/wallpapers` with folder filter; click to apply |
 | Controls | identity bar (⚙ settings · lock · power) · 9 quick toggles · output / microphone / brightness · detail pane (System + power profile, or a toggle's detail) — ⚙ opens **Settings** (see [Controls and Settings](#controls-and-settings)) |
@@ -20,8 +20,8 @@ the wallpaper (wallust), like waybar and swaync.
 | | |
 |---|---|
 | Toggle | `SUPER ALT + N` or `SUPER CTRL SHIFT + N` → `scripts/wm/PanelToggle.sh` |
-| Notifications | `SUPER SHIFT + N` or the waybar bell → `PanelToggle.sh Notifications`; right-click the bell for Do Not Disturb |
-| IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`, `record`, `radio`) |
+| One key per tab | `SUPER SHIFT +` **N** Notifications · **M** Media · **T** Weather (*tiempo*) · **V** Overview · **D** Calendar (*días*) · **P** Wallpapers (*papel tapiz*) · **C** Controls → `PanelToggle.sh <Tab>`: opens on that tab, or closes the panel if that tab is already shown. The waybar bell opens Notifications; right-click it for Do Not Disturb |
+| IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`, `record`, `radio`, `tabToggle <Name>` (open on a tab, or close if it's the one shown)) |
 | Keys | full keyboard control — see [Keyboard](#keyboard) |
 | Autostart | user service `quickshell-panel.service` (`config/systemd/user/`), see [Notifications](#notifications) |
 | Blur | layer rules `quickshell:panel` (card) and `quickshell:panel-dim` (screen) in `config/hypr/UserConfigs/user_layer_rules.lua` |
@@ -35,7 +35,7 @@ QML edits reload live. Full restart: `systemctl --user restart quickshell-panel`
 ## Keyboard
 
 The panel works without a mouse. Open it with `SUPER ALT + N` (Overview) or
-`SUPER SHIFT + N` (Notifications); the keyboard goes to the panel while it is open.
+`SUPER SHIFT + N / M / T / V / D / P / C` (a tab); the keyboard goes to the panel while it is open.
 
 | Keys | Action |
 |---|---|

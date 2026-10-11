@@ -33,8 +33,28 @@ Zone {
     }
     Component.onDestruction: if (visualize) Cava.users -= 1
 
+    // Radio: find stations (opens the search over the right column)
+    property bool searching: false
+    onRadioChanged: if (!radio) searching = false
+    IconButton {
+        id: searchButton
+        parent: root
+        visible: root.radio
+        z: 5
+        anchors.top: parent.top
+        anchors.right: modeButton.left
+        anchors.topMargin: Theme.zonePadding
+        anchors.rightMargin: 6
+        icon: "\uf002"
+        iconSize: 13
+        implicitWidth: 34; implicitHeight: 30
+        active: root.searching
+        onClicked: { root.searching = !root.searching; if (root.searching) searchField.input.forceActiveFocus(); }
+    }
+
     // Player ↔ radio
     IconButton {
+        id: modeButton
         parent: root
         z: 5
         anchors.top: parent.top
@@ -123,7 +143,8 @@ Zone {
                     Layout.fillWidth: true
                     spacing: 4
                     Label {
-                        text: root.radio ? (Radio.loading ? "RADIO · CONNECTING…" : Radio.active ? "RADIO · LIVE" : "RADIO")
+                        text: root.radio ? (Radio.loading ? "RADIO · CONNECTING…" : Radio.recording ? "RADIO · LIVE · ● REC " + Radio.recordElapsed
+                                            : Radio.active ? "RADIO · LIVE" : "RADIO")
                                          : (root.player?.identity ?? "")
                         dim: true
                         font.pixelSize: 11
@@ -161,6 +182,17 @@ Zone {
                         icon: "\u{f04c3}"     // speaker / audio output
                         active: root.popover === "output"
                         onClicked: { root.popover = root.popover === "output" ? "" : "output"; if (root.popover) outputFocus.start(); }
+                    }
+                    // Radio: record the stream (Radio.toggleRecord → ~/Music/Radio)
+                    IconButton {
+                        visible: root.radio
+                        enabled: Radio.active && !Radio.loading
+                        opacity: enabled ? 1 : 0.4
+                        icon: Radio.recording ? "\uf04d" : "\uf111"
+                        iconSize: Radio.recording ? 11 : 12
+                        active: Radio.recording
+                        iconColor: Radio.recording ? Theme.accentText : Theme.critical
+                        onClicked: Radio.toggleRecord()
                     }
                 }
             }
@@ -249,6 +281,140 @@ Zone {
                 Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? "LIVE" : Media.fmt(root.player?.length)
                         color: root.radio && Radio.active ? Theme.accent : Theme.fgDim
                         font.pixelSize: 11; font.weight: root.radio ? Font.DemiBold : Font.Normal; font.features: { "tnum": 1 } }
+            }
+        }
+    }
+
+    // ---------------- Radio: find and manage stations ----------------
+    // Over the right column (the logo stays). Empty field: your stations (play,
+    // remove). Typing: radio-browser.info results by name or frequency
+    // ("96.9"), Mexico only by default; ▶ listens without saving, + saves.
+    property bool mexicoOnly: true
+    Rectangle {
+        id: searchPane
+        parent: root
+        z: 8
+        visible: root.radio && root.searching
+        readonly property real side: root.height - 2 * Theme.zonePadding
+        readonly property bool querying: searchField.text.trim() !== ""
+        x: Theme.zonePadding + side + 24
+        y: Theme.zonePadding + 38                 // below the corner buttons
+        width: root.width - x - Theme.zonePadding
+        height: root.height - y - Theme.zonePadding
+        radius: Theme.zoneRadius
+        color: Theme.bgAlt
+        border.color: Theme.border
+
+        MouseArea { anchors.fill: parent }        // keep clicks inside
+
+        // Search as you type (after a pause)
+        readonly property string query: searchField.text
+        onQueryChanged: searchDebounce.restart()
+        Timer { id: searchDebounce; interval: 500; onTriggered: Radio.search(searchPane.query, root.mexicoOnly) }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                TextField {
+                    id: searchField
+                    Layout.fillWidth: true
+                    icon: "\uf002"
+                    placeholder: "Station name or frequency, e.g. 96.9"
+                    onAccepted: Radio.search(text, root.mexicoOnly)
+                }
+                Chip {
+                    text: "Mexico only"
+                    implicitHeight: 30
+                    active: root.mexicoOnly
+                    onClicked: { root.mexicoOnly = !root.mexicoOnly; if (searchPane.querying) Radio.search(searchField.text, root.mexicoOnly); }
+                }
+            }
+
+            Label {
+                text: !searchPane.querying ? "YOUR STATIONS"
+                    : Radio.searching ? "SEARCHING…"
+                    : Radio.searchError ? "" : Radio.results.length + (Radio.results.length === 1 ? " STATION" : " STATIONS")
+                visible: text !== ""
+                dim: true
+                font.pixelSize: 10
+                font.weight: Font.DemiBold
+                font.letterSpacing: 1
+            }
+            Label {
+                visible: searchPane.querying && Radio.searchError !== ""
+                text: Radio.searchError
+                color: Theme.bad
+                font.pixelSize: 12
+                wrapMode: Text.Wrap
+                Layout.fillWidth: true
+            }
+
+            ListView {
+                id: stationList
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                spacing: 4
+                boundsBehavior: Flickable.StopAtBounds
+                model: searchPane.querying ? Radio.results : Radio.stations
+
+                delegate: Rectangle {
+                    id: row
+                    required property var modelData
+                    readonly property bool saved: Radio.isSaved(modelData)
+                    readonly property bool playingThis: Radio.active && Radio.current?.url === modelData.url
+                    width: ListView.view.width
+                    height: 48
+                    radius: 10
+                    color: playingThis ? Theme.withAlpha(Theme.accent, 0.14) : rowMouse.containsMouse ? Theme.bgHover : "transparent"
+
+                    MouseArea { id: rowMouse; anchors.fill: parent; hoverEnabled: true; onClicked: Radio.play(row.modelData) }
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 6
+                        spacing: 10
+                        ClippingRectangle {
+                            implicitWidth: 32; implicitHeight: 32; radius: 8
+                            color: Theme.bgHover
+                            Glyph { anchors.centerIn: parent; text: "\u{f0439}"; color: Theme.fgDim; visible: logo.status !== Image.Ready }
+                            Image { id: logo; anchors.fill: parent; source: row.modelData.logo || ""; sourceSize: Qt.size(64, 64); fillMode: Image.PreserveAspectCrop; asynchronous: true }
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
+                            Label { text: row.modelData.name; font.pixelSize: 13; font.weight: row.playingThis ? Font.DemiBold : Font.Normal; elide: Text.ElideRight; Layout.fillWidth: true }
+                            Label { text: row.modelData.subtitle || ""; visible: text !== ""; dim: true; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }
+                        }
+                        IconButton {
+                            icon: row.playingThis ? "\uf04d" : "\uf04b"
+                            iconSize: 11; implicitWidth: 30; implicitHeight: 28; border.width: 0
+                            onClicked: row.playingThis ? Radio.stop() : Radio.play(row.modelData)
+                        }
+                        // Results: save (or ✓ when saved); your stations: remove
+                        IconButton {
+                            icon: searchPane.querying ? (row.saved ? "\uf00c" : "\uf067") : "\uf1f8"
+                            iconSize: 11; implicitWidth: 30; implicitHeight: 28; border.width: 0
+                            iconColor: !searchPane.querying ? Theme.fgDim : row.saved ? Theme.good : Theme.fg
+                            enabled: !(searchPane.querying && row.saved)
+                            onClicked: searchPane.querying ? Radio.add(row.modelData) : Radio.remove(row.modelData)
+                        }
+                    }
+                }
+
+                Label {
+                    anchors.centerIn: parent
+                    visible: parent.count === 0 && !Radio.searching && !Radio.searchError
+                    text: searchPane.querying ? "No stations found" : "No stations yet: search to add some"
+                    dim: true
+                    font.pixelSize: 12
+                }
             }
         }
     }

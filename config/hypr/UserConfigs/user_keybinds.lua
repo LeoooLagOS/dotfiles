@@ -100,6 +100,23 @@ bind(
 	{ description = "notifications (Quickshell panel)" }
 )
 
+-- One keybind per panel tab: SUPER SHIFT + letter opens the panel on that tab,
+-- or closes it if that tab is already shown (PanelToggle.sh <Tab>)
+--   N Notifications · M Media · T Weather (tiempo) · V Overview · D Calendar (días)
+--   P Wallpapers (papel tapiz) · C Controls
+local function panel_tab(key, tab, what)
+	unbind("SUPER SHIFT", key)
+	bind("SUPER SHIFT", key, exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh " .. tab), { description = "panel: " .. what })
+end
+panel_tab("M", "Media", "media (player / radio)")
+panel_tab("T", "Weather", "weather")
+panel_tab("V", "Overview", "overview")
+panel_tab("D", "Calendar", "calendar")
+panel_tab("P", "Wallpapers", "wallpapers")
+panel_tab("C", "Controls", "controls")
+-- RofiBeats (online stations / local music in Rofi) moves from SUPER SHIFT M
+bind("SUPER CTRL SHIFT", "M", exec_cmd("$HOME/.config/hypr/scripts/RofiBeats.sh"), { description = "online music (RofiBeats)" })
+
 -- Quickshell side panel (profile, weather, calendar, system, media…)
 -- Opened with SUPER ALT + N or SUPER CTRL SHIFT + N
 bind(
