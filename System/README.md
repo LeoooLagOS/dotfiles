@@ -4,7 +4,7 @@ Infrastructure-as-Code lists that describe the workstation's packages. `install.
 
 | File | Format | Consumed by |
 |---|---|---|
-| `pkglist.txt` | One DNF package per line (~490) | `packages` step |
+| `pkglist.txt` | One DNF package per line (~630) | `packages` step |
 | `coprs.txt` | One COPR `owner/project` per line; `#` comments allowed | `repos` step, before packages |
 | `flatpaks.txt` | One Flathub app ID per line | `flatpaks` step |
 
