@@ -12,7 +12,10 @@ local hyprDir = configHome .. "/hypr"
 local systemDir = hyprDir .. "/configs"
 local userDir = configHome .. "/hypr/UserConfigs"
 local function has_kvantum_qml_module()
-  local cmd = "find /usr/lib /usr/lib64 /usr/share -type d -path '*/qml/*/kvantum' -print -quit 2>/dev/null"
+  -- Only Qt's QML directories: scanning all of /usr/lib, /usr/lib64 and /usr/share
+  -- on every reload could pass Hyprland's Lua time limit ("execution timed out
+  -- in config reload") with a cold disk cache
+  local cmd = "find /usr/lib64/qt6/qml /usr/lib/qt6/qml /usr/lib64/qt5/qml /usr/lib/qt5/qml /usr/share/qt6/qml -type d -path '*/qml/*/kvantum' -print -quit 2>/dev/null"
   local pipe = io.popen(cmd, "r")
   if not pipe then
     return false
@@ -22,7 +25,7 @@ local function has_kvantum_qml_module()
   return output:match("%S") ~= nil
 end
 local function has_hyprland_qml_style_module()
-  local cmd = "find /usr/lib /usr/lib64 /usr/share -type d -path '*/qml/*/org/hyprland/style' -print -quit 2>/dev/null"
+  local cmd = "find /usr/lib64/qt6/qml /usr/lib/qt6/qml /usr/lib64/qt5/qml /usr/lib/qt5/qml /usr/share/qt6/qml -type d -path '*/qml/*/org/hyprland/style' -print -quit 2>/dev/null"
   local pipe = io.popen(cmd, "r")
   if not pipe then
     return false
