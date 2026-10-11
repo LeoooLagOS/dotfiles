@@ -37,7 +37,8 @@ Singleton {
         wallust: true, rotate: false, rotateMin: 30,
         // Not shown in Settings (set from Controls)
         nightTemp: 4500,
-        recTarget: "screen", recAudio: "system", recFps: 60      // screen recording (services/Recorder.qml)
+        recTarget: "screen", recAudio: "system", recFps: 60,     // screen recording (services/Recorder.qml)
+        mediaMode: "player", radioStation: "Radio BUAP"          // Media tab: player / radio view (services/Radio.qml)
     })
 
     property var v: defaults

@@ -7,7 +7,7 @@ A modular panel built from **zones** and organised in **tabs**:
 | Overview | weather + clock · profile (centered under the Overview tab, click → Controls) · notifications — calendar with events · system stats (click → Controls), media (compact) |
 | Calendar | month grid · agenda (selected day + next 7 days, refresh, **new event** form) · to-do list (tasks and ideas) |
 | Notifications | toolbar: Classify (critical / messages / system / other / per app) · Search · Sort (newest, oldest, app, urgency) · Do Not Disturb · Clear; list centered at 50% width |
-| Media | large art, track info, volume (vertical slider) and audio-output picker buttons, controls, cava visualizer as seekable progress, player picker |
+| Media | large art, track info, volume (vertical slider) and audio-output picker buttons, controls, cava visualizer as seekable progress, player picker; a corner button switches to the **radio** view (same layout: station logo, station chips, what's on air, previous / play-stop / next station, listening time) |
 | Weather | 24-hour temperature chart (curve, icons, rain %, sunrise/sunset) + compact hourly strip · current conditions with sunrise/sunset and six detail tiles + 7-day forecast |
 | Wallpapers | thumbnail grid of `~/Pictures/wallpapers` with folder filter; click to apply |
 | Controls | identity bar (⚙ settings · lock · power) · 9 quick toggles · output / microphone / brightness · detail pane (System + power profile, or a toggle's detail) — ⚙ opens **Settings** (see [Controls and Settings](#controls-and-settings)) |
@@ -21,7 +21,7 @@ the wallpaper (wallust), like waybar and swaync.
 |---|---|
 | Toggle | `SUPER ALT + N` or `SUPER CTRL SHIFT + N` → `scripts/wm/PanelToggle.sh` |
 | Notifications | `SUPER SHIFT + N` or the waybar bell → `PanelToggle.sh Notifications`; right-click the bell for Do Not Disturb |
-| IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`, `record`) |
+| IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`, `record`, `radio`) |
 | Keys | full keyboard control — see [Keyboard](#keyboard) |
 | Autostart | user service `quickshell-panel.service` (`config/systemd/user/`), see [Notifications](#notifications) |
 | Blur | layer rules `quickshell:panel` (card) and `quickshell:panel-dim` (screen) in `config/hypr/UserConfigs/user_layer_rules.lua` |
@@ -548,7 +548,7 @@ also goes in `SystemSettings`).
 | Clock | `SystemClock` |
 | Calendar | local clock + `scripts/events.py`; week start and refresh: Settings → Weather & calendar |
 | System | `/proc/stat`, `/proc/meminfo`, coretemp hwmon, `df /`, `/sys/class/power_supply` |
-| Media | MPRIS over D-Bus (`services/Media.qml`; the `playerctld` proxy is skipped, it duplicated the active player); volume and outputs are the system's (PipeWire default sink); visualizer: `cava -p scripts/cava.conf` while the Media tab is open (this cava build has no PipeWire input, so it uses `pulse`) |
+| Media | MPRIS over D-Bus (`services/Media.qml`; the `playerctld` proxy is skipped, it duplicated the active player); volume and outputs are the system's (PipeWire default sink); visualizer: `cava -p scripts/cava.conf` while the Media tab is open (this cava build has no PipeWire input, so it uses `pulse`). Radio (`services/Radio.qml`): stations in `~/.config/lagos/radio-stations` (`Name \| stream URL \| subtitle \| logo URL`; created with Radio BUAP, the default, `Settings.v.radioStation`), played by `mpv --no-video` with a JSON IPC socket the panel reads for the ICY title (what's on air); IPC `radio` starts / stops it. Player or radio view: `Settings.v.mediaMode` |
 | Forecast | `scripts/forecast.py` → Open-Meteo forecast + air-quality API (US AQI), same coordinates as waybar's weather cache |
 | Wallpapers | `~/Pictures/wallpapers` (`wallpaperDir` in Config); thumbnails in `~/.cache/quickshell-panel/thumbs/`; applied with `scripts/wm/WallpaperSelect.sh <file>` (awww + wallust + bar refresh) |
 | Sliders | `services/Audio.qml` (PipeWire default sink/source, device lists), `brightnessctl` |

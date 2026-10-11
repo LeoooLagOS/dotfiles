@@ -9,11 +9,17 @@ import "../services"
 // (system volume as a vertical slider, audio output picker); transport
 // controls; and at the bottom a cava visualizer that doubles as the seekable
 // progress bar, with elapsed / total time.
+// Two views, switched by the button in the top-right corner (saved,
+// Settings.v.mediaMode): the MPRIS player, or internet radio (services/Radio.qml)
+// with the same layout — station logo, a chip per station, what's on air,
+// previous / play-stop / next station, and cava with the listening time.
 // Keyboard: Space play/pause, ←/→ previous/next (when no control has focus);
 // Tab to the side buttons, Enter opens their popover (↑/↓ inside, Esc closes).
 Zone {
     id: root
     readonly property var player: Media.player
+    readonly property bool radio: Settings.v.mediaMode === "radio"
+    readonly property var station: Radio.current
     readonly property var sinkAudio: Media.sink?.audio ?? null
 
     // Which popover is open: "", "volume" or "output"
@@ -27,9 +33,23 @@ Zone {
     }
     Component.onDestruction: if (visualize) Cava.users -= 1
 
+    // Player ↔ radio
+    IconButton {
+        parent: root
+        z: 5
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: Theme.zonePadding
+        icon: root.radio ? "\uf001" : "\u{f0439}"      // music note / radio
+        iconSize: 14
+        implicitWidth: 34; implicitHeight: 30
+        active: root.radio
+        onClicked: Settings.set("mediaMode", root.radio ? "player" : "radio")
+    }
+
     // Empty state
     Item {
-        visible: !root.player
+        visible: !root.player && !root.radio
         width: parent.width
         height: root.height - 2 * Theme.zonePadding
         Column {
@@ -42,7 +62,7 @@ Zone {
     }
 
     RowLayout {
-        visible: !!root.player
+        visible: !!root.player || root.radio
         width: parent.width
         height: root.height - 2 * Theme.zonePadding
         spacing: 24
@@ -54,11 +74,11 @@ Zone {
             radius: Theme.zoneRadius
             color: Theme.bgHover
 
-            Glyph { anchors.centerIn: parent; text: "\uf001"; font.pixelSize: 64; color: Theme.fgDim; visible: art.status !== Image.Ready }
+            Glyph { anchors.centerIn: parent; text: root.radio ? "\u{f0439}" : "\uf001"; font.pixelSize: 64; color: Theme.fgDim; visible: art.status !== Image.Ready }
             Image {
                 id: art
                 anchors.fill: parent
-                source: root.player?.trackArtUrl ?? ""
+                source: root.radio ? (root.station?.logo ?? "") : (root.player?.trackArtUrl ?? "")
                 fillMode: Image.PreserveAspectCrop
                 sourceSize: Qt.size(600, 600)
                 asynchronous: true
@@ -71,21 +91,23 @@ Zone {
             Layout.fillHeight: true
             spacing: 12
 
-            // Player picker (only when there is more than one)
+            // Player picker (only when there is more than one) / station picker
             Flow {
                 Layout.fillWidth: true
+                Layout.rightMargin: 40           // room for the player ↔ radio button
                 spacing: 6
-                visible: Media.players.length > 1
+                visible: root.radio || Media.players.length > 1
                 Repeater {
-                    model: Media.players
+                    model: root.radio ? Radio.stations : Media.players
                     delegate: Chip {
                         required property var modelData
                         implicitHeight: 26
                         // Identity alone is ambiguous (e.g. two Firefox tabs): add the track
-                        text: { const t = modelData.identity.split(" ")[0] + (modelData.trackTitle ? " · " + modelData.trackTitle : "");
+                        text: { if (root.radio) return modelData.name;
+                                const t = modelData.identity.split(" ")[0] + (modelData.trackTitle ? " · " + modelData.trackTitle : "");
                                 return t.length > 34 ? t.slice(0, 33) + "…" : t; }
-                        active: modelData === root.player
-                        onClicked: Media.pick(modelData)
+                        active: root.radio ? modelData.name === root.station?.name : modelData === root.player
+                        onClicked: root.radio ? Radio.play(modelData) : Media.pick(modelData)
                     }
                 }
             }
@@ -101,7 +123,8 @@ Zone {
                     Layout.fillWidth: true
                     spacing: 4
                     Label {
-                        text: root.player?.identity ?? ""
+                        text: root.radio ? (Radio.loading ? "RADIO · CONNECTING…" : Radio.active ? "RADIO · LIVE" : "RADIO")
+                                         : (root.player?.identity ?? "")
                         dim: true
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
@@ -109,7 +132,7 @@ Zone {
                         Layout.fillWidth: true
                     }
                     Label {
-                        text: root.player?.trackTitle || "Unknown title"
+                        text: root.radio ? (root.station?.name ?? "No stations") : (root.player?.trackTitle || "Unknown title")
                         color: Theme.accent
                         font.pixelSize: 24
                         font.weight: Font.DemiBold
@@ -117,8 +140,9 @@ Zone {
                         maximumLineCount: 2
                         Layout.fillWidth: true
                     }
-                    Label { text: root.player?.trackArtist ?? ""; font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true }
-                    Label { text: root.player?.trackAlbum ?? ""; dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
+                    // Radio: what's on air (the stream's title), then frequency / city
+                    Label { text: root.radio ? Radio.onAir : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }
+                    Label { text: root.radio ? (root.station?.subtitle ?? "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
                 }
 
                 ColumnLayout {
@@ -149,19 +173,23 @@ Zone {
                 spacing: 12
 
                 IconButton {
+                    visible: !root.radio
                     icon: "\uf074"; iconSize: 13; border.width: 0
                     enabled: root.player?.shuffleSupported ?? false
                     opacity: enabled ? 1 : 0.35
                     active: root.player?.shuffle ?? false
                     onClicked: root.player.shuffle = !root.player.shuffle
                 }
+                // Radio: previous / next station, and play-stop (a live stream isn't paused)
                 IconButton { icon: "\uf048"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
-                             onClicked: root.player.previous() }
-                IconButton { icon: root.player?.isPlaying ? "\uf04c" : "\uf04b"; iconSize: 18; implicitWidth: 56; implicitHeight: 48
-                             radius: 24; active: true; onClicked: root.player.togglePlaying() }
+                             onClicked: root.radio ? Radio.previous() : root.player.previous() }
+                IconButton { icon: root.radio ? (Radio.active ? "\uf04d" : "\uf04b") : (root.player?.isPlaying ? "\uf04c" : "\uf04b")
+                             iconSize: 18; implicitWidth: 56; implicitHeight: 48
+                             radius: 24; active: true; onClicked: root.radio ? Radio.toggle() : root.player.togglePlaying() }
                 IconButton { icon: "\uf051"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
-                             onClicked: root.player.next() }
+                             onClicked: root.radio ? Radio.next() : root.player.next() }
                 IconButton {
+                    visible: !root.radio
                     icon: (root.player?.loopState ?? MprisLoopState.None) === MprisLoopState.Track ? "\u{f0458}" : "\uf01e"
                     iconSize: 13; border.width: 0
                     enabled: root.player?.loopSupported ?? false
@@ -177,7 +205,7 @@ Zone {
                 Layout.topMargin: 6
                 spacing: 10
 
-                Label { Layout.alignment: Qt.AlignBottom; text: Media.fmt(root.player?.position); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
+                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Radio.elapsed : Media.fmt(root.player?.position); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
 
                 Item {
                     id: viz
@@ -196,7 +224,7 @@ Zone {
                                 width: viz.slot
                                 height: viz.height
                                 readonly property real level: Cava.bars[index] ?? 0
-                                readonly property bool played: (index + 0.5) / viz.count <= Media.progress
+                                readonly property bool played: root.radio ? Radio.active : (index + 0.5) / viz.count <= Media.progress
                                 Rectangle {
                                     anchors.bottom: parent.bottom
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -212,13 +240,15 @@ Zone {
 
                     MouseArea {
                         anchors.fill: parent
-                        enabled: (root.player?.canSeek ?? false) && root.player.length > 0
+                        enabled: !root.radio && (root.player?.canSeek ?? false) && root.player.length > 0
                         cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                         onClicked: mouse => root.player.position = root.player.length * mouse.x / width
                     }
                 }
 
-                Label { Layout.alignment: Qt.AlignBottom; text: Media.fmt(root.player?.length); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
+                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? "LIVE" : Media.fmt(root.player?.length)
+                        color: root.radio && Radio.active ? Theme.accent : Theme.fgDim
+                        font.pixelSize: 11; font.weight: root.radio ? Font.DemiBold : Font.Normal; font.features: { "tnum": 1 } }
             }
         }
     }

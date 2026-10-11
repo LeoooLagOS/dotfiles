@@ -106,6 +106,11 @@ Scope {
                         else PanelState.open = false;
                         event.accepted = true;
                     }
+                    else if (Config.tabs[PanelState.tab]?.name === "Media" && Settings.v.mediaMode === "radio") {
+                        if (event.key === Qt.Key_Space) { Radio.toggle(); event.accepted = true; }
+                        else if (event.key === Qt.Key_Left) { Radio.previous(); event.accepted = true; }
+                        else if (event.key === Qt.Key_Right) { Radio.next(); event.accepted = true; }
+                    }
                     else if (Config.tabs[PanelState.tab]?.name === "Media" && Media.player) {
                         if (event.key === Qt.Key_Space) { Media.player.togglePlaying(); event.accepted = true; }
                         else if (event.key === Qt.Key_Left) { Media.player.previous(); event.accepted = true; }
