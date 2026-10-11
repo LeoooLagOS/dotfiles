@@ -252,7 +252,14 @@ Sources:
    made in Outlook (phone, web) show up once Microsoft republishes the feed
    (minutes to a couple of hours) plus the cache; the agenda's refresh button
    forces a download. Offline, the last copy is used.
-2. **Local `.ics` files** in `~/.config/lagos/calendars/`. Events created from
+2. **Calendar feeds** in `~/.config/lagos/calendar-feeds` (mode 600, outside
+   the repo), one per line: `Name | https://…/basic.ics [| reminder minutes]`
+   — e.g. each Google calendar's *Secret address in iCal format* (Settings →
+   the calendar → Integrate calendar). Cached and refreshed like the webcal
+   ones; reminder: the event's VALARM, else the line's minutes (default 10).
+   Thunderbird's CalDAV calendars can't be read instead: it keeps no local
+   copy of them.
+3. **Local `.ics` files** in `~/.config/lagos/calendars/`. Events created from
    the panel go to `panel.ics` there (stored in UTC, with a VALARM for the
    chosen reminder) and can be deleted from the agenda.
 
@@ -384,6 +391,11 @@ The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
   | Messages | categories `im.*` / `email.*`, WhatsApp, Telegram, Teams, Discord, Thunderbird… | bottom right | grouped per conversation: same app + sender → one card, "3 messages" |
   | Now playing | category `x-gnome.music`, Spotify, mpv, VLC, … (`Notifs.mediaApps`) | top right | |
   | Other apps | everything else | top right | |
+
+  **Email** (Thunderbird, `Notifs.mailOf`): Thunderbird titles them "<account>
+  received N new messages" and puts "<Subject> from <Sender>" in the body; the
+  card shows the sender as the title, the subject as the text, the account
+  above and "N new", one card per account.
 
   **Web apps**: a site's notification comes from the browser ("Brave"). Chromium
   browsers put the site in the body, so known sites (`Notifs.webServices`:

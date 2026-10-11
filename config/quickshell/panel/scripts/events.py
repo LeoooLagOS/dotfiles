@@ -9,7 +9,7 @@ Usage:
 
 `list` prints JSON: {"events": [...], "sources": N, "errors": [...]}; each event:
   {uid, date, start, end, startIso, allDay, title, location, notes, calendar,
-   source ("outlook" | "local"), important, high, reminder (minutes, 0 = none)}
+   source ("outlook" | "feed" | "local"), important, high, reminder (minutes, 0 = none)}
 
 Sources (no URLs are stored in the dotfiles repo):
   1. Evolution webcal subscriptions (~/.config/evolution/sources/*.source) —
@@ -18,7 +18,12 @@ Sources (no URLs are stored in the dotfiles repo):
      These events are treated as important and get a 15-minute reminder
      (published Outlook calendars don't include their alarms). Outlook's
      "High importance" (X-MICROSOFT-CDO-IMPORTANCE:2) is reported as `high`.
-  2. Local .ics files in ~/.config/lagos/calendars/. Events created from the
+  2. Calendar feeds in ~/.config/lagos/calendar-feeds, one per line:
+       Name | https://…/basic.ics [| reminder minutes]
+     e.g. Google Calendar's "Secret address in iCal format". Cached like the
+     webcal ones; the reminder is the event's VALARM, else the line's minutes
+     (default 10). Lines starting with # are ignored.
+  3. Local .ics files in ~/.config/lagos/calendars/. Events created from the
      panel go to panel.ics there; their reminder comes from their VALARM.
 
 Runs inside ~/.local/share/quickshell-panel/venv (icalendar,
@@ -26,6 +31,7 @@ recurring-ical-events) so recurring events and timezones are expanded.
 """
 
 import configparser
+import hashlib
 import json
 import sys
 import time
@@ -40,6 +46,8 @@ import recurring_ical_events
 HOME = Path.home()
 EVO_SOURCES = HOME / ".config/evolution/sources"
 LOCAL_DIR = HOME / ".config/lagos/calendars"
+FEEDS_FILE = HOME / ".config/lagos/calendar-feeds"
+FEED_REMINDER = 10  # minutes, when a feed's event has no VALARM
 PANEL_ICS = LOCAL_DIR / "panel.ics"
 CACHE_DIR = HOME / ".cache/quickshell-panel"
 CACHE_TTL = 15 * 60
@@ -71,6 +79,28 @@ def webcal_sources():
         if uri:
             name = cp.get("Data Source", "DisplayName", fallback=f.stem)
             out.append((name, uri, CACHE_DIR / f"{f.stem}.ics"))
+    return out
+
+
+def feed_sources():
+    """(name, url, cache_file, reminder) for each line of the feeds file."""
+    out = []
+    if not FEEDS_FILE.exists():
+        return out
+    for line in FEEDS_FILE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) < 2 or not parts[1]:
+            continue
+        url = parts[1].replace("webcal://", "https://")
+        try:
+            reminder = int(parts[2]) if len(parts) > 2 and parts[2] else FEED_REMINDER
+        except ValueError:
+            reminder = FEED_REMINDER
+        key = hashlib.sha1(url.encode()).hexdigest()[:12]
+        out.append((parts[0] or "Calendar", url, CACHE_DIR / f"feed-{key}.ics", reminder))
     return out
 
 
@@ -112,16 +142,21 @@ def cmd_list(start, end, force):
     end = end + timedelta(days=1)  # inclusive
     errors, calendars = [], []
 
+    # (name, source, data, reminder when the event has no VALARM)
     for name, url, cache in webcal_sources():
         data = fetch(url, cache, errors, force)
         if data:
-            calendars.append((name, "outlook", data))
+            calendars.append((name, "outlook", data, OUTLOOK_REMINDER))
+    for name, url, cache, reminder in feed_sources():
+        data = fetch(url, cache, errors, force)
+        if data:
+            calendars.append((name, "feed", data, reminder))
     if LOCAL_DIR.is_dir():
         for f in sorted(LOCAL_DIR.glob("*.ics")):
-            calendars.append(("Panel" if f == PANEL_ICS else f.stem, "local", f.read_bytes()))
+            calendars.append(("Panel" if f == PANEL_ICS else f.stem, "local", f.read_bytes(), 0))
 
     events = []
-    for name, source, data in calendars:
+    for name, source, data, default_reminder in calendars:
         try:
             cal = icalendar.Calendar.from_ical(data)
             occurrences = recurring_ical_events.of(cal).between(start, end)
@@ -147,7 +182,8 @@ def cmd_list(start, end, force):
                 "source": source,
                 "important": outlook or importance >= 2,
                 "high": importance >= 2,
-                "reminder": OUTLOOK_REMINDER if outlook else reminder_minutes(ev),
+                # Outlook's published calendars carry no alarms: always theirs
+                "reminder": OUTLOOK_REMINDER if outlook else (reminder_minutes(ev) or default_reminder),
             }
             # All-day events spanning several days appear on each day
             day = s if all_day else s.date()
