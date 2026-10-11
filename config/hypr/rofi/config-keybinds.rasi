@@ -1,6 +1,8 @@
 /* Keybind search — scripts/wm/KeyBinds.sh (SUPER SHIFT K)
  * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
 @import "~/.config/hypr/rofi/config.rasi"
+/* Colors of the "keybinds" launchers (written by the panel, services/LauncherTheme.qml) */
+@import "~/.config/lagos/rofi/keybinds.rasi"
 
 entry { placeholder: "Search keybinds"; }
 

@@ -2,6 +2,8 @@
  * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi).
  * The message is the live result (large); the list is the history. */
 @import "~/.config/hypr/rofi/config.rasi"
+/* Colors of the "calc" launchers (written by the panel, services/LauncherTheme.qml) */
+@import "~/.config/lagos/rofi/calc.rasi"
 
 window  { width: 640px; }
 mainbox { children: [ "inputbar", "message", "listview" ]; }
@@ -20,4 +22,4 @@ listview {
 element { spacing: 0; }
 element-icon { size: 0; }
 element-text { horizontal-align: 0.0; text-color: @lagos-fg-dim; }
-element selected.normal element-text { text-color: @lagos-fg; }
+element selected.normal element-text { text-color: @lagos-selected-fg; }

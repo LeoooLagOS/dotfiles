@@ -1,6 +1,8 @@
 /* Lagos — rofi theme matching the Quickshell panel (config/quickshell/panel):
- * Inter, the panel's dark palette from wallust (lagos-* tokens, generated from
- * config/hypr/wallust/templates/colors-rofi.rasi), 22/14/10 px corners, the
+ * Inter, the panel's palette (lagos-* tokens: the wallust dark defaults from
+ * config/hypr/wallust/templates/colors-rofi.rasi; each menu's config then
+ * imports ~/.config/lagos/rofi/<group>.rasi with its colors, written by the
+ * panel: Settings → Appearance → Panel & launchers), 22/14/10 px corners, the
  * accent at 20% for the selection. A card ~760 px wide whose height follows
  * its lines; where it opens (bottom edge or centered) is position.rasi, imported
  * at the end (scripts/wm/RofiPosition.sh). Launcher configs (config-*.rasi) only change the layout:
@@ -109,7 +111,7 @@ element normal.urgent, element alternate.urgent {
 }
 element selected.normal, element selected.active, element selected.urgent {
   background-color: @lagos-accent-soft;
-  text-color:       @lagos-fg;
+  text-color:       @lagos-selected-fg;
 }
 element-icon {
   size:           26px;
@@ -141,7 +143,7 @@ button {
 }
 button selected {
   background-color: @lagos-accent-soft;
-  text-color:       @lagos-fg;
+  text-color:       @lagos-selected-fg;
 }
 
 error-message {

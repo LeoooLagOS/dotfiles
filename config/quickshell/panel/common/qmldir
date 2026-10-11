@@ -20,3 +20,4 @@ QuickTile 1.0 QuickTile.qml
 Segmented 1.0 Segmented.qml
 Switch 1.0 Switch.qml
 ValueSlider 1.0 ValueSlider.qml
+ColorPalette 1.0 ColorPalette.qml

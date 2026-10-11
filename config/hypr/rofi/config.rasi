@@ -23,3 +23,8 @@
  * ~/.config/hypr/rofi/themes/; the rofi theme selector (SUPER CTRL R) appends
  * its choice below, and the last @theme wins. */
 @theme "~/.config/hypr/rofi/themes/Lagos.rasi"
+
+/* Colors of the "apps" launchers (SUPER D and menus without their own config),
+ * written by the Quickshell panel (services/LauncherTheme.qml). The config-*.rasi
+ * files import this one and then their own group's file. */
+@import "~/.config/lagos/rofi/apps.rasi"

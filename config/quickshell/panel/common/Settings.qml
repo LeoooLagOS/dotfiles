@@ -17,12 +17,17 @@ Singleton {
     id: root
 
     readonly property var defaults: ({
-        // Appearance
-        mode: "system", inverted: false, opacity: 72, blur: true, animations: true, rofiPosition: "bottom",
+        // Appearance (the theme is also set from Controls → Dark mode)
+        mode: "system", inverted: false, themeScope: "both", themeLaunchers: ["all"], opacity: 72, blur: true, animations: true, rofiPosition: "bottom",
         // Panel
         openTab: "Overview", closeOutside: true, dimHover: true, width: 50, height: 50,
         // Notifications
         dndSched: false, dndWindow: "23:00-07:00", critical: true, popupSecs: 6, history: 100,
+        // Where popups appear, per type (services/Notifs.qml placeKind)
+        posLevel: "top", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
+        posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
+        maxPopups: 3, groupMessages: true, callsThroughDnd: true,
+        appRules: ({}),                                           // appName → place | "off" | "mute"
         // Power & idle (system)
         dim: 300, warn: 540, lock: 600, screenOff: 630, suspend: 1200, mediaGuard: true,
         battery: [50, 20, 10, 5], loginProfile: "keep",
@@ -31,7 +36,8 @@ Singleton {
         // Wallpaper
         wallust: true, rotate: false, rotateMin: 30,
         // Not shown in Settings (set from Controls)
-        nightTemp: 4500
+        nightTemp: 4500,
+        recTarget: "screen", recAudio: "system", recFps: 60      // screen recording (services/Recorder.qml)
     })
 
     property var v: defaults
@@ -68,16 +74,43 @@ Singleton {
         for (const k of keys) changed(k);
     }
 
+    // Rofi menus grouped for Appearance → Launchers. `configs`: the
+    // config/hypr/rofi/config-*.rasi files of the group, each importing
+    // ~/.config/lagos/rofi/<id>.rasi (written by services/LauncherTheme.qml).
+    // "apps" is config.rasi itself: SUPER D and every menu without its own config.
+    readonly property var launcherGroups: [
+        { id: "apps", label: "Apps", configs: [] },
+        { id: "clipboard", label: "Clipboard & emoji", configs: ["clipboard", "emoji"] },
+        { id: "keybinds", label: "Keybinds", configs: ["keybinds", "emacs-keybinds"] },
+        { id: "wallpapers", label: "Wallpapers", configs: ["wallpaper", "wallpaper-effect"] },
+        { id: "calc", label: "Calc & search", configs: ["calc", "search"] },
+        { id: "other", label: "Other menus", configs: ["Animations", "Monitors", "layout", "edit", "rofi-theme",
+            "kitty-theme", "ghostty-theme", "starship", "zsh-theme", "waybar-layout", "waybar-style",
+            "rofi-Beats", "rofi-Beats-menu"] }
+    ]
+
+    // Places a notification popup can appear (NotificationPopups.qml)
+    readonly property var notifPlaces: [["top", "Top center"], ["top-left", "Top left"], ["top-right", "Top right"], ["bottom-right", "Bottom right"],
+                                        ["bottom", "Bottom center"], ["off", "Don't show (history only)"]]
+
     // ---------------- Schema ----------------
     // Row types: switch · seg (opts [value, label]) · select (opts [value, label]) ·
-    // range (min, max, step, unit: "%", "min", "time", "") · chips (opts, multi) ·
+    // range (min, max, step, unit: "%", "min", "time", "") · chips (opts: values
+    // or [value, label]; multi; `all`: the value meaning "every option", exclusive) ·
     // keys (value: [..]) · info (value or infoKey from SystemSettings.about)
+    // Any row: `visibleIf: v => …` (v = Settings.v) shows it only when true.
     readonly property var sections: [
-        { id: "appearance", icon: "", label: "Appearance", lead: "How the panel looks. Changes apply right away.", groups: [
-            { title: "Theme", rows: [
-                { key: "mode", label: "Default mode", help: "System follows DarkLight.sh", type: "seg",
-                  opts: [["system", "System"], ["dark", "Dark"], ["light", "Light"]] },
-                { key: "inverted", label: "Inverted palette", help: "Surfaces take the wallpaper color", type: "switch" } ] },
+        { id: "appearance", icon: "", label: "Appearance", lead: "How the panel and the Rofi menus look. Changes apply right away.", groups: [
+            { title: "Panel & launchers", rows: [
+                { key: "mode", label: "Mode", help: "Only the panel and Rofi: apps and browsers keep the system theme", type: "seg",
+                  opts: [["system", "Follow system"], ["dark", "Dark"], ["light", "Light"]] },
+                { key: "inverted", label: "Palette", help: "Inverted: surfaces take the wallpaper color", type: "seg",
+                  opts: [[false, "Normal"], [true, "Inverted"]] },
+                { key: "themeScope", label: "Apply to", help: "The rest keeps the default theme (dark, normal)", type: "seg",
+                  opts: [["panel", "Panel only"], ["both", "Panel & launchers"], ["launchers", "Launchers only"]] },
+                { key: "themeLaunchers", label: "Launchers", help: "Which Rofi menus follow it", type: "chips", all: "all",
+                  opts: [["all", "All"]].concat(launcherGroups.map(g => [g.id, g.label])),
+                  visibleIf: v => v.themeScope !== "panel" } ] },
             { title: "Panel surface", rows: [
                 { key: "opacity", label: "Opacity", help: "Of the panel card · light and inverted modes add a little", type: "range", min: 50, max: 100, step: 1, unit: "%" },
                 { key: "blur", label: "Blur", help: "Frosted card, and the screen behind while hovering", type: "switch", system: true },
@@ -94,7 +127,24 @@ Singleton {
             { title: "Size", rows: [
                 { key: "width", label: "Width", help: "Share of the usable screen", type: "range", min: 35, max: 80, step: 1, unit: "%" },
                 { key: "height", label: "Height", type: "range", min: 35, max: 80, step: 1, unit: "%" } ] } ] },
-        { id: "notifications", icon: "", label: "Notifications", lead: "Popups, history and quiet hours.", groups: [
+        { id: "notifications", icon: "", label: "Notifications", lead: "Where popups appear, quiet hours and history.", groups: [
+            { title: "Where popups appear", rows: [
+                { key: "posCall", label: "Calls", help: "Incoming calls ring until answered or declined", type: "select", opts: notifPlaces.filter(o => o[0] !== "off") },
+                { key: "posSecurity", label: "Security codes", help: "2FA / login codes (with a Copy button), sign-in alerts, password prompts", type: "select", opts: notifPlaces },
+                { key: "posReminder", label: "Reminders", help: "Calendar events: they stay until dismissed", type: "select", opts: notifPlaces },
+                { key: "posLevel", label: "Volume & brightness", help: "Level bars: volume, mic, brightness", type: "select", opts: notifPlaces },
+                { key: "posSystem", label: "System", help: "Battery, network, devices, screenshots, recordings, scripts", type: "select", opts: notifPlaces },
+                { key: "posMessage", label: "Messages", help: "WhatsApp, Telegram, Teams, Discord, email…", type: "select", opts: notifPlaces },
+                { key: "posMedia", label: "Now playing", help: "Track changes from Spotify and other players", type: "select", opts: notifPlaces },
+                { key: "posProgress", label: "Progress", help: "Downloads, copies, updates: a bar that fills in place", type: "select", opts: notifPlaces },
+                { key: "posApp", label: "Other apps", help: "Browser and everything else", type: "select", opts: notifPlaces },
+                { label: "Critical", help: "Always at the top center, so they can't be missed", type: "info", value: "Top center" },
+                { key: "maxPopups", label: "At most per place", help: "More wait their turn, newest first", type: "range", min: 1, max: 6, step: 1, unit: "" } ] },
+            { title: "Behavior", rows: [
+                { key: "groupMessages", label: "Group messages by conversation", help: "One card per chat (“Ana · 3 messages”); each one stays in the history", type: "switch" },
+                { key: "callsThroughDnd", label: "Calls ring through Do Not Disturb", type: "switch" } ] },
+            { title: "Per app", rows: [
+                { key: "appRules", label: "Rules", help: "Send an app elsewhere, history only, or mute it. Apps show up here after their first notification", type: "apprules" } ] },
             { title: "Do Not Disturb", rows: [
                 { key: "dndSched", label: "Turn on automatically", help: "Every day, during the hours below", type: "switch" },
                 { key: "dndWindow", label: "Quiet hours", type: "select",

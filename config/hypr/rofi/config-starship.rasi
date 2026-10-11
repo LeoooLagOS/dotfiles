@@ -1,6 +1,8 @@
 /* Starship prompt — scripts/wm/ChangeStarshipPrompt.sh
  * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
 @import "~/.config/hypr/rofi/config.rasi"
+/* Colors of the "other" launchers (written by the panel, services/LauncherTheme.qml) */
+@import "~/.config/lagos/rofi/other.rasi"
 
 window { width: 460px; }
 

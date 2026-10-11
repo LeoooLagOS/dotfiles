@@ -45,16 +45,32 @@ color13: {{color13}};
 color14: {{color14}};
 color15: {{color15}};
 
-/* Lagos theme (themes/Lagos.rasi): the Quickshell panel's dark palette,
-   config/quickshell/panel/common/Theme.qml */
-lagos-surface: rgba({{background | rgb}}, 0.92);
-lagos-zone: rgba({{color0 | rgb}}, 0.45);
-lagos-hover: rgba({{color0 | rgb}}, 0.80);
-lagos-fg: #eceef2;
-lagos-fg-dim: rgba(236, 238, 242, 0.60);
-lagos-accent: {{color12}};
-lagos-accent-soft: rgba({{color12 | rgb}}, 0.20);
-lagos-on-accent: {{background}};
-lagos-border: rgba({{color12 | rgb}}, 0.22);
-lagos-urgent: {{color9}};
+/* Lagos theme (themes/Lagos.rasi): the Quickshell panel's default (dark)
+   palette, config/quickshell/panel/common/ColorPalette.qml. The panel's
+   services/LauncherTheme.qml writes ~/.config/lagos/rofi/<group>.rasi, which
+   each menu imports: either its own colors (Appearance → Panel & launchers)
+   or these defaults. The lagos-* names below are the fallback when those
+   files don't exist yet. */
+lagos-dark-surface: rgba({{background | rgb}}, 0.92);
+lagos-dark-zone: rgba({{color0 | rgb}}, 0.45);
+lagos-dark-hover: rgba({{color0 | rgb}}, 0.80);
+lagos-dark-fg: #eceef2;
+lagos-dark-fg-dim: rgba(236, 238, 242, 0.60);
+lagos-dark-accent: {{color12}};
+lagos-dark-accent-soft: rgba({{color12 | rgb}}, 0.20);
+lagos-dark-selected-fg: #eceef2;
+lagos-dark-on-accent: {{background}};
+lagos-dark-border: rgba({{color12 | rgb}}, 0.22);
+lagos-dark-urgent: {{color9}};
+lagos-surface: @lagos-dark-surface;
+lagos-zone: @lagos-dark-zone;
+lagos-hover: @lagos-dark-hover;
+lagos-fg: @lagos-dark-fg;
+lagos-fg-dim: @lagos-dark-fg-dim;
+lagos-accent: @lagos-dark-accent;
+lagos-accent-soft: @lagos-dark-accent-soft;
+lagos-selected-fg: @lagos-dark-selected-fg;
+lagos-on-accent: @lagos-dark-on-accent;
+lagos-border: @lagos-dark-border;
+lagos-urgent: @lagos-dark-urgent;
 }

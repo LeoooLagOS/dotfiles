@@ -1,6 +1,8 @@
 /* Quick settings and edit menus — scripts/wm/Kool_Quick_Settings.sh (also the fallback of Ghostty_themes.sh)
  * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
 @import "~/.config/hypr/rofi/config.rasi"
+/* Colors of the "other" launchers (written by the panel, services/LauncherTheme.qml) */
+@import "~/.config/lagos/rofi/other.rasi"
 
 entry { placeholder: "Search"; }
 

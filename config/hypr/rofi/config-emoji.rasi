@@ -1,6 +1,8 @@
 /* Emoji picker — scripts/wm/RofiEmoji.sh
  * Layout only: colors, fonts and shapes come from themes/Lagos.rasi (via config.rasi). */
 @import "~/.config/hypr/rofi/config.rasi"
+/* Colors of the "clipboard" launchers (written by the panel, services/LauncherTheme.qml) */
+@import "~/.config/lagos/rofi/clipboard.rasi"
 
 entry { placeholder: "Search emoji"; }
 

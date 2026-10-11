@@ -3,33 +3,45 @@ import QtQuick.Layouts
 import "../../common"
 import "../../services"
 
-// DETAIL: dark / light right now (the default lives in Settings → Appearance)
+// DETAIL: the theme, same settings as Settings → Appearance → Panel & launchers
+// (that page also picks which launchers follow it). Only the panel and the
+// Rofi menus: GTK/Qt apps and browsers keep the system theme (DarkLight.sh).
 Zone {
     title: "Appearance"
-    icon: Theme.light ? "" : ""
+    icon: Theme.chosenLight ? "" : ""
     closable: true
     ColumnLayout {
         width: parent.width
         spacing: 8
-        Label { text: "RIGHT NOW"; dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+        Label { text: "MODE"; dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1 }
         Segmented {
             Layout.fillWidth: true
-            value: Theme.light ? "light" : "dark"
-            options: [{ value: "dark", label: "Dark", icon: "" }, { value: "light", label: "Light", icon: "" }]
-            onSelected: v => { if ((v === "light") !== Theme.light) Theme.toggleLight(); }
+            value: Theme.modeSetting
+            options: [{ value: "system", label: "System" }, { value: "dark", label: "Dark", icon: "" },
+                      { value: "light", label: "Light", icon: "" }]
+            onSelected: v => Theme.setMode(v)
         }
-        RowLayout {
+        Label { text: "PALETTE"; dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+        Segmented {
             Layout.fillWidth: true
-            Label { text: "Inverted palette"; font.pixelSize: 13; Layout.fillWidth: true }
-            Switch { checked: Theme.inverted; onToggled: Theme.setInverted(!Theme.inverted) }
+            value: Theme.chosenInverted
+            options: [{ value: false, label: "Normal" }, { value: true, label: "Inverted" }]
+            onSelected: v => Theme.setInverted(v)
+        }
+        Label { text: "APPLY TO"; dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+        Segmented {
+            Layout.fillWidth: true
+            value: Theme.scope
+            options: [{ value: "panel", label: "Panel" }, { value: "both", label: "Both" }, { value: "launchers", label: "Launchers" }]
+            onSelected: v => Settings.set("themeScope", v)
         }
         Label {
             Layout.fillWidth: true
             wrapMode: Text.Wrap
             dim: true
             font.pixelSize: 11
-            text: "Dark / light here lasts until the panel restarts. The default (follow the system, or always dark or light) is in Settings."
+            text: "Launchers are the Rofi menus. Apps and browsers keep the system theme."
         }
-        Chip { text: "Appearance settings"; icon: ""; onClicked: PanelState.openSettings("appearance") }
+        Chip { text: "Choose launchers"; icon: ""; onClicked: PanelState.openSettings("appearance") }
     }
 }
