@@ -13,6 +13,9 @@ import "./services"
 //   top-right     top right corner — now playing, other apps, reminders
 //   bottom-right  bottom right corner — messages
 //   bottom        bottom center
+//   under-panel   while the panel is open, right below it: only the important
+//                 ones (critical, calls, security codes, reminders, Notifs.important);
+//                 the other places wait until it closes
 // The newest card sits nearest the screen edge: first at the top places, last
 // at the bottom ones. Each popup hides after its timeout (paused while hovered)
 // but stays in the history (Notifications tab); levels and transient ones don't.
@@ -25,20 +28,21 @@ Scope {
             required property var modelData
 
             Variants {
-                model: ["top", "top-left", "top-right", "bottom-right", "bottom"]
+                model: ["top", "top-left", "top-right", "bottom-right", "bottom", "under-panel"]
 
                 PanelWindow {
                     id: win
                     required property string modelData
                     readonly property string place: modelData
-                    readonly property bool atTop: place.startsWith("top")
+                    readonly property bool underPanel: place === "under-panel"
+                    readonly property bool atTop: place.startsWith("top") || underPanel
                     readonly property bool atRight: place.endsWith("right")
                     readonly property bool atLeft: place.endsWith("left")
                     readonly property var items: Notifs.popupsAt(place)
                     screen: perScreen.modelData
 
                     visible: items.length > 0 && Hyprland.focusedMonitor?.name === perScreen.modelData.name
-                             && !PanelState.open
+                             && PanelState.open === underPanel
                     color: "transparent"
                     exclusionMode: ExclusionMode.Normal
 
@@ -47,7 +51,7 @@ Scope {
                     anchors.right: atRight
                     anchors.left: atLeft
                     margins.left: atLeft ? 10 : 0
-                    margins.top: atTop ? 6 : 0
+                    margins.top: underPanel ? PanelState.cardBottom + 12 : atTop ? 6 : 0
                     margins.bottom: atTop ? 0 : 10
                     margins.right: atRight ? 10 : 0
                     implicitWidth: 380

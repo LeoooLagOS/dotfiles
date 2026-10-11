@@ -48,6 +48,9 @@ Singleton {
     // Pointer over the panel card (set by Panel.qml). The screen is dimmed
     // while it is, and right after opening until the pointer leaves the card.
     property bool hovered: false
+    // Bottom edge of the panel card, in the usable area's coordinates (set by
+    // Panel.qml): important popups go right below it while the panel is open
+    property real cardBottom: 0
     property bool dimmed: false
     onHoveredChanged: if (open) dimmed = hovered && Settings.v.dimHover
 

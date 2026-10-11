@@ -70,6 +70,10 @@ Rectangle {
         if (!n) return "";
         // image hint; "image://icon/<name>" is a theme icon that may not exist
         if (n.image && !n.image.startsWith("image://icon/")) return n.image;
+        // A web app installed from the browser: its own icon, not the browser's
+        const web = Notifs.webAppIcon(n);
+        if (web) return web.startsWith("file://") || web.startsWith("/") ? web
+                      : Quickshell.hasThemeIcon(web) ? Quickshell.iconPath(web) : "";
         const imgIcon = n.image ? n.image.slice("image://icon/".length) : "";
         if (n.appIcon && (n.appIcon.startsWith("/") || n.appIcon.includes("://"))) return n.appIcon;
         // Only theme icons that exist (iconPath alone returns a "missing" image)

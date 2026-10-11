@@ -125,6 +125,9 @@ Scope {
                     border.color: Theme.border
                     border.width: 1
 
+                    // Where the card ends: important popups show right below it (NotificationPopups.qml)
+                    Binding { target: PanelState; property: "cardBottom"; value: card.y + card.height; when: root.visible }
+
                     // Pointer over the card: dims the screen, and clicks here don't close it
                     HoverHandler {
                         id: cardHover

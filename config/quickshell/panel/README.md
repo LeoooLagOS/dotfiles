@@ -402,7 +402,15 @@ The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
   WhatsApp, Teams, Outlook, Gmail, Google Chat/Meet/Calendar, Messenger,
   Instagram, Telegram, Discord, Slack) get their own name (`Notifs.appLabel`,
   used by rules, grouping and the tab's filter), type, and a body without the
-  site line (`Notifs.bodyOf`).
+  site line (`Notifs.bodyOf`). Web apps installed from Brave (or Chromium) show
+  their own icon instead of the browser's: `Notifs.webApps` reads their
+  launchers in `~/.local/share/applications` (when Brave's `Icon=` path doesn't
+  exist, the icon is looked up by name in `~/.local/share/icons`).
+
+  **Teams for Linux** draws its own in-window toasts by default; with
+  `"notificationMethod": "electron"` in
+  `~/.var/app/com.github.IsmaelMartinez.teams_for_linux/config/teams-for-linux/config.json`
+  it sends them to the panel instead.
 
   **Per app** rules (Settings → Notifications → Per app, `appRules`): send an
   app to another place, "history only", or **mute** it (dropped, not even in
@@ -410,7 +418,10 @@ The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
   calls through (switch), plus levels and security codes.
   Any type can be "Don't show (history only)". They last 3 s (low), 6 s
   (normal), 30 s (critical) or 1.8 s (levels); hovering pauses them.
-  Popups are hidden while the panel is open and muted by Do Not Disturb
+  While the panel is open, the important ones (critical, calls, security codes,
+  reminders: `Notifs.important`) show right below the panel card (place
+  `under-panel`, from `PanelState.cardBottom`); the rest wait until it closes.
+  Popups are muted by Do Not Disturb
   (critical ones still show, and levels and `SWAYNC_BYPASS_DND` ones too).
 - keeps the history until dismissed (Notifications tab). Transient
   notifications are dropped when their popup ends. The history lives in

@@ -86,8 +86,40 @@ Singleton {
     }
     function webService(n) {
         const host = originOf(n);
-        return host ? webServices.find(s => s.hosts.some(h => host === h || host.endsWith("." + h))) ?? null : null;
+        if (host) return webServices.find(s => s.hosts.some(h => host === h || host.endsWith("." + h))) ?? null;
+        // An installed web app may send under its own name ("WhatsApp Web")
+        const app = (n?.appName || "").toLowerCase();
+        return app ? webServices.find(s => app.startsWith(s.name.toLowerCase())) ?? null : null;
     }
+
+    // Icons of the web apps installed from Brave / Chromium (their launchers in
+    // ~/.local/share/applications: Name, Icon, file), so a WhatsApp notification
+    // shows WhatsApp's icon and not the browser's. Re-read every few minutes.
+    property var webApps: []                   // [{ name, icon, entry }]
+    function webAppIcon(n) {
+        if (!n) return "";
+        const entry = String(n.desktopEntry || "");
+        let a = webApps.find(w => entry && w.entry === entry);
+        const ws = a ? null : webService(n);
+        if (!a && ws) a = webApps.find(w => w.name.toLowerCase().startsWith(ws.name.toLowerCase()));
+        return a?.icon ?? "";
+    }
+    Process {
+        id: webAppsProc
+        running: true
+        command: ["bash", "-c", "for f in \"$HOME\"/.local/share/applications/*flextop*.desktop \"$HOME\"/.local/share/applications/chrome-*.desktop; do [ -f \"$f\" ] || continue; "
+                  // Brave's Icon= may point inside its sandbox to a file that isn't
+                  // there; then use the name, found in ~/.local/share/icons (hicolor)
+                  + "i=$(grep -m1 '^Icon=' \"$f\" | cut -d= -f2-); case $i in /*) [ -f \"$i\" ] || i=$(basename \"${i%.*}\");; esac; "
+                  + "printf '%s\\t%s\\t%s\\n' \"$(grep -m1 '^Name=' \"$f\" | cut -d= -f2-)\" \"$i\" \"$(basename \"$f\" .desktop)\"; done"]
+        stdout: StdioCollector {
+            onStreamFinished: root.webApps = text.split("\n").filter(l => l).map(l => {
+                const [name, icon, entry] = l.split("\t");
+                return { name: name, icon: icon && icon.startsWith("/") ? "file://" + icon : icon, entry: entry };
+            })
+        }
+    }
+    Timer { interval: 300000; repeat: true; running: true; onTriggered: webAppsProc.running = true }
     function appLabel(n) { return webService(n)?.name ?? (n?.appName || "Other"); }
 
     // --- Email (Thunderbird) ---
@@ -230,9 +262,13 @@ Singleton {
     function sameConversation(a, b) {
         return a !== b && placeKind(a) === "message" && conversationOf(a) === conversationOf(b);
     }
-    // Popups of one place, newest last, at most Settings → At most per place
+    // Shown below the panel while it is open (the rest wait until it closes)
+    readonly property var importantKinds: ["critical", "call", "security", "reminder"]
+    function important(n) { return importantKinds.includes(placeKind(n)); }
+    // Popups of one place, newest last, at most Settings → At most per place.
+    // "under-panel": the important ones, while the panel is open
     function popupsAt(place) {
-        const out = popups.filter(n => placeOf(n) === place);
+        const out = place === "under-panel" ? popups.filter(n => important(n)) : popups.filter(n => placeOf(n) === place);
         return out.slice(Math.max(0, out.length - Settings.v.maxPopups));
     }
 
