@@ -101,6 +101,9 @@ local startup_commands = {
   -- Teams (tray), WhatsApp web app and Thunderbird (hidden workspace
   -- special:comms, SUPER Y) running so their notifications arrive
   "$HOME/.config/hypr/scripts/CommsStartup.sh",
+  -- Icons of the web apps installed from Brave (their launchers point inside
+  -- Brave's sandbox): Rofi and the panel's notifications show them
+  "$HOME/.config/hypr/scripts/WebAppIcons.sh",
   -- "kdeconnect-app",
   -- "blueman-applet",
   -- "$HOME/.config/hypr/UserScripts/RainbowBorders.sh",
