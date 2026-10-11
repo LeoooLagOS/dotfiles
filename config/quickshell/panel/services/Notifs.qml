@@ -89,8 +89,30 @@ Singleton {
         return host ? webServices.find(s => s.hosts.some(h => host === h || host.endsWith("." + h))) ?? null : null;
     }
     function appLabel(n) { return webService(n)?.name ?? (n?.appName || "Other"); }
+
+    // --- Email (Thunderbird) ---
+    // Thunderbird says "<account> received 12 new messages" / "<Subject> from
+    // "<Sender>"". Shown as: sender (title), subject (body), the account above,
+    // "12 new"; one card per account (the conversation key).
+    function mailOf(n) {
+        if (!n || !/thunderbird/i.test((n.appName || "") + (n.desktopEntry || ""))) return null;
+        const s = /^(.+?) received (\d+) new messages?$/.exec(plain(n.summary).trim());
+        if (!s) return null;
+        const b = /^([\s\S]*?)\s+from\s+"?([^"]+?)"?\s*$/.exec(plain(n.body).trim());
+        return { account: s[1], count: +s[2], subject: b ? b[1] : plain(n.body).trim(), sender: b ? b[2] : "" };
+    }
+    // What the card shows: title, a small line above it, and how many it stands for
+    function titleOf(n) { const m = mailOf(n); return m ? (m.sender || m.account) : (n?.summary || appLabel(n)); }
+    function contextOf(n) { const m = mailOf(n); return m ? m.account : ""; }
+    function countOf(n) { const m = mailOf(n); return Math.max(m ? m.count : 1, groupCount[n?.id] ?? 1); }
+    function conversationOf(n) {
+        const m = mailOf(n);
+        return m ? "mail|" + m.account : appLabel(n) + "|" + plain(n?.summary).trim();
+    }
     // The body without the site line Chromium adds ("<a href=…>web.whatsapp.com</a>\n\n…")
     function bodyOf(n) {
+        const mail = mailOf(n);
+        if (mail) return mail.subject;
         const b = String(n?.body ?? "");
         if (!webService(n)) return b;                 // only for the known sites
         return b.replace(/^\s*(<a [^>]*>[^<]*<\/a>|(?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}\/?)\s*(\n|<br\s*\/?>)*/i, "");
@@ -206,8 +228,7 @@ Singleton {
     // takes its card, which counts them ("3 messages"); all stay in the history.
     property var groupCount: ({})              // notification id → messages in its card
     function sameConversation(a, b) {
-        return a !== b && placeKind(a) === "message" && appLabel(a) === appLabel(b)
-            && plain(a.summary).trim() === plain(b.summary).trim();
+        return a !== b && placeKind(a) === "message" && conversationOf(a) === conversationOf(b);
     }
     // Popups of one place, newest last, at most Settings → At most per place
     function popupsAt(place) {

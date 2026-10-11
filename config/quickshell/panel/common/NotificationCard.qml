@@ -38,7 +38,8 @@ Rectangle {
     // Type (Notifs.placeKind): progress bar, security code, call buttons, grouped messages
     readonly property string place: notif ? Notifs.placeKind(notif) : ""
     readonly property string code: place === "security" ? Notifs.codeOf(notif) : ""
-    readonly property int grouped: Notifs.groupCount[notif?.id] ?? 1
+    readonly property int grouped: Notifs.countOf(notif)
+    readonly property bool isMail: !!Notifs.mailOf(notif)
     property bool copied: false
 
     // Level notification (volume, brightness…): Notifs.progressOf ≥ 0
@@ -212,8 +213,11 @@ Rectangle {
 
                 Label {
                     Layout.fillWidth: true
-                    visible: card.showApp && !!card.notif
-                    text: Notifs.appLabel(card.notif).toUpperCase()
+                    // App (Notifications tab) and/or context (the email account)
+                    visible: (card.showApp && !!card.notif) || Notifs.contextOf(card.notif) !== ""
+                    text: [card.showApp ? Notifs.appLabel(card.notif) : "", Notifs.contextOf(card.notif)]
+                          .filter(t => t).join(" · ").toUpperCase()
+                    elide: Text.ElideRight
                     color: card.critical ? card.critDim : Theme.fgDim
                     font.pixelSize: 9
                     font.weight: Font.DemiBold
@@ -225,7 +229,8 @@ Rectangle {
                     spacing: 8
                     Label {
                         Layout.fillWidth: true
-                        text: card.notif?.summary || card.notif?.appName || ""
+                        text: Notifs.titleOf(card.notif)
+                        elide: Text.ElideRight
                         color: card.critical ? card.critMark : Theme.fg
                         font.pixelSize: card.critical ? 12 : (card.compact ? 13 : 15)
                         font.weight: card.critical ? Font.Bold : Font.DemiBold
@@ -237,7 +242,7 @@ Rectangle {
                         implicitWidth: Math.max(18, groupLabel.implicitWidth + 12)
                         radius: 9
                         color: Theme.accent
-                        Label { id: groupLabel; anchors.centerIn: parent; text: card.grouped + " messages"; color: Theme.accentText; font.pixelSize: 10; font.weight: Font.DemiBold }
+                        Label { id: groupLabel; anchors.centerIn: parent; text: card.grouped + (card.isMail ? " new" : " messages"); color: Theme.accentText; font.pixelSize: 10; font.weight: Font.DemiBold }
                     }
                     Label {
                         text: Notifs.timeAgo(card.notif)
