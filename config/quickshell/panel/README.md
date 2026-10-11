@@ -21,11 +21,11 @@ the wallpaper (wallust), like waybar and swaync.
 |---|---|
 | Toggle | `SUPER ALT + N` or `SUPER CTRL SHIFT + N` → `scripts/wm/PanelToggle.sh` |
 | Notifications | `SUPER SHIFT + N` or the waybar bell → `PanelToggle.sh Notifications`; right-click the bell for Do Not Disturb |
-| IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`) |
+| IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`, `record`) |
 | Keys | full keyboard control — see [Keyboard](#keyboard) |
 | Autostart | user service `quickshell-panel.service` (`config/systemd/user/`), see [Notifications](#notifications) |
 | Blur | layer rules `quickshell:panel` (card) and `quickshell:panel-dim` (screen) in `config/hypr/UserConfigs/user_layer_rules.lua` |
-| Closing | the keybind, `Esc`, or a click outside the card. Only the card takes input: outside it you can keep using other windows. The screen is dimmed while the pointer is over the card. Outside clicks are seen through a non-consuming `mouse:272` bind added with `hyprctl eval` only while the panel is open (`services/PanelState.qml`) |
+| Closing | the keybind, `Esc`, or a click outside the card. Only the card takes input: outside it you can keep using other windows. The screen is dimmed while the pointer is over the card. Outside clicks are seen through a non-consuming `mouse:272` bind added with `hyprctl eval` only while the panel is open (`services/PanelState.qml`). Except while picking a screenshot region: clicks don't close it while a `slurp` (layer `selection`) or `hyprpicker` layer is open, so the panel itself can be captured |
 | Logs | `qs log -c panel` |
 
 QML edits reload live. Full restart: `systemctl --user restart quickshell-panel`; logs also in `journalctl --user -u quickshell-panel`.
@@ -295,16 +295,36 @@ Colors live in `common/Theme.qml`, in three layers:
 
 ### Modes
 
-Two independent switches, saved with the other settings (Settings → Appearance,
-or IPC). The Controls "Dark mode" tile flips dark/light **for now** only
-(`Theme.override`, not saved):
+Settings → Appearance → **Panel & launchers** (the first group), also on the
+Controls "Dark mode" tile (flips dark ↔ light) and its detail:
+
+| Setting | Values | |
+|---|---|---|
+| Mode | Follow system · Dark · Light | `mode`; System reads DarkLight.sh's state |
+| Palette | Normal · Inverted | `inverted` |
+| Apply to | Panel only · Panel & launchers · Launchers only | `themeScope`; the other side keeps the default theme (dark, normal) |
+| Launchers | All · Apps · Clipboard & emoji · Keybinds · Wallpapers · Calc & search · Other menus | `themeLaunchers`, shown unless "Panel only"; groups in `Settings.launcherGroups` |
+
+Only the panel and the Rofi menus: GTK/Qt apps and browsers keep the system
+theme (`scripts/wm/DarkLight.sh`). Code:
+
+- `common/ColorPalette.qml` computes every mode-dependent color from the wallust
+  colors and a mode; `common/ColorMath.js` has the pure helpers (contrast, mix…).
+- `common/Theme.qml` holds the mode, loads wallust and builds two palettes:
+  `Theme.panel` (re-exported as `Theme.accent`, `Theme.bg`…) and
+  `Theme.launchers`. `chosenLight` / `chosenInverted` are the user's choice;
+  `light` / `inverted` are what the panel shows.
+- `services/LauncherTheme.qml` writes `~/.config/lagos/rofi/<group>.rasi` for
+  each group: the launcher palette's `lagos-*` tokens, or `@lagos-dark-*` (the
+  wallust defaults). `config.rasi` imports `apps.rasi`; each `config-*.rasi`
+  imports its group's file after it.
 
 | | Normal | Inverted |
 |---|---|---|
 | **Dark** | the original theme: neutral dark surfaces, wallpaper accent | surfaces in the accent's hue, deep (L 19–33%); accent near-white |
 | **Light** | neutral light surfaces tinted with the accent hue; accent darkened to 3:1 | surfaces in the accent's hue, pastel (L 73–86%); accent deep ink |
 
-- **Light/dark** can follow the system: `System` reads `~/.local/state/hypr/theme_mode`,
+- **Light/dark** can also follow the system: `System` reads `~/.local/state/hypr/theme_mode`,
   written by `scripts/wm/DarkLight.sh`, and switches live.
 - **Inverted** uses the accent's hue at a fixed lightness and capped saturation,
   never the raw wallust color, so a loud wallpaper doesn't produce a loud panel.
@@ -319,7 +339,7 @@ or IPC). The Controls "Dark mode" tile flips dark/light **for now** only
 |---|---|
 | `bg` / `bgAlt` | panel (72% opaque in the original theme, blurred) / zone surfaces |
 | `base` / `scrim` | opaque panel color / translucent layer over images and inset fields |
-| `onAccent` / `onAccent2` / `onColor(c)` | text and icons drawn on top of `accent`, `accent2` or any filled color |
+| `accentText` / `accent2Text` / `onColor(c)` | text and icons drawn on top of `accent`, `accent2` or any filled color |
 | `tabBg` / `tabFg` / `tabIcon` / `tabLine` | selected tab: tinted in normal modes, solid pill in inverted ones |
 | `border`, `track` | near-neutral outlines / empty part of bars and sliders |
 | `fg` / `fgDim` | text / secondary text (neutral) |
@@ -347,13 +367,50 @@ JetBrainsMono Nerd Font for icons.
 The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
 `NotificationServer`); swaync is no longer started. It:
 
-- shows popups at the top center of the focused monitor (`NotificationPopups.qml`)
-  for 3 s (low), 6 s (normal) or 30 s (critical); hovering pauses them.
+- shows popups on the focused monitor (`NotificationPopups.qml`) in the place
+  chosen for their type (Settings → Notifications → Where popups appear;
+  `Notifs.placeKind` / `placeOf`), newest nearest the screen edge, at most
+  `maxPopups` per place (the rest wait their turn):
+
+  | Type | Detected by | Default place | Card |
+  |---|---|---|---|
+  | Calls | category `call.*`, "incoming call" / "llamada entrante" | top left (no "off") | rings until answered / closed; Answer in green, Decline in red |
+  | Critical | urgency critical | top center (fixed) | dark card, red header |
+  | Security codes | password managers / polkit, a 4–8 digit code next to "code" / "verification" / "2FA"…, sign-in alerts | top center | **Copy code** button (`wl-copy`), 30 s |
+  | Reminders | category `calendar.*` (`services/Events.qml`), calendar / to-do apps | top right | stays until dismissed |
+  | Volume & brightness | sync tag + `value` hint | top center | compact level card, 1.8 s |
+  | Progress | `value` hint without a sync tag (downloads, copies, updates) | top right | normal card + bar that fills in place |
+  | System | categories `device.*` / `network.*`, notify-send, battery, screenshots, recordings… | top center | |
+  | Messages | categories `im.*` / `email.*`, WhatsApp, Telegram, Teams, Discord, Thunderbird… | bottom right | grouped per conversation: same app + sender → one card, "3 messages" |
+  | Now playing | category `x-gnome.music`, Spotify, mpv, VLC, … (`Notifs.mediaApps`) | top right | |
+  | Other apps | everything else | top right | |
+
+  **Web apps**: a site's notification comes from the browser ("Brave"). Chromium
+  browsers put the site in the body, so known sites (`Notifs.webServices`:
+  WhatsApp, Teams, Outlook, Gmail, Google Chat/Meet/Calendar, Messenger,
+  Instagram, Telegram, Discord, Slack) get their own name (`Notifs.appLabel`,
+  used by rules, grouping and the tab's filter), type, and a body without the
+  site line (`Notifs.bodyOf`).
+
+  **Per app** rules (Settings → Notifications → Per app, `appRules`): send an
+  app to another place, "history only", or **mute** it (dropped, not even in
+  the history). Not for critical notifications or calls. Do Not Disturb lets
+  calls through (switch), plus levels and security codes.
+  Any type can be "Don't show (history only)". They last 3 s (low), 6 s
+  (normal), 30 s (critical) or 1.8 s (levels); hovering pauses them.
   Popups are hidden while the panel is open and muted by Do Not Disturb
-  (critical ones still show).
+  (critical ones still show, and levels and `SWAYNC_BYPASS_DND` ones too).
 - keeps the history until dismissed (Notifications tab). Transient
   notifications are dropped when their popup ends. The history lives in
   memory: restarting the panel clears it.
+- replaces instead of stacking: a notification with a sync tag
+  (`x-canonical-private-synchronous`, as dunst / swaync) takes the place of the
+  previous one with that tag, and isn't kept in the history. With an int
+  `value` hint it is a compact **level** card: icon (speaker by level, mic,
+  sun, keyboard — from the tag / summary), title, bar animating from the
+  previous value, percentage (amber above 100%). `scripts/wm/Volume.sh`
+  (tags `volume_notif`, `mic_notif`) and `Brightness.sh` (`brightness_notif`)
+  send them, e.g. `notify-send -e -h string:x-canonical-private-synchronous:volume_notif -h int:value:65 Volume 65%`.
 - styles cards like the old swaync setup: wallust colors, 18 px corners, and a
   fixed dark card with the summary as a small red header for critical ones.
 - runs the `default` action when a card is clicked; other actions are buttons.
@@ -394,22 +451,31 @@ the `SUPER SHIFT + N` bind (git history has the old versions).
 
 **Controls** (`zones/ControlCenter.qml`) is the "right now" tab:
 
-- **Identity bar** — avatar, name, `user@host · distro on WM · uptime`, battery,
-  and **⚙ Settings · lock · power menu**.
-- **Toggles** — click toggles; **›** shows its detail in the right pane;
-  right-click opens its Settings section (DND, dark mode, caffeine).
+- **Identity bar** — avatar, name, `user@host · distro on WM · uptime`, a
+  **DND** pill (click toggles, **›** shows its detail in the right pane,
+  right-click opens Settings → Notifications), battery, and **⚙ Settings ·
+  lock · power menu**.
+- **Toggles** — a 3×3 grid, row by row: Caffeine · Airplane · Wi-Fi /
+  Night light · Game · Bluetooth / Screen record · Display · Light mode. Click
+  toggles; **›** shows its detail in the right pane, or as a popover like
+  Overview's notifications (`popoverAreas` in ControlCenter.qml,
+  `PanelState.controlsPopover`; click outside, ✕ or Esc closes it): Caffeine
+  and Night light over the tiles of columns 2–3 (growing down if needed),
+  Screen record and Display over Sound & display at its size, scrolling when
+  they need more room (wheel, ↑/↓, PgUp/PgDn; `Zone.scrollable`);
+  right-click opens its Settings section (dark mode, caffeine).
 
   | Tile | Does | Detail |
   |---|---|---|
-  | Wi-Fi | NetworkManager on/off | networks (`WifiZone`) |
+  | Wi-Fi | NetworkManager on/off; status starts with "VPN ·" while one is up | **Networks** / **VPN** views (`WifiZone`). An Ethernet row sits above the networks when there is a wired device (unplugged / click to connect / connected). Clicking the connected Wi-Fi network (or the On tile's ›), the connected Ethernet or a connected VPN shows its details (`services/NetInfo.qml`): state, IPv4/gateway/DNS/IPv6 (selectable), plus signal, speed, band/channel, security and MAC for Wi-Fi; speed, interface and MAC for Ethernet; type, server and interface for VPNs; auto-connect, Disconnect, Forget (asks twice; not for Ethernet), Advanced (`nm-connection-editor --edit <uuid>`). VPN: the NetworkManager VPN/WireGuard connections (`services/Vpn.qml`, `nmcli`), click to connect/disconnect, › or "Add or import" opens `nm-connection-editor` |
   | Bluetooth | adapter on/off (unblocks rfkill first) | paired devices (`BluetoothZone`) |
-  | Do Not Disturb | `Notifs.dnd` | 1 hour / until 7:00 / until off |
-  | Dark mode | dark ↔ light for now | inverted switch, link to the default |
+  | Dark mode | dark ↔ light, saved (panel and/or Rofi, never apps) | mode, palette, apply to; link to the launcher choice |
   | Night light | `scripts/wm/Hyprsunset.sh toggle` (same as SUPER N) | temperature, live via `hyprctl hyprsunset`, saved to `~/.config/lagos/nightlight-temp` for the script |
   | Caffeine | `systemd-inhibit --what=idle` (hypridle honors it) | 30 min / 1 hour / until off |
   | Airplane mode | `rfkill block` Wi-Fi + Bluetooth; off restores what was on | — |
   | Game mode | `scripts/wm/GameMode.sh` (state: Hyprland animations off) | — |
-  | Microphone | mute the default source | input device |
+  | Screen record | start / stop `gpu-screen-recorder` (`services/Recorder.qml`; also SUPER ALT Print, IPC `record`); the panel closes on start, the tile shows the time | screen or region (slurp), 30/60 fps, audio none / system / system + mic; files in `~/Videos/Recordings`, notification when saved |
+  | Display | opens its detail (popover over Sound & display, scrolls) | per monitor (`services/Displays.qml`): on/off (never the last one), mode, scale, via `hyprctl eval 'hl.monitor{…}'` until Hyprland reloads; nwg-displays / monitor profiles to keep a layout |
 
 - **Sound & display** — output, microphone, brightness; click the device name
   to choose another one.
