@@ -1,5 +1,7 @@
 com.bitwarden.desktop
 com.bitwig.BitwigStudio
+com.brave.Browser
+com.github.IsmaelMartinez.teams_for_linux
 com.github.tchx84.Flatseal
 com.spotify.Client
 dev.vencord.Vesktop

@@ -98,6 +98,9 @@ local startup_commands = {
   "systemctl --user start quickshell-panel.service",
   -- Battery level notifications (50%, 20%, 10%, 5%)
   "$HOME/.config/hypr/UserScripts/BatteryNotify.sh",
+  -- Teams (tray), WhatsApp web app and Thunderbird (hidden workspace
+  -- special:comms, SUPER Y) running so their notifications arrive
+  "$HOME/.config/hypr/scripts/CommsStartup.sh",
   -- "kdeconnect-app",
   -- "blueman-applet",
   -- "$HOME/.config/hypr/UserScripts/RainbowBorders.sh",

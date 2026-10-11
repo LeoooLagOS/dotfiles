@@ -23,7 +23,7 @@ The scripts behind Hyprland keybinds, Waybar modules and Rofi menus, mostly from
 | Hardware & media | `Volume.sh`, `Brightness.sh`, `BrightnessKbd.sh`, `ExternalBrightness.sh`, `MediaCtrl.sh`, `TouchPad.sh`, `AirplaneMode.sh`, `Battery.sh`, `LidSwitch.sh` |
 | Theming | `WallpaperSelect.sh`, `WallpaperRandom.sh`, `WallpaperEffects.sh`, `WallustSwww.sh`, `DarkLight.sh`, `ThemeChanger.sh`, `Kitty_themes.sh`, `ChangeStarshipPrompt.sh`, `Animations.sh`, `ChangeBlur.sh` |
 | Waybar | `WaybarStyles.sh`, `WaybarLayout.sh`, `WaybarScripts.sh`, `WaybarCava.sh`, `Weather.sh`, `WeatherWrap.sh`, `ToggleWeatherLoc.sh` |
-| Session | `LockScreen.sh`, `Wlogout.sh`, `PowerMenu.py`, `Hypridle.sh`, `Hyprsunset.sh`, `GameMode.sh`, `Refresh.sh`, `ScreenShot.sh`, `Polkit.sh`, `PortalHyprland.sh` |
+| Session | `LockScreen.sh`, `Wlogout.sh`, `PowerMenu.py`, `Hypridle.sh`, `Hyprsunset.sh`, `GameMode.sh`, `Refresh.sh`, `ScreenShot.sh`, `Polkit.sh`, `PortalHyprland.sh`, `CommsStartup.sh` (at login: Teams to the tray; WhatsApp web app and Thunderbird to the hidden workspace `special:comms`, SUPER Y) |
 
 Upstream ships helpers for other distros (`*NixOS*`, `*Ubuntu*`, `debian-*`); they are kept for parity but unused on Fedora.
 
@@ -31,7 +31,7 @@ Upstream ships helpers for other distros (`*NixOS*`, `*Ubuntu*`, `debian-*`); th
 
 | File | Purpose |
 |---|---|
-| `Weather.py` | Weather from the Open-Meteo API (no API key) as Waybar JSON plus a text cache; run through `wm/WeatherWrap.sh`, which falls back to `wm/Weather.sh` (wttr.in). Location comes from IP, or from `~/.config/lagos/weather-home` when toggled with `ToggleWeatherLoc.sh` |
+| `Weather.py` | Weather from the Open-Meteo API (no API key) as Waybar JSON plus a text cache; run through `wm/WeatherWrap.sh`, which falls back to `wm/Weather.sh` (wttr.in). Location comes from IP, or from `~/.config/lagos/weather-home` when toggled with `ToggleWeatherLoc.sh`. The API cache is written atomically (the Quickshell panel watches it) |
 | `keybinds_parser.py` | Parses Hyprland keybind files given as arguments and prints formatted bindings |
 
 ## ops/ — Maintenance tooling
