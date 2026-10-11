@@ -7,7 +7,7 @@ A modular panel built from **zones** and organised in **tabs**:
 | Overview | weather + clock · profile (centered under the Overview tab, click → Controls) · notifications — calendar with events · system stats (click → Controls), media (compact) |
 | Calendar | month grid · agenda (selected day + next 7 days, refresh, **new event** form) · to-do list (tasks and ideas) |
 | Notifications | toolbar: Classify (critical / messages / system / other / per app) · Search · Sort (newest, oldest, app, urgency) · Do Not Disturb · Clear; list centered at 50% width |
-| Media | large art, track info, volume (vertical slider) and audio-output picker buttons, controls, cava visualizer as seekable progress, player picker; a corner button switches to the **radio** view (same layout: station logo, station chips, what's on air, previous / play-stop / next station, listening time; 🔍 finds stations by name or frequency in radio-browser.info, Mexico only by default, to listen or save, and lists yours to remove; a record button under volume / output saves the stream to `~/Music/Radio`) |
+| Media | large art, track info, volume (vertical slider) and audio-output picker buttons, controls, cava visualizer as seekable progress, player picker; a corner button switches to the **radio** view (same layout: station logo, station chips, what's on air, previous / play-stop / next station, listening time; 🔍 finds stations by name or frequency in radio-browser.info, Mexico only by default, to listen or save, and lists yours to remove; a record button under volume / output saves the stream to `~/Recordings/Radio_<Station>_<date>`) |
 | Weather | 24-hour temperature chart (curve, icons, rain %, sunrise/sunset) + compact hourly strip · current conditions with sunrise/sunset and six detail tiles + 7-day forecast |
 | Wallpapers | thumbnail grid of `~/Pictures/wallpapers` with folder filter; click to apply |
 | Controls | identity bar (⚙ settings · lock · power) · 9 quick toggles · output / microphone / brightness · detail pane (System + power profile, or a toggle's detail) — ⚙ opens **Settings** (see [Controls and Settings](#controls-and-settings)) |
@@ -497,7 +497,7 @@ the `SUPER SHIFT + N` bind (git history has the old versions).
   | Caffeine | `systemd-inhibit --what=idle` (hypridle honors it) | 30 min / 1 hour / until off |
   | Airplane mode | `rfkill block` Wi-Fi + Bluetooth; off restores what was on | — |
   | Game mode | `scripts/wm/GameMode.sh` (state: Hyprland animations off) | — |
-  | Screen record | start / stop `gpu-screen-recorder` (`services/Recorder.qml`; also SUPER ALT Print, IPC `record`); the panel closes on start, the tile shows the time | screen or region (slurp), 30/60 fps, audio none / system / system + mic; files in `~/Videos/Recordings`, notification when saved |
+  | Screen record | start / stop `gpu-screen-recorder` (`services/Recorder.qml`; also SUPER ALT Print, IPC `record`); the panel closes on start, the tile shows the time | screen or region (slurp), 30/60 fps, audio none / system / system + mic; files in `~/Recordings/Screen_<date>.mp4` (with the radio's, `Config.recordingsDir`), notification when saved |
   | Display | opens its detail (popover over Sound & display, scrolls) | per monitor (`services/Displays.qml`): on/off (never the last one), mode, scale, via `hyprctl eval 'hl.monitor{…}'` until Hyprland reloads; nwg-displays / monitor profiles to keep a layout |
 
 - **Sound & display** — output, microphone, brightness; click the device name

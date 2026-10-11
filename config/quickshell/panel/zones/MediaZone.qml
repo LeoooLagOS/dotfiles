@@ -183,7 +183,7 @@ Zone {
                         active: root.popover === "output"
                         onClicked: { root.popover = root.popover === "output" ? "" : "output"; if (root.popover) outputFocus.start(); }
                     }
-                    // Radio: record the stream (Radio.toggleRecord → ~/Music/Radio)
+                    // Radio: record the stream (Radio.toggleRecord → ~/Recordings)
                     IconButton {
                         visible: root.radio
                         enabled: Radio.active && !Radio.loading

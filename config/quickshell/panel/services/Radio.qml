@@ -17,7 +17,7 @@ import "../common"
 // Search: radio-browser.info (the open station directory), by name or
 // frequency ("96.9"), optionally only Mexico; add(st) / remove(st) edit the list.
 // Recording: mpv's stream-record writes the stream as it arrives (no
-// re-encoding) to ~/Music/Radio/<Station>_<date>.<mp3|aac|ogg|mka>.
+// re-encoding) to ~/Recordings/Radio_<Station>_<date>.<mp3|aac|ogg|mka>.
 Singleton {
     id: root
 
@@ -109,10 +109,10 @@ Singleton {
         if (recording) { send(["set_property", "stream-record", ""]); finishRecording(); return; }
         if (!ipc.connected || !current) return;
         const ext = /mp3/.test(codec) ? "mp3" : /aac/.test(codec) ? "aac" : /opus|vorbis/.test(codec) ? "ogg" : "mka";
-        const dir = (Quickshell.env("XDG_MUSIC_DIR") || Quickshell.env("HOME") + "/Music") + "/Radio";
+        const dir = Config.recordingsDir;
         // Characters that don't belong in a file name out (no \p{L}: QML's JS engine may not have it)
         const name = current.name.replace(/[\/\\:*?"<>|]/g, "").trim().replace(/\s+/g, "-") || "Radio";
-        recordFile = dir + "/" + name + "_" + Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss") + "." + ext;
+        recordFile = dir + "/Radio_" + name + "_" + Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss") + "." + ext;
         Quickshell.execDetached(["mkdir", "-p", dir]);
         mkdirWait.restart();                    // then start recording
     }

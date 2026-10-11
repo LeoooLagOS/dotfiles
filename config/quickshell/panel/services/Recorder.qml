@@ -11,7 +11,7 @@ import "../common"
 //             monitor) or "region" (picked with slurp); audio per recAudio:
 //             "none" · "system" · "both" (system + microphone, one track)
 //   stop()    SIGINT: gpu-screen-recorder finishes the file and exits
-// Files: ~/Videos/Recordings/Recording_<date>.mp4. The panel closes on start so
+// Files: ~/Recordings/Screen_<date>.mp4 (Config.recordingsDir). The panel closes on start so
 // it isn't recorded; the Controls tile shows the elapsed time.
 // IPC: `qs -c panel ipc call panel record` (start / stop).
 Singleton {
@@ -19,7 +19,7 @@ Singleton {
 
     readonly property bool installed: whichProc.found
     readonly property bool recording: proc.running
-    readonly property string dir: (Quickshell.env("XDG_VIDEOS_DIR") || Quickshell.env("HOME") + "/Videos") + "/Recordings"
+    readonly property string dir: Config.recordingsDir
     property string file: ""
     property string lastFile: ""
     property string error: ""
@@ -37,7 +37,7 @@ Singleton {
         if (recording) return;
         if (!installed) { checkInstalled(); return; }
         const stamp = Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss");   // local time
-        file = dir + "/Recording_" + stamp + ".mp4";
+        file = dir + "/Screen_" + stamp + ".mp4";
         error = "";
         const audio = Settings.v.recAudio === "both" ? ["-a", "default_output|default_input"]
                     : Settings.v.recAudio === "system" ? ["-a", "default_output"] : [];

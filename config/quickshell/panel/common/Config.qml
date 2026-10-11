@@ -104,6 +104,8 @@ Singleton {
     readonly property string powerCmd: "$HOME/.config/hypr/scripts/Wlogout.sh"   // power menu (hold-to-confirm)
 
     // Weather data comes from the existing waybar weather script (Open-Meteo)
+    // Screen and radio recordings, together and out of ~/Videos and ~/Music
+    readonly property string recordingsDir: Quickshell.env("HOME") + "/Recordings"
     readonly property string weatherScript: "$HOME/dotfiles/scripts/lib/Weather.py"
     readonly property int weatherIntervalMs: 10 * 60 * 1000
 
