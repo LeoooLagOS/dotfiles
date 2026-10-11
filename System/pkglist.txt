@@ -181,6 +181,7 @@ google-noto-sans-cjk-fonts
 google-roboto-mono-fonts
 gping
 gpm-libs
+gpu-screen-recorder
 grub2-efi-ia32
 grub2-efi-ia32-cdboot
 grub2-efi-ia32-modules

@@ -13,7 +13,11 @@ Rectangle {
     signal clicked()
     default property alias content: body.data
     property alias actions: actionsRow.data    // buttons shown at the right of the header
+    property alias titleActions: titleRow.data // small controls right after the title (view switch…)
     property bool closable: false              // × at the end of the header → closeRequested()
+    // Fixed height with more content: the content scrolls under the header
+    // (wheel, ↑/↓, PgUp/PgDn, Home/End) with a thin scrollbar on the right
+    property bool scrollable: false
     signal closeRequested()
 
     // Clickable zones can be focused with Tab and pressed with Enter/Space
@@ -21,6 +25,20 @@ Rectangle {
     Keys.onReturnPressed: if (clickable) clicked()
     Keys.onEnterPressed: if (clickable) clicked()
     Keys.onSpacePressed: if (clickable) clicked()
+    // Scrolling from the keyboard (keys that the focused control didn't use)
+    function scrollBy(dy) {
+        scroller.contentY = Math.max(0, Math.min(scroller.contentHeight - scroller.height, scroller.contentY + dy));
+    }
+    Keys.onUpPressed: event => { if (scrollable) scrollBy(-40); else event.accepted = false; }
+    Keys.onDownPressed: event => { if (scrollable) scrollBy(40); else event.accepted = false; }
+    Keys.onPressed: event => {
+        if (!scrollable) { event.accepted = false; return; }
+        if (event.key === Qt.Key_PageDown) scrollBy(scroller.height * 0.9);
+        else if (event.key === Qt.Key_PageUp) scrollBy(-scroller.height * 0.9);
+        else if (event.key === Qt.Key_Home) scroller.contentY = 0;
+        else if (event.key === Qt.Key_End) scrollBy(scroller.contentHeight);
+        else event.accepted = false;
+    }
 
     readonly property real headerHeight: header.visible ? header.y + header.height + 10 : Theme.zonePadding
     implicitHeight: headerHeight + body.implicitHeight + Theme.zonePadding
@@ -52,9 +70,10 @@ Rectangle {
             height: 18
             radius: 9
             color: Theme.accent
-            Label { id: badgeLabel; anchors.centerIn: parent; text: root.badge; color: Theme.onAccent; font.pixelSize: 11; font.weight: Font.Bold }
+            Label { id: badgeLabel; anchors.centerIn: parent; text: root.badge; color: Theme.accentText; font.pixelSize: 11; font.weight: Font.Bold }
         }
         Label { text: root.title.toUpperCase(); color: root.accentHeader ? Theme.accent : Theme.fgDim; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+        Row { id: titleRow; spacing: 4; anchors.verticalCenter: parent.verticalCenter; leftPadding: 6 }
     }
 
     // Header actions (right side, vertically centered on the header)
@@ -74,14 +93,40 @@ Rectangle {
         }
     }
 
-    // Column so hidden children (visible: false) take no space
+    // Column so hidden children (visible: false) take no space. When
+    // scrollable it lives in the Flickable below instead of the card.
     Column {
         id: body
-        x: Theme.zonePadding
-        y: !header.visible && root.centered
+        parent: root.scrollable ? scroller.contentItem : root
+        x: root.scrollable ? 0 : Theme.zonePadding
+        y: root.scrollable ? 0
+           : !header.visible && root.centered
            ? Math.max(Theme.zonePadding, Math.round((root.height - body.implicitHeight) / 2))
            : root.headerHeight
         width: root.width - 2 * Theme.zonePadding
+    }
+    Flickable {
+        id: scroller
+        visible: root.scrollable
+        x: Theme.zonePadding
+        y: root.headerHeight
+        width: root.width - 2 * Theme.zonePadding
+        height: root.height - y - 2           // down to the card's bottom edge
+        contentHeight: body.implicitHeight + Theme.zonePadding
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        interactive: contentHeight > height
+    }
+    // Scrollbar: where you are, and that there is more below
+    Rectangle {
+        visible: root.scrollable && scroller.interactive
+        x: root.width - 6
+        y: scroller.y + scroller.visibleArea.yPosition * scroller.height
+        width: 3
+        height: Math.max(20, scroller.visibleArea.heightRatio * scroller.height)
+        radius: 1.5
+        color: Theme.withAlpha(Theme.fg, scroller.moving ? 0.45 : 0.25)
+        Behavior on color { ColorAnimation { duration: 150 } }
     }
 
     FocusRing { visible: root.clickable && root.activeFocus }

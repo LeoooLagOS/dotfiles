@@ -9,6 +9,7 @@ import "controls"
 
 // The Controls tab: identity bar, quick toggles, sound & display, and a
 // detail pane (System by default; a toggle's › shows its detail there).
+// Some show theirs in a popover instead (see popoverAreas).
 // The ⚙ button swaps everything for the Settings view (controls/SettingsView.qml).
 // Navigation state lives in PanelState (controlsView, controlsDetail, settingsSection).
 Item {
@@ -36,7 +37,15 @@ Item {
     readonly property var btConnected: Bluetooth.devices.values.filter(d => d.connected)
     readonly property bool micMuted: Audio.source?.audio?.muted ?? false
 
+    // VPN state for the Wi-Fi tile and its VPN view, read while this tab is on screen
+    Binding { target: Vpn; property: "watching"; value: PanelState.open && Config.tabs[PanelState.tab]?.name === "Controls" }
+
     function showDetail(id) { PanelState.controlsDetail = PanelState.controlsDetail === id ? "system" : id; }
+    // Tiles whose detail opens as a popover, and the area it covers:
+    //   tiles    the tiles of columns 2–3 (Caffeine, Night light: first column)
+    //   sliders  Sound & display (Screen record, Display: third row, right above it)
+    readonly property var popoverAreas: ({ caffeine: "tiles", night: "tiles", rec: "sliders", display: "sliders" })
+    function showPopover(id) { PanelState.controlsPopover = PanelState.controlsPopover === id ? "" : id; }
     function toggleBluetooth() {
         if (btAdapter?.enabled) btAdapter.enabled = false;
         // rfkill may block it (airplane mode, or turned off elsewhere): unblock, then power on
@@ -76,20 +85,69 @@ Item {
                 spacing: Config.spacing
 
                 GridLayout {
+                    id: grid
                     Layout.fillWidth: true
                     columns: 3
                     columnSpacing: 7
                     rowSpacing: 7
 
+                    // Row by row: Caffeine · Airplane · Wi-Fi / Night light · Game · Bluetooth /
+                    // Screen record · Display · Light mode. Do Not Disturb is in the
+                    // identity bar. Some open their detail as a popover (see below).
+                    QuickTile {
+                        Layout.fillWidth: true
+                        icon: ""
+                        label: "Caffeine"
+                        status: Toggles.caffeineStatus
+                        active: Toggles.caffeine
+                        selected: PanelState.controlsPopover === "caffeine"
+                        hasSettings: true
+                        onToggled: Toggles.setCaffeine(!Toggles.caffeine, 0)
+                        onDetailRequested: root.showPopover("caffeine")
+                        onSettingsRequested: PanelState.openSettings("power")
+                    }
+                    QuickTile {
+                        id: popoverAnchor        // top-left of the popover area
+                        Layout.fillWidth: true
+                        icon: ""
+                        label: "Airplane mode"
+                        status: Toggles.airplane ? "Wi-Fi and Bluetooth off" : "Off"
+                        active: Toggles.airplane
+                        selected: PanelState.controlsDetail === "airplane"
+                        onToggled: Toggles.toggleAirplane()
+                        onDetailRequested: root.showDetail("airplane")
+                    }
                     QuickTile {
                         Layout.fillWidth: true
                         icon: Networking.wifiEnabled ? "" : "\u{f05aa}"
                         label: "Wi-Fi"
-                        status: !Networking.wifiEnabled ? "Off" : root.wifiNetwork ? root.wifiNetwork.name : "Not connected"
+                        // "VPN · " first: long network names get cut at the end
+                        status: (Vpn.active ? "VPN · " : "")
+                                + (!Networking.wifiEnabled ? "Off" : root.wifiNetwork ? root.wifiNetwork.name : "Not connected")
                         active: Networking.wifiEnabled
                         selected: PanelState.controlsDetail === "wifi"
                         onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
                         onDetailRequested: root.showDetail("wifi")
+                    }
+                    QuickTile {
+                        Layout.fillWidth: true
+                        icon: ""
+                        label: "Night light"
+                        status: Toggles.night ? Settings.v.nightTemp + " K" : "Off"
+                        active: Toggles.night
+                        selected: PanelState.controlsPopover === "night"
+                        onToggled: Toggles.toggleNight()
+                        onDetailRequested: root.showPopover("night")
+                    }
+                    QuickTile {
+                        Layout.fillWidth: true
+                        icon: ""
+                        label: "Game mode"
+                        status: Toggles.gameBusy ? "Switching…" : Toggles.game ? "No animations or blur" : "Off"
+                        active: Toggles.game
+                        selected: PanelState.controlsDetail === "game"
+                        onToggled: if (!Toggles.gameBusy) Toggles.toggleGame()
+                        onDetailRequested: root.showDetail("game")
                     }
                     QuickTile {
                         Layout.fillWidth: true
@@ -106,84 +164,47 @@ Item {
                     }
                     QuickTile {
                         Layout.fillWidth: true
-                        icon: Notifs.dnd ? "" : ""
-                        label: "Do Not Disturb"
-                        status: Notifs.dndStatus
-                        active: Notifs.dnd
-                        selected: PanelState.controlsDetail === "dnd"
-                        hasSettings: true
-                        onToggled: Notifs.toggleDnd()
-                        onDetailRequested: root.showDetail("dnd")
-                        onSettingsRequested: PanelState.openSettings("notifications")
+                        icon: Recorder.recording ? "\uf04d" : "\u{f044a}"
+                        label: Recorder.recording ? "Recording" : "Screen record"
+                        status: !Recorder.installed ? "Not installed"
+                              : Recorder.recording ? "\u25cf " + Recorder.elapsed + " · click to stop"
+                              : Settings.v.recTarget === "region" ? "Region" : "Whole screen"
+                        active: Recorder.recording
+                        selected: PanelState.controlsPopover === "rec"
+                        onToggled: Recorder.installed ? Recorder.toggle() : root.showPopover("rec")
+                        onDetailRequested: root.showPopover("rec")
                     }
                     QuickTile {
                         Layout.fillWidth: true
-                        icon: Theme.light ? "" : ""
-                        label: Theme.light ? "Light mode" : "Dark mode"
-                        status: Theme.override ? "For now" : Theme.modeSetting === "system" ? "Follows system" : "Default"
-                        active: !Theme.light
+                        icon: "\u{f0379}"
+                        label: Displays.enabled.length > 1 ? Displays.enabled.length + " displays" : "Display"
+                        status: Displays.primary ? Displays.primary.width + "×" + Displays.primary.height + " · "
+                                                   + Math.round(Displays.primary.refresh) + " Hz"
+                                                   + (Displays.primary.scale !== 1 ? " · " + Displays.primary.scale + "×" : "")
+                                                 : "…"
+                        selected: PanelState.controlsPopover === "display"
+                        // No on/off: the body opens the detail too
+                        onToggled: root.showPopover("display")
+                        onDetailRequested: root.showPopover("display")
+                    }
+                    QuickTile {
+                        Layout.fillWidth: true
+                        icon: Theme.chosenLight ? "" : ""
+                        label: Theme.chosenLight ? "Light mode" : "Dark mode"
+                        status: ({ panel: "Panel", both: "Panel & launchers", launchers: "Launchers" })[Theme.scope]
+                                + (Theme.chosenInverted ? " · inverted" : "")
+                        active: !Theme.chosenLight
                         selected: PanelState.controlsDetail === "dark"
                         hasSettings: true
                         onToggled: Theme.toggleLight()
                         onDetailRequested: root.showDetail("dark")
                         onSettingsRequested: PanelState.openSettings("appearance")
                     }
-                    QuickTile {
-                        Layout.fillWidth: true
-                        icon: ""
-                        label: "Night light"
-                        status: Toggles.night ? Settings.v.nightTemp + " K" : "Off"
-                        active: Toggles.night
-                        selected: PanelState.controlsDetail === "night"
-                        onToggled: Toggles.toggleNight()
-                        onDetailRequested: root.showDetail("night")
-                    }
-                    QuickTile {
-                        Layout.fillWidth: true
-                        icon: ""
-                        label: "Caffeine"
-                        status: Toggles.caffeineStatus
-                        active: Toggles.caffeine
-                        selected: PanelState.controlsDetail === "caffeine"
-                        hasSettings: true
-                        onToggled: Toggles.setCaffeine(!Toggles.caffeine, 0)
-                        onDetailRequested: root.showDetail("caffeine")
-                        onSettingsRequested: PanelState.openSettings("power")
-                    }
-                    QuickTile {
-                        Layout.fillWidth: true
-                        icon: ""
-                        label: "Airplane mode"
-                        status: Toggles.airplane ? "Wi-Fi and Bluetooth off" : "Off"
-                        active: Toggles.airplane
-                        selected: PanelState.controlsDetail === "airplane"
-                        onToggled: Toggles.toggleAirplane()
-                        onDetailRequested: root.showDetail("airplane")
-                    }
-                    QuickTile {
-                        Layout.fillWidth: true
-                        icon: ""
-                        label: "Game mode"
-                        status: Toggles.gameBusy ? "Switching…" : Toggles.game ? "No animations or blur" : "Off"
-                        active: Toggles.game
-                        selected: PanelState.controlsDetail === "game"
-                        onToggled: if (!Toggles.gameBusy) Toggles.toggleGame()
-                        onDetailRequested: root.showDetail("game")
-                    }
-                    QuickTile {
-                        Layout.fillWidth: true
-                        icon: root.micMuted ? "" : ""
-                        label: "Microphone"
-                        status: root.micMuted ? "Muted" : Audio.name(Audio.source)
-                        active: !root.micMuted && !!Audio.source
-                        selected: PanelState.controlsDetail === "mic"
-                        onToggled: if (Audio.source?.audio) Audio.source.audio.muted = !Audio.source.audio.muted
-                        onDetailRequested: root.showDetail("mic")
-                    }
                 }
 
                 // Zones are loaded by path (like Cell.qml), not as types
                 Loader {
+                    id: sliders
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     source: Qt.resolvedUrl("SlidersZone.qml")
@@ -201,7 +222,8 @@ Item {
                     dnd: "controls/DndDetail.qml", dark: "controls/AppearanceDetail.qml",
                     night: "controls/NightDetail.qml", caffeine: "controls/CaffeineDetail.qml",
                     airplane: "controls/AirplaneDetail.qml", game: "controls/GameDetail.qml",
-                    mic: "controls/MicDetail.qml", output: "controls/OutputDetail.qml"
+                    mic: "controls/MicDetail.qml", output: "controls/OutputDetail.qml",
+                    rec: "controls/RecordDetail.qml", display: "controls/DisplayDetail.qml"
                 })
                 source: Qt.resolvedUrl(files[PanelState.controlsDetail] ?? files.system)
                 onLoaded: {
@@ -211,6 +233,59 @@ Item {
                         item.closeRequested.connect(() => PanelState.controlsDetail = "system");
                     }
                 }
+            }
+        }
+    }
+
+    // ---------------- Popover ----------------
+    // A tile's detail as one card over part of the tab (popoverAreas), like
+    // Overview's notifications.
+    // Click outside, ›, ✕ or Esc closes it.
+    Item {
+        anchors.fill: parent
+        visible: PanelState.controlsPopover !== "" && PanelState.controlsView !== "settings"
+        z: 5
+
+        MouseArea { anchors.fill: parent; onClicked: PanelState.controlsPopover = "" }
+
+        Item {
+            id: popover
+            readonly property string area: root.popoverAreas[PanelState.controlsPopover] ?? "tiles"
+            readonly property Item target: area === "sliders" ? sliders : grid
+            // Corner of the target in this tab; mapToItem isn't reactive, so it is
+            // re-evaluated on opening and whenever the layout changes size
+            readonly property point origin: {
+                PanelState.controlsPopover; target.width; target.height; root.width; root.height;
+                return target.mapToItem(root, 0, 0);
+            }
+            readonly property real fit: popoverLoader.item?.implicitHeight ?? 0
+            // Over the tiles it grows down if it needs more room; over Sound &
+            // display it keeps that size and its content scrolls
+            x: origin.x + (area === "tiles" ? popoverAnchor.x : 0)
+            y: origin.y
+            width: target.width - (area === "tiles" ? popoverAnchor.x : 0)
+            height: area === "tiles" ? Math.max(grid.height, fit) : target.height
+
+            MouseArea { anchors.fill: parent }   // keep clicks inside
+            Loader {
+                id: popoverLoader
+                anchors.fill: parent
+                active: PanelState.controlsPopover !== ""
+                source: active ? Qt.resolvedUrl(detail.files[PanelState.controlsPopover]) : ""
+                onLoaded: {
+                    item.closable = true;
+                    item.closeRequested.connect(() => PanelState.controlsPopover = "");
+                    // Take the keyboard so ↑/↓ scroll right away
+                    Qt.callLater(() => { if (item) item.forceActiveFocus(); });
+                }
+            }
+            // Fixed size over Sound & display: the content scrolls. A Binding, not
+            // set in onLoaded: `area` may not have followed controlsPopover yet there
+            Binding {
+                target: popoverLoader.item
+                property: "scrollable"
+                value: popover.area === "sliders"
+                when: popoverLoader.item !== null
             }
         }
     }

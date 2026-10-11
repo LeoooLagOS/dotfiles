@@ -13,3 +13,8 @@ singleton SystemSettings 1.0 SystemSettings.qml
 singleton Toggles 1.0 Toggles.qml
 singleton Profile 1.0 Profile.qml
 singleton Audio 1.0 Audio.qml
+singleton LauncherTheme 1.0 LauncherTheme.qml
+singleton Vpn 1.0 Vpn.qml
+singleton Recorder 1.0 Recorder.qml
+singleton Displays 1.0 Displays.qml
+singleton NetInfo 1.0 NetInfo.qml

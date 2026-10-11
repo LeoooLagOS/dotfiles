@@ -100,6 +100,7 @@ Scope {
                     else if (event.key === Qt.Key_Escape) {
                         const onControls = Config.tabs[PanelState.tab]?.name === "Controls";
                         if (PanelState.notifDropdown) PanelState.notifDropdown = false;
+                        else if (onControls && PanelState.controlsPopover) PanelState.controlsPopover = "";
                         else if (onControls && PanelState.controlsView === "settings") PanelState.controlsView = "controls";
                         else if (onControls && PanelState.controlsDetail !== "system") PanelState.controlsDetail = "system";
                         else PanelState.open = false;

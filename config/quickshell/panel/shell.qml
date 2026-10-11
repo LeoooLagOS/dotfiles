@@ -13,7 +13,7 @@ import "./services"
 
 ShellRoot {
     // Services that must run from the start (not only once a zone uses them)
-    readonly property var services: [SystemSettings, Toggles]
+    readonly property var services: [SystemSettings, Toggles, LauncherTheme]
 
     Panel {}
     NotificationPopups {}
@@ -40,12 +40,18 @@ ShellRoot {
         function getSetting(key: string): string { return JSON.stringify(Settings.v[key]); }
         // Open Settings, optionally on a section, e.g. `settings power`
         function settings(section: string): void { PanelState.open = true; PanelState.openSettings(section); }
+        // Screen recording start / stop (SUPER ALT Print), services/Recorder.qml
+        function record(): string {
+            if (!Recorder.installed) { Recorder.checkInstalled(); return "gpu-screen-recorder is not installed"; }
+            Recorder.toggle();
+            return Recorder.recording ? "stopping" : "starting";
+        }
         // Caffeine on/off (SUPER ALT I)
         function caffeine(): string { Toggles.setCaffeine(!Toggles.caffeine, 0); return Toggles.caffeine ? "on" : "off"; }
         // Colors: `themeMode light|dark|system`, `toggleInverted`, `currentTheme`
         function themeMode(mode: string): void { if (["system", "dark", "light"].includes(mode)) Theme.setMode(mode); }
-        function toggleInverted(): void { Theme.setInverted(!Theme.inverted); }
-        function currentTheme(): string { return (Theme.light ? "light" : "dark") + (Theme.inverted ? " inverted" : "") + " (" + Theme.modeSetting + ")"; }
+        function toggleInverted(): void { Theme.setInverted(!Theme.chosenInverted); }
+        function currentTheme(): string { return (Theme.chosenLight ? "light" : "dark") + (Theme.chosenInverted ? " inverted" : "") + " (" + Theme.modeSetting + ", " + Theme.scope + ")"; }
         function tab(name: string): void {
             const i = Config.tabs.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
             PanelState.open = true;

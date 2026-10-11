@@ -30,6 +30,9 @@ Singleton {
     property string controlsView: "controls"
     property string controlsDetail: "system"
     property string settingsSection: "appearance"
+    // Tile whose detail is shown as a popover instead of in the right pane
+    // (ControlCenter.popoverAreas: Caffeine, Night light, Microphone, DND); "" = closed
+    property string controlsPopover: ""
     function openSettings(section) {
         if (section) settingsSection = section;
         controlsView = "settings";
@@ -58,10 +61,23 @@ Singleton {
             + (on ? `; hl.bind("mouse:272", hl.dsp.event("${clickEvent}"), { non_consuming = true })` : "")]);
     }
     Component.onCompleted: setClickBind(false)
+    // Except while a screenshot region is being picked: slurp (layer "selection",
+    // used by ScreenShot.sh, hyprshot, lagos-shot) or hyprpicker (frozen screen)
+    // covers the screen, so the click that selects the panel would close it.
+    // Kept a moment after the layer closes, in case the click event arrives late.
+    readonly property var captureLayers: ["selection", "hyprpicker"]
+    property int captureLayersOpen: 0
+    readonly property bool capturing: captureLayersOpen > 0 || captureGrace.running
+    Timer { id: captureGrace; interval: 500 }
     Connections {
         target: Hyprland
         function onRawEvent(event) {
-            if (event.name === "custom" && event.data === root.clickEvent && root.open && !root.hovered) root.open = false;
+            if (event.name === "openlayer" && root.captureLayers.includes(event.data)) root.captureLayersOpen++;
+            else if (event.name === "closelayer" && root.captureLayers.includes(event.data)) {
+                root.captureLayersOpen = Math.max(0, root.captureLayersOpen - 1);
+                captureGrace.restart();
+            }
+            else if (event.name === "custom" && event.data === root.clickEvent && root.open && !root.hovered && !root.capturing) root.open = false;
         }
     }
 
@@ -82,9 +98,11 @@ Singleton {
             controlsDetail = "system";
         }
         notifDropdown = false;
+        controlsPopover = "";
         if (!open) hovered = false;
         dimmed = open && Settings.v.dimHover;
         setClickBind(open && Settings.v.closeOutside);
     }
-    onTabChanged: notifDropdown = false
+    onTabChanged: { notifDropdown = false; controlsPopover = ""; }
+    onControlsViewChanged: controlsPopover = ""
 }
