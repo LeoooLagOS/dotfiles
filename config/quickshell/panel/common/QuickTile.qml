@@ -60,7 +60,7 @@ Rectangle {
                 anchors.centerIn: parent
                 text: root.icon
                 font.pixelSize: 14
-                color: root.active ? Theme.onAccent : Theme.fgDim
+                color: root.active ? Theme.accentText : Theme.fgDim
             }
         }
         ColumnLayout {

@@ -165,7 +165,7 @@ Zone {
                             text: dayCell.modelData.getDate()
                             font.pixelSize: 13
                             font.weight: dayCell.isToday ? Font.Bold : Font.Normal
-                            color: dayCell.isToday ? Theme.onAccent : Theme.fg
+                            color: dayCell.isToday ? Theme.accentText : Theme.fg
                             opacity: dayCell.inMonth ? 1 : 0.3
                         }
                         // Event dot
@@ -177,7 +177,7 @@ Zone {
                             width: 4
                             height: 4
                             radius: 2
-                            color: dayCell.isToday ? Theme.onAccent : Theme.accent2
+                            color: dayCell.isToday ? Theme.accentText : Theme.accent2
                             opacity: dayCell.inMonth ? 1 : 0.4
                         }
                         MouseArea {

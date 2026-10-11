@@ -22,7 +22,7 @@ Rectangle {
         width: 16; height: 16; radius: 8
         y: 3
         x: root.checked ? root.width - width - 3 : 3
-        color: root.checked ? Theme.onAccent : Theme.fg
+        color: root.checked ? Theme.accentText : Theme.fg
         Behavior on x { NumberAnimation { duration: Theme.anim / 1.3; easing.type: Easing.OutCubic } }
     }
     MouseArea {

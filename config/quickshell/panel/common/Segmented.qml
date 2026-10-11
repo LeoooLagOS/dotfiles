@@ -45,14 +45,14 @@ Rectangle {
                         visible: !!segItem.modelData.icon
                         text: segItem.modelData.icon ?? ""
                         font.pixelSize: 11
-                        color: segItem.current ? Theme.onAccent : Theme.fgDim
+                        color: segItem.current ? Theme.accentText : Theme.fgDim
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     Label {
                         text: segItem.modelData.label
                         font.pixelSize: 12
                         font.weight: segItem.current ? Font.DemiBold : Font.Normal
-                        color: segItem.current ? Theme.onAccent : Theme.fgDim
+                        color: segItem.current ? Theme.accentText : Theme.fgDim
                         anchors.verticalCenter: parent.verticalCenter
                     }
                 }

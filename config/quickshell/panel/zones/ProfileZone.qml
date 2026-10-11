@@ -29,7 +29,7 @@ Zone {
                 anchors.centerIn: parent
                 visible: avatar.status !== Image.Ready
                 text: Profile.initials
-                color: Theme.onAccent2
+                color: Theme.accent2Text
                 font.pixelSize: 15
                 font.weight: Font.DemiBold
             }

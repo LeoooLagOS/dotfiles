@@ -24,7 +24,7 @@ Rectangle {
     Glyph {
         id: glyph
         anchors.centerIn: parent
-        color: root.active ? Theme.onAccent : Theme.fg
+        color: root.active ? Theme.accentText : Theme.fg
     }
 
     MouseArea {

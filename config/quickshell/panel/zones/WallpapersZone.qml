@@ -152,7 +152,7 @@ Zone {
                     anchors.margins: 10
                     width: 20; height: 20; radius: 10
                     color: Theme.accent
-                    Glyph { anchors.centerIn: parent; text: "\uf00c"; font.pixelSize: 10; color: Theme.onAccent }
+                    Glyph { anchors.centerIn: parent; text: "\uf00c"; font.pixelSize: 10; color: Theme.accentText }
                 }
 
                 MouseArea {

@@ -36,7 +36,7 @@ Rectangle {
             visible: root.icon !== ""
             text: root.icon
             font.pixelSize: root.fontSize - 1
-            color: root.filled ? Theme.onAccent : (root.active ? root.tint : Theme.fgDim)
+            color: root.filled ? Theme.accentText : (root.active ? root.tint : Theme.fgDim)
             anchors.verticalCenter: parent.verticalCenter
         }
         Label {
@@ -44,7 +44,7 @@ Rectangle {
             text: root.text
             font.pixelSize: root.fontSize
             font.weight: (root.bold || root.active) ? Font.DemiBold : Font.Normal
-            color: root.filled ? Theme.onAccent : Theme.fg
+            color: root.filled ? Theme.accentText : Theme.fg
             anchors.verticalCenter: parent.verticalCenter
         }
     }

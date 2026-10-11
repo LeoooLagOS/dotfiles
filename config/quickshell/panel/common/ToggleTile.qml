@@ -47,7 +47,7 @@ Rectangle {
             Glyph {
                 anchors.centerIn: parent
                 text: root.icon
-                color: root.active ? Theme.onAccent : Theme.fgDim
+                color: root.active ? Theme.accentText : Theme.fgDim
             }
         }
 
