@@ -27,6 +27,10 @@ Singleton {
     // low urgency stays half as long, critical 30 s
     function timeoutFor(n) {
         if (n.urgency === NotificationUrgency.Critical) return 30000;
+        const k = placeKind(n);
+        if (k === "level") return 1800;                           // just feedback
+        if (k === "call" || k === "reminder") return 0;           // until answered / dismissed
+        if (k === "security") return 30000;                       // time to read / copy the code
         const s = Settings.v.popupSecs * 1000;
         if (s === 0) return 0;
         return n.urgency === NotificationUrgency.Low ? Math.max(2000, s / 2) : s;
@@ -46,15 +50,64 @@ Singleton {
 
     // Apps treated as messaging, besides the "im.*" / "email.*" categories
     readonly property var messagingApps: ["discord", "vesktop", "telegram", "whatsapp", "signal", "slack",
-                                          "element", "teams", "thunderbird", "evolution", "geary", "mail"]
+                                          "element", "teams", "thunderbird", "evolution", "geary", "mail",
+                                          "zapzap", "wasistlos", "whatsie", "caprine", "ferdium", "outlook", "gmail"]
+
+    // --- Web apps ---
+    // A site's notification comes from the browser ("Brave", "Firefox").
+    // Chromium browsers put the site in the body (a link, or a first line with
+    // the host); the known ones are recognized by that host: name, type, and
+    // the body without it. appLabel(n) is what the panel shows and what rules
+    // (Per app), grouping and the tab's app filter use.
+    readonly property var webServices: [
+        // Any *.whatsapp.com: the installed app runs on web-fallback.whatsapp.com
+        { hosts: ["whatsapp.com"], name: "WhatsApp", kind: "message" },
+        { hosts: ["teams.microsoft.com", "teams.live.com", "teams.cloud.microsoft"], name: "Teams", kind: "message" },
+        { hosts: ["outlook.office.com", "outlook.office365.com", "outlook.live.com", "outlook.cloud.microsoft"], name: "Outlook", kind: "message" },
+        { hosts: ["mail.google.com"], name: "Gmail", kind: "message" },
+        { hosts: ["chat.google.com"], name: "Google Chat", kind: "message" },
+        { hosts: ["meet.google.com"], name: "Google Meet", kind: "message" },
+        { hosts: ["calendar.google.com"], name: "Google Calendar", kind: "reminder" },
+        { hosts: ["messenger.com", "facebook.com"], name: "Messenger", kind: "message" },
+        { hosts: ["instagram.com"], name: "Instagram", kind: "message" },
+        { hosts: ["web.telegram.org"], name: "Telegram", kind: "message" },
+        { hosts: ["discord.com"], name: "Discord", kind: "message" },
+        { hosts: ["app.slack.com"], name: "Slack", kind: "message" },
+        { hosts: ["music.youtube.com", "open.spotify.com"], name: "Music", kind: "media" }
+    ]
+    readonly property var browsers: ["brave", "firefox", "chrom", "edge", "vivaldi", "opera", "epiphany", "web", "zen", "librewolf"]
+    // The site a browser notification comes from ("web.whatsapp.com"), or ""
+    function originOf(n) {
+        if (!n) return "";
+        const app = ((n.appName || "") + " " + (n.desktopEntry || "")).toLowerCase();
+        if (!browsers.some(b => app.includes(b))) return "";
+        const m = /(?:https?:\/\/)?((?:[a-z0-9-]+\.)+[a-z]{2,})/i.exec(String(n.body ?? ""));
+        return m ? m[1].toLowerCase() : "";
+    }
+    function webService(n) {
+        const host = originOf(n);
+        return host ? webServices.find(s => s.hosts.some(h => host === h || host.endsWith("." + h))) ?? null : null;
+    }
+    function appLabel(n) { return webService(n)?.name ?? (n?.appName || "Other"); }
+    // The body without the site line Chromium adds ("<a href=…>web.whatsapp.com</a>\n\n…")
+    function bodyOf(n) {
+        const b = String(n?.body ?? "");
+        if (!webService(n)) return b;                 // only for the known sites
+        return b.replace(/^\s*(<a [^>]*>[^<]*<\/a>|(?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}\/?)\s*(\n|<br\s*\/?>)*/i, "");
+    }
     readonly property var systemApps: ["notify-send", "networkmanager", "nm-applet", "blueman", "battery",
-                                       "udiskie", "power", "system", "hyprland", "swappy", "grim"]
+                                       "udiskie", "power", "system", "hyprland", "swappy", "grim",
+                                       "screen recording", "screenshot", "hyprsunset", "tuned", "dnf", "packagekit"]
+    readonly property var mediaApps: ["spotify", "mpv", "vlc", "rhythmbox", "elisa", "amberol", "cider", "tidal",
+                                      "strawberry", "lollypop", "clementine", "audacious", "celluloid", "youtube music",
+                                      "spot", "g4music", "gapless", "quod libet", "deadbeef", "ncspot", "spotify-player"]
 
     // "critical" | "message" | "system" | "app"
     function kind(n) {
         if (n.urgency === NotificationUrgency.Critical) return "critical";
+        if (webService(n)?.kind === "message") return "message";
         const cat = String(n.hints?.category ?? "").toLowerCase();
-        const app = (n.appName || "").toLowerCase();
+        const app = appLabel(n).toLowerCase();
         if (cat.startsWith("im") || cat.startsWith("email") || messagingApps.some(a => app.includes(a))) return "message";
         if (cat.startsWith("device") || cat.startsWith("network") || systemApps.some(a => app.includes(a))) return "system";
         return "app";
@@ -65,30 +118,123 @@ Singleton {
     function matches(n, query) {
         if (!query) return true;
         const q = query.toLowerCase();
-        return [n.appName, n.summary, plain(n.body)].some(t => String(t ?? "").toLowerCase().includes(q));
+        return [appLabel(n), n.summary, plain(n.body)].some(t => String(t ?? "").toLowerCase().includes(q));
     }
 
     // filter: "all" | "critical" | "message" | "system" | "app" | "app:<name>"
     function select(filter, query, sort) {
         let out = list.filter(n => matches(n, query) && (
             filter === "all" ? true
-            : filter.startsWith("app:") ? (n.appName || "Other") === filter.slice(4)
+            : filter.startsWith("app:") ? appLabel(n) === filter.slice(4)
             : kind(n) === filter));
         const t = n => received[n.id]?.getTime() ?? 0;
         const rank = n => n.urgency === NotificationUrgency.Critical ? 0 : n.urgency === NotificationUrgency.Normal ? 1 : 2;
         if (sort === "oldest") out.sort((a, b) => t(a) - t(b));
-        else if (sort === "app") out.sort((a, b) => (a.appName || "").localeCompare(b.appName || "") || t(b) - t(a));
+        else if (sort === "app") out.sort((a, b) => appLabel(a).localeCompare(appLabel(b)) || t(b) - t(a));
         else if (sort === "urgency") out.sort((a, b) => rank(a) - rank(b) || t(b) - t(a));
         else out.sort((a, b) => t(b) - t(a));
         return out;
     }
 
-    readonly property var apps: [...new Set(list.map(n => n.appName || "Other"))].sort()
+    readonly property var apps: [...new Set(list.map(n => appLabel(n)))].sort()
+
+    // --- Where popups appear (Settings → Notifications → Where popups appear) ---
+    // Finer than kind() (the Notifications tab's filter), first match wins:
+    //   call      incoming call (category call.*, "incoming call" / "llamada entrante")
+    //   critical  urgency critical
+    //   security  2FA / login codes, sign-in alerts, polkit, password managers
+    //   level     sync tag + value hint (volume, brightness)
+    //   progress  value hint without a sync tag (downloads, copies, updates)
+    //   reminder  category calendar.* / reminder apps (services/Events.qml sends these)
+    //   media     now playing (category x-gnome.music, mediaApps)
+    //   message · system · app   from kind()
+    readonly property var securityApps: ["polkit", "1password", "bitwarden", "keepassxc", "proton pass", "authenticator",
+                                         "authy", "gnome-keyring", "kwallet", "seahorse"]
+    readonly property var reminderApps: ["calendar", "evolution-alarm", "reminder", "korganizer", "todo", "planify", "errands"]
+    function textOf(n) { return plain((n.summary ?? "") + " " + bodyOf(n)); }
+    function isCall(n) {
+        const cat = String(n.hints?.category ?? "").toLowerCase();
+        return cat.startsWith("call") || /\b(incoming (video |voice )?call|(video)?llamada entrante|is calling( you)?|te est[aá] llamando|calling you)\b/i.test(textOf(n));
+    }
+    // A 4–8 digit code in a security notification ("Your code is 482913")
+    function codeOf(n) {
+        const m = /\b(\d{4,8})\b/.exec(textOf(n));
+        return m ? m[1] : "";
+    }
+    function isSecurity(n) {
+        const app = ((n.appName || "") + " " + (n.desktopEntry || "")).toLowerCase();
+        if (securityApps.some(a => app.includes(a))) return true;
+        const t = textOf(n);
+        if (/\b(verification|verify|security|2fa|two-factor|otp|one-time|passcode|c[oó]digo|code|pin)\b/i.test(t) && codeOf(n)) return true;
+        return /(new (sign-?in|login)|nuevo inicio de sesi[oó]n|authentication required|autenticaci[oó]n requerida)/i.test(t);
+    }
+    function placeKind(n) {
+        if (isCall(n)) return "call";
+        if (n.urgency === NotificationUrgency.Critical) return "critical";
+        if (isSecurity(n)) return "security";
+        const tagged = !!syncTag(n), valued = progressOf(n) >= 0;
+        if (tagged && valued) return "level";
+        if (valued) return "progress";
+        const cat = String(n.hints?.category ?? "").toLowerCase();
+        const app = ((n.appName || "") + " " + (n.desktopEntry || "")).toLowerCase();
+        const web = webService(n);
+        if (web && web.kind !== "message") return web.kind;
+        if (cat.startsWith("calendar") || cat.startsWith("x-calendar") || reminderApps.some(a => app.includes(a))) return "reminder";
+        if (cat.startsWith("x-gnome.music") || mediaApps.some(a => app.includes(a))) return "media";
+        const k = kind(n);
+        return k === "message" || k === "system" ? k : "app";
+    }
+
+    // Per-app rules (Settings → Notifications → Per app): appName → a place,
+    // "off" (history only) or "mute" (dropped, not even in the history).
+    // They don't apply to critical notifications or calls.
+    function ruleOf(n) {
+        const r = (Settings.v.appRules ?? {})[appLabel(n)];
+        return r && r !== "default" ? r : "";
+    }
+    // "top" | "top-left" | "top-right" | "bottom-right" | "bottom" | "off"; critical: always top center
+    function placeOf(n) {
+        const k = placeKind(n);
+        if (k === "critical") return "top";
+        const rule = ruleOf(n);
+        if (rule && rule !== "mute" && k !== "call") return rule;
+        return Settings.v["pos" + k[0].toUpperCase() + k.slice(1)] ?? "top";
+    }
+
+    // --- Messages grouped by conversation ---
+    // A message from the same app and sender/chat (summary) as one on screen
+    // takes its card, which counts them ("3 messages"); all stay in the history.
+    property var groupCount: ({})              // notification id → messages in its card
+    function sameConversation(a, b) {
+        return a !== b && placeKind(a) === "message" && appLabel(a) === appLabel(b)
+            && plain(a.summary).trim() === plain(b.summary).trim();
+    }
+    // Popups of one place, newest last, at most Settings → At most per place
+    function popupsAt(place) {
+        const out = popups.filter(n => placeOf(n) === place);
+        return out.slice(Math.max(0, out.length - Settings.v.maxPopups));
+    }
+
+    // --- Level notifications (volume, brightness…) ---
+    // A "synchronous" tag (x-canonical-private-synchronous, the same as dunst /
+    // swaync) makes a new notification replace the previous one with that tag,
+    // in place, instead of stacking. With an int `value` hint (0–100, more when
+    // boosted) the card is a compact level: icon, bar, percentage.
+    function syncTag(n) {
+        const h = n?.hints ?? {};
+        return String(h["x-canonical-private-synchronous"] ?? h["synchronous"] ?? h["x-dunst-stack-tag"] ?? "");
+    }
+    // notification id → the level of the one it replaced, so its bar animates from there
+    property var levelFrom: ({})
+    function progressOf(n) {
+        const v = n?.hints?.value;
+        return v === undefined || v === null || v === "" ? -1 : Number(v);
+    }
 
     function removePopup(n) {
         popups = popups.filter(p => p !== n);
-        // Transient notifications are not kept in the history
-        if (n && n.transient) n.expire();
+        // Transient and level notifications are not kept in the history
+        if (n && (n.transient || syncTag(n))) n.expire();
     }
     function dismiss(n) { n.dismiss(); }
     function clearAll() { for (const n of list.slice()) n.dismiss(); }
@@ -145,8 +291,55 @@ Singleton {
             const r = Object.assign({}, root.received);
             r[n.id] = new Date();
             root.received = r;
-            if (!root.dnd || (Settings.v.critical && n.urgency === NotificationUrgency.Critical))
-                root.popups = root.popups.concat([n]);
+            // Muted app: not even in the history
+            if (root.ruleOf(n) === "mute" && root.placeKind(n) !== "critical" && root.placeKind(n) !== "call") {
+                Qt.callLater(() => n.dismiss());
+                return;
+            }
+            // Do Not Disturb lets through critical ones and calls (if allowed),
+            // levels (feedback for a key you just pressed), security codes (you
+            // asked for them) and SWAYNC_BYPASS_DND
+            const pk = root.placeKind(n);
+            const critical = pk === "critical";
+            const bypass = pk === "level" || pk === "security" || n.hints?.["SWAYNC_BYPASS_DND"] === true
+                || (pk === "call" && Settings.v.callsThroughDnd);
+            const shown = root.placeOf(n) !== "off"
+                && (!root.dnd || bypass || (Settings.v.critical && critical));
+            // Same tag as an earlier one: take its place (popup slot included)
+            const tag = root.syncTag(n);
+            if (tag) {
+                const old = root.list.filter(o => o !== n && root.syncTag(o) === tag);
+                const i = root.popups.findIndex(p => old.includes(p));
+                if (i >= 0 && root.progressOf(root.popups[i]) >= 0) {
+                    const m = {};                              // only the current one is needed
+                    m[n.id] = root.progressOf(root.popups[i]);
+                    root.levelFrom = m;
+                }
+                if (shown) {
+                    const next = root.popups.slice();
+                    if (i >= 0) next[i] = n; else next.push(n);
+                    root.popups = next;
+                } else if (i >= 0) root.popups = root.popups.filter(p => !old.includes(p));
+                // Later: `list` doesn't have `n` yet, and closing the old ones now
+                // would make onListChanged drop `n` from the popups too
+                Qt.callLater(() => { for (const o of old) o.expire(); });
+                return;
+            }
+            // Same conversation as a message on screen: take its card, count them
+            if (shown && pk === "message" && Settings.v.groupMessages) {
+                const i = root.popups.findIndex(p => root.sameConversation(p, n));
+                if (i >= 0) {
+                    const g = Object.assign({}, root.groupCount);
+                    g[n.id] = (g[root.popups[i].id] ?? 1) + 1;
+                    root.groupCount = g;
+                    const next = root.popups.slice();
+                    next.splice(i, 1);
+                    next.push(n);                          // newest: nearest the edge
+                    root.popups = next;
+                    return;
+                }
+            }
+            if (shown) root.popups = root.popups.concat([n]);
         }
     }
 

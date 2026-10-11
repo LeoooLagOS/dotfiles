@@ -48,14 +48,14 @@ notify_user() {
     local muted="$(pamixer --get-mute)"
     local level="$(pamixer --get-volume)"
 
+    # One notification that replaces itself (sync tag) with the level as a bar
+    # (int:value): the Quickshell panel draws it as icon · bar · percentage
     if [[ "$muted" == "true" || "$level" -eq 0 ]]; then
-        notify-send -e -h string:x-canonical-private-synchronous:volume_notif \
-            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$(get_icon)" \
-            " Volume:" " Muted"
+        notify-send -e -h string:x-canonical-private-synchronous:volume_notif -h int:value:0 \
+            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$(get_icon)" "Volume" "Muted"
     else
-        notify-send -e -h int:value:"$level" -h string:x-canonical-private-synchronous:volume_notif \
-            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$(get_icon)" \
-            " Volume Level:" " ${level}%" &&
+        notify-send -e -h string:x-canonical-private-synchronous:volume_notif -h int:value:"$level" \
+            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$(get_icon)" "Volume" "${level}%" &&
             "$sDIR/Sounds.sh" --volume
     fi
 }
@@ -81,18 +81,18 @@ dec_volume() {
 # Toggle Mute
 toggle_mute() {
 	if [ "$(pamixer --get-mute)" == "false" ]; then
-		pamixer -m && notify-send -e -u low -h boolean:SWAYNC_BYPASS_DND:true -i "$iDIR/volume-mute.png" " Mute"
+		pamixer -m && notify_user
 	elif [ "$(pamixer --get-mute)" == "true" ]; then
-		pamixer -u && notify-send -e -u low -h boolean:SWAYNC_BYPASS_DND:true -i "$(get_icon)" " Volume:" " Switched ON"
+		pamixer -u && notify_user
 	fi
 }
 
 # Toggle Mic
 toggle_mic() {
 	if [ "$(pamixer --default-source --get-mute)" == "false" ]; then
-		pamixer --default-source -m && notify-send -e -u low -h boolean:SWAYNC_BYPASS_DND:true -i "$iDIR/microphone-mute.png" " Microphone:" " Switched OFF"
+		pamixer --default-source -m && notify_mic_user
 	elif [ "$(pamixer --default-source --get-mute)" == "true" ]; then
-		pamixer --default-source -u && notify-send -e -u low -h boolean:SWAYNC_BYPASS_DND:true -i "$iDIR/microphone.png" " Microphone:" " Switched ON"
+		pamixer --default-source -u && notify_mic_user
 	fi
 }
 # Get Mic Icon
@@ -130,14 +130,12 @@ notify_mic_user() {
 
     if [[ "$muted" == "true" || "$level" -eq 0 ]]; then
         icon="$iDIR/microphone-mute.png"
-        notify-send -e -h "string:x-canonical-private-synchronous:volume_notif" \
-            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$icon" \
-            " Mic Level:" " Muted"
+        notify-send -e -h string:x-canonical-private-synchronous:mic_notif -h int:value:0 \
+            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$icon" "Microphone" "Muted"
     else
         icon="$iDIR/microphone.png"
-        notify-send -e -h int:value:"$level" -h "string:x-canonical-private-synchronous:volume_notif" \
-            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$icon" \
-            " Mic Level:" " ${level}%"
+        notify-send -e -h string:x-canonical-private-synchronous:mic_notif -h int:value:"$level" \
+            -h boolean:SWAYNC_BYPASS_DND:true -u low -i "$icon" "Microphone" "${level}%"
     fi
 }
 

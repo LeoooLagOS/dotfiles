@@ -21,7 +21,7 @@ Zone {
         if (sort !== "app") return [{ app: "", items: shown }];
         const order = [], map = {};
         for (const n of shown) {
-            const app = n.appName || "Other";
+            const app = Notifs.appLabel(n);
             if (!map[app]) { map[app] = []; order.push(app); }
             map[app].push(n);
         }
@@ -52,7 +52,7 @@ Zone {
                     anchors.verticalCenter: parent.verticalCenter
                     width: Math.max(height, countLabel.implicitWidth + 12); height: 18; radius: 9
                     color: Theme.accent
-                    Label { id: countLabel; anchors.centerIn: parent; text: Notifs.count; color: Theme.onAccent; font.pixelSize: 11; font.weight: Font.Bold }
+                    Label { id: countLabel; anchors.centerIn: parent; text: Notifs.count; color: Theme.accentText; font.pixelSize: 11; font.weight: Font.Bold }
                 }
             }
 

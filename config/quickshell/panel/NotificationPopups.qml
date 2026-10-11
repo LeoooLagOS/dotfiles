@@ -6,50 +6,78 @@ import Quickshell.Hyprland
 import "./common"
 import "./services"
 
-// Notification popups: a column of cards at the top center of the focused
-// monitor, below the bar. Each popup hides after its timeout (paused while
-// hovered) but stays in the history (Notifications tab).
+// Notification popups, on the focused monitor, in up to four places chosen per
+// type (Settings → Notifications → Where popups appear; Notifs.placeOf):
+//   top           top center, below the bar — system, levels, critical
+//   top-left      top left corner — calls
+//   top-right     top right corner — now playing, other apps, reminders
+//   bottom-right  bottom right corner — messages
+//   bottom        bottom center
+// The newest card sits nearest the screen edge: first at the top places, last
+// at the bottom ones. Each popup hides after its timeout (paused while hovered)
+// but stays in the history (Notifications tab); levels and transient ones don't.
 Scope {
     Variants {
         model: Quickshell.screens
 
-        PanelWindow {
-            id: win
+        Scope {
+            id: perScreen
             required property var modelData
-            screen: modelData
 
-            visible: Notifs.popups.length > 0 && Hyprland.focusedMonitor?.name === modelData.name
-                     && !PanelState.open
-            color: "transparent"
-            exclusionMode: ExclusionMode.Normal
+            Variants {
+                model: ["top", "top-left", "top-right", "bottom-right", "bottom"]
 
-            anchors.top: true
-            margins.top: 6
-            implicitWidth: 380
-            implicitHeight: Math.max(1, stack.implicitHeight)
+                PanelWindow {
+                    id: win
+                    required property string modelData
+                    readonly property string place: modelData
+                    readonly property bool atTop: place.startsWith("top")
+                    readonly property bool atRight: place.endsWith("right")
+                    readonly property bool atLeft: place.endsWith("left")
+                    readonly property var items: Notifs.popupsAt(place)
+                    screen: perScreen.modelData
 
-            WlrLayershell.namespace: "quickshell:notifications"
-            WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+                    visible: items.length > 0 && Hyprland.focusedMonitor?.name === perScreen.modelData.name
+                             && !PanelState.open
+                    color: "transparent"
+                    exclusionMode: ExclusionMode.Normal
 
-            Column {
-                id: stack
-                width: parent.width
-                spacing: 8
+                    anchors.top: atTop
+                    anchors.bottom: !atTop
+                    anchors.right: atRight
+                    anchors.left: atLeft
+                    margins.left: atLeft ? 10 : 0
+                    margins.top: atTop ? 6 : 0
+                    margins.bottom: atTop ? 0 : 10
+                    margins.right: atRight ? 10 : 0
+                    implicitWidth: 380
+                    implicitHeight: Math.max(1, stack.implicitHeight)
 
-                Repeater {
-                    model: Notifs.popups
-                    delegate: NotificationCard {
-                        id: popupCard
-                        required property var modelData
-                        notif: modelData
-                        popup: true
-                        width: stack.width
+                    WlrLayershell.namespace: "quickshell:notifications"
+                    WlrLayershell.layer: WlrLayer.Overlay
+                    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
-                        Timer {
-                            interval: Notifs.timeoutFor(popupCard.modelData)
-                            running: !popupCard.hovered && interval > 0     // 0 = until dismissed
-                            onTriggered: Notifs.removePopup(popupCard.modelData)
+                    Column {
+                        id: stack
+                        width: parent.width
+                        spacing: 8
+
+                        Repeater {
+                            // Newest nearest the edge
+                            model: win.atTop ? win.items.slice().reverse() : win.items
+                            delegate: NotificationCard {
+                                id: popupCard
+                                required property var modelData
+                                notif: modelData
+                                popup: true
+                                width: stack.width
+
+                                Timer {
+                                    interval: Notifs.timeoutFor(popupCard.modelData)
+                                    running: !popupCard.hovered && interval > 0     // 0 = until dismissed
+                                    onTriggered: Notifs.removePopup(popupCard.modelData)
+                                }
+                            }
                         }
                     }
                 }
