@@ -271,8 +271,12 @@ def write_api_cache(payload: Dict[str, Any]) -> None:
         ensure_cache_dir()
         payload["timestamp"] = time.time()
         payload["units"] = UNITS
-        with API_CACHE_PATH.open("w", encoding="utf-8") as f:
+        # Atomic: write a temp file, then rename. The Quickshell panel watches
+        # this file and would otherwise read it half-written.
+        tmp = API_CACHE_PATH.with_name(API_CACHE_PATH.name + ".tmp")
+        with tmp.open("w", encoding="utf-8") as f:
             json.dump(payload, f)
+        os.replace(tmp, API_CACHE_PATH)
     except Exception as e:
         print(f"Error writing API cache: {e}", file=sys.stderr)
 

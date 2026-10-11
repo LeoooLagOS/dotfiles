@@ -75,9 +75,16 @@ Singleton {
                 if (i < 0) i = 0;
                 root.rainNext = f.hourly.precipitation_probability.slice(i, i + 6);
                 root.ready = true;
-            } catch (e) { console.warn("weather cache:", e); }
+            } catch (e) {
+                // Caught mid-write (older Weather.py wrote in place): try again once
+                if (!retryRead.tried) { retryRead.tried = true; retryRead.restart(); }
+                else console.warn("weather cache:", e);
+                return;
+            }
+            retryRead.tried = false;
         }
     }
+    Timer { id: retryRead; property bool tried: false; interval: 400; onTriggered: cache.reload() }
 
     Timer {
         interval: Config.weatherIntervalMs
