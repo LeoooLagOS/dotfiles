@@ -24,7 +24,8 @@ open_hidden() {
   for _ in $(seq 1 120); do
     if has_window "$re"; then
       sleep 0.5   # let it map before moving
-      hyprctl dispatch "hl.dsp.window.move({ workspace = \"special:comms\", follow = false, window = \"class:$re\" })" >/dev/null
+      # The regex goes inside a Lua string: double its backslashes
+      hyprctl dispatch "hl.dsp.window.move({ workspace = \"special:comms\", follow = false, window = \"class:${re//\\/\\\\}\" })" >/dev/null
       return
     fi
     sleep 0.5
@@ -41,7 +42,8 @@ fi
 wa=$(grep -l '^Name=WhatsApp Web$' "$HOME"/.local/share/applications/com.brave.Browser.flextop.*.desktop 2>/dev/null | head -1)
 if [ -n "$wa" ]; then
   id=$(grep -o -- '--app-id=[a-z]*' "$wa" | head -1 | cut -d= -f2)
-  [ -n "$id" ] && open_hidden "^crx_${id}\$" \
+  # Window class: brave-<id>-Default on Wayland, crx_<id> on X11 (the .desktop's StartupWMClass)
+  [ -n "$id" ] && open_hidden "^(brave-${id}-Default|crx_${id})\$" \
     flatpak run --command=brave "$BRAVE" --profile-directory=Default --app-id="$id" &
 fi
 

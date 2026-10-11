@@ -36,7 +36,7 @@ Singleton {
     function start() {
         if (recording) return;
         if (!installed) { checkInstalled(); return; }
-        const stamp = new Date().toISOString().slice(0, 19).replace("T", "_").replace(/:/g, "-");
+        const stamp = Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss");   // local time
         file = dir + "/Recording_" + stamp + ".mp4";
         error = "";
         const audio = Settings.v.recAudio === "both" ? ["-a", "default_output|default_input"]
