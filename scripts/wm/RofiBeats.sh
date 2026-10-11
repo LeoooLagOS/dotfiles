@@ -4,9 +4,9 @@
 
 mDIR="$HOME/Music/"
 iDIR="$HOME/.config/swaync/icons"
-rofi_theme="$HOME/.config/rofi/config-rofi-Beats.rasi"
-rofi_theme_menu="$HOME/.config/rofi/config-rofi-Beats-menu.rasi"
-music_list="$HOME/.config/rofi/online_music.list"
+rofi_theme="$HOME/.config/hypr/rofi/config-rofi-Beats.rasi"
+rofi_theme_menu="$HOME/.config/hypr/rofi/config-rofi-Beats-menu.rasi"
+music_list="$HOME/.config/hypr/rofi/online_music.list"
 
 mkdir -p "$(dirname "$music_list")"
 [[ -f "$music_list" ]] || touch "$music_list"
