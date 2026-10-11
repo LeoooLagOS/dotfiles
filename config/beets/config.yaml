@@ -1,0 +1,39 @@
+# beets — organizes and tags the music library in ~/Music (MPD reads it).
+#   beet import ~/Downloads/<album>   tag with MusicBrainz, fetch the cover,
+#                                     compute ReplayGain, move into ~/Music
+#   beet ls <query>                   search the library
+# Linked to ~/.config/beets/config.yaml by install.sh; beets' own database
+# lives in ~/.local/share/beets (not in the repo).
+
+directory: ~/Music
+library: ~/.local/share/beets/library.db
+
+import:
+  move: yes                 # into ~/Music (copy: yes to keep the originals)
+  write: yes                # write the tags into the files
+  resume: ask
+  quiet_fallback: skip
+
+# Artist/Album (Year)/01 - Title.flac — what the panel's Library view shows
+paths:
+  default: $albumartist/$album%aunique{} ($year)/$track - $title
+  singleton: Non-Album/$artist/$title
+  comp: Compilations/$album%aunique{} ($year)/$track - $artist - $title
+
+plugins: fetchart embedart replaygain scrub info missing
+
+fetchart:
+  auto: yes                 # cover.jpg in each album folder (the panel uses it)
+  minwidth: 600
+  sources: filesystem coverart itunes amazon albumart
+
+embedart:
+  auto: yes                 # and inside the files too
+  remove_art_file: no
+
+replaygain:
+  auto: yes
+  backend: ffmpeg           # writes ReplayGain tags; MPD applies them as volume
+
+scrub:
+  auto: yes                 # clean junk tags before writing

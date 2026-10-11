@@ -19,3 +19,4 @@ singleton Recorder 1.0 Recorder.qml
 singleton Displays 1.0 Displays.qml
 singleton NetInfo 1.0 NetInfo.qml
 singleton Radio 1.0 Radio.qml
+singleton Library 1.0 Library.qml

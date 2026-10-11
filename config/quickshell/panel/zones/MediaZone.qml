@@ -19,6 +19,15 @@ Zone {
     id: root
     readonly property var player: Media.player
     readonly property bool radio: Settings.v.mediaMode === "radio"
+    readonly property bool library: Settings.v.mediaMode === "library"
+    readonly property var lib: Library.now
+    // Library: quality chips — format, Hi-Res, and whether the sound card runs
+    // at the music's own rate (bit-perfect) or PipeWire resamples it
+    readonly property var qualityChips: !library || !Library.active ? [] : [
+        { t: lib.quality, on: false },
+    ].concat(lib.hires ? [{ t: "Hi-Res", on: true }] : [],
+             lib.cardRate ? [lib.bitperfect ? { t: "Bit-perfect", on: true }
+                                           : { t: "Resampled " + (lib.rate / 1000) + " → " + (lib.cardRate / 1000) + " kHz", on: false }] : [])
     readonly property var station: Radio.current
     readonly property var sinkAudio: Media.sink?.audio ?? null
 
@@ -35,11 +44,12 @@ Zone {
 
     // Radio: find stations (opens the search over the right column)
     property bool searching: false
-    onRadioChanged: if (!radio) searching = false
+    readonly property string mode: Settings.v.mediaMode
+    onModeChanged: searching = false
     IconButton {
         id: searchButton
         parent: root
-        visible: root.radio
+        visible: root.radio || root.library
         z: 5
         anchors.top: parent.top
         anchors.right: modeButton.left
@@ -49,27 +59,38 @@ Zone {
         iconSize: 13
         implicitWidth: 34; implicitHeight: 30
         active: root.searching
-        onClicked: { root.searching = !root.searching; if (root.searching) searchField.input.forceActiveFocus(); }
+        onClicked: {
+            root.searching = !root.searching;
+            if (root.searching) (root.library ? libField : searchField).input.forceActiveFocus();
+        }
     }
 
-    // Player ↔ radio
-    IconButton {
+    // Player · radio · library
+    Row {
         id: modeButton
         parent: root
         z: 5
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.margins: Theme.zonePadding
-        icon: root.radio ? "\uf001" : "\u{f0439}"      // music note / radio
-        iconSize: 14
-        implicitWidth: 34; implicitHeight: 30
-        active: root.radio
-        onClicked: Settings.set("mediaMode", root.radio ? "player" : "radio")
+        spacing: 4
+        Repeater {
+            model: [{ mode: "player", icon: "\uf001" }, { mode: "radio", icon: "\u{f0439}" }, { mode: "library", icon: "\u{f0025}" }]
+            delegate: IconButton {
+                required property var modelData
+                icon: modelData.icon
+                iconSize: 13
+                implicitWidth: 34; implicitHeight: 30
+                active: Settings.v.mediaMode === modelData.mode
+                onClicked: Settings.set("mediaMode", modelData.mode)
+            }
+        }
     }
+    Binding { target: Library; property: "watching"; value: root.visualize && root.library }
 
     // Empty state
     Item {
-        visible: !root.player && !root.radio
+        visible: !root.player && !root.radio && !root.library
         width: parent.width
         height: root.height - 2 * Theme.zonePadding
         Column {
@@ -82,7 +103,7 @@ Zone {
     }
 
     RowLayout {
-        visible: !!root.player || root.radio
+        visible: root.library ? Library.available : (!!root.player || root.radio)
         width: parent.width
         height: root.height - 2 * Theme.zonePadding
         spacing: 24
@@ -94,11 +115,13 @@ Zone {
             radius: Theme.zoneRadius
             color: Theme.bgHover
 
-            Glyph { anchors.centerIn: parent; text: root.radio ? "\u{f0439}" : "\uf001"; font.pixelSize: 64; color: Theme.fgDim; visible: art.status !== Image.Ready }
+            Glyph { anchors.centerIn: parent; text: root.radio ? "\u{f0439}" : root.library ? "\u{f0025}" : "\uf001"; font.pixelSize: 64; color: Theme.fgDim; visible: art.status !== Image.Ready }
             Image {
                 id: art
                 anchors.fill: parent
-                source: root.radio ? (root.station?.logo ?? "") : (root.player?.trackArtUrl ?? "")
+                source: root.radio ? (root.station?.logo ?? "")
+                      : root.library ? (root.lib.cover ? "file://" + root.lib.cover : "")
+                      : (root.player?.trackArtUrl ?? "")
                 fillMode: Image.PreserveAspectCrop
                 sourceSize: Qt.size(600, 600)
                 asynchronous: true
@@ -116,18 +139,19 @@ Zone {
                 Layout.fillWidth: true
                 Layout.rightMargin: 40           // room for the player ↔ radio button
                 spacing: 6
-                visible: root.radio || Media.players.length > 1
+                visible: root.radio || (root.library ? root.qualityChips.length > 0 : Media.players.length > 1)
                 Repeater {
-                    model: root.radio ? Radio.stations : Media.players
+                    model: root.radio ? Radio.stations : root.library ? root.qualityChips : Media.players
                     delegate: Chip {
                         required property var modelData
                         implicitHeight: 26
                         // Identity alone is ambiguous (e.g. two Firefox tabs): add the track
                         text: { if (root.radio) return modelData.name;
+                                if (root.library) return modelData.t;
                                 const t = modelData.identity.split(" ")[0] + (modelData.trackTitle ? " · " + modelData.trackTitle : "");
                                 return t.length > 34 ? t.slice(0, 33) + "…" : t; }
-                        active: root.radio ? modelData.name === root.station?.name : modelData === root.player
-                        onClicked: root.radio ? Radio.play(modelData) : Media.pick(modelData)
+                        active: root.radio ? modelData.name === root.station?.name : root.library ? modelData.on : modelData === root.player
+                        onClicked: root.radio ? Radio.play(modelData) : root.library ? {} : Media.pick(modelData)
                     }
                 }
             }
@@ -145,6 +169,7 @@ Zone {
                     Label {
                         text: root.radio ? (Radio.loading ? "RADIO · CONNECTING…" : Radio.recording ? "RADIO · LIVE · ● REC " + Radio.recordElapsed
                                             : Radio.active ? "RADIO · LIVE" : "RADIO")
+                            : root.library ? "LIBRARY · " + (Library.playing ? "PLAYING" : Library.active ? "PAUSED" : Library.albums.length + " ALBUMS")
                                          : (root.player?.identity ?? "")
                         dim: true
                         font.pixelSize: 11
@@ -153,7 +178,9 @@ Zone {
                         Layout.fillWidth: true
                     }
                     Label {
-                        text: root.radio ? (root.station?.name ?? "No stations") : (root.player?.trackTitle || "Unknown title")
+                        text: root.radio ? (root.station?.name ?? "No stations")
+                            : root.library ? (Library.active ? root.lib.title : "Choose an album")
+                            : (root.player?.trackTitle || "Unknown title")
                         color: Theme.accent
                         font.pixelSize: 24
                         font.weight: Font.DemiBold
@@ -162,8 +189,8 @@ Zone {
                         Layout.fillWidth: true
                     }
                     // Radio: what's on air (the stream's title), then frequency / city
-                    Label { text: root.radio ? Radio.onAir : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }
-                    Label { text: root.radio ? (root.station?.subtitle ?? "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
+                    Label { text: root.radio ? Radio.onAir : root.library ? (Library.active ? root.lib.artist : "Browse your albums with the search button") : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }
+                    Label { text: root.radio ? (root.station?.subtitle ?? "") : root.library ? (Library.active ? root.lib.album : "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
                 }
 
                 ColumnLayout {
@@ -207,27 +234,29 @@ Zone {
                 IconButton {
                     visible: !root.radio
                     icon: "\uf074"; iconSize: 13; border.width: 0
-                    enabled: root.player?.shuffleSupported ?? false
+                    enabled: root.library || (root.player?.shuffleSupported ?? false)
                     opacity: enabled ? 1 : 0.35
-                    active: root.player?.shuffle ?? false
-                    onClicked: root.player.shuffle = !root.player.shuffle
+                    active: root.library ? !!root.lib.random : (root.player?.shuffle ?? false)
+                    onClicked: root.library ? Library.setRandom(!root.lib.random) : (root.player.shuffle = !root.player.shuffle)
                 }
                 // Radio: previous / next station, and play-stop (a live stream isn't paused)
                 IconButton { icon: "\uf048"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
-                             onClicked: root.radio ? Radio.previous() : root.player.previous() }
-                IconButton { icon: root.radio ? (Radio.active ? "\uf04d" : "\uf04b") : (root.player?.isPlaying ? "\uf04c" : "\uf04b")
+                             onClicked: root.radio ? Radio.previous() : root.library ? Library.prev() : root.player.previous() }
+                IconButton { icon: root.radio ? (Radio.active ? "\uf04d" : "\uf04b")
+                                 : root.library ? (Library.playing ? "\uf04c" : "\uf04b")
+                                 : (root.player?.isPlaying ? "\uf04c" : "\uf04b")
                              iconSize: 18; implicitWidth: 56; implicitHeight: 48
-                             radius: 24; active: true; onClicked: root.radio ? Radio.toggle() : root.player.togglePlaying() }
+                             radius: 24; active: true; onClicked: root.radio ? Radio.toggle() : root.library ? Library.toggle() : root.player.togglePlaying() }
                 IconButton { icon: "\uf051"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
-                             onClicked: root.radio ? Radio.next() : root.player.next() }
+                             onClicked: root.radio ? Radio.next() : root.library ? Library.next() : root.player.next() }
                 IconButton {
                     visible: !root.radio
-                    icon: (root.player?.loopState ?? MprisLoopState.None) === MprisLoopState.Track ? "\u{f0458}" : "\uf01e"
+                    icon: !root.library && (root.player?.loopState ?? MprisLoopState.None) === MprisLoopState.Track ? "\u{f0458}" : "\uf01e"
                     iconSize: 13; border.width: 0
-                    enabled: root.player?.loopSupported ?? false
+                    enabled: root.library || (root.player?.loopSupported ?? false)
                     opacity: enabled ? 1 : 0.35
-                    active: (root.player?.loopState ?? MprisLoopState.None) !== MprisLoopState.None
-                    onClicked: Media.cycleLoop()
+                    active: root.library ? !!root.lib.repeat : (root.player?.loopState ?? MprisLoopState.None) !== MprisLoopState.None
+                    onClicked: root.library ? Library.setRepeat(!root.lib.repeat) : Media.cycleLoop()
                 }
             }
 
@@ -237,7 +266,7 @@ Zone {
                 Layout.topMargin: 6
                 spacing: 10
 
-                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Radio.elapsed : Media.fmt(root.player?.position); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
+                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Radio.elapsed : root.library ? Media.fmt(root.lib.elapsed) : Media.fmt(root.player?.position); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
 
                 Item {
                     id: viz
@@ -256,7 +285,8 @@ Zone {
                                 width: viz.slot
                                 height: viz.height
                                 readonly property real level: Cava.bars[index] ?? 0
-                                readonly property bool played: root.radio ? Radio.active : (index + 0.5) / viz.count <= Media.progress
+                                readonly property bool played: root.radio ? Radio.active
+                                                                      : (index + 0.5) / viz.count <= (root.library ? Library.progress : Media.progress)
                                 Rectangle {
                                     anchors.bottom: parent.bottom
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -272,15 +302,205 @@ Zone {
 
                     MouseArea {
                         anchors.fill: parent
-                        enabled: !root.radio && (root.player?.canSeek ?? false) && root.player.length > 0
+                        enabled: root.library ? root.lib.duration > 0
+                               : !root.radio && (root.player?.canSeek ?? false) && root.player.length > 0
                         cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: mouse => root.player.position = root.player.length * mouse.x / width
+                        onClicked: mouse => root.library ? Library.seek(root.lib.duration * mouse.x / width)
+                                                         : root.player.position = root.player.length * mouse.x / width
                     }
                 }
 
-                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? "LIVE" : Media.fmt(root.player?.length)
+                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? "LIVE" : root.library ? Media.fmt(root.lib.duration) : Media.fmt(root.player?.length)
                         color: root.radio && Radio.active ? Theme.accent : Theme.fgDim
                         font.pixelSize: 11; font.weight: root.radio ? Font.DemiBold : Font.Normal; font.features: { "tnum": 1 } }
+            }
+        }
+    }
+
+    // ---------------- Library: MPD missing / empty ----------------
+    Item {
+        visible: root.library && !Library.available
+        width: parent.width
+        height: root.height - 2 * Theme.zonePadding
+        Column {
+            anchors.centerIn: parent
+            width: Math.min(parent.width - 80, 520)
+            spacing: 10
+            Glyph { anchors.horizontalCenter: parent.horizontalCenter; text: "\u{f0025}"; font.pixelSize: 48; color: Theme.fgDim }
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: Library.problem === "mpd" ? "The music library needs MPD" : Library.problem ? "The music library isn't answering" : "Connecting to the library…"
+                font.pixelSize: 15
+                font.weight: Font.DemiBold
+            }
+            Label {
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+                dim: true
+                font.pixelSize: 12
+                text: Library.problem === "mpd"
+                    ? "MPD plays ~/Music in full quality. Install it and start it once:\nsudo dnf install mpd mpc  ·  systemctl --user enable --now mpd"
+                    : Library.problem
+            }
+        }
+    }
+
+    // ---------------- Library: browse albums ----------------
+    // Over the right column, like the radio search: album covers (filter by
+    // album or artist); an album opens its tracks — Play, Queue, or a track.
+    property var openAlbum: null
+    onSearchingChanged: if (!searching) openAlbum = null
+    Rectangle {
+        id: libPane
+        parent: root
+        z: 8
+        visible: root.library && root.searching
+        readonly property real side: root.height - 2 * Theme.zonePadding
+        readonly property string q: libField.text.trim().toLowerCase()
+        readonly property var shown: q ? Library.albums.filter(a => (a.album + " " + a.artist).toLowerCase().includes(q)) : Library.albums
+        x: Theme.zonePadding + side + 24
+        y: Theme.zonePadding + 38
+        width: root.width - x - Theme.zonePadding
+        height: root.height - y - Theme.zonePadding
+        radius: Theme.zoneRadius
+        color: Theme.bgAlt
+        border.color: Theme.border
+
+        MouseArea { anchors.fill: parent }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+            visible: !root.openAlbum
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                TextField { id: libField; Layout.fillWidth: true; icon: "\uf002"; placeholder: "Album or artist" }
+                IconButton {
+                    icon: "\uf021"                 // rescan ~/Music
+                    iconSize: 12; implicitWidth: 34; implicitHeight: 30
+                    active: Library.now.updating ?? false
+                    onClicked: Library.rescan()
+                }
+            }
+            Label {
+                text: Library.loadingAlbums ? "READING ~/Music…"
+                    : libPane.shown.length + (libPane.shown.length === 1 ? " ALBUM" : " ALBUMS")
+                      + (Library.albums.filter(a => a.hires).length ? " · " + Library.albums.filter(a => a.hires).length + " HI-RES" : "")
+                dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1
+            }
+            GridView {
+                id: albumGrid
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                readonly property int cols: Math.max(2, Math.floor(width / 130))
+                cellWidth: width / cols
+                cellHeight: cellWidth + 44
+                model: libPane.shown
+                delegate: Item {
+                    id: cell
+                    required property var modelData
+                    width: albumGrid.cellWidth
+                    height: albumGrid.cellHeight
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 5
+                        spacing: 4
+                        ClippingRectangle {
+                            width: parent.width; height: parent.width; radius: 10
+                            color: Theme.bgHover
+                            Glyph { anchors.centerIn: parent; text: "\u{f0025}"; font.pixelSize: 26; color: Theme.fgDim; visible: cover.status !== Image.Ready }
+                            Image { id: cover; anchors.fill: parent; source: cell.modelData.cover ? "file://" + cell.modelData.cover : ""
+                                    sourceSize: Qt.size(260, 260); fillMode: Image.PreserveAspectCrop; asynchronous: true }
+                            // Hi-Res badge
+                            Rectangle {
+                                visible: cell.modelData.hires
+                                anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 6
+                                implicitWidth: hr.implicitWidth + 10; implicitHeight: 16; radius: 8
+                                color: Theme.accent
+                                Label { id: hr; anchors.centerIn: parent; text: "HI-RES"; color: Theme.accentText; font.pixelSize: 8; font.weight: Font.Bold; font.letterSpacing: 0.5 }
+                            }
+                        }
+                        Label { width: parent.width; text: cell.modelData.album; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                        Label { width: parent.width; text: cell.modelData.artist + (cell.modelData.year ? " · " + cell.modelData.year : ""); dim: true; font.pixelSize: 11; elide: Text.ElideRight }
+                    }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.openAlbum = cell.modelData }
+                }
+                Label {
+                    anchors.centerIn: parent
+                    width: parent.width - 40
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.Wrap
+                    visible: parent.count === 0 && !Library.loadingAlbums
+                    text: libPane.q ? "No albums match" : "No albums yet. Put them in ~/Music as Artist/Album (Year)/, or import with: beet import <folder>"
+                    dim: true
+                    font.pixelSize: 12
+                }
+            }
+        }
+
+        // An album: header with Play / Queue, then its tracks
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+            id: albumView
+            visible: !!root.openAlbum
+            readonly property var a: root.openAlbum ?? ({ tracks: [] })
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+                IconButton { icon: "\uf053"; iconSize: 11; implicitWidth: 30; implicitHeight: 28; onClicked: root.openAlbum = null }
+                ClippingRectangle {
+                    implicitWidth: 56; implicitHeight: 56; radius: 8; color: Theme.bgHover
+                    Image { anchors.fill: parent; source: albumView.a.cover ? "file://" + albumView.a.cover : ""
+                            sourceSize: Qt.size(112, 112); fillMode: Image.PreserveAspectCrop; asynchronous: true }
+                }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 1
+                    Label { text: albumView.a.album ?? ""; font.pixelSize: 15; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
+                    Label { text: (albumView.a.artist ?? "") + (albumView.a.year ? " · " + albumView.a.year : ""); dim: true; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
+                    Label { text: (albumView.a.quality ?? "") + " · " + albumView.a.tracks.length + " tracks"; dim: true; font.pixelSize: 11 }
+                }
+                Chip { text: "Play"; icon: "\uf04b"; filled: true; onClicked: { Library.play(root.openAlbum, 0); root.searching = false; } }
+                Chip { text: "Queue"; icon: "\uf067"; onClicked: Library.queue(root.openAlbum) }
+            }
+            ListView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                spacing: 2
+                boundsBehavior: Flickable.StopAtBounds
+                model: albumView.a.tracks
+                delegate: Rectangle {
+                    id: trackRow
+                    required property var modelData
+                    required property int index
+                    readonly property bool current: Library.active && Library.now.title === modelData.title && Library.now.album === root.openAlbum?.album
+                    width: ListView.view.width
+                    height: 36
+                    radius: 8
+                    color: current ? Theme.withAlpha(Theme.accent, 0.14) : trackMouse.containsMouse ? Theme.bgHover : "transparent"
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 10
+                        anchors.rightMargin: 10
+                        spacing: 10
+                        Label { text: trackRow.current && Library.playing ? "\u25b6" : (trackRow.modelData.track || trackRow.index + 1); color: trackRow.current ? Theme.accent : Theme.fgDim
+                                font.pixelSize: 12; font.features: { "tnum": 1 }; Layout.preferredWidth: 22; horizontalAlignment: Text.AlignRight }
+                        Label { text: trackRow.modelData.title; font.pixelSize: 13; font.weight: trackRow.current ? Font.DemiBold : Font.Normal; elide: Text.ElideRight; Layout.fillWidth: true }
+                        Label { text: Media.fmt(trackRow.modelData.duration); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
+                    }
+                    MouseArea { id: trackMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                onClicked: Library.play(root.openAlbum, trackRow.index) }
+                }
             }
         }
     }
