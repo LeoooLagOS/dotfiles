@@ -220,13 +220,15 @@ Zone {
                 Label {
                     readonly property int diff: Math.round((new Date(root.selected).setHours(0, 0, 0, 0)
                                                             - new Date(root.today).setHours(0, 0, 0, 0)) / 86400000)
-                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
                     text: diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : diff === -1 ? "Yesterday" : "Events"
                     font.pixelSize: 16
                     font.weight: Font.DemiBold
                 }
                 Label {
-                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
                     text: Qt.formatDate(root.selected, "ddd").toUpperCase() + " · " + Qt.formatDate(root.selected, "MMM d")
                     dim: true
                     font.pixelSize: 12
