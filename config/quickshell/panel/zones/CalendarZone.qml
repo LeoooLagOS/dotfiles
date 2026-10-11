@@ -212,19 +212,21 @@ Zone {
 
             readonly property var events: Events.eventsOn(root.selected)
 
-            // "Today  FRI · Oct 9" (Tomorrow / Yesterday / Events for other days)
-            RowLayout {
+            // "Today" (Tomorrow / Yesterday / Events for other days) over
+            // "SUN · Oct 11", both centered
+            ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 10
+                spacing: 1
                 Label {
                     readonly property int diff: Math.round((new Date(root.selected).setHours(0, 0, 0, 0)
                                                             - new Date(root.today).setHours(0, 0, 0, 0)) / 86400000)
+                    Layout.alignment: Qt.AlignHCenter
                     text: diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : diff === -1 ? "Yesterday" : "Events"
                     font.pixelSize: 16
                     font.weight: Font.DemiBold
                 }
                 Label {
-                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter
                     text: Qt.formatDate(root.selected, "ddd").toUpperCase() + " · " + Qt.formatDate(root.selected, "MMM d")
                     dim: true
                     font.pixelSize: 12
