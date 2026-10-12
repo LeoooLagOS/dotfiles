@@ -14,12 +14,13 @@ import "./bar"
 //            workspaces with their apps · the focused window's app and title
 //   center   notifications (click: the panel's Notifications · right click:
 //            Do Not Disturb) · the island (bar/Island.qml) · caffeine
-//   right    tray · CPU, RAM, disk, temperature · Wi-Fi, Bluetooth, battery ·
-//            power menu. Clicking the readings opens the system popup
+//   right    CPU, RAM, disk, temperature · Wi-Fi, Bluetooth, battery · tray
+//            (a list that drops down) · power menu. Clicking the readings opens the system popup
 //            (bar/SystemPopup.qml); hovering one shows its details (bar/BarTip.qml)
 // The layer is taller than the bar so the island can grow and the details can
 // show below it; only the bar's groups take input (mask), and only the bar's
-// height is reserved (exclusiveZone).
+// height is reserved (exclusiveZone). While the panel dims the screen, the
+// bar's strip is dimmed and blurred too, around and behind its groups.
 Scope {
     Variants {
         model: Quickshell.screens
@@ -40,7 +41,7 @@ Scope {
                 readonly property var monitor: Hyprland.monitorFor(screen)
 
                 anchors { top: true; left: true; right: true }
-                implicitHeight: 300
+                implicitHeight: 460
                 exclusiveZone: top + h
                 exclusionMode: ExclusionMode.Normal
                 color: "transparent"
@@ -51,6 +52,28 @@ Scope {
                 mask: Region {
                     item: barArea
                     Region { item: island }
+                    Region { item: tray.dropdown }
+                }
+
+                // The tray's list closes on a click anywhere else
+                HyprlandFocusGrab {
+                    active: tray.open
+                    windows: [win]
+                    onCleared: tray.open = false
+                }
+                Connections { target: BarState; function onPopupOnChanged() { if (BarState.popupOn) tray.open = false; } }
+                Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) tray.open = false; } }
+
+                // The panel's dim (Panel.qml's "quickshell:panel-dim" layer stays out
+                // of the bar's reserved strip): the same backdrop here, blurred by
+                // the bar's layer rule, so the strip looks like the rest of the screen
+                Rectangle {
+                    width: parent.width
+                    height: win.top + win.h
+                    color: Theme.backdrop
+                    opacity: PanelState.open && PanelState.dimmed && Hyprland.focusedMonitor?.name === win.screen.name ? 1 : 0
+                    visible: opacity > 0
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
                 }
 
                 // SUPER CTRL ALT B (IPC barToggle)
@@ -169,8 +192,6 @@ Scope {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 8
 
-                        TrayModule { visible: win.zone("tray") && items.length > 0; barWindow: win }
-
                         // Readings: hover for details, click for the system popup
                         BarPill {
                             id: stats
@@ -253,6 +274,13 @@ Scope {
                                         ["Profile", PowerProfiles.profile === PowerProfile.PowerSaver ? "Power saver"
                                                   : PowerProfiles.profile === PowerProfile.Performance ? "Performance" : "Balanced"]] })
                             }
+                        }
+
+                        TrayModule {
+                            id: tray
+                            visible: win.zone("tray") && items.length > 0
+                            barWindow: win
+                            onOpenChanged: if (open) BarState.popupOn = ""
                         }
 
                         BarPill {

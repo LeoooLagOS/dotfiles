@@ -43,7 +43,7 @@ Singleton {
         // Top bar (TopBar.qml, bar/, services/BarState.qml)
         barEnabled: true, barStyle: "islands", barHeight: 36, barAccent: "auto",
         barLeft: ["logo", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],
-        barRight: ["tray", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
+        barRight: ["cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "tray", "power"],
         barEmptyWs: "show", barWsIcons: true, barDate: true, bar24h: true, barIslandMessages: true,
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
         commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"]
@@ -149,8 +149,8 @@ Singleton {
                 { key: "barCenter", label: "Center", help: "The island stays at the exact center of the screen", type: "chips",
                   opts: [["bell", "Notifications"], ["island", "Island"], ["caffeine", "Caffeine"]] },
                 { key: "barRight", label: "Right", help: "Click the stats, network or battery for the system popup", type: "chips",
-                  opts: [["tray", "Tray"], ["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", "Temp"], ["wifi", "Wi-Fi"],
-                         ["bluetooth", "Bluetooth"], ["battery", "Battery"], ["power", "Power"]] } ] },
+                  opts: [["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", "Temp"], ["wifi", "Wi-Fi"],
+                         ["bluetooth", "Bluetooth"], ["battery", "Battery"], ["tray", "Tray"], ["power", "Power"]] } ] },
             { title: "Workspaces and clock", rows: [
                 { key: "barEmptyWs", label: "Empty workspaces", type: "seg", opts: [["hide", "Hide"], ["show", "Show 1–5"]] },
                 { key: "barWsIcons", label: "Icons of the apps on each workspace", type: "switch" },
