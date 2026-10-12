@@ -17,23 +17,15 @@ Rectangle {
     property bool hovered: mouse.containsMouse
     // Popups take Settings → Notifications → Colors; cards in the panel, the panel's
     readonly property var pal: popup ? Theme.notifications : Theme.panel
-    // Quick reply (services/Comms.qml): a box under the card; popups take the
-    // keyboard while it's open (Notifs.replying) and wait instead of hiding
+    // Quick reply (services/Comms.qml): the Reply button opens ReplyBox.qml,
+    // which outlives this card (the app may close its notification any moment)
     readonly property bool canReply: !compact && Comms.canReply(notif)
-    property bool replying: false
-    onReplyingChanged: { Notifs.replying += replying ? 1 : -1; if (replying) Notifs.replyingId = notif?.id ?? null; }
-    Component.onDestruction: if (replying) Notifs.replying -= 1
     // For the log: whether a message's popup offers Reply, and why not (no text)
     function logReply() {
         if (popup && notif && Notifs.placeKind(notif) === "message")
             console.info("quick reply offered:", canReply, "| app", notif.appName, "| entry", notif.desktopEntry,
                          "| from", Comms.defs.filter(d => Comms.isFrom(d, notif)).map(d => d.key).join(",") || "-",
                          "| actions", (notif.actions ?? []).map(a => a.identifier).join(","), "| inline", !!notif.hasInlineReply);
-    }
-    function sendReply() {
-        if (Comms.reply(notif, replyField.text)) { replying = false; notif.dismiss(); }
-        else Quickshell.execDetached(["notify-send", "-a", "Panel", "-i", "dialog-warning", "Couldn't send the reply",
-                                      "Open the app to answer (" + Notifs.appLabel(notif) + ")"]);
     }
     readonly property bool critical: notif?.urgency === NotificationUrgency.Critical
 
@@ -354,7 +346,7 @@ Rectangle {
 
             // Quick reply: opens the box below
             Rectangle {
-                visible: card.canReply && !card.replying
+                visible: card.canReply
                 Layout.fillWidth: true
                 implicitHeight: 30
                 radius: 10
@@ -370,7 +362,7 @@ Rectangle {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: { card.replying = true; replyFocus.start(); Comms.prepareReply(card.notif); }
+                    onClicked: Comms.startReply(card.notif)
                 }
             }
 
@@ -437,28 +429,6 @@ Rectangle {
             }
         }
 
-        // The reply box: Enter sends, Esc closes
-        RowLayout {
-            Layout.fillWidth: true
-            visible: card.replying
-            spacing: 6
-            TextField { pal: card.pal;
-                id: replyField
-                Layout.fillWidth: true
-                placeholder: card.notif?.inlineReplyPlaceholder || ("Reply to " + (Notifs.titleOf(card.notif) || "…"))
-                onAccepted: card.sendReply()
-                Keys.onEscapePressed: { card.replying = false; replyField.text = ""; }
-            }
-            IconButton { pal: card.pal;
-                icon: "\uf1d8"           // paper plane
-                iconSize: 13
-                implicitWidth: 36; implicitHeight: 32
-                active: replyField.text.trim() !== ""
-                enabled: active
-                onClicked: card.sendReply()
-            }
-        }
-        Timer { id: replyFocus; interval: 60; onTriggered: replyField.input.forceActiveFocus() }
     }
 
     FocusRing {}

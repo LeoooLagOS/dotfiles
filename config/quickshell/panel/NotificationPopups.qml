@@ -59,10 +59,7 @@ Scope {
 
                     WlrLayershell.namespace: "quickshell:notifications"
                     WlrLayershell.layer: WlrLayer.Overlay
-                    // Typing a quick reply needs the keyboard: all of it while the box
-                    // is open (on demand would wait for one more click), Esc gives it back
-                    WlrLayershell.keyboardFocus: Notifs.replying > 0 && items.some(n => n.id === Notifs.replyingId)
-                                                 ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+                    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
                     Column {
                         id: stack
@@ -81,7 +78,7 @@ Scope {
 
                                 Timer {
                                     interval: Notifs.timeoutFor(popupCard.modelData)
-                                    running: !popupCard.hovered && !popupCard.replying && interval > 0     // 0 = until dismissed
+                                    running: !popupCard.hovered && interval > 0     // 0 = until dismissed
                                     onTriggered: Notifs.removePopup(popupCard.modelData)
                                 }
                             }

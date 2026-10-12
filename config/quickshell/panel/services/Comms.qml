@@ -188,39 +188,65 @@ Singleton {
         return !!d && !Notifs.mailOf(n) && Notifs.placeKind(n) === "message"
             && !!mainOf(d) && (n.actions ?? []).some(a => a.identifier === "default");
     }
-    // The reply box opened: open that chat now (the notification's action),
-    // hidden, so sending is quick
-    property var prepared: ({})               // notification id → when its chat was opened
-    function prepareReply(n) {
-        if (!n || n.hasInlineReply) return;
-        const def = (n.actions ?? []).find(a => a.identifier === "default");
-        if (!def) return;
-        def.invoke();
-        const p = Object.assign({}, prepared);
-        p[n.id] = Date.now();
-        prepared = p;
+    // A reply in progress (ReplyBox.qml shows it): kept apart from the
+    // notification, which the app may close at any moment (WhatsApp closes its
+    // own when clicked, and after a few seconds anyway)
+    //   { who, app, key, address, notif (inline replies only), openedAt }
+    property var session: null
+    property string sessionState: ""          // "" | "sending" | "sent" | "failed"
+    // Reply clicked: open that chat now (the notification's action), hidden,
+    // so sending is quick; the box takes the keyboard
+    function startReply(n) {
+        if (!canReply(n)) return;
+        const d = defs.find(x => isFrom(x, n));
+        const w = d ? mainOf(d) : null;
+        const ic = Notifs.webAppIcon(n) || (d ? iconOf(d.entry) : "");
+        session = { who: Notifs.titleOf(n), app: Notifs.appLabel(n),
+                    icon: ic.includes("://") || ic.startsWith("/") ? ic : Quickshell.iconPath(ic, true),
+                    key: d?.key ?? "", address: w?.address ?? "", notif: n.hasInlineReply ? n : null,
+                    openedAt: Date.now() };
+        sessionState = "";
+        console.info("quick reply: box opened |", n.hasInlineReply ? "inline" : "paste into " + (d?.key ?? "?"), "| app", n.appName);
+        if (!n.hasInlineReply) {
+            const def = (n.actions ?? []).find(a => a.identifier === "default");
+            if (def) def.invoke();
+        }
     }
+    function cancelReply() { session = null; sessionState = ""; }
     // While reply.sh pastes, the app's workspace shows for a moment: no dock
     property bool quiet: false
     Timer { id: quietTimer; interval: 1500; onTriggered: root.quiet = false }
-    function reply(n, text) {
+    Timer { id: closeTimer; interval: 1200; onTriggered: root.cancelReply() }
+    function sendReply(text) {
+        const s = session;
         text = String(text ?? "").trim();
-        if (!n || !text) return false;
-        // What was decided, for the panel's log (journalctl --user -u quickshell-panel); no message text
-        const why = m => console.info("quick reply:", m, "| app", n.appName, "| entry", n.desktopEntry,
-                                      "| actions", (n.actions ?? []).map(a => a.identifier).join(","));
-        if (n.hasInlineReply) { why("inline"); n.sendInlineReply(text); return true; }
-        const d = defs.find(x => isFrom(x, n));
+        if (!s || !text) return;
+        if (s.notif) {
+            console.info("quick reply: inline");
+            try { s.notif.sendInlineReply(text); sessionState = "sent"; }
+            catch (e) { sessionState = "failed"; }
+            closeTimer.restart();
+            return;
+        }
+        // The window may have changed since (closed, restarted): look it up again
+        const d = defs.find(x => x.key === s.key);
         const w = d ? mainOf(d) : null;
-        if (!w) { why(d ? "no window for " + d.key : "not from a dock app"); return false; }
-        why("paste into " + d.key + (prepared[n.id] ? ", chat opened " + (Date.now() - prepared[n.id]) + " ms ago" : ", chat not opened yet"));
-        // Not opened yet (or long ago): open it now and give it time
-        const ready = prepared[n.id] && Date.now() - prepared[n.id] > 600;
-        if (!prepared[n.id]) prepareReply(n);
+        if (!w) { console.info("quick reply: no window for", s.key); sessionState = "failed"; return; }
+        const waited = Date.now() - s.openedAt;
+        console.info("quick reply: paste into", s.key, "| chat opened", waited, "ms ago");
         quiet = true;
         quietTimer.restart();
-        Quickshell.execDetached([Quickshell.shellDir + "/scripts/reply.sh", w.address, text, ready ? "0.25" : "0.9"]);
-        return true;
+        sessionState = "sending";
+        sendProc.command = [Quickshell.shellDir + "/scripts/reply.sh", w.address, text, waited > 700 ? "0.25" : "0.9"];
+        sendProc.running = true;
+    }
+    Process {
+        id: sendProc
+        onExited: code => {
+            root.sessionState = code === 0 ? "sent" : "failed";
+            console.info("quick reply: reply.sh exited", code);
+            if (code === 0) closeTimer.restart();
+        }
     }
 
     // At login: open each one, hidden

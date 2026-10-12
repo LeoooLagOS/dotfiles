@@ -18,6 +18,7 @@ ShellRoot {
     Panel {}
     NotificationPopups {}
     CommsDock {}
+    ReplyBox {}
 
     IpcHandler {
         target: "panel"

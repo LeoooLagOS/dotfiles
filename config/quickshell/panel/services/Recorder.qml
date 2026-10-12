@@ -41,8 +41,10 @@ Singleton {
         error = "";
         const audio = Settings.v.recAudio === "both" ? ["-a", "default_output|default_input"]
                     : Settings.v.recAudio === "system" ? ["-a", "default_output"] : [];
-        const base = ["gpu-screen-recorder", "-f", String(Settings.v.recFps), "-c", "mp4", "-q", "very_high",
-                      "-cursor", "yes", ...audio, "-o", file];
+        // H.264 + AAC: what phones, WhatsApp, Telegram… accept (the default audio,
+        // Opus in MP4, made WhatsApp hang on "loading")
+        const base = ["gpu-screen-recorder", "-f", String(Settings.v.recFps), "-c", "mp4", "-k", "h264", "-ac", "aac",
+                      "-q", "very_high", "-cursor", "yes", ...audio, "-o", file];
         const monitor = Hyprland.focusedMonitor?.name ?? "screen";
         // Region: pick it first; exec so the SIGINT reaches gpu-screen-recorder
         const q = a => "'" + a.replace(/'/g, "'\\''") + "'";

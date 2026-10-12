@@ -18,8 +18,6 @@ Singleton {
     property bool dndScheduled: false       // turned on by the quiet-hours schedule
     property var popups: []                 // notifications currently shown as popups
     property var received: ({})             // notification id → Date received
-    property int replying: 0                // cards with the reply box open (popups take the keyboard)
-    property var replyingId: null           // the notification whose reply box was opened last
 
     // Newest first: the live ones and the copies of replaced ones (archive)
     readonly property var list: {
