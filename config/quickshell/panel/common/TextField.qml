@@ -16,8 +16,9 @@ Rectangle {
     implicitHeight: 30
     implicitWidth: 120
     radius: 10
-    color: Theme.withAlpha(Theme.base, 0.35)
-    border.color: invalid ? Theme.bad : (input.activeFocus ? Theme.accent : Theme.border)
+    property var pal: Theme.panel              // colors from another palette (notification popups)
+    color: Theme.withAlpha(pal.base, 0.35)
+    border.color: invalid ? pal.bad : (input.activeFocus ? pal.accent : pal.border)
 
     function focusInput() { input.forceActiveFocus(); }
 
@@ -27,12 +28,12 @@ Rectangle {
         anchors.rightMargin: 8
         spacing: 6
 
-        Glyph { visible: root.icon !== ""; text: root.icon; font.pixelSize: 11; color: Theme.fgDim }
+        Glyph { visible: root.icon !== ""; text: root.icon; font.pixelSize: 11; color: root.pal.fgDim }
 
         TextInput {
             id: input
             Layout.fillWidth: true
-            color: Theme.fg
+            color: root.pal.fg
             font.family: Theme.font
             font.pixelSize: 12
             clip: true
@@ -46,6 +47,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: !input.text && !input.activeFocus
                 text: root.placeholder
+                pal: root.pal
                 dim: true
                 font.pixelSize: 12
             }

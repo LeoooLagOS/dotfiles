@@ -171,6 +171,7 @@ Singleton {
     }
     // A notification clicked: if it's from one of these apps, bring it up
     function showFor(n) {
+        if (Notifs.isTest(n)) return;
         const d = defs.find(x => isFrom(x, n));
         if (!d) return;
         PanelState.open = false;
@@ -181,7 +182,7 @@ Singleton {
     // else, for a message from a dock app (not mail), its action opens the chat
     // and scripts/reply.sh pastes the text there and presses Enter
     function canReply(n) {
-        if (!n) return false;
+        if (!n || Notifs.isTest(n)) return false;
         if (n.hasInlineReply) return true;
         const d = defs.find(x => isFrom(x, n));
         return !!d && !Notifs.mailOf(n) && Notifs.placeKind(n) === "message"

@@ -15,6 +15,8 @@ Rectangle {
     property bool compact: false        // small card: one-line body, no actions
     property bool showApp: false        // show the app name above the summary
     property bool hovered: mouse.containsMouse
+    // Popups take Settings → Notifications → Colors; cards in the panel, the panel's
+    readonly property var pal: popup ? Theme.notifications : Theme.panel
     // Quick reply (services/Comms.qml): a box under the card; popups take the
     // keyboard while it's open (Notifs.replying) and wait instead of hiding
     readonly property bool canReply: !compact && Comms.canReply(notif)
@@ -71,8 +73,8 @@ Rectangle {
     Component.onCompleted: { barLevel = Qt.binding(() => card.level); logReply(); }
     implicitHeight: isLevel ? levelRow.implicitHeight + 22 : content.implicitHeight + (compact ? 16 : 24)
     radius: compact ? 12 : 18
-    color: critical ? critBg : (popup ? Theme.bg : Theme.bgAlt)
-    border.color: critical ? critBorder : Theme.border
+    color: critical ? critBg : (popup ? card.pal.bg : card.pal.bgAlt)
+    border.color: critical ? critBorder : card.pal.border
     border.width: 1
 
     // Notification bodies use Pango markup; Qt's StyledText doesn't know <span>,
@@ -133,13 +135,13 @@ Rectangle {
 
         Rectangle {
             implicitWidth: 34; implicitHeight: 34; radius: 17
-            color: card.level === 0 ? Theme.bgHover : Theme.accent
-            Glyph {
+            color: card.level === 0 ? card.pal.bgHover : card.pal.accent
+            Glyph { pal: card.pal;
                 anchors.centerIn: parent
                 visible: card.levelGlyph !== ""
                 text: card.levelGlyph
                 font.pixelSize: 15
-                color: card.level === 0 ? Theme.fgDim : Theme.accentText
+                color: card.level === 0 ? card.pal.fgDim : card.pal.accentText
             }
             Image {
                 anchors.centerIn: parent
@@ -155,7 +157,7 @@ Rectangle {
             spacing: 6
             RowLayout {
                 Layout.fillWidth: true
-                Label {
+                Label { pal: card.pal;
                     Layout.fillWidth: true
                     text: (card.notif?.summary || card.notif?.appName || "").replace(/[:\s]+$/, "").trim()
                     font.pixelSize: 13
@@ -163,21 +165,21 @@ Rectangle {
                     elide: Text.ElideRight
                 }
                 // The body when it isn't just the number ("Muted", a device…)
-                Label {
+                Label { pal: card.pal;
                     readonly property string b: Notifs.plain(Notifs.bodyOf(card.notif)).trim()
                     visible: b !== "" && !/^\d+\s*%$/.test(b)
                     text: b
                     dim: true
                     font.pixelSize: 12
                 }
-                Label {
+                Label { pal: card.pal;
                     // "Muted" alone says it; no "0%" next to it
                     visible: card.level > 0 || /^\d/.test(Notifs.plain(Notifs.bodyOf(card.notif)).trim())
                     text: Math.round(card.level) + "%"
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     font.features: { "tnum": 1 }
-                    color: card.level > 100 ? Theme.warn : Theme.fg
+                    color: card.level > 100 ? card.pal.warn : card.pal.fg
                 }
             }
             Bar {
@@ -185,7 +187,7 @@ Rectangle {
                 implicitHeight: 6
                 radius: 3
                 value: card.barLevel / 100
-                fillColor: card.level > 100 ? Theme.warn : Theme.accent
+                fillColor: card.level > 100 ? card.pal.warn : card.pal.accent
             }
         }
     }
@@ -223,11 +225,11 @@ Rectangle {
                         asynchronous: true
                     }
                 }
-                Glyph {
+                Glyph { pal: card.pal;
                     anchors.centerIn: parent
                     visible: icon.status !== Image.Ready
                     text: card.place === "call" ? "\uf095" : card.place === "security" ? "\uf084" : card.place === "reminder" ? "\uf073" : "\uf0f3"
-                    color: card.critical ? card.critMark : Theme.fgDim
+                    color: card.critical ? card.critMark : card.pal.fgDim
                 }
             }
 
@@ -235,14 +237,14 @@ Rectangle {
                 Layout.fillWidth: true
                 spacing: 2
 
-                Label {
+                Label { pal: card.pal;
                     Layout.fillWidth: true
                     // App (Notifications tab) and/or context (the email account)
                     visible: (card.showApp && !!card.notif) || Notifs.contextOf(card.notif) !== ""
                     text: [card.showApp ? Notifs.appLabel(card.notif) : "", Notifs.contextOf(card.notif)]
                           .filter(t => t).join(" · ").toUpperCase()
                     elide: Text.ElideRight
-                    color: card.critical ? card.critDim : Theme.fgDim
+                    color: card.critical ? card.critDim : card.pal.fgDim
                     font.pixelSize: 9
                     font.weight: Font.DemiBold
                     font.letterSpacing: 1
@@ -251,11 +253,11 @@ Rectangle {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 8
-                    Label {
+                    Label { pal: card.pal;
                         Layout.fillWidth: true
                         text: Notifs.titleOf(card.notif)
                         elide: Text.ElideRight
-                        color: card.critical ? card.critMark : Theme.fg
+                        color: card.critical ? card.critMark : card.pal.fg
                         font.pixelSize: card.critical ? 12 : (card.compact ? 13 : 15)
                         font.weight: card.critical ? Font.Bold : Font.DemiBold
                     }
@@ -265,12 +267,12 @@ Rectangle {
                         implicitHeight: 18
                         implicitWidth: Math.max(18, groupLabel.implicitWidth + 12)
                         radius: 9
-                        color: Theme.accent
-                        Label { id: groupLabel; anchors.centerIn: parent; text: card.grouped + (card.isMail ? " new" : " messages"); color: Theme.accentText; font.pixelSize: 10; font.weight: Font.DemiBold }
+                        color: card.pal.accent
+                        Label { pal: card.pal; id: groupLabel; anchors.centerIn: parent; text: card.grouped + (card.isMail ? " new" : " messages"); color: card.pal.accentText; font.pixelSize: 10; font.weight: Font.DemiBold }
                     }
-                    Label {
+                    Label { pal: card.pal;
                         text: Notifs.timeAgo(card.notif)
-                        color: card.critical ? card.critDim : Theme.fgDim
+                        color: card.critical ? card.critDim : card.pal.fgDim
                         font.pixelSize: 11
                     }
                     // Close (×)
@@ -278,15 +280,15 @@ Rectangle {
                         Layout.preferredWidth: 22
                         Layout.preferredHeight: 22
                         radius: 11
-                        color: closeMouse.containsMouse ? (card.critical ? Qt.rgba(1, 1, 1, 0.12) : Theme.bgHover)
+                        color: closeMouse.containsMouse ? (card.critical ? Qt.rgba(1, 1, 1, 0.12) : card.pal.bgHover)
                                                        : (card.critical ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
-                        Glyph { anchors.centerIn: parent; text: "\uf00d"; font.pixelSize: 11; color: card.critical ? card.critDim : Theme.fgDim }
+                        Glyph { pal: card.pal; anchors.centerIn: parent; text: "\uf00d"; font.pixelSize: 11; color: card.critical ? card.critDim : card.pal.fgDim }
                         MouseArea { id: closeMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                     onClicked: card.notif.dismiss() }
                     }
                 }
 
-                Label {
+                Label { pal: card.pal;
                     Layout.fillWidth: true
                     visible: text !== ""
                     text: card.toStyled(Notifs.bodyOf(card.notif))
@@ -294,7 +296,7 @@ Rectangle {
                     wrapMode: Text.Wrap
                     elide: Text.ElideRight
                     maximumLineCount: card.compact ? 1 : (card.popup ? 3 : 8)
-                    color: card.critical ? card.critFg : Theme.fgDim
+                    color: card.critical ? card.critFg : card.pal.fgDim
                     font.pixelSize: card.compact ? 12 : 14
                     onLinkActivated: link => Qt.openUrlExternally(link)
                 }
@@ -312,7 +314,7 @@ Rectangle {
                         value: Math.min(1, card.level / 100)
                         Behavior on value { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
                     }
-                    Label { text: Math.round(card.level) + "%"; font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
+                    Label { pal: card.pal; text: Math.round(card.level) + "%"; font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
                 }
             }
         }
@@ -329,12 +331,12 @@ Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 30
                 radius: 10
-                color: replyMouse.containsMouse ? Theme.bgHover : Theme.withAlpha(Theme.accent, 0.16)
+                color: replyMouse.containsMouse ? card.pal.bgHover : Theme.withAlpha(card.pal.accent, 0.16)
                 Row {
                     anchors.centerIn: parent
                     spacing: 8
-                    Glyph { text: "\uf112"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
-                    Label { text: "Reply"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                    Glyph { pal: card.pal; text: "\uf112"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                    Label { pal: card.pal; text: "Reply"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
                 }
                 MouseArea {
                     id: replyMouse
@@ -351,14 +353,14 @@ Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 30
                 radius: 10
-                color: card.copied ? Theme.withAlpha(Theme.good, 0.25) : (codeMouse.containsMouse ? Theme.bgHover : Theme.withAlpha(Theme.accent, 0.16))
+                color: card.copied ? Theme.withAlpha(card.pal.good, 0.25) : (codeMouse.containsMouse ? card.pal.bgHover : Theme.withAlpha(card.pal.accent, 0.16))
                 Row {
                     anchors.centerIn: parent
                     spacing: 8
-                    Glyph { text: card.copied ? "\uf00c" : "\uf0c5"; font.pixelSize: 11; color: card.critical ? card.critFg : Theme.fg; anchors.verticalCenter: parent.verticalCenter }
-                    Label {
+                    Glyph { pal: card.pal; text: card.copied ? "\uf00c" : "\uf0c5"; font.pixelSize: 11; color: card.critical ? card.critFg : card.pal.fg; anchors.verticalCenter: parent.verticalCenter }
+                    Label { pal: card.pal;
                         text: card.copied ? "Copied" : "Copy code  " + card.code
-                        color: card.critical ? card.critFg : Theme.fg
+                        color: card.critical ? card.critFg : card.pal.fg
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
                         font.family: card.copied ? Theme.font : "JetBrains Mono"
@@ -382,24 +384,24 @@ Rectangle {
                     required property var modelData
                     // Calls: answer in green, decline in red
                     readonly property color tone: card.place !== "call" ? "transparent"
-                        : /answer|accept|contestar|aceptar|responder|join|unirse/i.test(modelData.text) ? Theme.good
-                        // Fixed red: Theme.bad shifts hue when the wallpaper is red
-                        : /decline|reject|rechazar|colgar|hang ?up|ignore|ignorar/i.test(modelData.text) ? Theme.critical
+                        : /answer|accept|contestar|aceptar|responder|join|unirse/i.test(modelData.text) ? card.pal.good
+                        // Fixed red: card.pal.bad shifts hue when the wallpaper is red
+                        : /decline|reject|rechazar|colgar|hang ?up|ignore|ignorar/i.test(modelData.text) ? card.pal.critical
                         : "transparent"
                     readonly property bool toned: tone.a > 0
                     Layout.fillWidth: true
                     implicitHeight: card.place === "call" ? 36 : 30
                     radius: card.place === "call" ? 18 : 10
                     color: toned ? (actMouse.containsMouse ? Qt.lighter(tone, 1.1) : tone)
-                         : actMouse.containsMouse ? (card.critical ? Qt.rgba(1, 1, 1, 0.12) : Theme.bgHover)
-                                                  : (card.critical ? Qt.rgba(1, 1, 1, 0.06) : Theme.withAlpha(Theme.fg, 0.06))
-                    Label {
+                         : actMouse.containsMouse ? (card.critical ? Qt.rgba(1, 1, 1, 0.12) : card.pal.bgHover)
+                                                  : (card.critical ? Qt.rgba(1, 1, 1, 0.06) : Theme.withAlpha(card.pal.fg, 0.06))
+                    Label { pal: card.pal;
                         anchors.centerIn: parent
                         width: parent.width - 12
                         horizontalAlignment: Text.AlignHCenter
                         text: modelData.text
                         font.weight: act.toned ? Font.DemiBold : Font.Normal
-                        color: act.toned ? Theme.onColor(act.tone) : card.critical ? card.critFg : Theme.fg
+                        color: act.toned ? card.pal.onColor(act.tone) : card.critical ? card.critFg : card.pal.fg
                         font.pixelSize: 12
                     }
                     MouseArea { id: actMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -413,14 +415,14 @@ Rectangle {
             Layout.fillWidth: true
             visible: card.replying
             spacing: 6
-            TextField {
+            TextField { pal: card.pal;
                 id: replyField
                 Layout.fillWidth: true
                 placeholder: card.notif?.inlineReplyPlaceholder || ("Reply to " + (Notifs.titleOf(card.notif) || "…"))
                 onAccepted: card.sendReply()
                 Keys.onEscapePressed: { card.replying = false; replyField.text = ""; }
             }
-            IconButton {
+            IconButton { pal: card.pal;
                 icon: "\uf1d8"           // paper plane
                 iconSize: 13
                 implicitWidth: 36; implicitHeight: 32

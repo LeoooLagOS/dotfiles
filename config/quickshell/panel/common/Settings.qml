@@ -26,7 +26,7 @@ Singleton {
         // Where popups appear, per type (services/Notifs.qml placeKind)
         posLevel: "top", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
         posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
-        maxPopups: 3, groupMessages: true, callsThroughDnd: true,
+        maxPopups: 3, groupMessages: true, callsThroughDnd: true, notifTheme: "panel",
         appRules: ({}),                                           // appName → place | "off" | "mute"
         // Power & idle (system)
         dim: 300, warn: 540, lock: 600, screenOff: 630, suspend: 1200, mediaGuard: true,
@@ -132,6 +132,10 @@ Singleton {
                 { key: "width", label: "Width", help: "Share of the usable screen", type: "range", min: 35, max: 80, step: 1, unit: "%" },
                 { key: "height", label: "Height", type: "range", min: 35, max: 80, step: 1, unit: "%" } ] } ] },
         { id: "notifications", icon: "", label: "Notifications", lead: "Where popups appear, quiet hours and history.", groups: [
+            { title: "Look", rows: [
+                { key: "notifTheme", label: "Colors", help: "Of the popups. Critical ones keep their dark look", type: "select",
+                  opts: [["panel", "Same as the panel"], ["system", "Same as the system"], ["dark", "Dark"], ["light", "Light"], ["inverted", "Inverted"]] },
+                { label: "Try them", help: "Send a test notification of each kind, to see the look and where it appears", type: "notiftests" } ] },
             { title: "Where popups appear", rows: [
                 { key: "posCall", label: "Calls", help: "Incoming calls ring until answered or declined", type: "select", opts: notifPlaces.filter(o => o[0] !== "off") },
                 { key: "posSecurity", label: "Security codes", help: "2FA / login codes (with a Copy button), sign-in alerts, password prompts", type: "select", opts: notifPlaces },

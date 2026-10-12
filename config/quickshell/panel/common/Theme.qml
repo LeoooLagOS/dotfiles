@@ -73,6 +73,20 @@ Singleton {
         wallForeground: root.wallForeground
         palette: root.palette
     }
+    // Notification popups: Settings → Notifications → Colors (notifTheme):
+    // panel (as the panel) · system (the desktop's dark / light) · dark · light ·
+    // inverted (the panel's mode, surfaces in the wallpaper color)
+    readonly property string notifTheme: Settings.v.notifTheme
+    readonly property ColorPalette notifications: notifTheme === "panel" ? panel : notifPalette
+    readonly property ColorPalette notifPalette: ColorPalette {
+        light: root.notifTheme === "light" || (root.notifTheme === "system" && root.systemLight)
+               || (root.notifTheme === "inverted" && root.chosenLight)
+        inverted: root.notifTheme === "inverted"
+        opacity: Settings.v.opacity
+        wallBackground: root.wallBackground
+        wallForeground: root.wallForeground
+        palette: root.palette
+    }
     readonly property ColorPalette launchers: ColorPalette {
         light: root.scope !== "panel" && root.chosenLight
         inverted: root.scope !== "panel" && root.chosenInverted

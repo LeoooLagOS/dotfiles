@@ -122,50 +122,6 @@ Zone {
             }
         }
     }
-    // Side buttons, top to bottom: lyrics (the radio: record), audio output,
-    // volume. Placed on their own so they stay put whatever the view shows
-    Column {
-        id: sideButtons
-        parent: root
-        z: 5
-        visible: root.library ? Library.available : (!!root.player || root.radio)
-        x: root.width - width - Theme.zonePadding
-        y: Theme.zonePadding + 30 + 72          // below the mode buttons
-        spacing: 8
-
-        // Lyrics on / off (player and library)
-        IconButton {
-            visible: !root.radio
-            icon: "\u{f0cb8}"     // lines + a note: lyrics
-            iconSize: 17
-            active: Settings.v.mediaLyrics
-            onClicked: Settings.set("mediaLyrics", !Settings.v.mediaLyrics)
-        }
-        // Radio: record the stream (Radio.toggleRecord → ~/Recordings)
-        IconButton {
-            visible: root.radio
-            enabled: Radio.active && !Radio.loading
-            opacity: enabled ? 1 : 0.4
-            icon: Radio.recording ? "\uf04d" : "\uf111"
-            iconSize: Radio.recording ? 11 : 12
-            active: Radio.recording
-            iconColor: Radio.recording ? Theme.accentText : Theme.critical
-            onClicked: Radio.toggleRecord()
-        }
-        IconButton {
-            id: outputButton
-            icon: "\u{f04c3}"     // speaker / audio output
-            active: root.popover === "output"
-            onClicked: { root.popover = root.popover === "output" ? "" : "output"; if (root.popover) outputFocus.start(); }
-        }
-        IconButton {
-            id: volumeButton
-            icon: (root.sinkAudio?.muted ?? false) ? "\uf026" : "\uf028"
-            active: root.popover === "volume"
-            onClicked: { root.popover = root.popover === "volume" ? "" : "volume"; if (root.popover) volumeFocus.start(); }
-        }
-    }
-
     Binding { target: Library; property: "watching"; value: root.visualize && root.library }
 
     // Empty state
@@ -238,34 +194,75 @@ Zone {
                 }
             }
 
-            // Lyrics on: the chips' row is kept even without chips, so the
-            // title and the lyrics are always at the same height
-            Item { visible: root.lyrics && !chipFlow.visible; implicitHeight: 26 }
+            // The chips' row keeps its height without chips, so everything below
+            // is always at the same height
+            Item { visible: !chipFlow.visible; implicitHeight: 26 }
 
-            // Lyrics on: the title, small, up here
-            ColumnLayout {
-                visible: root.lyrics
+            // What changes with the view: the info, or the small title and the
+            // lyrics; and the side buttons, which stay put
+            Item {
+                id: middle
                 Layout.fillWidth: true
-                Layout.topMargin: 12
-                spacing: 2
-                Label { text: root.titleText; color: Theme.accent; font.pixelSize: 17; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
-                Label { text: [root.artistText, root.albumText].filter(x => x).join("  ·  "); dim: true; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true; visible: text !== "" }
-            }
+                Layout.fillHeight: true
+                readonly property real textWidth: width - sideButtons.width - 16
 
-            Item { Layout.fillHeight: true }
+                // Side buttons, top to bottom: lyrics (the radio: record), audio
+                // output, volume; at the same place in every view
+                Column {
+                    id: sideButtons
+                    z: 5
+                    anchors.right: parent.right
+                    y: 64
+                    spacing: 8
 
-            // Track info (or lyrics) + side buttons (volume, output, lyrics / record)
-            RowLayout {
-                Layout.fillWidth: true
-                // Lyrics: as tall as fits, up to about five lines (never pushing
-                // the controls and the visualizer out of the card)
-                Layout.fillHeight: root.lyrics
-                Layout.maximumHeight: root.lyrics ? 168 : Number.POSITIVE_INFINITY
-                spacing: 16
+                    // Lyrics on / off (player and library)
+                    IconButton {
+                        visible: !root.radio
+                        icon: "\u{f0cb8}"     // lines + a note: lyrics
+                        iconSize: 17
+                        active: Settings.v.mediaLyrics
+                        onClicked: Settings.set("mediaLyrics", !Settings.v.mediaLyrics)
+                    }
+                    // Radio: record the stream (Radio.toggleRecord → ~/Recordings)
+                    IconButton {
+                        visible: root.radio
+                        enabled: Radio.active && !Radio.loading
+                        opacity: enabled ? 1 : 0.4
+                        icon: Radio.recording ? "\uf04d" : "\uf111"
+                        iconSize: Radio.recording ? 11 : 12
+                        active: Radio.recording
+                        iconColor: Radio.recording ? Theme.accentText : Theme.critical
+                        onClicked: Radio.toggleRecord()
+                    }
+                    IconButton {
+                        id: outputButton
+                        icon: "\u{f04c3}"     // speaker / audio output
+                        active: root.popover === "output"
+                        onClicked: { root.popover = root.popover === "output" ? "" : "output"; if (root.popover) outputFocus.start(); }
+                    }
+                    IconButton {
+                        id: volumeButton
+                        icon: (root.sinkAudio?.muted ?? false) ? "\uf026" : "\uf028"
+                        active: root.popover === "volume"
+                        onClicked: { root.popover = root.popover === "volume" ? "" : "volume"; if (root.popover) volumeFocus.start(); }
+                    }
+                }
 
+                // Lyrics on: the title, small, at the top
+                Column {
+                    visible: root.lyrics
+                    y: 12
+                    width: middle.textWidth
+                    spacing: 2
+                    Label { width: parent.width; text: root.titleText; color: Theme.accent; font.pixelSize: 17; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                    Label { width: parent.width; text: [root.artistText, root.albumText].filter(x => x).join("  ·  "); dim: true; font.pixelSize: 12; elide: Text.ElideRight; visible: text !== "" }
+                }
+
+                // No lyrics: the track info, centered on the side buttons
                 ColumnLayout {
                     visible: !root.lyrics
-                    Layout.fillWidth: true
+                    width: middle.textWidth
+                    y: Math.max(0, sideButtons.y + sideButtons.height / 2 - height / 2)
                     spacing: 4
                     Label {
                         text: root.radio ? (Radio.loading ? "RADIO · CONNECTING…" : Radio.recording ? "RADIO · LIVE · ● REC " + Radio.recordElapsed
@@ -292,12 +289,15 @@ Zone {
                     Label { text: root.radio ? (root.station?.subtitle ?? "") : root.library ? (Library.active ? (root.lib.album ?? "") : "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
                 }
 
-                // Lyrics: the line being sung, in the accent color, kept a bit
-                // above the middle; a click on a line jumps there
+                // Lyrics: from the side buttons' top down to the controls; the line
+                // being sung in the accent color, a bit above the middle; lines fade
+                // out at both edges instead of being cut; a click on a line jumps there
                 Item {
+                    id: lyricsBox
                     visible: root.lyrics
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    y: sideButtons.y
+                    width: middle.textWidth
+                    height: middle.height - y
                     clip: true
 
                     Label {
@@ -338,10 +338,13 @@ Zone {
                             text: modelData.text || "\u266A"
                             wrapMode: Text.Wrap
                             color: current ? Theme.accent : Theme.fg
-                            opacity: !Lyrics.synced ? 0.85 : current ? 1 : past ? 0.35 : 0.6
+                            // Fades out near the box's top and bottom edges instead of being cut
+                            readonly property real mid: y - lyricsView.contentY + height / 2
+                            readonly property real edge: Math.max(0, Math.min(1, Math.min(mid, lyricsView.height - mid) / 34))
+                            opacity: (!Lyrics.synced ? 0.85 : current ? 1 : past ? 0.35 : 0.6) * edge
                             font.pixelSize: current ? 23 : 19
                             font.weight: current ? Font.Bold : Font.DemiBold
-                            Behavior on opacity { NumberAnimation { duration: 250 } }
+                            Behavior on opacity { enabled: !lyricsView.moving; NumberAnimation { duration: 250 } }
                             MouseArea {
                                 anchors.fill: parent
                                 enabled: Lyrics.synced
@@ -351,12 +354,9 @@ Zone {
                         }
                     }
                 }
-
-                // Room for the side buttons (placed on their own, below)
-                Item { implicitWidth: sideButtons.width }
             }
 
-            Item { Layout.fillHeight: true }
+            Item { implicitHeight: 4 }
 
             // Transport controls
             RowLayout {

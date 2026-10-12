@@ -8,7 +8,8 @@ Rectangle {
     property alias iconSize: glyph.font.pixelSize
     property alias iconRotation: glyph.rotation
     property bool active: false
-    property color iconColor: active ? Theme.accentText : Theme.fg
+    property var pal: Theme.panel              // colors from another palette (notification popups)
+    property color iconColor: active ? pal.accentText : pal.fg
     signal clicked()
 
     activeFocusOnTab: visible && enabled
@@ -19,11 +20,12 @@ Rectangle {
     implicitWidth: 38
     implicitHeight: 34
     radius: Theme.buttonRadius
-    color: active ? Theme.accent : (mouse.containsMouse ? Theme.bgHover : "transparent")
-    border.color: Theme.border
+    color: active ? pal.accent : (mouse.containsMouse ? pal.bgHover : "transparent")
+    border.color: pal.border
     border.width: 1
 
     Glyph {
+        pal: root.pal
         id: glyph
         anchors.centerIn: parent
         color: root.iconColor

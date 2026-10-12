@@ -46,23 +46,36 @@ Singleton {
         const changed = () => Qt.callLater(root.replaced, n);
         n.summaryChanged.connect(changed);
         n.bodyChanged.connect(changed);
+        // Closed by the app itself (WhatsApp Web closes its own after a few
+        // seconds): a message stays in the history as a copy
+        n.closed.connect(reason => {
+            if (reason === NotificationCloseReason.CloseRequested && root.placeKind(n) === "message" && !root.isTest(n))
+                root.keepCopy(n, root.lastContent[n.id] ?? root.contentOf(n), root.received[n.id]);
+        });
+    }
+    // A plain copy in the history (no actions), received at `when`
+    function keepCopy(n, content, when) {
+        const o = { id: "a" + (++archiveSeq), archived: true, appName: n.appName, appIcon: n.appIcon,
+                    desktopEntry: n.desktopEntry, summary: content.summary, body: content.body, image: content.image,
+                    urgency: n.urgency, hints: n.hints, actions: [], transient: false, tracked: true,
+                    hasInlineReply: false, inlineReplyPlaceholder: "" };
+        o.dismiss = () => { root.archive = root.archive.filter(x => x !== o); };
+        o.expire = o.dismiss;
+        const r = Object.assign({}, received);
+        r[o.id] = when ?? new Date();
+        received = r;
+        archive = archive.concat([o]);
+        return o;
     }
     function replaced(n) {
         const before = lastContent[n.id];
         if (!before || !n.tracked || (before.summary === n.summary && before.body === n.body)) return;
         const keep = !syncTag(n) && progressOf(n) < 0;      // not volume bars, progress…
         if (keep) {
-            const o = { id: "a" + (++archiveSeq), archived: true, appName: n.appName, appIcon: n.appIcon,
-                        desktopEntry: n.desktopEntry, summary: before.summary, body: before.body, image: before.image,
-                        urgency: n.urgency, hints: n.hints, actions: [], transient: false, tracked: true,
-                        hasInlineReply: false, inlineReplyPlaceholder: "" };
-            o.dismiss = () => { root.archive = root.archive.filter(x => x !== o); };
-            o.expire = o.dismiss;
+            keepCopy(n, before, received[n.id]);
             const r = Object.assign({}, received);
-            r[o.id] = received[n.id];
             r[n.id] = new Date();
             received = r;
-            archive = archive.concat([o]);
         }
         const c = Object.assign({}, lastContent);
         c[n.id] = contentOf(n);
@@ -342,6 +355,27 @@ Singleton {
         if (n && (n.transient || syncTag(n))) n.expire();
     }
     function dismiss(n) { n.dismiss(); }
+
+    // --- Test notifications (Settings → Notifications → Try them) ---
+    // Marked x-lagos-test: no quick reply, and a click opens nothing
+    readonly property var tests: [
+        { id: "message", label: "Message", args: ["-a", "Teams", "-h", "string:category:im.received", "Ana López", "¿Puedes revisar el documento antes de la clase?", "-A", "default=Open"] },
+        { id: "call", label: "Call", args: ["-a", "Teams", "-h", "string:category:call.incoming", "Incoming call", "Ana López is calling you", "-A", "answer=Answer", "-A", "decline=Decline"] },
+        { id: "reminder", label: "Reminder", args: ["-a", "Calendar", "-h", "string:category:calendar", "Redes · in 10 minutes", "15:00 – 16:00 · CCO4 201"] },
+        { id: "security", label: "Security code", args: ["-a", "Microsoft account", "Your security code", "Use 482913 to sign in. It expires in 10 minutes."] },
+        { id: "level", label: "Volume", args: ["-a", "Volume", "-h", "string:x-canonical-private-synchronous:volume", "-h", "int:value:65", "Volume"] },
+        { id: "progress", label: "Progress", args: ["-a", "Downloads", "-h", "int:value:40", "Downloading fedora.iso", "1.2 GB of 3.0 GB"] },
+        { id: "media", label: "Now playing", args: ["-a", "Spotify", "-h", "string:category:x-gnome.music", "La puerta de al lado", "Los Rodríguez"] },
+        { id: "system", label: "System", args: ["-a", "NetworkManager", "-i", "network-wireless", "Connected", "INFINITUM Wi-Fi"] },
+        { id: "critical", label: "Critical", args: ["-u", "critical", "-a", "Battery", "-i", "battery-caution", "Battery low", "5% left: plug in the charger"] }
+    ]
+    function isTest(n) { return n?.hints?.["x-lagos-test"] === true; }
+    function sendTest(id) {
+        const t = tests.find(x => x.id === id);
+        if (!t) return;
+        // With actions notify-send waits for an answer: in the background, at most a minute
+        Quickshell.execDetached(["timeout", "60", "notify-send", "-h", "boolean:x-lagos-test:true"].concat(t.args));
+    }
     function clearAll() { for (const n of list.slice()) n.dismiss(); }
     function toggleDnd() { setDnd(!dnd, null); }
     // until: Date or null (until turned off)

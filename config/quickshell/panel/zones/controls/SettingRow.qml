@@ -32,8 +32,8 @@ Item {
     }
 
     // apprules / commsapps: label on top, the list of apps below (full width)
-    readonly property bool stacked: type === "apprules" || type === "commsapps"
-    implicitHeight: stacked ? labels.implicitHeight + (type === "apprules" ? rules : comms).implicitHeight + 28
+    readonly property bool stacked: type === "apprules" || type === "commsapps" || type === "notiftests"
+    implicitHeight: stacked ? labels.implicitHeight + (type === "apprules" ? rules : type === "commsapps" ? comms : tests).implicitHeight + 28
                             : Math.max(46, Math.max(labels.implicitHeight, ctl.implicitHeight) + 18)
 
     Rectangle { visible: !root.first; width: parent.width; height: 1; color: Theme.border }
@@ -324,6 +324,33 @@ Item {
                 enabled: root.commsCandidates.length > 1
                 onSelected: v => { if (v) Settings.set(root.row.key, root.commsRefs.concat([v])); }
             }
+        }
+    }
+
+    // ---------------- notiftests: a button per kind of test notification ----------------
+    Flow {
+        id: tests
+        visible: root.type === "notiftests"
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: labels.bottom
+        anchors.topMargin: 8
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        spacing: 6
+        Repeater {
+            model: root.type === "notiftests" ? Notifs.tests : []
+            delegate: Chip {
+                required property var modelData
+                text: modelData.label
+                onClicked: Notifs.sendTest(modelData.id)
+            }
+        }
+        Chip {
+            text: "All"
+            icon: "\uf0f3"
+            filled: true
+            onClicked: { for (const t of Notifs.tests) Notifs.sendTest(t.id); }
         }
     }
 }
