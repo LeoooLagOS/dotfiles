@@ -8,10 +8,12 @@ import "../services"
 
 // The system monitor that drops from the bar's readings (BarState.monitorOn),
 // btop-like in the panel's look, compact:
-//   CPU        usage, temperature, frequency, cores / threads and how many are
-//              busy; click it for the detail: every thread (usage, frequency,
-//              last minute), per-core temperatures, load
-//   memory     used · cache, swap   ·   storage: disks and I/O   ·   network rates
+//   left       CPU (usage, temperature, frequency, cores · threads · busy) and
+//              network (rates, last minute); click one for its detail
+//   big block  memory (used · cache, swap) and storage (disks, I/O); or the
+//              detail picked: every CPU thread (usage, frequency, last minute)
+//              and per-core temperatures, or each network interface (address,
+//              rates, traffic since boot). × or Esc goes back
 //   processes  filter, sort by CPU / memory / name, end one (× twice; Shift: kill -9)
 // Data: scripts/sysmon.py, run only while it's open. Closes on a click outside
 // (not while a screenshot region is picked: PopupGrab), Esc, or the readings again.
@@ -21,8 +23,10 @@ PanelWindow {
     property real rightOffset: 8
     property string screenName: ""
     readonly property bool open: screenName !== "" && BarState.monitorOn === screenName
-    property bool cpuDetail: false
-    onOpenChanged: if (!open) cpuDetail = false
+    // What the big block shows: "store" (memory & storage), "cpu" or "net"
+    property string view: "store"
+    function show(v) { view = view === v ? "store" : v; }
+    onOpenChanged: if (!open) view = "store"
 
     visible: open || card.opacity > 0
     color: "transparent"
@@ -144,7 +148,7 @@ PanelWindow {
         Behavior on implicitHeight { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
         clip: true
         focus: root.open
-        Keys.onEscapePressed: root.cpuDetail ? (root.cpuDetail = false) : (BarState.monitorOn = "")
+        Keys.onEscapePressed: root.view !== "store" ? (root.view = "store") : (BarState.monitorOn = "")
 
         Label {
             anchors.centerIn: parent
@@ -185,21 +189,25 @@ PanelWindow {
                 IconButton { icon: ""; iconSize: 12; implicitWidth: 32; implicitHeight: 28; onClicked: BarState.monitorOn = "" }
             }
 
-            // ---------------- CPU · memory / storage · network ----------------
+            // ---------------- CPU, network · the big block ----------------
+            // Left: CPU and network summaries (click: their detail). Right: the
+            // big block shows memory and storage, or the detail picked.
             GridLayout {
                 Layout.fillWidth: true
                 columns: 2
                 columnSpacing: 10
                 rowSpacing: 10
 
-                // CPU (summary; click: every thread)
+                // CPU (summary; click: every thread in the big block)
                 Card {
+                    Layout.row: 0
+                    Layout.column: 0
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
                     implicitHeight: 108
-                    border.color: root.cpuDetail ? BarState.accent : cpuMouse.containsMouse ? Theme.withAlpha(BarState.accent, 0.5) : Theme.border
+                    border.color: root.view === "cpu" ? BarState.accent : cpuMouse.containsMouse ? Theme.withAlpha(BarState.accent, 0.5) : Theme.border
                     color: cpuMouse.containsMouse ? Theme.bgHover : Theme.bgAlt
-                    MouseArea { id: cpuMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cpuDetail = !root.cpuDetail }
+                    MouseArea { id: cpuMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.show("cpu") }
                     Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: 30; values: root.cpuHist; opacity: 0.7 }
                     ColumnLayout {
                         x: 12; y: 10
@@ -209,7 +217,7 @@ PanelWindow {
                             Layout.fillWidth: true
                             Head { text: "CPU" }
                             Item { Layout.fillWidth: true }
-                            Glyph { text: root.cpuDetail ? "" : ""; font.pixelSize: 9; color: Theme.fgDim }
+                            Glyph { text: root.view === "cpu" ? "" : ""; font.pixelSize: 9; color: root.view === "cpu" ? BarState.accent : Theme.fgDim }
                         }
                         RowLayout {
                             spacing: 10
@@ -227,14 +235,57 @@ PanelWindow {
                     }
                 }
 
-                // Memory: used · cache · free, and swap
+                // Network (summary; click: interfaces in the big block)
                 Card {
+                    Layout.row: 1
+                    Layout.column: 0
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
-                    implicitHeight: 108
+                    implicitHeight: 96
+                    border.color: root.view === "net" ? BarState.accent : netMouse.containsMouse ? Theme.withAlpha(BarState.accent, 0.5) : Theme.border
+                    color: netMouse.containsMouse ? Theme.bgHover : Theme.bgAlt
+                    MouseArea { id: netMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.show("net") }
+                    Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: parent.height - 36; values: root.rxHist; autoMax: true }
+                    Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: parent.height - 36; values: root.txHist; autoMax: true; stroke: Theme.accent2 }
+                    RowLayout {
+                        x: 12; y: 11
+                        width: parent.width - 24
+                        spacing: 8
+                        Head { text: "NETWORK" }
+                        Item { Layout.fillWidth: true }
+                        Label { text: root.d ? "↓ " + root.rate(root.d.net.rx) : ""; color: BarState.accent; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
+                        Label { text: root.d ? "↑ " + root.rate(root.d.net.tx) : ""; color: Theme.accent2; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
+                        Glyph { text: root.view === "net" ? "" : ""; font.pixelSize: 9; color: root.view === "net" ? BarState.accent : Theme.fgDim }
+                    }
+                }
+
+                // ---------------- The big block ----------------
+                Card {
+                    Layout.row: 0
+                    Layout.column: 1
+                    Layout.rowSpan: 2
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: 1
+
+                    // Back to memory & storage from a detail
+                    Glyph {
+                        visible: root.view !== "store"
+                        z: 2
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.margins: 9
+                        text: ""
+                        font.pixelSize: 10
+                        color: backMouse.containsMouse ? Theme.fg : Theme.fgDim
+                        MouseArea { id: backMouse; anchors.fill: parent; anchors.margins: -6; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.view = "store" }
+                    }
+
+                    // Memory & storage
                     ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 12
+                        visible: root.view === "store"
+                        x: 12; y: 11
+                        width: parent.width - 24
                         spacing: 6
                         RowLayout {
                             Layout.fillWidth: true
@@ -261,21 +312,10 @@ PanelWindow {
                             spacing: 12
                             Label { text: "● used"; color: BarState.accent; font.pixelSize: 10 }
                             Label { text: "● cache " + (memBar.m ? root.size(memBar.m.cache) : ""); color: Theme.accent2; font.pixelSize: 10 }
+                            Item { Layout.fillWidth: true }
+                            Label { text: "swap " + (memBar.m ? root.size(memBar.m.swapUsed) + " / " + root.size(memBar.m.swapTotal) : ""); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
                         }
-                        Label { text: "swap " + (memBar.m ? root.size(memBar.m.swapUsed) + " / " + root.size(memBar.m.swapTotal) : ""); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
-                    }
-                }
-
-                // Storage and I/O
-                Card {
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    implicitHeight: Math.max(84, diskCol.implicitHeight + 22)
-                    ColumnLayout {
-                        id: diskCol
-                        x: 12; y: 11
-                        width: parent.width - 24
-                        spacing: 5
+                        Rectangle { Layout.fillWidth: true; Layout.topMargin: 4; Layout.bottomMargin: 4; height: 1; color: Theme.border }
                         RowLayout {
                             Layout.fillWidth: true
                             Head { text: "STORAGE" }
@@ -292,90 +332,114 @@ PanelWindow {
                                 spacing: 8
                                 Label { text: disk.mount; font.pixelSize: 10; Layout.preferredWidth: 58; font.family: "JetBrains Mono" }
                                 Bar { Layout.fillWidth: true; value: Math.round(1000 * disk.used / disk.total) / 1000; fillColor: root.tint(100 * disk.used / disk.total, 90, 97) }
-                                Label { text: Math.round(100 * disk.used / disk.total) + "%"; dim: true; font.pixelSize: 10; font.features: { "tnum": 1 }; Layout.preferredWidth: 30; horizontalAlignment: Text.AlignRight }
+                                Label { text: root.size(disk.used) + " / " + root.size(disk.total); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 }; Layout.preferredWidth: 96; horizontalAlignment: Text.AlignRight }
                             }
                         }
                     }
-                }
 
-                // Network
-                Card {
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    Layout.fillHeight: true
-                    implicitHeight: 84
-                    Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: parent.height - 34; values: root.rxHist; autoMax: true }
-                    Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: parent.height - 34; values: root.txHist; autoMax: true; stroke: Theme.accent2 }
-                    RowLayout {
+                    // CPU detail: every thread, per-core temperatures
+                    ColumnLayout {
+                        visible: root.view === "cpu"
                         x: 12; y: 11
                         width: parent.width - 24
-                        Head { text: "NETWORK" }
-                        Item { Layout.fillWidth: true }
-                        Label { text: root.d ? "↓ " + root.rate(root.d.net.rx) : ""; color: BarState.accent; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
-                        Label { text: root.d ? "↑ " + root.rate(root.d.net.tx) : ""; color: Theme.accent2; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
-                    }
-                }
-            }
-
-            // ---------------- CPU detail: every thread ----------------
-            Card {
-                visible: root.cpuDetail
-                Layout.fillWidth: true
-                implicitHeight: cpuCol.implicitHeight + 24
-                ColumnLayout {
-                    id: cpuCol
-                    x: 12; y: 12
-                    width: parent.width - 24
-                    spacing: 8
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Head { text: "THREADS" }
-                        Label {
+                        spacing: 7
+                        RowLayout {
                             Layout.fillWidth: true
-                            dim: true
-                            font.pixelSize: 11
-                            text: root.d ? root.d.model.replace(/\(R\)|\(TM\)|CPU|Processor/g, "").replace(/\s+/g, " ").trim()
-                                           + "  ·  " + (Math.min(...root.d.freqs) / 1000).toFixed(1) + "–" + (Math.max(...root.d.freqs) / 1000).toFixed(1) + " GHz now" : ""
-                        }
-                    }
-                    GridLayout {
-                        Layout.fillWidth: true
-                        columns: 6
-                        columnSpacing: 6
-                        rowSpacing: 6
-                        Repeater {
-                            model: root.d?.cores.length ?? 0
-                            delegate: Rectangle {
-                                required property int index
-                                readonly property real v: root.d?.cores[index] ?? 0
+                            Layout.rightMargin: 16
+                            Head { text: "THREADS" }
+                            Label {
                                 Layout.fillWidth: true
-                                implicitHeight: 52
-                                radius: 8
-                                color: Theme.withAlpha(Theme.fg, 0.035)
-                                Graph { anchors.fill: parent; anchors.margins: 1; values: root.coreHist[index] ?? []; stroke: root.tint(v, 80, 95); opacity: 0.8 }
-                                Label { x: 7; y: 4; text: "T" + index; dim: true; font.pixelSize: 9; font.weight: Font.DemiBold }
-                                Label { anchors.right: parent.right; anchors.rightMargin: 7; y: 3; text: Math.round(v) + "%"
-                                        font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 }; color: v >= 80 ? root.tint(v, 80, 95) : Theme.fg }
-                                Label { anchors.right: parent.right; anchors.rightMargin: 7; anchors.bottom: parent.bottom; anchors.bottomMargin: 3
-                                        text: ((root.d?.freqs[index] ?? 0) / 1000).toFixed(1) + " GHz"; dim: true; font.pixelSize: 9; font.features: { "tnum": 1 } }
+                                horizontalAlignment: Text.AlignRight
+                                dim: true
+                                font.pixelSize: 10
+                                font.features: { "tnum": 1 }
+                                text: root.d ? (Math.min(...root.d.freqs) / 1000).toFixed(1) + "–" + (Math.max(...root.d.freqs) / 1000).toFixed(1) + " GHz now" : ""
+                            }
+                        }
+                        GridLayout {
+                            Layout.fillWidth: true
+                            columns: 4
+                            columnSpacing: 5
+                            rowSpacing: 5
+                            Repeater {
+                                model: root.d?.cores.length ?? 0
+                                delegate: Rectangle {
+                                    required property int index
+                                    readonly property real v: root.d?.cores[index] ?? 0
+                                    Layout.fillWidth: true
+                                    implicitHeight: 38
+                                    radius: 7
+                                    color: Theme.withAlpha(Theme.fg, 0.035)
+                                    Graph { anchors.fill: parent; anchors.margins: 1; values: root.coreHist[index] ?? []; stroke: root.tint(v, 80, 95); opacity: 0.8 }
+                                    Label { x: 6; y: 3; text: "T" + index; dim: true; font.pixelSize: 9; font.weight: Font.DemiBold }
+                                    Label { anchors.right: parent.right; anchors.rightMargin: 6; y: 2; text: Math.round(v) + "%"
+                                            font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 }; color: v >= 80 ? root.tint(v, 80, 95) : Theme.fg }
+                                    Label { anchors.right: parent.right; anchors.rightMargin: 6; anchors.bottom: parent.bottom; anchors.bottomMargin: 2
+                                            text: ((root.d?.freqs[index] ?? 0) / 1000).toFixed(1) + " GHz"; dim: true; font.pixelSize: 9; font.features: { "tnum": 1 } }
+                                }
+                            }
+                        }
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Repeater {
+                                model: root.d ? Object.keys(root.d.temps.cores).sort((a, b) => Number(a.split(" ")[1]) - Number(b.split(" ")[1])) : []
+                                delegate: Rectangle {
+                                    required property string modelData
+                                    readonly property int t: root.d?.temps.cores[modelData] ?? 0
+                                    implicitWidth: tl.implicitWidth + 12
+                                    implicitHeight: 18
+                                    radius: 9
+                                    color: Theme.withAlpha(Theme.fg, 0.05)
+                                    Label { id: tl; anchors.centerIn: parent; text: parent.modelData.replace("Core ", "C") + " " + parent.t + "°"
+                                            font.pixelSize: 9; font.features: { "tnum": 1 }; color: parent.t >= 80 ? root.tint(parent.t, 80, 90) : Theme.fgDim }
+                                }
                             }
                         }
                     }
-                    // Per-core temperatures
-                    Flow {
-                        Layout.fillWidth: true
+
+                    // Network detail: each interface, and this session's traffic
+                    ColumnLayout {
+                        visible: root.view === "net"
+                        x: 12; y: 11
+                        width: parent.width - 24
                         spacing: 6
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.rightMargin: 16
+                            Head { text: "INTERFACES" }
+                            Item { Layout.fillWidth: true }
+                            Label { text: "peak ↓ " + root.rate(Math.max(0, ...root.rxHist)); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                        }
+                        Item {
+                            Layout.fillWidth: true
+                            implicitHeight: 54
+                            Graph { anchors.fill: parent; values: root.rxHist; autoMax: true }
+                            Graph { anchors.fill: parent; values: root.txHist; autoMax: true; stroke: Theme.accent2 }
+                        }
                         Repeater {
-                            model: root.d ? Object.keys(root.d.temps.cores).sort((a, b) => Number(a.split(" ")[1]) - Number(b.split(" ")[1])) : []
-                            delegate: Rectangle {
-                                required property string modelData
-                                readonly property int t: root.d?.temps.cores[modelData] ?? 0
-                                implicitWidth: tl.implicitWidth + 14
-                                implicitHeight: 20
-                                radius: 10
-                                color: Theme.withAlpha(Theme.fg, 0.05)
-                                Label { id: tl; anchors.centerIn: parent; text: parent.modelData.replace("Core ", "C") + "  " + parent.t + "°"
-                                        font.pixelSize: 10; font.features: { "tnum": 1 }; color: parent.t >= 80 ? root.tint(parent.t, 80, 90) : Theme.fgDim }
+                            model: root.d?.ifaces.length ?? 0
+                            delegate: ColumnLayout {
+                                required property int index
+                                readonly property var nic: root.d?.ifaces[index] ?? ({ name: "", ip: "", up: false, wifi: false, rx: 0, tx: 0, rxTotal: 0, txTotal: 0 })
+                                Layout.fillWidth: true
+                                spacing: 1
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 6
+                                    Glyph { text: nic.wifi ? "\u{f0928}" : "\u{f0200}"; font.pixelSize: 11; color: nic.up ? BarState.accent : Theme.fgDim }
+                                    Label { text: nic.name; font.pixelSize: 11; font.weight: Font.DemiBold; font.family: "JetBrains Mono" }
+                                    Label { text: nic.ip || (nic.up ? "no IPv4" : "down"); dim: true; font.pixelSize: 10; font.family: "JetBrains Mono"; Layout.fillWidth: true }
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    Layout.leftMargin: 17
+                                    spacing: 8
+                                    Label { text: "↓ " + root.rate(nic.rx); color: BarState.accent; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                                    Label { text: "↑ " + root.rate(nic.tx); color: Theme.accent2; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                                    Item { Layout.fillWidth: true }
+                                    Label { text: "total ↓ " + root.size(nic.rxTotal) + "  ↑ " + root.size(nic.txTotal); dim: true; font.pixelSize: 9; font.features: { "tnum": 1 } }
+                                }
                             }
                         }
                     }

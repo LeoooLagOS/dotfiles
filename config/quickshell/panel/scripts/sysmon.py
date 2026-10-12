@@ -120,17 +120,45 @@ def disk_bytes():
     return r, w
 
 
-def net_bytes():
-    rx = tx = 0
+def iface_bytes():
+    """{interface: (rx, tx)} so far, for the real ones (no loopback, bridges, containers)."""
+    out = {}
     for line in read("/proc/net/dev").splitlines()[2:]:
         name, _, rest = line.partition(":")
         name = name.strip()
         if name == "lo" or name.startswith(("veth", "docker", "virbr", "br-")):
             continue
         v = rest.split()
-        rx += int(v[0])
-        tx += int(v[8])
-    return rx, tx
+        out[name] = (int(v[0]), int(v[8]))
+    return out
+
+
+def net_bytes():
+    b = iface_bytes().values()
+    return sum(x[0] for x in b), sum(x[1] for x in b)
+
+
+def addresses():
+    """{interface: IPv4 address} (ip -j addr); asked every few samples."""
+    try:
+        import subprocess
+        out = subprocess.run(["ip", "-j", "-4", "addr"], capture_output=True, text=True, timeout=2).stdout
+        return {i["ifname"]: i["addr_info"][0]["local"] for i in json.loads(out) if i.get("addr_info")}
+    except Exception:
+        return {}
+
+
+def interfaces(prev, cur, dt, addrs):
+    out = []
+    for name, (rx, tx) in cur.items():
+        p = prev.get(name, (rx, tx))
+        up = read(f"/sys/class/net/{name}/operstate").strip() == "up"
+        if not up and rx == 0:
+            continue
+        out.append({"name": name, "up": up, "ip": addrs.get(name, ""),
+                    "wifi": os.path.isdir(f"/sys/class/net/{name}/wireless"),
+                    "rx": (rx - p[0]) / dt, "tx": (tx - p[1]) / dt, "rxTotal": rx, "txTotal": tx})
+    return sorted(out, key=lambda i: (not i["up"], i["name"]))
 
 
 _users = {}
@@ -186,6 +214,7 @@ def processes(prev, dt_total, mem_total):
 def main():
     prev_cpu = cpu_times()
     prev_disk, prev_net = disk_bytes(), net_bytes()
+    prev_if, addrs, n_iter = iface_bytes(), addresses(), 0
     prev_proc = {}
     prev_t = time.monotonic()
     _, prev_proc, *_ = processes({}, 0, 1)
@@ -203,7 +232,10 @@ def main():
         dt_total = cur[0][1] - prev_cpu[0][1]
         mem = meminfo()
         procs, prev_proc, nprocs, nthreads, running = processes(prev_proc, dt_total, mem["total"])
-        d, n = disk_bytes(), net_bytes()
+        d, n, cur_if = disk_bytes(), net_bytes(), iface_bytes()
+        n_iter += 1
+        if n_iter % 8 == 0:
+            addrs = addresses()
         la = read("/proc/loadavg").split()
         data = {
             "model": model, "physCores": cores,
@@ -212,10 +244,11 @@ def main():
             "mem": mem, "disks": disks(),
             "io": {"read": (d[0] - prev_disk[0]) / dt, "write": (d[1] - prev_disk[1]) / dt},
             "net": {"rx": (n[0] - prev_net[0]) / dt, "tx": (n[1] - prev_net[1]) / dt},
+            "ifaces": interfaces(prev_if, cur_if, dt, addrs),
             "procs": procs, "nprocs": nprocs, "nthreads": nthreads, "running": running,
         }
         print(json.dumps(data, separators=(",", ":")), flush=True)
-        prev_cpu, prev_disk, prev_net, prev_t = cur, d, n, t
+        prev_cpu, prev_disk, prev_net, prev_if, prev_t = cur, d, n, cur_if, t
 
 
 if __name__ == "__main__":
