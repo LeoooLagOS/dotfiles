@@ -23,3 +23,4 @@ singleton Library 1.0 Library.qml
 singleton Comms 1.0 Comms.qml
 singleton Lyrics 1.0 Lyrics.qml
 singleton BarState 1.0 BarState.qml
+singleton WebPages 1.0 WebPages.qml

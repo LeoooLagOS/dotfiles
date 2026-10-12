@@ -25,8 +25,11 @@ BarPill {
     function go(target) { Quickshell.execDetached(["hyprctl", "dispatch", `hl.dsp.focus({ workspace = ${target} })`]); }
     onWheel: d => go(d > 0 ? '"e-1"' : '"e+1"')
 
-    // The app of a window: its icon from the desktop entry (or the class as a theme icon)
+    // The app of a window: its icon from the desktop entry (or the class as a
+    // theme icon); for a browser, the site's (services/WebPages.qml)
     function iconFor(t) {
+        const site = WebPages.iconOf(t);
+        if (site) return site;
         const id = String(t?.wayland?.appId ?? t?.lastIpcObject?.class ?? "");
         if (!id) return "";
         const e = DesktopEntries.heuristicLookup(id);
