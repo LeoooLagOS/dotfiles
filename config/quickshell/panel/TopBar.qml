@@ -42,7 +42,7 @@ Scope {
                 readonly property var monitor: Hyprland.monitorFor(screen)
 
                 anchors { top: true; left: true; right: true }
-                implicitHeight: 460
+                implicitHeight: 620
                 exclusiveZone: top + h
                 exclusionMode: ExclusionMode.Normal
                 color: "transparent"
@@ -283,7 +283,7 @@ Scope {
 
                         TrayModule {
                             id: tray
-                            visible: win.zone("tray") && items.length > 0
+                            visible: win.zone("tray")
                             barWindow: win
                             onOpenChanged: if (open) { BarState.popupOn = ""; BarState.monitorOn = ""; }
                         }
