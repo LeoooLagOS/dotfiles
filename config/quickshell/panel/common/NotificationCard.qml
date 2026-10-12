@@ -332,7 +332,7 @@ Rectangle {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: { card.replying = true; replyFocus.start(); }
+                    onClicked: { card.replying = true; replyFocus.start(); Comms.prepareReply(card.notif); }
                 }
             }
 

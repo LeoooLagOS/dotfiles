@@ -108,6 +108,7 @@ Singleton {
     // SUPER Y brings back the last one seen, however it was shown. Hidden
     // (whichever way): back from the empty workspace to the one you were in
     onShownChanged: {
+        if (quiet) return;                    // a quick reply passing through
         if (shown) { last = shown; markSeen(shown); return; }
         dockFocus = false;
         const m = Hyprland.focusedMonitor;
@@ -186,16 +187,34 @@ Singleton {
         return !!d && !Notifs.mailOf(n) && Notifs.placeKind(n) === "message"
             && !!mainOf(d) && (n.actions ?? []).some(a => a.identifier === "default");
     }
+    // The reply box opened: open that chat now (the notification's action),
+    // hidden, so sending is quick
+    property var prepared: ({})               // notification id → when its chat was opened
+    function prepareReply(n) {
+        if (!n || n.hasInlineReply) return;
+        const def = (n.actions ?? []).find(a => a.identifier === "default");
+        if (!def) return;
+        def.invoke();
+        const p = Object.assign({}, prepared);
+        p[n.id] = Date.now();
+        prepared = p;
+    }
+    // While reply.sh pastes, the app's workspace shows for a moment: no dock
+    property bool quiet: false
+    Timer { id: quietTimer; interval: 1500; onTriggered: root.quiet = false }
     function reply(n, text) {
         text = String(text ?? "").trim();
         if (!n || !text) return false;
         if (n.hasInlineReply) { n.sendInlineReply(text); return true; }
         const d = defs.find(x => isFrom(x, n));
         const w = d ? mainOf(d) : null;
-        const def = (n.actions ?? []).find(a => a.identifier === "default");
-        if (!w || !def) return false;
-        def.invoke();
-        Quickshell.execDetached([Quickshell.shellDir + "/scripts/reply.sh", w.address, text]);
+        if (!w) return false;
+        // Not opened yet (or long ago): open it now and give it time
+        const ready = prepared[n.id] && Date.now() - prepared[n.id] > 600;
+        if (!prepared[n.id]) prepareReply(n);
+        quiet = true;
+        quietTimer.restart();
+        Quickshell.execDetached([Quickshell.shellDir + "/scripts/reply.sh", w.address, text, ready ? "0.25" : "0.9"]);
         return true;
     }
 

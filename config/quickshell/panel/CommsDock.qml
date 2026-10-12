@@ -26,7 +26,7 @@ Scope {
             id: win
             required property var modelData
             screen: modelData
-            readonly property bool up: (Comms.shownOn[modelData.name] ?? "") !== ""
+            readonly property bool up: (Comms.shownOn[modelData.name] ?? "") !== "" && !Comms.quiet
             // The dock has the keyboard (on the focused monitor)
             readonly property bool keys: up && Comms.dockFocus && Comms.focusedMonitor === modelData.name
             property int selected: 0
@@ -84,7 +84,8 @@ Scope {
             Rectangle {
                 id: dock
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: !win.up ? parent.height + 8 : win.lifted ? parent.height - height - 10 : parent.height - peek
+                // From the window's fixed height (its actual height changes while it maps / unmaps)
+                y: !win.up ? win.implicitHeight + 8 : win.lifted ? win.implicitHeight - height - 10 : win.implicitHeight - peek
                 Behavior on y { NumberAnimation { id: hideAnim; duration: 200; easing.type: Easing.OutCubic } }
                 HoverHandler { id: dockHover }
                 width: row.width + 2 * 10

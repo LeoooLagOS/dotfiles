@@ -184,3 +184,15 @@ apply_window_rule({
   match = { workspace = "n[s:special:comms-]" },
   opacity = "0.88 0.88",
 })
+
+-- Thunderbird's calendar reminders: a small box at the top right, on every
+-- workspace, instead of a tiled window taking the screen (the panel's own
+-- reminders are notifications; these are the calendars only Thunderbird has)
+apply_window_rule({
+  name = "user-thunderbird-reminders",
+  match = { class = "^(net\\.thunderbird\\.Thunderbird|thunderbird)$", initial_title = "^Calendar Reminders$" },
+  float = true,
+  pin = true,
+  size = "560 240",
+  move = "(monitor_w-570) 52",
+})

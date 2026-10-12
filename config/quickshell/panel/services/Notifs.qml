@@ -20,8 +20,54 @@ Singleton {
     property var received: ({})             // notification id → Date received
     property int replying: 0                // cards with the reply box open (popups take the keyboard)
 
-    // Newest first
-    readonly property var list: server.trackedNotifications.values.slice().reverse()
+    // Newest first: the live ones and the copies of replaced ones (archive)
+    readonly property var list: {
+        const live = server.trackedNotifications.values.slice().reverse();
+        if (!archive.length) return live;
+        const t = n => received[n.id]?.getTime() ?? 0;
+        return live.concat(archive).sort((a, b) => t(b) - t(a));
+    }
+
+    // --- Replaced notifications ---
+    // Some apps reuse one notification and replace its text (WhatsApp in Brave:
+    // one per chat, or one for all). The server updates it in place, so the
+    // earlier message would vanish and the new one wouldn't pop up. Instead the
+    // earlier text stays in the history as a plain copy (no actions), and the
+    // new one arrives like a new notification.
+    property var archive: []                // copies, any order (list sorts them)
+    property int archiveSeq: 0
+    property var lastContent: ({})          // id → { summary, body, image } as last seen
+    function contentOf(n) { return { summary: n.summary, body: n.body, image: n.image }; }
+    function watchContent(n) {
+        const c = Object.assign({}, lastContent);
+        c[n.id] = contentOf(n);
+        lastContent = c;
+        const changed = () => Qt.callLater(root.replaced, n);
+        n.summaryChanged.connect(changed);
+        n.bodyChanged.connect(changed);
+    }
+    function replaced(n) {
+        const before = lastContent[n.id];
+        if (!before || !n.tracked || (before.summary === n.summary && before.body === n.body)) return;
+        const keep = !syncTag(n) && progressOf(n) < 0;      // not volume bars, progress…
+        if (keep) {
+            const o = { id: "a" + (++archiveSeq), archived: true, appName: n.appName, appIcon: n.appIcon,
+                        desktopEntry: n.desktopEntry, summary: before.summary, body: before.body, image: before.image,
+                        urgency: n.urgency, hints: n.hints, actions: [], transient: false, tracked: true,
+                        hasInlineReply: false, inlineReplyPlaceholder: "" };
+            o.dismiss = () => { root.archive = root.archive.filter(x => x !== o); };
+            o.expire = o.dismiss;
+            const r = Object.assign({}, received);
+            r[o.id] = received[n.id];
+            r[n.id] = new Date();
+            received = r;
+            archive = archive.concat([o]);
+        }
+        const c = Object.assign({}, lastContent);
+        c[n.id] = contentOf(n);
+        lastContent = c;
+        if (keep) arrive(n);
+    }
     readonly property int count: list.length
 
     // Popup durations (ms): Settings → Notifications (0 = until dismissed);
@@ -350,6 +396,14 @@ Singleton {
             const r = Object.assign({}, root.received);
             r[n.id] = new Date();
             root.received = r;
+            root.watchContent(n);
+            root.arrive(n);
+        }
+    }
+
+    // A notification arrives (or a replaced one arrives again): popup or not
+    function arrive(n) {
+        {
             // Muted app: not even in the history
             if (root.ruleOf(n) === "mute" && root.placeKind(n) !== "critical" && root.placeKind(n) !== "call") {
                 Qt.callLater(() => n.dismiss());
@@ -397,6 +451,14 @@ Singleton {
                     root.popups = next;
                     return;
                 }
+            }
+            // Already on screen (replaced in place): count it, move it to the edge
+            if (root.popups.includes(n)) {
+                const g = Object.assign({}, root.groupCount);
+                g[n.id] = (g[n.id] ?? 1) + 1;
+                root.groupCount = g;
+                root.popups = root.popups.filter(p => p !== n).concat([n]);
+                return;
             }
             if (shown) root.popups = root.popups.concat([n]);
         }

@@ -10,7 +10,10 @@ import Quickshell.Services.Pipewire
 Singleton {
     id: root
     // playerctld is a proxy that mirrors the active player: skip it (it showed up as a duplicate)
-    readonly property var players: Mpris.players.values.filter(p => !(p.dbusName ?? "").includes("playerctld"))
+    // A stopped player with nothing loaded is left over (a browser keeps one
+    // after a video ends, e.g. WhatsApp's in Brave): hidden too
+    readonly property var players: Mpris.players.values.filter(p => !(p.dbusName ?? "").includes("playerctld")
+        && !(p.playbackState === MprisPlaybackState.Stopped && !p.trackTitle))
     property var picked: null
 
     readonly property var player: {
