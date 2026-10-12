@@ -77,8 +77,9 @@ BarPill {
                        root.rain > 0 ? "rain " + root.rain + "%" : "",
                        root.esc(Weather.place)].filter(s => s).join("  ·  ")
         dim: !root.music
-        width: Math.max(0, root.fixedWidth - 2 * root.pad - 18 - root.spacing
-                           - (lead.visible ? lead.width + root.spacing : 0))
+        // Its text (centered in the pill), up to the rest of the pill
+        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - 18 - root.spacing
+                           - (lead.visible ? lead.width + root.spacing : 0)))
         anchors.verticalCenter: parent.verticalCenter
     }
 }

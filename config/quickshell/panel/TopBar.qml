@@ -162,6 +162,9 @@ Scope {
                             onOpenChanged: if (open) { BarState.popupOn = ""; BarState.monitorOn = ""; }
                         }
                         Workspaces {
+                            id: workspaces
+                            readonly property real natural: contentWidth + 2 * pad
+                            implicitWidth: Math.max(natural, details.match(workspaces, [logo, tray, workspaces], left.anchors.leftMargin))
                             visible: win.zone("workspaces")
                             monitor: win.monitor
                         }
@@ -193,9 +196,26 @@ Scope {
                         readonly property real inner: reach + Settings.v.barDetailGap
                         readonly property int wLeft: Math.max(0, mid - inner - leftEnd)
                         readonly property int wRight: Math.max(0, rightStart - mid - inner)
+                        // Both hide while the panel is open on this monitor, and the
+                        // readings and connections show their icons alone (StatItem.compact);
+                        // then both sides measure the same: the narrower one's middle
+                        // card (workspaces, readings) widens to the other's width
+                        readonly property bool panelOpen: PanelState.open && Hyprland.focusedMonitor?.name === win.screen.name
+                        // Each side's width with its cards as wide as their content, from the screen's edge
+                        function natural(items, margin) {
+                            const shown = items.filter(i => i.visible);
+                            return margin + shown.reduce((a, i) => a + (i.natural ?? i.width), 0) + Math.max(0, shown.length - 1) * 8;
+                        }
+                        readonly property real side: Math.max(natural([logo, tray, workspaces], left.anchors.leftMargin),
+                                                              natural([stats, conn, power], right.anchors.rightMargin))
+                        // How wide the middle card has to be for its side to measure `side`
+                        function match(card, items, margin) {
+                            return panelOpen ? side - natural(items, margin) + card.natural : 0;
+                        }
                     }
                     WindowTitle {
                         visible: win.zone("window") && details.wLeft >= 100
+                        hide: details.panelOpen
                         fixedWidth: details.wLeft
                         x: Math.round(details.mid - details.inner - details.wLeft)
                         anchors.verticalCenter: parent.verticalCenter
@@ -208,7 +228,7 @@ Scope {
                     BarPill {
                         id: miniWeather
                         readonly property bool wanted: win.zone("glance") && Media.active && Weather.ready
-                                                       && !island.grown && details.wRight >= 100 + width + 8
+                                                       && !island.grown && !details.panelOpen && details.wRight >= 100 + width + 8
                         visible: wanted
                         x: Math.round(details.mid + details.inner)
                         anchors.verticalCenter: parent.verticalCenter
@@ -221,7 +241,7 @@ Scope {
                     Glance {
                         readonly property int shift: miniWeather.wanted ? miniWeather.width + 8 : 0
                         visible: win.zone("glance") && details.wRight >= 100
-                        hide: island.mode === "weather"
+                        hide: island.mode === "weather" || details.panelOpen
                         weatherOnly: island.mode === "expanded"
                         fixedWidth: details.wRight - shift
                         x: Math.round(details.mid + details.inner + shift)
@@ -308,6 +328,8 @@ Scope {
                         // Readings: hover for details, click for the system monitor
                         BarPill {
                             id: stats
+                            readonly property real natural: contentWidth + 2 * pad
+                            implicitWidth: Math.max(natural, details.match(stats, [stats, conn, power], right.anchors.rightMargin))
                             visible: ["cpu", "ram", "disk", "temp"].some(id => win.zone(id))
                             clickable: true
                             active: BarState.monitorOn === win.screen.name
@@ -315,24 +337,28 @@ Scope {
                             onClicked: BarState.toggleMonitor(win.screen.name)
                             StatItem {
                                 visible: win.zone("cpu"); tipHost: tip
+                                compact: details.panelOpen
                                 icon: ""; text: SystemStats.cpu + "%"; level: win.lvl(SystemStats.cpu, 80, 95)
                                 tip: ({ title: "CPU", rows: [["Usage", SystemStats.cpu + " %"], ["Temperature", SystemStats.temp + " °C"]],
                                         hist: SystemStats.cpuHist, hint: "Last minute · click: system monitor" })
                             }
                             StatItem {
                                 visible: win.zone("ram"); tipHost: tip
+                                compact: details.panelOpen
                                 icon: "\uefc5"; text: SystemStats.memPct + "%"; level: win.lvl(SystemStats.memPct, 80, 92)
                                 tip: ({ title: "Memory", rows: [["In use", SystemStats.gb(SystemStats.memUsed) + " / " + SystemStats.gb(SystemStats.memTotal) + " GiB"]],
                                         hist: SystemStats.memHist, hint: "Last minute · click: system monitor" })
                             }
                             StatItem {
                                 visible: win.zone("disk"); tipHost: tip
+                                compact: details.panelOpen
                                 icon: "\uf0a0"; text: SystemStats.diskPct + "%"; level: win.lvl(SystemStats.diskPct, 90, 97)
                                 tip: ({ title: "Disk ( / )", rows: [["Used", SystemStats.gb(SystemStats.diskUsed) + " / " + SystemStats.gb(SystemStats.diskTotal) + " GiB"],
                                                                     ["Free", SystemStats.gb(SystemStats.diskTotal - SystemStats.diskUsed) + " GiB"]] })
                             }
                             StatItem {
                                 visible: win.zone("temp"); tipHost: tip
+                                compact: details.panelOpen
                                 icon: ""; text: SystemStats.temp + "°"; level: win.lvl(SystemStats.temp, 80, 90)
                                 tip: ({ title: "CPU temperature", rows: [["Package", SystemStats.temp + " °C"]], hist: SystemStats.tempHist, min: 30, max: 100,
                                         hint: "Last minute · click: system monitor" })
@@ -359,6 +385,7 @@ Scope {
                             onClicked: BarState.togglePopup(win.screen.name)
                             StatItem {
                                 visible: win.zone("wifi"); tipHost: tip
+                                compact: details.panelOpen
                                 icon: !Networking.wifiEnabled ? "\u{f092d}" : !conn.wifiNet ? "\u{f092f}"
                                     : ["\u{f091f}", "\u{f0922}", "\u{f0925}", "\u{f0928}"][Math.min(3, Math.floor(conn.signal * 4))]
                                 iconSize: 14
@@ -367,6 +394,7 @@ Scope {
                             }
                             StatItem {
                                 visible: win.zone("bluetooth"); tipHost: tip
+                                compact: details.panelOpen
                                 icon: !conn.bt?.enabled ? "\u{f00b2}" : conn.btOn.length ? "\u{f00b1}" : ""
                                 text: conn.btOn.length > 0 ? String(conn.btOn.length) : ""
                                 iconSize: 13
@@ -376,6 +404,7 @@ Scope {
                             }
                             StatItem {
                                 visible: win.zone("battery") && conn.hasBat; tipHost: tip
+                                compact: details.panelOpen
                                 icon: conn.charging ? "\u{f0084}" : ["\u{f008e}", "\u{f007a}", "\u{f007b}", "\u{f007c}", "\u{f007d}", "\u{f007e}", "\u{f007f}", "\u{f0080}", "\u{f0081}", "\u{f0082}", "\u{f0079}"][Math.round(conn.pct / 10)]
                                 iconSize: 14
                                 text: conn.pct + "%"
@@ -390,6 +419,7 @@ Scope {
                         }
 
                         BarPill {
+                            id: power
                             visible: win.zone("power")
                             square: true
                             clickable: true

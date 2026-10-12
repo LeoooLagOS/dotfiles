@@ -16,6 +16,11 @@ import "../services"
 // For a comms app (Comms.infoOf): its unread count, then what its title says
 // besides the app (Thunderbird's folder and account, Teams' section) and its
 // latest messages ("who: text").
+// For a terminal in a git repository (scripts/gitstatus.sh): the repo, its
+// branch and what's pending (↑ ahead ↓ behind · + staged · ~ modified · ? new
+// · ! conflicts, ✓ when clean), checked as its title changes and every few seconds.
+// Always the width it's given (the gap to the center stays the same); what it
+// shows is centered in it while it's shorter.
 // Fades out (keeping its place, so the bar doesn't shift) on an empty workspace.
 BarPill {
     id: root
@@ -55,6 +60,49 @@ BarPill {
     readonly property bool commsShown: !!comms && String(win?.workspace?.name ?? "").startsWith("special:comms-")
         && (Comms.shown !== "" || Hyprland.focusedWorkspace?.name === "comms")
     readonly property bool shown: !hide && (onThisWorkspace || commsShown) && (title !== "" || appName !== "")
+
+    // Git, for a terminal: [repo, branch, ahead, behind, staged, modified, untracked, conflicts]
+    readonly property bool terminal: /^(kitty|foot|footclient|alacritty|com\.mitchellh\.ghostty|org\.wezfurlong\.wezterm|wezterm)$/i.test(appId)
+    readonly property int pid: terminal ? Number(win?.lastIpcObject?.pid ?? 0) : 0
+    property var git: null
+    readonly property string gitText: {
+        if (!git) return "";
+        const c = (col, s) => "<font color='" + col + "'>" + s + "</font>";
+        const n = i => Number(git[i]);
+        const parts = [c(Theme.fgDim, esc(git[0])), "<b>" + esc(git[1]) + "</b>"];
+        if (n(2)) parts.push(c(Theme.accent, "↑" + n(2)));
+        if (n(3)) parts.push(c(Theme.accent, "↓" + n(3)));
+        if (n(7)) parts.push(c(Theme.bad, "!" + n(7)));
+        if (n(4)) parts.push(c(Theme.good, "+" + n(4)));
+        if (n(5)) parts.push(c(Theme.warn, "~" + n(5)));
+        if (n(6)) parts.push(c(Theme.fgDim, "?" + n(6)));
+        if (!n(4) && !n(5) && !n(6) && !n(7)) parts.push(c(Theme.good, "✓"));
+        return parts.join(" ");
+    }
+    function checkGit() {
+        if (!pid) { git = null; return; }
+        gitProc.running = false;
+        gitProc.running = true;
+    }
+    onPidChanged: checkGit()
+    onRawTitleChanged: if (terminal) checkGit()
+    onWinChanged: if (terminal && !pid) Hyprland.refreshToplevels()
+    Process {
+        id: gitProc
+        command: [Quickshell.shellDir + "/scripts/gitstatus.sh", String(root.pid)]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const f = text.trim().split("\t");
+                root.git = f.length === 8 ? f : null;
+            }
+        }
+    }
+    Timer {
+        interval: 4000
+        repeat: true
+        running: root.shown && root.pid > 0
+        onTriggered: root.checkGit()
+    }
 
     implicitWidth: fixedWidth
     opacity: shown ? 1 : 0
@@ -116,14 +164,32 @@ BarPill {
             font.features: { "tnum": 1 }
         }
     }
+    // Git (terminals in a repository)
+    Row {
+        id: gitInfo
+        visible: root.gitText !== ""
+        spacing: 5
+        anchors.verticalCenter: parent.verticalCenter
+        Glyph { text: "\ue725"; font.pixelSize: 13; color: BarState.accent; anchors.verticalCenter: parent.verticalCenter }
+        Label {
+            text: root.gitText
+            textFormat: Text.StyledText
+            font.pixelSize: 13
+            font.features: { "tnum": 1 }
+            anchors.verticalCenter: parent.verticalCenter
+        }
+    }
     Marquee {
+        id: marquee
+        visible: text !== ""
         textFormat: root.comms ? Text.StyledText : Text.PlainText
         text: root.comms ? (root.commsText ? "·  " + root.commsText : "")
             : root.title ? "·  " + root.title : ""
         dim: true
-        // The rest of the pill (the row is pad + icon + spacing + name + spacing + this + pad)
-        width: Math.max(0, root.fixedWidth - 2 * root.pad - 16 - name.width - 2 * root.spacing
-                           - (badge.visible ? badge.width + root.spacing : 0))
+        // Its text, up to the rest of the pill (the row is pad + icon + spacing + name + spacing + this + pad)
+        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - 16 - name.width - 2 * root.spacing
+                           - (badge.visible ? badge.width + root.spacing : 0)
+                           - (gitInfo.visible ? gitInfo.width + root.spacing : 0)))
         anchors.verticalCenter: parent.verticalCenter
     }
 }

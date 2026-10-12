@@ -13,6 +13,7 @@ Row {
     property int iconSize: 13
     property var tip: null                 // { title, rows, hist }
     property var tipHost: null             // the bar's BarTip
+    property bool compact: false           // the icon alone (the bar while the panel is open)
     readonly property color tint: level === "bad" ? Theme.bad : level === "warn" ? Theme.warn : Theme.fg
     spacing: 5
     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
@@ -29,7 +30,7 @@ Row {
         anchors.verticalCenter: parent.verticalCenter
     }
     Label {
-        visible: root.text !== ""
+        visible: root.text !== "" && !root.compact
         text: root.text
         color: root.tint
         font.pixelSize: 12
