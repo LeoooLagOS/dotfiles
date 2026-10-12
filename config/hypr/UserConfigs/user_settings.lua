@@ -47,6 +47,14 @@ hl.config({
   },
 })
 
+-- Special workspaces at full size (KoolDots shrinks them to 80%): the
+-- communication apps (SUPER Y) fill the screen above their dock
+hl.config({
+  dwindle = {
+    special_scale_factor = 1,
+  },
+})
+
 -- Example:
 -- hl.config({
 --   general = {

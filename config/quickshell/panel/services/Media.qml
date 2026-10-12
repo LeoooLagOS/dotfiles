@@ -41,7 +41,34 @@ Singleton {
     }
     function setSink(n) { Pipewire.preferredDefaultAudioSink = n; }
 
-    PwObjectTracker { objects: [root.sink] }
+    // --- App volume: the PipeWire playback streams of a player ---
+    // (their properties, and volume, are only there while tracked)
+    readonly property var streams: Pipewire.nodes.values.filter(n => n.isStream)
+    // Streams whose app name, binary, node name or Flatpak id has one of `keys`
+    // as a word: "spotify" → com.spotify.Client, "firefox" → Firefox, "mpd" → mpd.PipeWire
+    function streamsFor(keys) {
+        const ks = keys.map(k => String(k ?? "").toLowerCase()).filter(k => k.length > 2);
+        if (!ks.length) return [];
+        return streams.filter(n => {
+            if (!n.audio) return false;
+            const p = n.properties ?? {};
+            if (p["media.class"] && p["media.class"] !== "Stream/Output/Audio") return false;
+            const words = [];
+            for (const f of ["application.name", "application.process.binary", "node.name", "pipewire.access.portal.app_id", "application.id"]) {
+                const v = String(p[f] ?? "").toLowerCase();
+                if (v) words.push(v, ...v.split(/[.\s_-]+/));
+            }
+            return ks.some(k => words.includes(k));
+        });
+    }
+    // The keys for an MPRIS player: its desktop entry and the words of its name
+    function playerKeys(p) {
+        if (!p) return [];
+        const e = String(p.desktopEntry ?? "");
+        return [e, e.split(".").pop()].concat(String(p.identity ?? "").split(/\s+/));
+    }
+
+    PwObjectTracker { objects: [root.sink].concat(root.streams) }
 
     function fmt(s) {
         s = Math.max(0, Math.floor(s || 0));

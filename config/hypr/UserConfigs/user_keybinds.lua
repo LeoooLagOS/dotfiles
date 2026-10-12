@@ -140,11 +140,9 @@ bind("SUPER ALT", "minus", exec_cmd(scripts .. "PanelOpacity.sh -5"), { descript
 bind("SUPER ALT", "equal", exec_cmd(scripts .. "PanelOpacity.sh +5"), { description = "panel more opaque", repeating = true })
 bind("SUPER ALT", "W", exec_cmd(scripts .. "WallustToggle.sh toggle"), { description = "colors from the wallpaper (wallust) on/off" })
 bind("SUPER ALT", "I", exec_cmd("qs -c panel ipc call panel caffeine"), { description = "caffeine: keep the screen awake on/off" })
--- toggle_special takes the bare name; the dispatch() helper's raw fallback
--- ("togglespecialworkspace comms") silently does nothing in the Lua config
-bind("SUPER", "Y", function()
-	hl.dispatch(hl.dsp.workspace.toggle_special("comms"))
-end, { description = "communication apps: WhatsApp, Thunderbird (show / hide)" })
+-- WhatsApp / Thunderbird above a dock to switch between them (the panel's
+-- services/Comms.qml; each app in its own special workspace)
+bind("SUPER", "Y", exec_cmd("qs -c panel ipc call panel comms"), { description = "communication apps: WhatsApp, Thunderbird with a dock (show / hide)" })
 bind("SUPER ALT", "Print", exec_cmd("qs -c panel ipc call panel record"), { description = "screen recording start / stop (gpu-screen-recorder)" })
 bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
 

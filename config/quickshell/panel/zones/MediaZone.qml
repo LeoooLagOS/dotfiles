@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.Mpris
+import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import "../common"
 import "../services"
@@ -9,10 +10,12 @@ import "../services"
 // (system volume as a vertical slider, audio output picker); transport
 // controls; and at the bottom a cava visualizer that doubles as the seekable
 // progress bar, with elapsed / total time.
-// Two views, switched by the button in the top-right corner (saved,
-// Settings.v.mediaMode): the MPRIS player, or internet radio (services/Radio.qml)
-// with the same layout — station logo, a chip per station, what's on air,
-// previous / play-stop / next station, and cava with the listening time.
+// Three views, switched by the buttons in the top-right corner (saved,
+// Settings.v.mediaMode): the music library (services/Library.qml), internet
+// radio (services/Radio.qml) or the MPRIS player, all with the same layout.
+// Lyrics (microphone button, player and library): the song's lyrics where the
+// big title was, the line being sung highlighted; the title moves up, small.
+// Volume popover: the app's own volume (its PipeWire stream) and the system's.
 // Keyboard: Space play/pause, ←/→ previous/next (when no control has focus);
 // Tab to the side buttons, Enter opens their popover (↑/↓ inside, Esc closes).
 Zone {
@@ -30,6 +33,39 @@ Zone {
                                            : { t: "Resampled " + (lib.rate / 1000) + " → " + (lib.cardRate / 1000) + " kHz", on: false }] : [])
     readonly property var station: Radio.current
     readonly property var sinkAudio: Media.sink?.audio ?? null
+
+    // What this view plays, as PipeWire streams: its own volume in the popover
+    readonly property var appStreams: Media.streamsFor(radio ? ["mpv"] : library ? ["mpd"] : Media.playerKeys(player))
+    readonly property var appAudio: appStreams[0]?.audio ?? null
+    readonly property string appName: radio ? "Radio" : library ? "Library" : (player?.identity ?? "App")
+    function setAppVolume(v) { for (const n of appStreams) if (n.audio) n.audio.volume = v; }
+    function setAppMuted(m) { for (const n of appStreams) if (n.audio) n.audio.muted = m; }
+
+    // Lyrics (services/Lyrics.qml): fetched while shown; the position read 5×/s
+    readonly property bool lyrics: Settings.v.mediaLyrics && !radio && (library ? Library.active : !!player)
+    readonly property string titleText: radio ? (station?.name ?? "No stations")
+        : library ? (Library.active ? (lib.title ?? "") : "Choose an album")
+        : (player?.trackTitle || "Unknown title")
+    readonly property string artistText: library ? (Library.active ? (lib.artist ?? "") : "") : (player?.trackArtist ?? "")
+    readonly property string albumText: library ? (Library.active ? (lib.album ?? "") : "") : (player?.trackAlbum ?? "")
+    Binding { target: Lyrics; property: "wanted"; value: root.visualize && root.lyrics }
+    Binding {
+        target: Lyrics; property: "track"
+        value: root.library ? { artist: root.lib.artist ?? "", title: root.lib.title ?? "", album: root.lib.album ?? "",
+                                duration: root.lib.duration ?? 0, file: root.lib.file ?? "" }
+                            : { artist: root.player?.trackArtist ?? "", title: root.player?.trackTitle ?? "",
+                                album: root.player?.trackAlbum ?? "", duration: root.player?.length ?? 0, file: "" }
+    }
+    Timer {
+        interval: 200; repeat: true; triggeredOnStart: true
+        running: Lyrics.wanted
+        onTriggered: Lyrics.position = root.library ? (root.lib.elapsed ?? 0) : (root.player?.position ?? 0)
+    }
+    function seekTo(t) {
+        if (t < 0) return;
+        if (root.library) Library.seek(t);
+        else if (root.player?.canSeek) root.player.position = t;
+    }
 
     // Which popover is open: "", "volume" or "output"
     property string popover: ""
@@ -75,7 +111,7 @@ Zone {
         anchors.margins: Theme.zonePadding
         spacing: 4
         Repeater {
-            model: [{ mode: "player", icon: "\uf001" }, { mode: "radio", icon: "\u{f0439}" }, { mode: "library", icon: "\u{f0025}" }]
+            model: [{ mode: "library", icon: "\u{f0025}" }, { mode: "radio", icon: "\u{f0439}" }, { mode: "player", icon: "\uf001" }]
             delegate: IconButton {
                 required property var modelData
                 icon: modelData.icon
@@ -158,14 +194,26 @@ Zone {
                 }
             }
 
-            Item { Layout.fillHeight: true }
+            // Lyrics on: the title, small, up here
+            ColumnLayout {
+                visible: root.lyrics
+                Layout.fillWidth: true
+                Layout.rightMargin: chipFlow.visible ? 0 : chipFlow.Layout.rightMargin   // beside the mode buttons
+                spacing: 2
+                Label { text: root.titleText; color: Theme.accent; font.pixelSize: 17; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
+                Label { text: [root.artistText, root.albumText].filter(x => x).join("  ·  "); dim: true; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true; visible: text !== "" }
+            }
 
-            // Track info + side buttons (volume, output)
+            Item { Layout.fillHeight: true; visible: !root.lyrics }
+
+            // Track info (or lyrics) + side buttons (volume, output, lyrics / record)
             RowLayout {
                 Layout.fillWidth: true
+                Layout.fillHeight: root.lyrics
                 spacing: 16
 
                 ColumnLayout {
+                    visible: !root.lyrics
                     Layout.fillWidth: true
                     spacing: 4
                     Label {
@@ -180,9 +228,7 @@ Zone {
                         Layout.fillWidth: true
                     }
                     Label {
-                        text: root.radio ? (root.station?.name ?? "No stations")
-                            : root.library ? (Library.active ? (root.lib.title ?? "") : "Choose an album")
-                            : (root.player?.trackTitle || "Unknown title")
+                        text: root.titleText
                         color: Theme.accent
                         font.pixelSize: 24
                         font.weight: Font.DemiBold
@@ -195,6 +241,66 @@ Zone {
                     Label { text: root.radio ? (root.station?.subtitle ?? "") : root.library ? (Library.active ? (root.lib.album ?? "") : "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
                 }
 
+                // Lyrics: the line being sung, in the accent color, kept a bit
+                // above the middle; a click on a line jumps there
+                Item {
+                    visible: root.lyrics
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+
+                    Label {
+                        anchors.centerIn: parent
+                        width: parent.width
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.Wrap
+                        visible: Lyrics.status !== "found"
+                        dim: true
+                        font.pixelSize: 14
+                        text: Lyrics.status === "loading" ? "Looking for the lyrics…"
+                            : Lyrics.status === "instrumental" ? "\u266A  Instrumental"
+                            : Lyrics.status === "offline" ? "Couldn't reach LRCLIB, the lyrics site. Try again later."
+                            : Lyrics.status === "none" ? "No lyrics found for this song" : ""
+                    }
+
+                    ListView {
+                        id: lyricsView
+                        anchors.fill: parent
+                        visible: Lyrics.status === "found"
+                        model: Lyrics.lines
+                        spacing: 8
+                        boundsBehavior: Flickable.StopAtBounds
+                        currentIndex: Lyrics.index
+                        highlightRangeMode: Lyrics.synced ? ListView.ApplyRange : ListView.NoHighlightRange
+                        preferredHighlightBegin: height * 0.35
+                        preferredHighlightEnd: height * 0.35 + 40
+                        highlightMoveDuration: 450
+                        // A new song starts at the top
+                        onModelChanged: positionViewAtBeginning()
+
+                        delegate: Label {
+                            required property var modelData
+                            required property int index
+                            readonly property bool current: index === Lyrics.index
+                            readonly property bool past: Lyrics.synced && index < Lyrics.index
+                            width: lyricsView.width
+                            text: modelData.text || "\u266A"
+                            wrapMode: Text.Wrap
+                            color: current ? Theme.accent : Theme.fg
+                            opacity: !Lyrics.synced ? 0.85 : current ? 1 : past ? 0.35 : 0.6
+                            font.pixelSize: current ? 19 : 16
+                            font.weight: current ? Font.Bold : Font.DemiBold
+                            Behavior on opacity { NumberAnimation { duration: 250 } }
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: Lyrics.synced
+                                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                onClicked: root.seekTo(parent.modelData.t)
+                            }
+                        }
+                    }
+                }
+
                 ColumnLayout {
                     id: sideButtons
                     Layout.alignment: Qt.AlignVCenter
@@ -204,13 +310,20 @@ Zone {
                         id: volumeButton
                         icon: (root.sinkAudio?.muted ?? false) ? "\uf026" : "\uf028"
                         active: root.popover === "volume"
-                        onClicked: { root.popover = root.popover === "volume" ? "" : "volume"; if (root.popover) vslider.forceActiveFocus(); }
+                        onClicked: { root.popover = root.popover === "volume" ? "" : "volume"; if (root.popover) volumeFocus.start(); }
                     }
                     IconButton {
                         id: outputButton
                         icon: "\u{f04c3}"     // speaker / audio output
                         active: root.popover === "output"
                         onClicked: { root.popover = root.popover === "output" ? "" : "output"; if (root.popover) outputFocus.start(); }
+                    }
+                    // Lyrics on / off (player and library; the radio has record here)
+                    IconButton {
+                        visible: !root.radio
+                        icon: "\uf130"     // microphone
+                        active: Settings.v.mediaLyrics
+                        onClicked: Settings.set("mediaLyrics", !Settings.v.mediaLyrics)
                     }
                     // Radio: record the stream (Radio.toggleRecord → ~/Recordings)
                     IconButton {
@@ -226,7 +339,7 @@ Zone {
                 }
             }
 
-            Item { Layout.fillHeight: true }
+            Item { Layout.fillHeight: true; visible: !root.lyrics }
 
             // Transport controls
             RowLayout {
@@ -643,6 +756,9 @@ Zone {
 
     // ---------------- Popovers ----------------
 
+    // Focus the first volume slider once the popover is shown
+    Timer { id: volumeFocus; interval: 30; onTriggered: (root.appAudio ? appVolume : systemVolume).focusSlider() }
+
     // Focus the current output (or the first) once the list is shown
     Timer {
         id: outputFocus
@@ -663,13 +779,102 @@ Zone {
         onClicked: root.popover = ""
     }
 
-    // Vertical volume slider (system output), left of the speaker button
+    // One vertical volume control: percent, slider, mute, and what it's for.
+    // Keyboard: ↑/↓ by 5%, ←/→ to the other slider, M mutes, Esc closes the popover
+    component VolumeColumn: ColumnLayout {
+        id: col
+        property real volume: 0
+        property bool muted: false
+        property string caption: ""
+        signal setVolume(real v)
+        signal setMuted(bool m)
+        function focusSlider() { slider.forceActiveFocus(); }
+        spacing: 8
+        Layout.fillHeight: true
+        Layout.preferredWidth: 56
+
+        Label {
+            Layout.alignment: Qt.AlignHCenter
+            text: col.muted ? "Mute" : Math.round(col.volume * 100) + "%"
+            font.pixelSize: 12
+            font.weight: Font.DemiBold
+        }
+
+        // Track + fill + knob, drag vertically
+        Item {
+            id: slider
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignHCenter
+            implicitWidth: 24
+            activeFocusOnTab: true
+            function nudge(d) { col.setVolume(Math.max(0, Math.min(1, col.volume + d))); }
+            Keys.onUpPressed: nudge(0.05)
+            Keys.onDownPressed: nudge(-0.05)
+            Keys.onRightPressed: nextItemInFocusChain(true).forceActiveFocus()
+            Keys.onLeftPressed: nextItemInFocusChain(false).forceActiveFocus()
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_M) { col.setMuted(!col.muted); event.accepted = true; }
+                else if (event.key === Qt.Key_Escape) { root.popover = ""; volumeButton.forceActiveFocus(); event.accepted = true; }
+            }
+            readonly property real value: Math.min(1, col.volume)
+            FocusRing {}
+
+            Rectangle {
+                id: track
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 6
+                height: parent.height
+                radius: 3
+                color: Theme.track
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    width: parent.width
+                    height: parent.height * slider.value
+                    radius: 3
+                    color: col.muted ? Theme.fgDim : Theme.accent
+                }
+            }
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: track.height * (1 - slider.value) - height / 2
+                width: 16; height: 16; radius: 8
+                color: Theme.fg
+            }
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                function set(my) { col.setVolume(Math.max(0, Math.min(1, 1 - my / height))); }
+                onPressed: mouse => { slider.forceActiveFocus(); set(mouse.y); }
+                onPositionChanged: mouse => { if (pressed) set(mouse.y); }
+                onWheel: wheel => slider.nudge(wheel.angleDelta.y > 0 ? 0.05 : -0.05)
+            }
+        }
+
+        IconButton {
+            Layout.alignment: Qt.AlignHCenter
+            implicitWidth: 34; implicitHeight: 28
+            icon: col.muted ? "\uf026" : "\uf028"
+            active: col.muted
+            onClicked: col.setMuted(!col.muted)
+        }
+        Label {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.maximumWidth: 60
+            text: col.caption
+            dim: true
+            font.pixelSize: 10
+            elide: Text.ElideRight
+        }
+    }
+
+    // Volume popover, left of the speaker button: the app's own volume (when
+    // its PipeWire stream is found) and the system's
     Rectangle {
         parent: root
         z: 10
         visible: root.popover === "volume"
-        width: 64
-        height: 210
+        width: volumeRow.implicitWidth + 20
+        height: 230
         radius: 16
         color: Theme.bgAlt
         border.color: Theme.border
@@ -681,80 +886,29 @@ Zone {
 
         MouseArea { anchors.fill: parent }   // keep clicks inside
 
-        ColumnLayout {
+        RowLayout {
+            id: volumeRow
             anchors.fill: parent
             anchors.margins: 10
             spacing: 8
 
-            Label {
-                Layout.alignment: Qt.AlignHCenter
-                text: (root.sinkAudio?.muted ?? false) ? "Mute" : Math.round((root.sinkAudio?.volume ?? 0) * 100) + "%"
-                font.pixelSize: 12
-                font.weight: Font.DemiBold
+            VolumeColumn {
+                id: appVolume
+                visible: !!root.appAudio
+                caption: root.appName
+                volume: root.appAudio?.volume ?? 0
+                muted: root.appAudio?.muted ?? false
+                onSetVolume: v => root.setAppVolume(v)
+                onSetMuted: m => root.setAppMuted(m)
             }
-
-            // Track + fill + knob, drag vertically
-            Item {
-                id: vslider
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignHCenter
-                implicitWidth: 24
-
-                // Keyboard: ↑/↓ by 5%, M mutes, Esc closes the popover
-                focus: root.popover === "volume"
-                function nudge(d) { if (root.sinkAudio) root.sinkAudio.volume = Math.max(0, Math.min(1, root.sinkAudio.volume + d)); }
-                Keys.onUpPressed: nudge(0.05)
-                Keys.onDownPressed: nudge(-0.05)
-                Keys.onRightPressed: nudge(0.05)
-                Keys.onLeftPressed: nudge(-0.05)
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_M && root.sinkAudio) { root.sinkAudio.muted = !root.sinkAudio.muted; event.accepted = true; }
-                    else if (event.key === Qt.Key_Escape) { root.popover = ""; volumeButton.forceActiveFocus(); event.accepted = true; }
-                }
-                readonly property real value: Math.min(1, root.sinkAudio?.volume ?? 0)
-
-                Rectangle {
-                    id: vtrack
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: 6
-                    height: parent.height
-                    radius: 3
-                    color: Theme.track
-                    Rectangle {
-                        anchors.bottom: parent.bottom
-                        width: parent.width
-                        height: parent.height * vslider.value
-                        radius: 3
-                        color: Theme.accent
-                    }
-                }
-                Rectangle {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    y: vtrack.height * (1 - vslider.value) - height / 2
-                    width: 16; height: 16; radius: 8
-                    color: Theme.fg
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    function set(my) {
-                        if (root.sinkAudio) root.sinkAudio.volume = Math.max(0, Math.min(1, 1 - my / height));
-                    }
-                    onPressed: mouse => set(mouse.y)
-                    onPositionChanged: mouse => { if (pressed) set(mouse.y); }
-                    onWheel: wheel => {
-                        if (root.sinkAudio)
-                            root.sinkAudio.volume = Math.max(0, Math.min(1, root.sinkAudio.volume + (wheel.angleDelta.y > 0 ? 0.05 : -0.05)));
-                    }
-                }
-            }
-
-            IconButton {
-                Layout.alignment: Qt.AlignHCenter
-                implicitWidth: 34; implicitHeight: 28
-                icon: (root.sinkAudio?.muted ?? false) ? "\uf026" : "\uf028"
-                active: root.sinkAudio?.muted ?? false
-                onClicked: if (root.sinkAudio) root.sinkAudio.muted = !root.sinkAudio.muted
+            Rectangle { visible: !!root.appAudio; Layout.fillHeight: true; Layout.topMargin: 6; Layout.bottomMargin: 6; implicitWidth: 1; color: Theme.border }
+            VolumeColumn {
+                id: systemVolume
+                caption: "System"
+                volume: root.sinkAudio?.volume ?? 0
+                muted: root.sinkAudio?.muted ?? false
+                onSetVolume: v => { if (root.sinkAudio) root.sinkAudio.volume = v; }
+                onSetMuted: m => { if (root.sinkAudio) root.sinkAudio.muted = m; }
             }
         }
     }

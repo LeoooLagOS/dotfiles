@@ -28,6 +28,8 @@ Rectangle {
     activeFocusOnTab: true
     function runDefault() {
         const def = notif?.actions.find(a => a.identifier === "default");
+        // WhatsApp / Thunderbird live hidden (services/Comms.qml): bring them up with the dock
+        if (notif) Comms.showFor(notif);
         if (def) def.invoke();
     }
     Keys.onReturnPressed: runDefault()

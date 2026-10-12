@@ -223,6 +223,7 @@ def status(mpd):
         "artist": song.get("Artist", ""),
         "album": song.get("Album", ""),
         "albumArtist": song.get("AlbumArtist") or song.get("Artist", ""),
+        "file": song.get("file", ""),
         "cover": cover_for(song["file"]) if song.get("file") else "",
         "quality": q["label"] if song else "",
         "hires": q["hires"] if song else False,

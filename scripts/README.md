@@ -23,7 +23,7 @@ The scripts behind Hyprland keybinds, Waybar modules and Rofi menus, mostly from
 | Hardware & media | `Volume.sh`, `Brightness.sh`, `BrightnessKbd.sh`, `ExternalBrightness.sh`, `MediaCtrl.sh`, `TouchPad.sh`, `AirplaneMode.sh`, `Battery.sh`, `LidSwitch.sh` |
 | Theming | `WallpaperSelect.sh`, `WallpaperRandom.sh`, `WallpaperEffects.sh`, `WallustSwww.sh`, `DarkLight.sh`, `ThemeChanger.sh`, `Kitty_themes.sh`, `ChangeStarshipPrompt.sh`, `Animations.sh`, `ChangeBlur.sh` |
 | Waybar | `WaybarStyles.sh`, `WaybarLayout.sh`, `WaybarScripts.sh`, `WaybarCava.sh`, `Weather.sh`, `WeatherWrap.sh`, `ToggleWeatherLoc.sh` |
-| Session | `LockScreen.sh`, `Wlogout.sh`, `PowerMenu.py`, `Hypridle.sh`, `Hyprsunset.sh`, `GameMode.sh`, `Refresh.sh`, `ScreenShot.sh`, `Polkit.sh`, `PortalHyprland.sh`, `CommsStartup.sh` (at login: Teams to the tray; WhatsApp web app and Thunderbird to the hidden workspace `special:comms`, SUPER Y) |
+| Session | `LockScreen.sh`, `Wlogout.sh`, `PowerMenu.py`, `Hypridle.sh`, `Hyprsunset.sh`, `GameMode.sh`, `Refresh.sh`, `ScreenShot.sh`, `Polkit.sh`, `PortalHyprland.sh`, `CommsStartup.sh` (at login: Teams to the tray; WhatsApp web app and Thunderbird each to its hidden workspace `special:comms-<app>`, shown with the panel's dock by SUPER Y; `CommsStartup.sh whatsapp --show` starts / shows one) |
 
 Upstream ships helpers for other distros (`*NixOS*`, `*Ubuntu*`, `debian-*`); they are kept for parity but unused on Fedora.
 

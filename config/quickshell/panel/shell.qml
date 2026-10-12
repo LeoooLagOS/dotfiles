@@ -17,6 +17,7 @@ ShellRoot {
 
     Panel {}
     NotificationPopups {}
+    CommsDock {}
 
     IpcHandler {
         target: "panel"
@@ -48,6 +49,8 @@ ShellRoot {
         }
         // Radio on/off (the Media tab's radio view; services/Radio.qml)
         function radio(): string { Radio.toggle(); return Radio.active ? "stopping" : "playing " + (Radio.current?.name ?? ""); }
+        // WhatsApp / Thunderbird with the dock, show / hide (SUPER Y; services/Comms.qml)
+        function comms(): void { Comms.toggle(); }
         // Caffeine on/off (SUPER ALT I)
         function caffeine(): string { Toggles.setCaffeine(!Toggles.caffeine, 0); return Toggles.caffeine ? "on" : "off"; }
         // Colors: `themeMode light|dark|system`, `toggleInverted`, `currentTheme`

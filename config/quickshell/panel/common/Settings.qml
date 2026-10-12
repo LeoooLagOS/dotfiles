@@ -38,7 +38,8 @@ Singleton {
         // Not shown in Settings (set from Controls)
         nightTemp: 4500,
         recTarget: "screen", recAudio: "system", recFps: 60,     // screen recording (services/Recorder.qml)
-        mediaMode: "player", radioStation: "Radio BUAP"          // Media tab: player / radio view (services/Radio.qml)
+        mediaMode: "player", radioStation: "Radio BUAP",         // Media tab: player / radio / library view (services/Radio.qml)
+        mediaLyrics: false                                       // Media tab: lyrics instead of the big title (services/Lyrics.qml)
     })
 
     property var v: defaults

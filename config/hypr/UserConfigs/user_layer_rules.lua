@@ -105,3 +105,11 @@ apply_layer_rule({
   blur = true,
   ignore_alpha = 0.05,
 })
+
+-- Quickshell dock for the communication apps (SUPER Y, CommsDock.qml): frosted
+apply_layer_rule({
+  name = "user-quickshell-dock-blur",
+  match = { namespace = "quickshell:dock" },
+  blur = true,
+  ignore_alpha = 0.05,
+})
