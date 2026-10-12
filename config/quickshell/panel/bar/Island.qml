@@ -7,11 +7,15 @@ import "../common"
 import "../services"
 
 // The island at the center of the bar: a near-black pill, whatever the theme.
+// Grown, it's the bigger view of the bar's right twin (bar/Glance.qml): the
+// music while something plays (Media.active), else the weather.
 //   rest       date · time
 //   media      while a player plays: its art on the left, an equalizer on
 //              the right; the time stays where it was
-//   expanded   hovering it while a player has a track: it grows down with the
-//              art, title, progress and controls
+//   expanded   hovering it while a player plays (or paused it a moment ago):
+//              it grows down with the art, title, progress and controls
+//   weather    hovering it otherwise: it grows down with the weather (sky,
+//              temperatures, rain in the next hours); a click on it: the Weather tab
 //   rec        screen recording (services/Recorder.qml): red dot and elapsed
 //              time; a click stops it
 //   flash      a short message (BarState.say: Do Not Disturb, caffeine, volume)
@@ -27,12 +31,14 @@ Rectangle {
     readonly property var player: Media.player
     readonly property bool hasTrack: !!player && !!player.trackTitle
     readonly property bool playing: hasTrack && player.isPlaying
+    readonly property bool music: Media.active
     property bool expandWanted: false
     readonly property var msg: BarState.message
     readonly property string mode: BarState.flash ? "flash"
         : msg ? (expandWanted ? "messageOpen" : "message")
         : Recorder.recording ? "rec"
-        : expandWanted && hasTrack ? "expanded"
+        : expandWanted && music ? "expanded"
+        : expandWanted && Weather.ready ? "weather"
         : playing ? "media" : "rest"
     readonly property bool isMessage: mode === "message" || mode === "messageOpen"
     readonly property int pillH: Settings.v.barHeight - 6
@@ -41,9 +47,10 @@ Rectangle {
     readonly property color accent: Theme.ensure(BarState.accent, color, 3)
 
     readonly property int expandedH: 196
-    width: mode === "expanded" ? 520 : isMessage ? 480 : (mode === "flash" ? flashRow.implicitWidth : topRow.implicitWidth) + 34
-    height: mode === "expanded" ? expandedH : mode === "messageOpen" ? pillH + msgBody.implicitHeight + 58 : pillH
-    radius: mode === "expanded" || mode === "messageOpen" ? 24 : pillH / 2
+    readonly property bool grown: mode === "expanded" || mode === "weather"
+    width: grown ? 520 : isMessage ? 480 : (mode === "flash" ? flashRow.implicitWidth : topRow.implicitWidth) + 34
+    height: grown ? expandedH : mode === "messageOpen" ? pillH + msgBody.implicitHeight + 58 : pillH
+    radius: grown || mode === "messageOpen" ? 24 : pillH / 2
     color: Theme.mix(Theme.panel.base, "#000000", Theme.light ? 0.85 : 0.55)
     border.width: 1
     border.color: Qt.rgba(1, 1, 1, 0.07)
@@ -188,7 +195,7 @@ Rectangle {
         visible: root.mode === "flash"
         anchors.centerIn: parent
         spacing: 9
-        Glyph { text: BarState.flash?.icon ?? ""; color: root.accent; font.pixelSize: 14; anchors.verticalCenter: parent.verticalCenter }
+        Glyph { optical: true; text: BarState.flash?.icon ?? ""; color: root.accent; font.pixelSize: 14; anchors.verticalCenter: parent.verticalCenter }
         Label { text: BarState.flash?.text ?? ""; color: root.ink; font.pixelSize: 13; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
     }
 
@@ -301,13 +308,138 @@ Rectangle {
                         id: btnRow
                         anchors.centerIn: parent
                         spacing: 7
-                        Glyph { text: modelData.icon; color: root.accent; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                        Glyph { optical: true; text: modelData.icon; color: root.accent; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
                         Label { text: modelData.label; color: root.ink; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
                     }
                     MouseArea { id: btnMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: parent.modelData.run() }
                 }
             }
         }
+    }
+
+    // ---------------- Expanded: the weather ----------------
+    // The sky's icon on the left (as big as the player's art); on the right
+    // the temperature and sky, the place and feels-like, the chance of rain
+    // in the next hours, then high / low, humidity and wind
+    RowLayout {
+        visible: opacity > 0
+        opacity: root.mode === "weather" && root.height > 140 ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 160 } }
+        x: 14
+        y: root.pillH + 4
+        width: root.width - 28
+        height: root.expandedH - root.pillH - 18
+        spacing: 16
+
+        Rectangle {
+            Layout.preferredWidth: parent.height
+            Layout.preferredHeight: parent.height
+            radius: 16
+            color: Qt.rgba(1, 1, 1, 0.06)
+            Glyph {
+                anchors.centerIn: parent
+                optical: true
+                text: Weather.icon
+                font.pixelSize: 64
+                color: root.accent
+            }
+        }
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 0
+
+            Row {
+                spacing: 10
+                Label { text: Math.round(Weather.temp) + "°"; color: root.ink; font.pixelSize: 26; font.weight: Font.Bold; font.features: { "tnum": 1 }; anchors.baseline: sky.baseline }
+                Label { id: sky; text: Weather.description; color: root.ink; font.pixelSize: 15; font.weight: Font.DemiBold }
+            }
+            Label {
+                text: [Weather.place, "feels like " + Math.round(Weather.feelsLike) + "°"].filter(s => s).join(" · ")
+                color: root.inkDim
+                font.pixelSize: 12
+                Layout.fillWidth: true
+            }
+
+            // Chance of rain, hour by hour
+            Item {
+                id: rainChart
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.topMargin: 8
+                readonly property var hours: Weather.rainNext
+                Row {
+                    anchors.fill: parent
+                    Repeater {
+                        model: rainChart.hours
+                        delegate: Item {
+                            required property int index
+                            required property var modelData
+                            width: rainChart.width / Math.max(1, rainChart.hours.length)
+                            height: rainChart.height
+                            Label {
+                                id: pct
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.bottom: bar.top
+                                anchors.bottomMargin: 2
+                                text: modelData + "%"
+                                color: modelData >= 50 ? root.accent : root.inkDim
+                                font.pixelSize: 10
+                                font.features: { "tnum": 1 }
+                            }
+                            Rectangle {
+                                id: bar
+                                anchors.bottom: hour.top
+                                anchors.bottomMargin: 3
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: Math.min(22, parent.width * 0.55)
+                                height: Math.max(3, (parent.height - hour.height - pct.height - 8) * modelData / 100)
+                                radius: 4
+                                color: modelData >= 50 ? root.accent : Qt.rgba(1, 1, 1, 0.22)
+                            }
+                            Label {
+                                id: hour
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.bottom: parent.bottom
+                                text: index === 0 ? "Now" : Qt.formatTime(new Date(clock.date.getTime() + index * 3600000), Settings.v.bar24h ? "HH" : "h AP")
+                                color: root.inkDim
+                                font.pixelSize: 10
+                            }
+                        }
+                    }
+                }
+            }
+
+            // High / low · humidity · wind
+            Row {
+                Layout.topMargin: 6
+                spacing: 16
+                Repeater {
+                    model: [
+                        { icon: "\uf062", text: Math.round(Weather.high) + "°" },
+                        { icon: "\uf063", text: Math.round(Weather.low) + "°" },
+                        { icon: "\ue373", text: Weather.humidity + "%" },
+                        { icon: "\uef16", text: Math.round(Weather.wind) + " km/h " + Weather.windCompass }
+                    ]
+                    delegate: Row {
+                        required property var modelData
+                        spacing: 5
+                        Glyph { optical: true; text: modelData.icon; color: root.accent; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                        Label { text: modelData.text; color: root.ink; font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 }; anchors.verticalCenter: parent.verticalCenter }
+                    }
+                }
+            }
+        }
+    }
+    // A click on the card: the Weather tab
+    MouseArea {
+        visible: root.mode === "weather"
+        y: root.pillH
+        width: root.width
+        height: root.height - root.pillH
+        cursorShape: Qt.PointingHandCursor
+        onClicked: { PanelState.open = true; PanelState.goTo("Weather", ""); }
     }
 
     // ---------------- Expanded: the player ----------------
@@ -441,6 +573,7 @@ Rectangle {
                             color: modelData.big ? root.accent : ctlMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.12) : "transparent"
                             Glyph {
                                 anchors.centerIn: parent
+                                optical: true
                                 text: modelData.icon
                                 font.pixelSize: modelData.size
                                 color: modelData.big ? Theme.onColor(root.accent) : modelData.on ? root.accent : root.ink

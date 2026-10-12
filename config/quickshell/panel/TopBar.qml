@@ -10,12 +10,15 @@ import "./services"
 import "./bar"
 
 // The top bar, one per monitor (replaces waybar; Settings → Bar, services/BarState.qml).
-//   left     distro logo (system menu: scripts/wm/RofiSystemMenu.sh) ·
+//   left     distro logo (system menu: scripts/wm/RofiSystemMenu.sh) · tray
+//            (bar/TrayModule.qml) ·
 //            workspaces with their apps · the focused window's app and title
+//            (bar/WindowTitle.qml) and, its twin on the right, the music
+//            playing or the weather (bar/Glance.qml; the island grown is its bigger view)
 //   center   notifications (click: the panel's Notifications · right click:
 //            Do Not Disturb) · the island (bar/Island.qml) · caffeine
-//   right    CPU, RAM, disk, temperature · Wi-Fi, Bluetooth, battery · tray
-//            (bar/TrayModule.qml) · power menu. Clicking the readings opens the
+//   right    CPU, RAM, disk, temperature · Wi-Fi, Bluetooth, battery ·
+//            power menu. Clicking the readings opens the
 //            system monitor (bar/SystemMonitor.qml), the network / battery the
 //            system popup (bar/SystemPopup.qml); hovering one shows its details (bar/BarTip.qml)
 // The layer is taller than the bar so the island can grow and the details can
@@ -113,23 +116,117 @@ Scope {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 8
 
-                        BarPill {
+                        // The distro's logo alone, no card behind it (like a start
+                        // button): grows and brightens under the pointer
+                        Item {
+                            id: logo
                             visible: win.zone("logo")
-                            square: true
-                            clickable: true
-                            onClicked: b => b === Qt.RightButton
-                                ? (PanelState.open = true, PanelState.openSettings("bar"))
-                                : Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/RofiSystemMenu.sh"])
-                            Glyph { text: Profile.distroLogo || ""; font.pixelSize: 17; color: BarState.accent }
+                            implicitWidth: Settings.v.barHeight - 8
+                            implicitHeight: Settings.v.barHeight - 8
+                            anchors.verticalCenter: parent.verticalCenter
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: parent.height
+                                height: width
+                                radius: width / 2
+                                color: BarState.accent
+                                opacity: logoMouse.containsMouse ? 0.16 : 0
+                                Behavior on opacity { NumberAnimation { duration: Theme.anim } }
+                            }
+                            Glyph {
+                                anchors.centerIn: parent
+                                optical: true
+                                text: Profile.distroLogo || ""
+                                font.pixelSize: 20
+                                color: logoMouse.containsMouse ? Qt.lighter(BarState.accent, 1.2) : BarState.accent
+                                scale: logoMouse.pressed ? 0.9 : logoMouse.containsMouse ? 1.1 : 1
+                                Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutBack } }
+                                Behavior on color { ColorAnimation { duration: Theme.anim } }
+                            }
+                            MouseArea {
+                                id: logoMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                onClicked: m => m.button === Qt.RightButton
+                                    ? (PanelState.open = true, PanelState.openSettings("bar"))
+                                    : Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/RofiSystemMenu.sh"])
+                            }
+                        }
+                        TrayModule {
+                            id: tray
+                            visible: win.zone("tray")
+                            barWindow: win
+                            alignLeft: true
+                            onOpenChanged: if (open) { BarState.popupOn = ""; BarState.monitorOn = ""; }
                         }
                         Workspaces {
                             visible: win.zone("workspaces")
                             monitor: win.monitor
                         }
-                        WindowTitle {
-                            visible: win.zone("window") && onThisWorkspace
-                            maxWidth: Math.max(160, (bell.visible ? bell.x : island.x) - left.x - x - 24)
+                    }
+
+                    // ---------------- The details: window title · music or weather ----------------
+                    // Each one fills from its side's fixed group (logo · tray · workspaces,
+                    // readings · power) toward the center, up to a gap that is the
+                    // same on both sides between it and the center group (bell ·
+                    // island · caffeine): Settings → Bar → Gap to the center. While the
+                    // island stretches in the bar (messages) they shrink with it, and
+                    // one too narrow to read hides. The right one follows the island
+                    // grown (its bigger view): see below.
+                    QtObject {
+                        id: details
+                        readonly property real mid: barArea.width / 2
+                        readonly property real leftEnd: left.x + left.width + 8
+                        readonly property real rightStart: right.x - 8
+                        // How far the center group reaches, the longer side (the island is centered).
+                        // Held while the island is grown (player, weather): it hangs below the bar
+                        readonly property real liveReach: Math.max(mid - (bell.visible ? bell.x : island.x),
+                            (caffeine.visible ? caffeine.x + caffeine.width : island.x + island.width) - mid)
+                        property real reach: 0
+                        onLiveReachChanged: if (!island.grown) reach = liveReach
+                        readonly property Connections follow: Connections {
+                            target: island
+                            function onGrownChanged() { if (!island.grown) details.reach = details.liveReach; }
                         }
+                        readonly property real inner: reach + Settings.v.barDetailGap
+                        readonly property int wLeft: Math.max(0, mid - inner - leftEnd)
+                        readonly property int wRight: Math.max(0, rightStart - mid - inner)
+                    }
+                    WindowTitle {
+                        visible: win.zone("window") && details.wLeft >= 100
+                        fixedWidth: details.wLeft
+                        x: Math.round(details.mid - details.inner - details.wLeft)
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    // While music plays the twin is the music: the weather stays
+                    // at hand in a small pill at its inner edge (the gap unchanged).
+                    // The island grown is the twin's bigger view: showing the
+                    // player, the twin turns to the whole weather; showing the
+                    // weather, the twin hides.
+                    BarPill {
+                        id: miniWeather
+                        readonly property bool wanted: win.zone("glance") && Media.active && Weather.ready
+                                                       && !island.grown && details.wRight >= 100 + width + 8
+                        visible: wanted
+                        x: Math.round(details.mid + details.inner)
+                        anchors.verticalCenter: parent.verticalCenter
+                        clickable: true
+                        spacing: 5
+                        onClicked: win.openTab("Weather")
+                        Glyph { optical: true; text: Weather.icon; font.pixelSize: 14; color: BarState.accent; anchors.verticalCenter: parent.verticalCenter }
+                        Label { text: Math.round(Weather.temp) + "°"; font.pixelSize: 13; font.weight: Font.DemiBold; font.features: { "tnum": 1 }; anchors.verticalCenter: parent.verticalCenter }
+                    }
+                    Glance {
+                        readonly property int shift: miniWeather.wanted ? miniWeather.width + 8 : 0
+                        visible: win.zone("glance") && details.wRight >= 100
+                        hide: island.mode === "weather"
+                        weatherOnly: island.mode === "expanded"
+                        fixedWidth: details.wRight - shift
+                        x: Math.round(details.mid + details.inner + shift)
+                        anchors.verticalCenter: parent.verticalCenter
+                        onOpenTab: name => win.openTab(name)
                     }
 
                     // ---------------- Center: bell · island · caffeine ----------------
@@ -144,6 +241,21 @@ Scope {
 
                         BarPill {
                             id: bell
+                            // Always one icon wide (the bar's gaps stay even): the bell, in the
+                            // accent while there are notifications; a new one shows the count
+                            // instead of the bell for a second
+                            readonly property bool unread: !Notifs.dnd && Notifs.count > 0
+                            property int seen: 0
+                            Component.onCompleted: seen = Notifs.count
+                            readonly property bool counting: countFlash.running
+                            Timer { id: countFlash; interval: 1000 }
+                            Connections {
+                                target: Notifs
+                                function onCountChanged() {
+                                    if (Notifs.count > bell.seen && !Notifs.dnd) countFlash.restart();
+                                    bell.seen = Notifs.count;
+                                }
+                            }
                             visible: win.zone("bell")
                             anchors.right: island.left
                             anchors.rightMargin: 8
@@ -157,19 +269,15 @@ Scope {
                                     BarState.say(Notifs.dnd ? "" : "", Notifs.dnd ? "Do Not Disturb on" : "Do Not Disturb off");
                                 } else win.openTab("Notifications");
                             }
-                            Glyph { text: Notifs.dnd ? "" : ""; font.pixelSize: 14; color: Notifs.dnd ? BarState.accent : Theme.fg }
-                            // Unread count
-                            Rectangle {
-                                parent: bell
-                                visible: !Notifs.dnd && Notifs.count > 0
-                                anchors.top: parent.top
-                                anchors.right: parent.right
-                                anchors.margins: 2
-                                height: 14
-                                width: Math.max(14, countLabel.implicitWidth + 7)
-                                radius: 7
+                            Glyph { optical: true; visible: !bell.counting; text: Notifs.dnd ? "" : ""; font.pixelSize: 14; color: Notifs.dnd || bell.unread ? BarState.accent : Theme.fg }
+                            Label {
+                                visible: bell.counting
+                                text: Notifs.count > 99 ? "99+" : Notifs.count
                                 color: BarState.accent
-                                Label { id: countLabel; anchors.centerIn: parent; text: Notifs.count > 99 ? "99+" : Notifs.count; color: BarState.accentText; font.pixelSize: 9; font.weight: Font.Bold }
+                                font.pixelSize: Notifs.count > 99 ? 10 : Notifs.count > 9 ? 12 : 14
+                                font.weight: Font.Bold
+                                font.features: { "tnum": 1 }
+                                anchors.verticalCenter: parent.verticalCenter
                             }
                         }
 
@@ -186,7 +294,7 @@ Scope {
                             Toggles.setCaffeine(!Toggles.caffeine, 0);
                             BarState.say(Toggles.caffeine ? "" : "\u{f06ca}", Toggles.caffeine ? "Screen stays awake" : "Idle as usual");
                         }
-                        Glyph { text: Toggles.caffeine ? "" : "\u{f06ca}"; font.pixelSize: 14; color: Toggles.caffeine ? BarState.accent : Theme.fgDim }
+                        Glyph { optical: true; text: Toggles.caffeine ? "" : "\u{f06ca}"; font.pixelSize: 14; color: Toggles.caffeine ? BarState.accent : Theme.fgDim }
                     }
 
                     // ---------------- Right ----------------
@@ -281,19 +389,12 @@ Scope {
                             }
                         }
 
-                        TrayModule {
-                            id: tray
-                            visible: win.zone("tray")
-                            barWindow: win
-                            onOpenChanged: if (open) { BarState.popupOn = ""; BarState.monitorOn = ""; }
-                        }
-
                         BarPill {
                             visible: win.zone("power")
                             square: true
                             clickable: true
                             onClicked: Quickshell.execDetached(["bash", "-c", Config.powerCmd])
-                            Glyph { text: ""; font.pixelSize: 13; color: Theme.bad }
+                            Glyph { optical: true; text: ""; font.pixelSize: 13; color: Theme.bad }
                         }
                     }
                 }

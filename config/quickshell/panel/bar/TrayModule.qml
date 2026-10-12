@@ -8,8 +8,8 @@ import Quickshell.Widgets
 import "../common"
 import "../services"
 
-// Everything running in the background, from a chevron next to the power
-// button. Three views:
+// Everything running in the background, from a chevron next to the distro
+// logo (`alignLeft`: the list opens rightward). Three views:
 //   Tray      the apps' tray icons (Teams, Vesktop, Telegram…): click opens
 //             the app · right click: its menu · middle click: secondary action
 //   Apps      every program with a window, grouped (hidden ones marked: the
@@ -24,6 +24,7 @@ BarPill {
     id: root
     property var barWindow: null
     property bool open: false
+    property bool alignLeft: false             // the list's left edge under the chevron's
     property string view: "tray"
     readonly property var items: SystemTray.items.values
     property alias dropdown: drop
@@ -33,6 +34,7 @@ BarPill {
     onClicked: open = !open
 
     Glyph {
+        optical: true
         text: root.open ? "" : ""
         font.pixelSize: 10
         color: root.open ? Theme.fg : Theme.fgDim
@@ -126,7 +128,7 @@ BarPill {
         visible: root.open
         anchors.top: parent.bottom
         anchors.topMargin: 8
-        anchors.right: parent.right
+        x: root.alignLeft ? 0 : parent.width - width
         width: root.open ? 380 : 0
         height: root.open ? Math.min(520, list.implicitHeight + seg.height + foot.height + 36) : 0
         radius: 16

@@ -8,3 +8,5 @@ BarTip 1.0 BarTip.qml
 SystemPopup 1.0 SystemPopup.qml
 SystemMonitor 1.0 SystemMonitor.qml
 PopupGrab 1.0 PopupGrab.qml
+Marquee 1.0 Marquee.qml
+Glance 1.0 Glance.qml

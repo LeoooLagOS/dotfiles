@@ -42,8 +42,9 @@ Singleton {
         mediaLyrics: false,                                      // Media tab: lyrics instead of the big title (services/Lyrics.qml)
         // Top bar (TopBar.qml, bar/, services/BarState.qml)
         barEnabled: true, barStyle: "islands", barHeight: 36, barAccent: "auto",
-        barLeft: ["logo", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],
-        barRight: ["cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "tray", "power"],
+        barLeft: ["logo", "tray", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],
+        barRight: ["glance", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
+        barDetailGap: 200,
         barEmptyWs: "show", barWsIcons: true, barDate: true, bar24h: true, barIslandMessages: true,
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
         commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"]
@@ -143,14 +144,15 @@ Singleton {
                 { key: "barStyle", label: "Style", help: "Islands: each group floats like the panel's cards", type: "seg",
                   opts: [["islands", "Islands"], ["full", "Full bar"], ["floating", "Floating"]] },
                 { key: "barHeight", label: "Height", type: "seg", opts: [[32, "32"], [36, "36"], [40, "40"]] },
-                { key: "barAccent", label: "Accent", help: "Auto: the panel's. Or any color of the wallpaper's palette", type: "swatches" } ] },
+                { key: "barAccent", label: "Accent", help: "Auto: the panel's. Or any color of the wallpaper's palette", type: "swatches" },
+                { key: "barDetailGap", label: "Details: gap to the center (px)", help: "The window title (right after the workspaces) and the music / weather (right before the readings) fill toward the center, stopping this far from the bell and caffeine (the same on both sides)", type: "range", min: 40, max: 320, step: 10, unit: "" } ] },
             { title: "Modules", rows: [
-                { key: "barLeft", label: "Left", type: "chips", opts: [["logo", "Logo"], ["workspaces", "Workspaces"], ["window", "Window title"]] },
+                { key: "barLeft", label: "Left", type: "chips", opts: [["logo", "Logo"], ["tray", "Tray"], ["workspaces", "Workspaces"], ["window", "Window title"]] },
                 { key: "barCenter", label: "Center", help: "The island stays at the exact center of the screen", type: "chips",
                   opts: [["bell", "Notifications"], ["island", "Island"], ["caffeine", "Caffeine"]] },
                 { key: "barRight", label: "Right", help: "Click the stats, network or battery for the system popup", type: "chips",
-                  opts: [["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", "Temp"], ["wifi", "Wi-Fi"],
-                         ["bluetooth", "Bluetooth"], ["battery", "Battery"], ["tray", "Tray"], ["power", "Power"]] } ] },
+                  opts: [["glance", "Music / weather"], ["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", "Temp"], ["wifi", "Wi-Fi"],
+                         ["bluetooth", "Bluetooth"], ["battery", "Battery"], ["power", "Power"]] } ] },
             { title: "Workspaces and clock", rows: [
                 { key: "barEmptyWs", label: "Empty workspaces", type: "seg", opts: [["hide", "Hide"], ["show", "Show 1–5"]] },
                 { key: "barWsIcons", label: "Icons of the apps on each workspace", type: "switch" },

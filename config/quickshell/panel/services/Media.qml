@@ -23,6 +23,15 @@ Singleton {
 
     function pick(p) { picked = p; }
 
+    // "Something is playing", for the bar (its right twin and the island):
+    // still true a little after a pause, so pausing from the island keeps
+    // play at hand instead of switching to the weather under the pointer
+    readonly property bool hasTrack: !!player && !!player.trackTitle
+    readonly property bool playing: hasTrack && player.isPlaying
+    readonly property bool active: playing || (hasTrack && pausedJustNow.running)
+    onPlayingChanged: if (!playing) pausedJustNow.restart()
+    Timer { id: pausedJustNow; interval: 20000 }
+
     // None → whole playlist → current track → None
     function cycleLoop() {
         if (!player) return;
