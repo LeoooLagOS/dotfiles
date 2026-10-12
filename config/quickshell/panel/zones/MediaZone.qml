@@ -134,10 +134,13 @@ Zone {
             Layout.fillHeight: true
             spacing: 12
 
-            // Player picker (only when there is more than one) / station picker
+            // Player picker (only when there is more than one) / station picker.
+            // Chips that don't fit beside the search/mode buttons go to the next
+            // line; one longer than the whole row is elided.
             Flow {
+                id: chipFlow
                 Layout.fillWidth: true
-                Layout.rightMargin: 40           // room for the player ↔ radio button
+                Layout.rightMargin: modeButton.width + (searchButton.visible ? searchButton.width + 6 : 0) + 8
                 spacing: 6
                 visible: root.radio || (root.library ? root.qualityChips.length > 0 : Media.players.length > 1)
                 Repeater {
@@ -145,11 +148,10 @@ Zone {
                     delegate: Chip {
                         required property var modelData
                         implicitHeight: 26
+                        maxWidth: chipFlow.width
                         // Identity alone is ambiguous (e.g. two Firefox tabs): add the track
-                        text: { if (root.radio) return modelData.name;
-                                if (root.library) return modelData.t;
-                                const t = modelData.identity.split(" ")[0] + (modelData.trackTitle ? " · " + modelData.trackTitle : "");
-                                return t.length > 34 ? t.slice(0, 33) + "…" : t; }
+                        text: root.radio ? (modelData.name ?? "") : root.library ? (modelData.t ?? "")
+                            : String(modelData.identity ?? "").split(" ")[0] + (modelData.trackTitle ? " · " + modelData.trackTitle : "")
                         active: root.radio ? modelData.name === root.station?.name : root.library ? modelData.on : modelData === root.player
                         onClicked: root.radio ? Radio.play(modelData) : root.library ? {} : Media.pick(modelData)
                     }
@@ -179,7 +181,7 @@ Zone {
                     }
                     Label {
                         text: root.radio ? (root.station?.name ?? "No stations")
-                            : root.library ? (Library.active ? root.lib.title : "Choose an album")
+                            : root.library ? (Library.active ? (root.lib.title ?? "") : "Choose an album")
                             : (root.player?.trackTitle || "Unknown title")
                         color: Theme.accent
                         font.pixelSize: 24
@@ -189,8 +191,8 @@ Zone {
                         Layout.fillWidth: true
                     }
                     // Radio: what's on air (the stream's title), then frequency / city
-                    Label { text: root.radio ? Radio.onAir : root.library ? (Library.active ? root.lib.artist : "Browse your albums with the search button") : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }
-                    Label { text: root.radio ? (root.station?.subtitle ?? "") : root.library ? (Library.active ? root.lib.album : "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
+                    Label { text: root.radio ? Radio.onAir : root.library ? (Library.active ? (root.lib.artist ?? "") : "Browse your albums with the search button") : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }
+                    Label { text: root.radio ? (root.station?.subtitle ?? "") : root.library ? (Library.active ? (root.lib.album ?? "") : "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
                 }
 
                 ColumnLayout {

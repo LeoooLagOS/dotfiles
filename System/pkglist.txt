@@ -52,6 +52,7 @@ bash-color-prompt
 bash-completion
 bat
 bc
+beets
 bind-utils
 bluedevil
 blueman
@@ -381,6 +382,8 @@ minicom
 mousepad
 mozilla-openh264
 mpage
+mpc
+mpd
 mpv
 mpv-mpris
 mt7xxx-firmware
@@ -433,6 +436,7 @@ pavucontrol
 pciutils
 perl-NKF
 phonon-qt6-backend-vlc
+picard
 picocom
 pinentry-gnome3
 pinentry-qt

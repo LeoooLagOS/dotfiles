@@ -3,6 +3,7 @@ import QtQuick
 // Pill button: optional icon + text. Keyboard: Tab to focus, Enter/Space to press.
 //   Chip { text: "All"; active: true; onClicked: … }
 //   Chip { text: "Save"; filled: true }        // solid primary button
+//   Chip { text: long; maxWidth: 200 }         // elided past 200 px
 Rectangle {
     id: root
     property string text: ""
@@ -12,9 +13,10 @@ Rectangle {
     property color tint: Theme.accent
     property real fontSize: 11
     property bool bold: false
+    property real maxWidth: Infinity       // longer text is elided
     signal clicked()
 
-    implicitWidth: row.implicitWidth + 20
+    implicitWidth: Math.min(row.implicitWidth + 20, maxWidth)
     implicitHeight: 28
     radius: height / 2
     opacity: enabled ? 1 : 0.4
@@ -33,6 +35,7 @@ Rectangle {
         anchors.centerIn: parent
         spacing: 5
         Glyph {
+            id: glyph
             visible: root.icon !== ""
             text: root.icon
             font.pixelSize: root.fontSize - 1
@@ -40,7 +43,10 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
         }
         Label {
+            id: label
             visible: root.text !== ""
+            width: Math.min(implicitWidth, root.maxWidth - 20 - (glyph.visible ? glyph.implicitWidth + row.spacing : 0))
+            elide: Text.ElideRight
             text: root.text
             font.pixelSize: root.fontSize
             font.weight: (root.bold || root.active) ? Font.DemiBold : Font.Normal

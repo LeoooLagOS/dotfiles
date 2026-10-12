@@ -19,15 +19,14 @@ notification() {
 # Check if mpv is currently playing
 music_playing() { pgrep -x "mpv" >/dev/null; }
 
-# Stop all mpv processes except mpvpaper
+# Stop all mpv processes except mpvpaper and the panel's radio (Media tab,
+# services/Radio.qml: its mpv has the lagos-radio.sock IPC socket)
 stop_music() {
   mpv_pids=$(pgrep -x mpv)
   if [ -n "$mpv_pids" ]; then
-    mpvpaper_pid=$(ps aux | grep -- 'unique-wallpaper-process' | grep -v 'grep' | awk '{print $2}')
     for pid in $mpv_pids; do
-      if ! echo "$mpvpaper_pid" | grep -q "$pid"; then
-        kill -9 $pid || true
-      fi
+      tr '\0' ' ' <"/proc/$pid/cmdline" 2>/dev/null | grep -qE 'unique-wallpaper-process|lagos-radio\.sock' && continue
+      kill -9 "$pid" || true
     done
     notification "Music stopped"
   fi
