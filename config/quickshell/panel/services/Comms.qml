@@ -365,7 +365,10 @@ Singleton {
             }
         }
     }
+    // An event while a query runs would be lost (its answer may predate it):
+    // ask again right after
     function refresh() {
+        if (clientsProc.running || monitorsProc.running) refreshSoon.restart();
         if (!clientsProc.running) clientsProc.running = true;
         if (!monitorsProc.running) monitorsProc.running = true;
     }
