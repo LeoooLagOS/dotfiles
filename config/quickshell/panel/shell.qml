@@ -15,6 +15,7 @@ ShellRoot {
     // Services that must run from the start (not only once a zone uses them)
     readonly property var services: [SystemSettings, Toggles, LauncherTheme]
 
+    TopBar {}
     Panel {}
     NotificationPopups {}
     CommsDock {}
@@ -56,6 +57,8 @@ ShellRoot {
         function commsStart(): void { Comms.startAll(); }
         // The keyboard to the dock: ←/→, Enter, 1–9, Esc (SUPER SHIFT Y)
         function commsDock(): void { Comms.focusDock(); }
+        // The top bar: hide / show it for now (SUPER CTRL ALT B; TopBar.qml)
+        function barToggle(): void { BarState.toggleRequested(); }
         // Next / previous app while one is up (CTRL TAB / CTRL SHIFT TAB)
         function commsNext(): void { Comms.cycle(1); }
         function commsPrev(): void { Comms.cycle(-1); }

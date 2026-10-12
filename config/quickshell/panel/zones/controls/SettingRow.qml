@@ -137,6 +137,32 @@ Item {
                 }
             }
         }
+        // swatches: "auto" + the wallust palette's colors (Theme.palette)
+        Row {
+            visible: root.type === "swatches"
+            spacing: 5
+            Chip {
+                text: "Auto"
+                active: root.value === "auto"
+                implicitHeight: 24
+                onClicked: Settings.set(root.row.key, "auto")
+            }
+            Repeater {
+                model: root.type === "swatches" ? Object.keys(Theme.palette).filter(k => k !== "color0" && k !== "color8" && k !== "color15")
+                                                         .sort((a, b) => Number(a.slice(5)) - Number(b.slice(5))) : []
+                delegate: Rectangle {
+                    required property string modelData
+                    implicitWidth: 22
+                    implicitHeight: 22
+                    radius: 7
+                    color: Theme.palette[modelData]
+                    border.width: 2
+                    border.color: root.value === modelData ? Theme.fg : swMouse.containsMouse ? Theme.border : "transparent"
+                    MouseArea { id: swMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                onClicked: Settings.set(root.row.key, parent.modelData) }
+                }
+            }
+        }
         Row {
             visible: root.type === "keys"
             spacing: 4

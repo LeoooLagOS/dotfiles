@@ -40,6 +40,11 @@ Singleton {
         recTarget: "screen", recAudio: "system", recFps: 60,     // screen recording (services/Recorder.qml)
         mediaMode: "player", radioStation: "Radio BUAP",         // Media tab: player / radio / library view (services/Radio.qml)
         mediaLyrics: false,                                      // Media tab: lyrics instead of the big title (services/Lyrics.qml)
+        // Top bar (TopBar.qml, bar/, services/BarState.qml)
+        barEnabled: true, barStyle: "islands", barHeight: 36, barAccent: "auto",
+        barLeft: ["logo", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],
+        barRight: ["tray", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
+        barEmptyWs: "show", barWsIcons: true, barDate: true, bar24h: true,
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
         commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"]
     })
@@ -131,6 +136,26 @@ Singleton {
             { title: "Size", rows: [
                 { key: "width", label: "Width", help: "Share of the usable screen", type: "range", min: 35, max: 80, step: 1, unit: "%" },
                 { key: "height", label: "Height", type: "range", min: 35, max: 80, step: 1, unit: "%" } ] } ] },
+        { id: "bar", icon: "\uf2d0", label: "Bar", lead: "The bar at the top: how it looks and what it shows. Its colors come from the wallpaper, like the panel's.", groups: [
+            { title: "Bar", rows: [
+                { key: "barEnabled", label: "Use this bar", help: "Off: waybar comes back (SUPER CTRL ALT B hides or shows this one)", type: "switch", system: true } ] },
+            { title: "Look", rows: [
+                { key: "barStyle", label: "Style", help: "Islands: each group floats like the panel's cards", type: "seg",
+                  opts: [["islands", "Islands"], ["full", "Full bar"], ["floating", "Floating"]] },
+                { key: "barHeight", label: "Height", type: "seg", opts: [[32, "32"], [36, "36"], [40, "40"]] },
+                { key: "barAccent", label: "Accent", help: "Auto: the panel's. Or any color of the wallpaper's palette", type: "swatches" } ] },
+            { title: "Modules", rows: [
+                { key: "barLeft", label: "Left", type: "chips", opts: [["logo", "Logo"], ["workspaces", "Workspaces"], ["window", "Window title"]] },
+                { key: "barCenter", label: "Center", help: "The island stays at the exact center of the screen", type: "chips",
+                  opts: [["bell", "Notifications"], ["island", "Island"], ["caffeine", "Caffeine"]] },
+                { key: "barRight", label: "Right", help: "Click the stats, network or battery for the system popup", type: "chips",
+                  opts: [["tray", "Tray"], ["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", "Temp"], ["wifi", "Wi-Fi"],
+                         ["bluetooth", "Bluetooth"], ["battery", "Battery"], ["power", "Power"]] } ] },
+            { title: "Workspaces and clock", rows: [
+                { key: "barEmptyWs", label: "Empty workspaces", type: "seg", opts: [["hide", "Hide"], ["show", "Show 1–5"]] },
+                { key: "barWsIcons", label: "Icons of the apps on each workspace", type: "switch" },
+                { key: "barDate", label: "Date next to the time", type: "switch" },
+                { key: "bar24h", label: "24-hour clock", type: "switch" } ] } ] },
         { id: "notifications", icon: "", label: "Notifications", lead: "Where popups appear, quiet hours and history.", groups: [
             { title: "Look", rows: [
                 { key: "notifTheme", label: "Colors", help: "Of the popups. Critical ones keep their dark look", type: "select",

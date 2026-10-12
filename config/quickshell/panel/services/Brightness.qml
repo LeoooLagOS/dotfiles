@@ -4,7 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Screen brightness through brightnessctl. value is 0..1
+// Screen brightness through brightnessctl. value is 0..1; read every 5 s while
+// the panel or the bar's system popup is open
 Singleton {
     id: root
     property real value: 0
@@ -27,7 +28,7 @@ Singleton {
 
     Timer {
         interval: 5000
-        running: PanelState.open
+        running: PanelState.open || BarState.popupOn !== ""
         repeat: true
         triggeredOnStart: true
         onTriggered: if (!proc.running) proc.running = true

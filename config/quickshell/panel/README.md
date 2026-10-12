@@ -32,6 +32,25 @@ QML edits reload live. Full restart: `systemctl --user restart quickshell-panel`
 
 ---
 
+## Bar
+
+The top bar (`TopBar.qml`, `bar/`, `services/BarState.qml`) replaces waybar.
+Islands style by default: each group floats like the panel's cards (blurred),
+and the island at the center is the only solid, near-black piece.
+
+| Zone | Modules |
+|---|---|
+| Left | distro logo (click: system menu `scripts/wm/RofiSystemMenu.sh`, Win+X style · right click: Settings → Bar) · workspaces with the icons of their apps (click, wheel) · the focused window's app and title |
+| Center | notifications (count · click: the Notifications tab · right click: Do Not Disturb) · **island** · caffeine |
+| Right | tray, folded behind ‹ · CPU, RAM, disk, temperature · Wi-Fi, Bluetooth, battery · power menu |
+
+- **Island** (`bar/Island.qml`): date · time; while a player plays, its art and an equalizer around the time; hovering it with a track grows it down with the art, title, progress (click to seek) and controls; recording shows a red dot and the time (click stops it); short messages for Do Not Disturb, caffeine, volume. Click: the panel · wheel: output volume.
+- **Readings**: neutral while normal, amber / red past CPU/RAM 80 %, disk 90 %, temperature 80 °C. Hovering one shows its details and the last minute (`bar/BarTip.qml`; `SystemStats` polls every 2 s while the bar shows a reading).
+- **System popup** (`bar/SystemPopup.qml`): click the readings, network or battery. Who and uptime, lock / power / settings, the four readings with bars, volume and brightness, tiles (Wi-Fi, Bluetooth, output, microphone, night light, dark mode; › opens the detail in Controls). Closes on a click outside or Esc.
+- **Settings → Bar**: use this bar or waybar, style (islands · full bar · floating), height, accent (Auto or a wallust color), modules per zone, empty workspaces, app icons, date, 24-hour clock.
+- **Which bar**: `~/.config/lagos/bar` (`quickshell` | `waybar`), written by `scripts/wm/BarSwitch.sh`; `WaybarStartup.sh` and `Refresh.sh` don't start waybar unless it says `waybar`. SUPER CTRL ALT B (IPC `barToggle`) hides / shows the bar for now.
+- Layer `quickshell:bar` is taller than the bar (the island and details draw below it); only the groups take input (mask) and only the bar's height is reserved. Blur: layer rules `quickshell:bar` and `quickshell:bar-popup`, following the panel's blur switch.
+
 ## Keyboard
 
 The panel works without a mouse. Open it with `SUPER ALT + N` (Overview) or
