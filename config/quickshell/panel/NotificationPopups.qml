@@ -59,8 +59,10 @@ Scope {
 
                     WlrLayershell.namespace: "quickshell:notifications"
                     WlrLayershell.layer: WlrLayer.Overlay
-                    // Typing a quick reply needs the keyboard
-                    WlrLayershell.keyboardFocus: Notifs.replying > 0 ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+                    // Typing a quick reply needs the keyboard: all of it while the box
+                    // is open (on demand would wait for one more click), Esc gives it back
+                    WlrLayershell.keyboardFocus: Notifs.replying > 0 && items.some(n => n.id === Notifs.replyingId)
+                                                 ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
                     Column {
                         id: stack

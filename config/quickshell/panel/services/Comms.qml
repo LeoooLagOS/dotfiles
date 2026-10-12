@@ -205,10 +205,14 @@ Singleton {
     function reply(n, text) {
         text = String(text ?? "").trim();
         if (!n || !text) return false;
-        if (n.hasInlineReply) { n.sendInlineReply(text); return true; }
+        // What was decided, for the panel's log (journalctl --user -u quickshell-panel); no message text
+        const why = m => console.info("quick reply:", m, "| app", n.appName, "| entry", n.desktopEntry,
+                                      "| actions", (n.actions ?? []).map(a => a.identifier).join(","));
+        if (n.hasInlineReply) { why("inline"); n.sendInlineReply(text); return true; }
         const d = defs.find(x => isFrom(x, n));
         const w = d ? mainOf(d) : null;
-        if (!w) return false;
+        if (!w) { why(d ? "no window for " + d.key : "not from a dock app"); return false; }
+        why("paste into " + d.key + (prepared[n.id] ? ", chat opened " + (Date.now() - prepared[n.id]) + " ms ago" : ", chat not opened yet"));
         // Not opened yet (or long ago): open it now and give it time
         const ready = prepared[n.id] && Date.now() - prepared[n.id] > 600;
         if (!prepared[n.id]) prepareReply(n);

@@ -19,10 +19,19 @@ Rectangle {
     // keyboard while it's open (Notifs.replying) and wait instead of hiding
     readonly property bool canReply: !compact && Comms.canReply(notif)
     property bool replying: false
-    onReplyingChanged: Notifs.replying += replying ? 1 : -1
+    onReplyingChanged: { Notifs.replying += replying ? 1 : -1; if (replying) Notifs.replyingId = notif?.id ?? null; }
     Component.onDestruction: if (replying) Notifs.replying -= 1
+    // For the log: whether a message's popup offers Reply, and why not (no text)
+    function logReply() {
+        if (popup && notif && Notifs.placeKind(notif) === "message")
+            console.info("quick reply offered:", canReply, "| app", notif.appName, "| entry", notif.desktopEntry,
+                         "| from", Comms.defs.filter(d => Comms.isFrom(d, notif)).map(d => d.key).join(",") || "-",
+                         "| actions", (notif.actions ?? []).map(a => a.identifier).join(","), "| inline", !!notif.hasInlineReply);
+    }
     function sendReply() {
         if (Comms.reply(notif, replyField.text)) { replying = false; notif.dismiss(); }
+        else Quickshell.execDetached(["notify-send", "-a", "Panel", "-i", "dialog-warning", "Couldn't send the reply",
+                                      "Open the app to answer (" + Notifs.appLabel(notif) + ")"]);
     }
     readonly property bool critical: notif?.urgency === NotificationUrgency.Critical
 
@@ -59,7 +68,7 @@ Rectangle {
     // Starts at the replaced notification's level and animates to this one's
     property real barLevel: Notifs.levelFrom[notif?.id] ?? level
     Behavior on barLevel { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-    Component.onCompleted: barLevel = Qt.binding(() => card.level)
+    Component.onCompleted: { barLevel = Qt.binding(() => card.level); logReply(); }
     implicitHeight: isLevel ? levelRow.implicitHeight + 22 : content.implicitHeight + (compact ? 16 : 24)
     radius: compact ? 12 : 18
     color: critical ? critBg : (popup ? Theme.bg : Theme.bgAlt)
