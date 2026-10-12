@@ -144,6 +144,22 @@ bind("SUPER ALT", "I", exec_cmd("qs -c panel ipc call panel caffeine"), { descri
 -- services/Comms.qml; each app in its own special workspace)
 bind("SUPER", "Y", exec_cmd("qs -c panel ipc call panel comms"), { description = "communication apps: WhatsApp, Thunderbird, Teams with a dock (show / hide)" })
 bind("SUPER SHIFT", "Y", exec_cmd("qs -c panel ipc call panel commsDock"), { description = "communication apps: the keyboard to the dock (←/→, Enter, 1–9, Esc)" })
+-- Inside one of them (its window in special:comms-*), CTRL TAB / CTRL SHIFT TAB
+-- go to the next / previous app of the dock; anywhere else the keys go on to
+-- the window as usual (browser tabs…)
+local function comms_cycle(ipc, mods)
+  return function()
+    local w = hl.get_active_window and hl.get_active_window()
+    local ws = w and w.workspace
+    if ws and type(ws.name) == "string" and ws.name:match("^special:comms%-") then
+      hl.exec_cmd("qs -c panel ipc call panel " .. ipc)
+    else
+      hl.dispatch(hl.dsp.send_shortcut({ mods = mods, key = "Tab" }))
+    end
+  end
+end
+bind("CTRL", "Tab", comms_cycle("commsNext", "CTRL"), { description = "communication apps: next app (elsewhere: CTRL TAB as usual)" })
+bind("CTRL SHIFT", "Tab", comms_cycle("commsPrev", "CTRL SHIFT"), { description = "communication apps: previous app (elsewhere: CTRL SHIFT TAB as usual)" })
 bind("SUPER ALT", "Print", exec_cmd("qs -c panel ipc call panel record"), { description = "screen recording start / stop (gpu-screen-recorder)" })
 bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
 

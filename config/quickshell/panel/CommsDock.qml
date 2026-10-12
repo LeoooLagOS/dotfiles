@@ -12,7 +12,8 @@ import "./services"
 // running); the shown one hides them (as does SUPER Y).
 // Keyboard (SUPER SHIFT Y, Comms.dockFocus): the dock rises and takes it;
 // ←/→ or Tab choose, Enter / Space open, 1–9 by position, R reload (a web
-// app), Shift+R restart, Esc back to the app.
+// app), Shift+R restart, Esc back to the app. From inside an app, CTRL TAB /
+// CTRL SHIFT TAB go to the next / previous one (Comms.cycle).
 // Right click on an icon: Reload (web apps) · Restart · Quit, for an app that
 // hangs (Comms.reload / restart / quit; restarting shows on its icon).
 // The app above fills the screen down to the dock: its special workspace has

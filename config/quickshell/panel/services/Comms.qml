@@ -172,6 +172,13 @@ Singleton {
         show(defs.some(d => d.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? defs[0]?.key ?? ""));
     }
     function pick(key) { key === shown ? hide() : show(key); }
+    // CTRL TAB / CTRL SHIFT TAB inside an app (UserConfigs/user_keybinds.lua):
+    // the next / previous one in the dock's order, round
+    function cycle(step) {
+        if (!shown || defs.length < 2) return;
+        const i = defs.findIndex(d => d.key === shown);
+        show(defs[(i + step + defs.length) % defs.length].key);
+    }
     // SUPER SHIFT Y: the keyboard to the dock (showing an app first if none is)
     function focusDock() {
         if (!defs.length) return;

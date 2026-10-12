@@ -56,6 +56,9 @@ ShellRoot {
         function commsStart(): void { Comms.startAll(); }
         // The keyboard to the dock: ←/→, Enter, 1–9, Esc (SUPER SHIFT Y)
         function commsDock(): void { Comms.focusDock(); }
+        // Next / previous app while one is up (CTRL TAB / CTRL SHIFT TAB)
+        function commsNext(): void { Comms.cycle(1); }
+        function commsPrev(): void { Comms.cycle(-1); }
         // Caffeine on/off (SUPER ALT I)
         function caffeine(): string { Toggles.setCaffeine(!Toggles.caffeine, 0); return Toggles.caffeine ? "on" : "off"; }
         // Colors: `themeMode light|dark|system`, `toggleInverted`, `currentTheme`
