@@ -6,6 +6,7 @@ Rectangle {
     id: root
     property alias icon: glyph.text
     property alias iconSize: glyph.font.pixelSize
+    property alias iconRotation: glyph.rotation
     property bool active: false
     property color iconColor: active ? Theme.accentText : Theme.fg
     signal clicked()

@@ -51,6 +51,8 @@ ShellRoot {
         function radio(): string { Radio.toggle(); return Radio.active ? "stopping" : "playing " + (Radio.current?.name ?? ""); }
         // WhatsApp / Thunderbird with the dock, show / hide (SUPER Y; services/Comms.qml)
         function comms(): void { Comms.toggle(); }
+        // Open every Comms dock app, hidden (at login: scripts/wm/CommsStartup.sh)
+        function commsStart(): void { Comms.startAll(); }
         // Caffeine on/off (SUPER ALT I)
         function caffeine(): string { Toggles.setCaffeine(!Toggles.caffeine, 0); return Toggles.caffeine ? "on" : "off"; }
         // Colors: `themeMode light|dark|system`, `toggleInverted`, `currentTheme`

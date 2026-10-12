@@ -5,15 +5,17 @@ import "./common"
 import "./services"
 
 // Dock under the communication apps (services/Comms.qml), like macOS's: shown
-// on a monitor while one of them is up (SUPER Y). An icon per app — a dot
+// on a monitor while one of them is up (SUPER Y). It rests half hidden below
+// the screen edge (the app gets that room) and rises while the mouse is on it. An icon per app — a dot
 // under the running ones, the unread count, the shown one highlighted;
 // hovering grows it and names it. Click: switch to it (it starts if it isn't
 // running); the shown one hides them (as does SUPER Y).
 // The app above fills the screen down to the dock: its special workspace has
-// a bottom gap (UserConfigs/user_window_rules.lua) matching `bottomGap`.
+// a bottom gap (UserConfigs/user_window_rules.lua) of `peek` + 6 px.
 Scope {
     readonly property int iconSize: 48
     readonly property int pad: 12
+    readonly property int peek: 40            // what shows of the dock at rest
 
     Variants {
         model: Quickshell.screens
@@ -28,10 +30,16 @@ Scope {
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             anchors.bottom: true
-            margins.bottom: 12
-            // Room above the dock for the grown icon and its name
+            // Room above the raised dock for the grown icon and its name
             implicitWidth: dock.width + 80
-            implicitHeight: dock.height + 56
+            implicitHeight: dock.height + 10 + 56
+
+            // Raised while hovered; lowered a moment after the mouse leaves
+            property bool raised: false
+            readonly property bool hovering: dockHover.hovered
+            onHoveringChanged: if (hovering) { lowerTimer.stop(); raised = true; } else lowerTimer.restart()
+            onUpChanged: if (!up) raised = false
+            Timer { id: lowerTimer; interval: 450; onTriggered: win.raised = false }
 
             WlrLayershell.namespace: "quickshell:dock"
             WlrLayershell.layer: WlrLayer.Top
@@ -42,8 +50,9 @@ Scope {
             Rectangle {
                 id: dock
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: win.up ? parent.height - height : parent.height + 8
-                Behavior on y { NumberAnimation { id: hideAnim; duration: 180; easing.type: Easing.OutCubic } }
+                y: !win.up ? parent.height + 8 : win.raised ? parent.height - height - 10 : parent.height - peek
+                Behavior on y { NumberAnimation { id: hideAnim; duration: 200; easing.type: Easing.OutCubic } }
+                HoverHandler { id: dockHover }
                 width: row.width + 2 * 10
                 height: 72
                 radius: 22

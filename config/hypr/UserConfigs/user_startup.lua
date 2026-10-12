@@ -98,8 +98,8 @@ local startup_commands = {
   "systemctl --user start quickshell-panel.service",
   -- Battery level notifications (50%, 20%, 10%, 5%)
   "$HOME/.config/hypr/UserScripts/BatteryNotify.sh",
-  -- Teams (tray), WhatsApp web app and Thunderbird (hidden workspace
-  -- special:comms-<app>, SUPER Y with the panel's dock) running so their notifications arrive
+  -- The panel's Comms dock apps (WhatsApp, Thunderbird, Teams…: Settings → Comms
+  -- dock), each hidden in special:comms-<app>, SUPER Y; running so their notifications arrive
   "$HOME/.config/hypr/scripts/CommsStartup.sh",
   -- Icons of the web apps installed from Brave (their launchers point inside
   -- Brave's sandbox): Rofi and the panel's notifications show them

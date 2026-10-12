@@ -173,9 +173,7 @@ apply_window_rule({
   center = true,
 })
 
--- Communication apps (scripts/wm/CommsStartup.sh, the panel's CommsDock.qml):
--- each in its own special workspace, filling the screen above the dock
--- (72 px tall, 12 px from the bottom edge, 8 px of air)
-for _, key in ipairs({ "whatsapp", "mail" }) do
-  hl.workspace_rule({ workspace = "special:comms-" .. key, gaps_out = { top = 6, right = 6, bottom = 92, left = 6 } })
-end
+-- Communication apps (the panel's services/Comms.qml, CommsDock.qml): each in
+-- its own special workspace special:comms-<app>, filling the screen above the
+-- dock, of which only the top half shows until hovered (40 px + 6 px of air)
+hl.workspace_rule({ workspace = "n[s:special:comms-]", gaps_out = { top = 6, right = 6, bottom = 46, left = 6 } })

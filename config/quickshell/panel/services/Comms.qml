@@ -9,50 +9,80 @@ import "../common"
 // Communication apps kept running out of sight (so their notifications
 // arrive), each in its own hidden Hyprland workspace special:comms-<key>, and
 // the dock (CommsDock.qml) to reach them: SUPER Y shows the last one used with
-// the dock below; a dock icon switches app; the shown one (or SUPER Y) hides it.
-// Each special workspace has a bottom gap for the dock (UserConfigs/user_window_rules.lua),
-// so the app fills the rest of the screen. Apps not running are started by
-// scripts/wm/CommsStartup.sh <key>, which also runs them all at login.
-//   apps      [{ key, name, icon, running, address, badge }]
+// the dock below; a dock icon switches app (starting it if it isn't running);
+// the shown one (or SUPER Y) hides it.
+// Which apps: Settings → Comms dock (Settings.v.commsApps: desktop entry ids,
+// or "name:<Name>" for one whose id differs per machine, like a browser web app).
+// Every special:comms-* workspace has a bottom gap for the dock
+// (UserConfigs/user_window_rules.lua), so the app fills the rest of the screen.
+// At login scripts/wm/CommsStartup.sh calls startAll(): each app opens hidden.
+//   apps      [{ ref, key, name, icon, running, address, badge }] (installed ones)
+//   missing   refs in the setting that aren't installed
 //   shownOn   { monitor name: key } — the app shown on each monitor
-//   toggle() · show(key) · hide() · showFor(notification)
+//   toggle() · show(key) · hide() · pick(key) · showFor(notification) · startAll()
 Singleton {
     id: root
 
-    readonly property string startup: Quickshell.env("HOME") + "/.config/hypr/scripts/CommsStartup.sh"
-    // Which windows are each app's: class, and for a web app its title (every
-    // Brave web app has a class brave-<id>-Default); `main` picks the main window
-    // when an app has several (Thunderbird's reminders and composer stay where they are)
-    readonly property var defs: [
-        { key: "whatsapp", name: "WhatsApp", cls: /^(brave-.+-Default|crx_.+)$/, title: /WhatsApp/,
-          main: /WhatsApp/, iconName: "", webApp: "WhatsApp" },
-        { key: "mail", name: "Thunderbird", cls: /^(net\.thunderbird\.Thunderbird|thunderbird)$/, title: /Thunderbird/,
-          main: /Mozilla Thunderbird$|Thunderbird$/, iconName: "thunderbird", webApp: "" }
-    ]
+    // Suggested in Settings when installed (desktop id or "name:…" as above)
+    readonly property var suggested: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux",
+        "org.telegram.desktop", "dev.vencord.Vesktop", "com.discordapp.Discord", "com.slack.Slack", "org.signal.Signal",
+        "im.riot.Riot", "name:Google Meet"]
 
     property var clients: []                  // hyprctl clients -j
     property var shownOn: ({})                // monitor → key
-    property string last: "whatsapp"          // shown by SUPER Y
+    property string last: ""                  // shown by SUPER Y
     property var seenAt: ({})                 // key → when last shown (for the badge)
+    property var pending: ({})                // key → { show, since }: started, waiting for its window
 
-    function windowsOf(d) {
-        return clients.filter(c => d.cls.test(c.class) && (d.title.test(c.initialTitle || "") || d.title.test(c.title || "")));
+    // ---------------- The apps ----------------
+    function entryOf(ref) {
+        if (!ref) return null;
+        const all = DesktopEntries.applications.values;
+        if (ref.startsWith("name:")) return all.find(e => e.name === ref.slice(5)) ?? null;
+        return DesktopEntries.byId(ref) ?? all.find(e => e.id.toLowerCase() === ref.toLowerCase()) ?? null;
     }
+    function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+    // Window classes of an entry: its StartupWMClass and id; a Brave/Chrome web
+    // app (crx_<id>) is brave-<id>-Default / chrome-<id>-Default on Wayland
+    function classesOf(e) {
+        const out = [e.startupClass, e.id, e.id.split(".").pop()].filter(x => x).map(x => x.toLowerCase());
+        const m = /^crx_(.+)$/i.exec(e.startupClass || "");
+        if (m) out.push(("brave-" + m[1] + "-default").toLowerCase(), ("chrome-" + m[1] + "-default").toLowerCase());
+        return out;
+    }
+    // Short name for the dock: "WhatsApp Web" → "WhatsApp", "Teams for Linux" → "Teams"
+    function shortName(n) { return String(n).replace(/\s+(Web|for Linux|Desktop)$/i, ""); }
+    function iconOf(e) {
+        const ic = e.icon || "";
+        if (ic.startsWith("/")) return "file://" + ic;
+        return Quickshell.iconPath(ic, true) || Quickshell.iconPath(e.id, true);
+    }
+
+    readonly property var defs: (Settings.v.commsApps ?? []).map(ref => {
+        const e = entryOf(ref);
+        return e ? { ref: ref, entry: e, key: slug(shortName(e.name)), name: shortName(e.name), classes: classesOf(e) } : null;
+    }).filter(d => d)
+    readonly property var missing: (Settings.v.commsApps ?? []).filter(ref => !entryOf(ref))
+
+    function windowsOf(d) { return clients.filter(c => d.classes.includes(String(c.class).toLowerCase())); }
+    // The main window: the one already in its workspace, else the one titled
+    // with the app's name ("Mozilla Thunderbird", not "Calendar Reminders"),
+    // tiled rather than floating (dialogs), the biggest
     function mainOf(d) {
-        const ws = windowsOf(d);
-        return ws.find(c => c.workspace.name === "special:comms-" + d.key) ?? ws.find(c => d.main.test(c.title)) ?? ws[0] ?? null;
+        const word = d.name.split(/\s+/)[0].toLowerCase();
+        const score = c => (c.workspace.name === "special:comms-" + d.key ? 8 : 0)
+                         + (((c.initialTitle || "") + " " + (c.title || "")).toLowerCase().includes(word) ? 4 : 0)
+                         + (c.floating ? 0 : 2);
+        return windowsOf(d).sort((a, b) => score(b) - score(a) || b.size[0] * b.size[1] - a.size[0] * a.size[1])[0] ?? null;
     }
-    function iconOf(d) {
-        if (d.webApp) {
-            const a = Notifs.webApps.find(w => w.name.toLowerCase().startsWith(d.webApp.toLowerCase()));
-            if (a?.icon) return a.icon.startsWith("file://") ? a.icon : Quickshell.iconPath(a.icon, true);
-        }
-        return d.iconName ? Quickshell.iconPath(d.iconName, true) : "";
-    }
-    // Notifications from this app since it was last shown
+    // Notifications from this app: its desktop entry, or its name in the app name
     function isFrom(d, n) {
-        if (d.key === "mail") return !!Notifs.mailOf(n);
-        return Notifs.webService(n)?.name === d.webApp || (n.appName || "").toLowerCase().startsWith(d.webApp.toLowerCase());
+        if (!n) return false;
+        if (n.desktopEntry && n.desktopEntry === d.entry.id) return true;
+        const word = d.name.split(/\s+/)[0].toLowerCase();
+        if (word === "thunderbird") return !!Notifs.mailOf(n);
+        const app = ((n.appName || "") + " " + (n.desktopEntry || "")).toLowerCase();
+        return word.length > 2 && (app.includes(word) || (Notifs.webService(n)?.name ?? "").toLowerCase() === word);
     }
     function unseen(d) {
         const since = seenAt[d.key] ?? 0;
@@ -61,9 +91,9 @@ Singleton {
 
     readonly property var apps: defs.map(d => {
         const w = mainOf(d);
-        // WhatsApp puts the unread count in its title: "(3) WhatsApp"
+        // Web apps put the unread count in the title: "(3) WhatsApp"
         const m = /^\((\d+)\)/.exec(w?.title ?? "");
-        return { key: d.key, name: d.name, icon: iconOf(d), running: !!w, address: w?.address ?? "",
+        return { ref: d.ref, key: d.key, name: d.name, icon: iconOf(d.entry), running: !!w, address: w?.address ?? "",
                  badge: m ? Number(m[1]) : unseen(d) };
     })
     readonly property string focusedMonitor: Hyprland.focusedMonitor?.name ?? ""
@@ -71,8 +101,24 @@ Singleton {
     // SUPER Y brings back the last one seen, however it was shown
     onShownChanged: if (shown) { last = shown; markSeen(shown); }
 
+    // ---------------- Actions ----------------
     function dispatch(expr) { Quickshell.execDetached(["hyprctl", "dispatch", expr]); }
     function markSeen(key) { const s = Object.assign({}, seenAt); s[key] = Date.now(); seenAt = s; }
+    function moveIn(d, w, focus) {
+        const ws = "special:comms-" + d.key;
+        if (w.workspace.name !== ws)
+            dispatch(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${w.address}" })`);
+        // Focusing a window in a hidden special workspace shows it (and hides another one)
+        if (focus) dispatch(`hl.dsp.focus({ window = "address:${w.address}" })`);
+    }
+    function launch(d, show) {
+        const p = Object.assign({}, pending);
+        p[d.key] = { show: show, since: Date.now() };
+        pending = p;
+        // Through Hyprland, so the app isn't a child of the panel's service
+        dispatch(`hl.dsp.exec_cmd("gtk-launch ${d.entry.id}")`);
+        pendingTimer.start();
+    }
 
     function show(key) {
         const d = defs.find(x => x.key === key);
@@ -80,20 +126,15 @@ Singleton {
         last = key;
         markSeen(key);
         const w = mainOf(d);
-        if (!w) {                                 // not running: start it, shown
-            Quickshell.execDetached([startup, key, "--show"]);
-            return;
-        }
-        const ws = "special:comms-" + key;
-        if (w.workspace.name !== ws)
-            dispatch(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${w.address}" })`);
-        // Focusing a window in a hidden special workspace shows it (and hides another one)
-        dispatch(`hl.dsp.focus({ window = "address:${w.address}" })`);
+        if (w) moveIn(d, w, true); else launch(d, true);
     }
     function hide() {
         if (shown) dispatch(`hl.dsp.workspace.toggle_special("comms-${shown}")`);
     }
-    function toggle() { shown ? hide() : show(last); }
+    function toggle() {
+        if (shown) { hide(); return; }
+        show(defs.some(d => d.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? defs[0]?.key ?? ""));
+    }
     function pick(key) { key === shown ? hide() : show(key); }
     // A notification clicked: if it's from one of these apps, bring it up
     function showFor(n) {
@@ -102,12 +143,56 @@ Singleton {
         PanelState.open = false;
         show(d.key);
     }
+    // At login: open each one, hidden
+    function startAll() {
+        for (const d of defs) {
+            const w = mainOf(d);
+            if (w) moveIn(d, w, false); else launch(d, false);
+        }
+    }
+    // An app taken out of the dock (Settings): its windows come back to the
+    // current workspace instead of staying hidden
+    onDefsChanged: releaseSoon.restart()
+    Timer {
+        id: releaseSoon
+        interval: 300
+        onTriggered: {
+            const keys = root.defs.map(d => d.key);
+            const ws = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1;
+            for (const c of root.clients) {
+                const name = c.workspace.name;
+                if (name.startsWith("special:comms-") && !keys.includes(name.slice("special:comms-".length)))
+                    root.dispatch(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${c.address}" })`);
+            }
+        }
+    }
+
+    // Started apps: once their window shows up, into their workspace
+    function settlePending() {
+        const p = Object.assign({}, pending);
+        let changed = false;
+        for (const key in p) {
+            const d = defs.find(x => x.key === key);
+            const w = d ? mainOf(d) : null;
+            if (w) { moveIn(d, w, p[key].show); delete p[key]; changed = true; }
+            else if (!d || Date.now() - p[key].since > 90000) { delete p[key]; changed = true; }
+        }
+        if (changed) pending = p;
+        if (Object.keys(p).length === 0) pendingTimer.stop();
+    }
+    // Polled while waiting: a window can take a while to get its final class
+    Timer { id: pendingTimer; interval: 700; repeat: true; onTriggered: root.refresh() }
 
     // ---------------- Hyprland state ----------------
     Process {
         id: clientsProc
         command: ["hyprctl", "-j", "clients"]
-        stdout: StdioCollector { onStreamFinished: { try { root.clients = JSON.parse(text); } catch (e) {} } }
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { root.clients = JSON.parse(text); } catch (e) { return; }
+                if (Object.keys(root.pending).length) root.settlePending();
+            }
+        }
     }
     Process {
         id: monitorsProc

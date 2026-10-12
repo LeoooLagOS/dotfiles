@@ -39,7 +39,9 @@ Singleton {
         nightTemp: 4500,
         recTarget: "screen", recAudio: "system", recFps: 60,     // screen recording (services/Recorder.qml)
         mediaMode: "player", radioStation: "Radio BUAP",         // Media tab: player / radio / library view (services/Radio.qml)
-        mediaLyrics: false                                       // Media tab: lyrics instead of the big title (services/Lyrics.qml)
+        mediaLyrics: false,                                      // Media tab: lyrics instead of the big title (services/Lyrics.qml)
+        // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
+        commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"]
     })
 
     property var v: defaults
@@ -156,6 +158,10 @@ Singleton {
                 { key: "popupSecs", label: "Popup duration", help: "Low urgency: half; critical: 30 s", type: "select",
                   opts: [[3, "3 s"], [6, "6 s"], [10, "10 s"], [0, "Until dismissed"]] },
                 { key: "history", label: "Keep in history", help: "Oldest ones are removed", type: "range", min: 10, max: 300, step: 10, unit: "" } ] } ] },
+        { id: "comms", icon: "\uf27a", label: "Comms dock",
+          lead: "Messaging and mail apps kept running out of sight, so their notifications arrive. SUPER Y shows them full screen above a dock.", groups: [
+            { title: "Apps", rows: [
+                { key: "commsApps", label: "In the dock", help: "Each opens hidden at login, in its own workspace. Remove one and its window comes back to the current workspace", type: "commsapps" } ] } ] },
         { id: "power", icon: "", label: "Power & idle", system: true,
           lead: "Idle timeouts (hypridle), battery alerts and the power profile.", groups: [
             { title: "When idle", rows: [

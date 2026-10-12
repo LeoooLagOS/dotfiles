@@ -25,7 +25,7 @@ plugins: fetchart embedart replaygain scrub info missing
 fetchart:
   auto: yes                 # cover.jpg in each album folder (the panel uses it)
   minwidth: 600
-  sources: filesystem coverart itunes amazon albumart
+  sources: [filesystem, coverart, itunes, amazon, albumart]
 
 embedart:
   auto: yes                 # and inside the files too

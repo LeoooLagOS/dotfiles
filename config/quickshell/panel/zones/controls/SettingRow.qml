@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import "../../common"
 import "../../services"
 
@@ -30,9 +31,9 @@ Item {
         Settings.set(row.key, chipOpts.map(o => o.value).filter(x => next.includes(x)));
     }
 
-    // apprules: label on top, the list of apps below (full width)
-    readonly property bool stacked: type === "apprules"
-    implicitHeight: stacked ? labels.implicitHeight + rules.implicitHeight + 28
+    // apprules / commsapps: label on top, the list of apps below (full width)
+    readonly property bool stacked: type === "apprules" || type === "commsapps"
+    implicitHeight: stacked ? labels.implicitHeight + (type === "apprules" ? rules : comms).implicitHeight + 28
                             : Math.max(46, Math.max(labels.implicitHeight, ctl.implicitHeight) + 18)
 
     Rectangle { visible: !root.first; width: parent.width; height: 1; color: Theme.border }
@@ -176,7 +177,7 @@ Item {
     }
     Column {
         id: rules
-        visible: root.stacked
+        visible: root.type === "apprules"
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: labels.bottom
@@ -218,6 +219,110 @@ Item {
                     listWidth: 210
                     onSelected: v => root.setRule(parent.modelData, v)
                 }
+            }
+        }
+    }
+
+    // ---------------- commsapps: the Comms dock's apps ----------------
+    // In dock order: icon, name, state; move up / down, remove. Below, "Add":
+    // suggested messaging apps that are installed, and apps with a window open
+    readonly property var commsRefs: type === "commsapps" ? [].concat(Settings.v.commsApps ?? []) : []
+    readonly property var commsCandidates: {
+        if (type !== "commsapps") return [];
+        const ids = commsRefs.map(r => Comms.entryOf(r)?.id).filter(x => x);
+        const out = [];
+        const add = (ref, e) => {
+            if (!e || e.noDisplay || ids.includes(e.id) || out.some(o => o.id === e.id)) return;
+            out.push({ value: ref, label: e.name, id: e.id });
+        };
+        for (const ref of Comms.suggested) add(ref, Comms.entryOf(ref));
+        for (const c of Comms.clients) add(DesktopEntries.heuristicLookup(c.class)?.id ?? "", DesktopEntries.heuristicLookup(c.class));
+        return [{ value: "", label: out.length ? "Add an app…" : "Nothing else to add", id: "" }].concat(out);
+    }
+    function moveComms(i, d) {
+        const a = commsRefs.slice(), j = i + d;
+        if (j < 0 || j >= a.length) return;
+        [a[i], a[j]] = [a[j], a[i]];
+        Settings.set(row.key, a);
+    }
+    Column {
+        id: comms
+        visible: root.type === "commsapps"
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: labels.bottom
+        anchors.topMargin: 8
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        spacing: 4
+        Label {
+            visible: root.commsRefs.length === 0
+            text: "No apps: SUPER Y does nothing."
+            dim: true
+            font.pixelSize: 12
+        }
+        Repeater {
+            model: root.commsRefs
+            delegate: Item {
+                id: commsLine
+                required property string modelData
+                required property int index
+                readonly property var entry: Comms.entryOf(modelData)
+                readonly property var app: Comms.apps.find(a => a.ref === modelData) ?? null
+                width: comms.width
+                height: 38
+                Image {
+                    id: commsIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 24; height: 24
+                    sourceSize: Qt.size(48, 48)
+                    source: commsLine.entry ? Comms.iconOf(commsLine.entry) : ""
+                    opacity: commsLine.entry ? 1 : 0.4
+                }
+                Column {
+                    anchors.left: commsIcon.right
+                    anchors.leftMargin: 10
+                    anchors.right: commsButtons.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    Label {
+                        width: parent.width
+                        text: commsLine.entry?.name ?? commsLine.modelData.replace(/^name:/, "")
+                        font.pixelSize: 13
+                        elide: Text.ElideRight
+                    }
+                    Label {
+                        text: !commsLine.entry ? "Not installed" : commsLine.app?.running ? "Running" : "Not running · opens when you pick it"
+                        dim: true
+                        font.pixelSize: 10
+                    }
+                }
+                Row {
+                    id: commsButtons
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 4
+                    IconButton { icon: "\uf077"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index > 0; opacity: enabled ? 1 : 0.3
+                                 onClicked: root.moveComms(commsLine.index, -1) }
+                    IconButton { icon: "\uf078"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index < root.commsRefs.length - 1; opacity: enabled ? 1 : 0.3
+                                 onClicked: root.moveComms(commsLine.index, 1) }
+                    IconButton { icon: "\uf00d"; iconSize: 11; implicitWidth: 28; implicitHeight: 26
+                                 onClicked: Settings.set(root.row.key, root.commsRefs.filter(r => r !== commsLine.modelData)) }
+                }
+            }
+        }
+        Item {
+            width: comms.width
+            height: 40
+            z: 10
+            Dropdown {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                options: root.commsCandidates
+                value: ""
+                listWidth: 260
+                enabled: root.commsCandidates.length > 1
+                onSelected: v => { if (v) Settings.set(root.row.key, root.commsRefs.concat([v])); }
             }
         }
     }

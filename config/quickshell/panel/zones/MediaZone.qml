@@ -122,6 +122,51 @@ Zone {
             }
         }
     }
+    // Side buttons, top to bottom: lyrics (the radio: record), audio output,
+    // volume. Placed on their own so they stay put whatever the view shows
+    Column {
+        id: sideButtons
+        parent: root
+        z: 5
+        visible: root.library ? Library.available : (!!root.player || root.radio)
+        x: root.width - width - Theme.zonePadding
+        y: Theme.zonePadding + 30 + 72          // below the mode buttons
+        spacing: 8
+
+        // Lyrics on / off (player and library)
+        IconButton {
+            visible: !root.radio
+            icon: "\u{f0370}"     // handheld microphone with its cable (karaoke)
+            iconSize: 17
+            iconRotation: 30
+            active: Settings.v.mediaLyrics
+            onClicked: Settings.set("mediaLyrics", !Settings.v.mediaLyrics)
+        }
+        // Radio: record the stream (Radio.toggleRecord → ~/Recordings)
+        IconButton {
+            visible: root.radio
+            enabled: Radio.active && !Radio.loading
+            opacity: enabled ? 1 : 0.4
+            icon: Radio.recording ? "\uf04d" : "\uf111"
+            iconSize: Radio.recording ? 11 : 12
+            active: Radio.recording
+            iconColor: Radio.recording ? Theme.accentText : Theme.critical
+            onClicked: Radio.toggleRecord()
+        }
+        IconButton {
+            id: outputButton
+            icon: "\u{f04c3}"     // speaker / audio output
+            active: root.popover === "output"
+            onClicked: { root.popover = root.popover === "output" ? "" : "output"; if (root.popover) outputFocus.start(); }
+        }
+        IconButton {
+            id: volumeButton
+            icon: (root.sinkAudio?.muted ?? false) ? "\uf026" : "\uf028"
+            active: root.popover === "volume"
+            onClicked: { root.popover = root.popover === "volume" ? "" : "volume"; if (root.popover) volumeFocus.start(); }
+        }
+    }
+
     Binding { target: Library; property: "watching"; value: root.visualize && root.library }
 
     // Empty state
@@ -198,18 +243,18 @@ Zone {
             ColumnLayout {
                 visible: root.lyrics
                 Layout.fillWidth: true
+                Layout.topMargin: 12
                 Layout.rightMargin: chipFlow.visible ? 0 : chipFlow.Layout.rightMargin   // beside the mode buttons
                 spacing: 2
                 Label { text: root.titleText; color: Theme.accent; font.pixelSize: 17; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
                 Label { text: [root.artistText, root.albumText].filter(x => x).join("  ·  "); dim: true; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true; visible: text !== "" }
             }
 
-            Item { Layout.fillHeight: true; visible: !root.lyrics }
+            Item { Layout.fillHeight: true }
 
             // Track info (or lyrics) + side buttons (volume, output, lyrics / record)
             RowLayout {
                 Layout.fillWidth: true
-                Layout.fillHeight: root.lyrics
                 spacing: 16
 
                 ColumnLayout {
@@ -246,7 +291,7 @@ Zone {
                 Item {
                     visible: root.lyrics
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: 168       // about five lines
                     clip: true
 
                     Label {
@@ -272,8 +317,8 @@ Zone {
                         boundsBehavior: Flickable.StopAtBounds
                         currentIndex: Lyrics.index
                         highlightRangeMode: Lyrics.synced ? ListView.ApplyRange : ListView.NoHighlightRange
-                        preferredHighlightBegin: height * 0.35
-                        preferredHighlightEnd: height * 0.35 + 40
+                        preferredHighlightBegin: height * 0.3
+                        preferredHighlightEnd: height * 0.3 + 48
                         highlightMoveDuration: 450
                         // A new song starts at the top
                         onModelChanged: positionViewAtBeginning()
@@ -288,7 +333,7 @@ Zone {
                             wrapMode: Text.Wrap
                             color: current ? Theme.accent : Theme.fg
                             opacity: !Lyrics.synced ? 0.85 : current ? 1 : past ? 0.35 : 0.6
-                            font.pixelSize: current ? 19 : 16
+                            font.pixelSize: current ? 23 : 19
                             font.weight: current ? Font.Bold : Font.DemiBold
                             Behavior on opacity { NumberAnimation { duration: 250 } }
                             MouseArea {
@@ -301,45 +346,11 @@ Zone {
                     }
                 }
 
-                ColumnLayout {
-                    id: sideButtons
-                    Layout.alignment: Qt.AlignVCenter
-                    spacing: 8
-
-                    IconButton {
-                        id: volumeButton
-                        icon: (root.sinkAudio?.muted ?? false) ? "\uf026" : "\uf028"
-                        active: root.popover === "volume"
-                        onClicked: { root.popover = root.popover === "volume" ? "" : "volume"; if (root.popover) volumeFocus.start(); }
-                    }
-                    IconButton {
-                        id: outputButton
-                        icon: "\u{f04c3}"     // speaker / audio output
-                        active: root.popover === "output"
-                        onClicked: { root.popover = root.popover === "output" ? "" : "output"; if (root.popover) outputFocus.start(); }
-                    }
-                    // Lyrics on / off (player and library; the radio has record here)
-                    IconButton {
-                        visible: !root.radio
-                        icon: "\uf130"     // microphone
-                        active: Settings.v.mediaLyrics
-                        onClicked: Settings.set("mediaLyrics", !Settings.v.mediaLyrics)
-                    }
-                    // Radio: record the stream (Radio.toggleRecord → ~/Recordings)
-                    IconButton {
-                        visible: root.radio
-                        enabled: Radio.active && !Radio.loading
-                        opacity: enabled ? 1 : 0.4
-                        icon: Radio.recording ? "\uf04d" : "\uf111"
-                        iconSize: Radio.recording ? 11 : 12
-                        active: Radio.recording
-                        iconColor: Radio.recording ? Theme.accentText : Theme.critical
-                        onClicked: Radio.toggleRecord()
-                    }
-                }
+                // Room for the side buttons (placed on their own, below)
+                Item { implicitWidth: sideButtons.width }
             }
 
-            Item { Layout.fillHeight: true; visible: !root.lyrics }
+            Item { Layout.fillHeight: true }
 
             // Transport controls
             RowLayout {

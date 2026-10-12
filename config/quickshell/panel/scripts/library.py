@@ -15,7 +15,7 @@ and prints JSON. No dependencies besides ffmpeg (embedded covers).
 Covers: cover/folder/front.(jpg|png) in the album's folder, else the picture
 embedded in the first file, extracted once to ~/.cache/quickshell-panel/covers.
 The album list is cached in ~/.cache/quickshell-panel/library.json and rebuilt
-when MPD's database changes (db_update).
+when MPD's database changes (db_update, song count).
 """
 
 import glob
@@ -72,6 +72,8 @@ class MPD:
             if k == "file":
                 cur = {"file": v}
                 songs.append(cur)
+            elif k in ("directory", "playlist"):
+                cur = None           # not a song: what follows isn't the last song's
             elif cur is not None and k not in cur:
                 cur[k] = v
         return songs
@@ -136,7 +138,10 @@ def cover_for(song_file):
 # ---------------------------------------------------------------- commands
 
 def albums(mpd):
-    db = dict(mpd.cmd("stats")).get("db_update", "")
+    # MPD's last update time and song count: a list read mid-update (auto_update
+    # while files arrive) has the same time but fewer songs
+    st = dict(mpd.cmd("stats"))
+    db = f'{st.get("db_update", "")}:{st.get("songs", "")}'
     if ALBUMS_CACHE.is_file():
         try:
             cached = json.loads(ALBUMS_CACHE.read_text())
@@ -146,8 +151,6 @@ def albums(mpd):
             pass
     groups = {}
     for s in mpd.songs("listallinfo"):
-        if "directory" in s:
-            continue
         artist = s.get("AlbumArtist") or s.get("Artist") or "Unknown artist"
         album = s.get("Album") or Path(s["file"]).parent.name or "Unknown album"
         groups.setdefault((artist, album), []).append(s)
