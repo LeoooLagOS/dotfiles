@@ -21,14 +21,26 @@ theme_icon() {
   esac
 }
 have_theme_icon() { compgen -G "/usr/share/icons/*/*/apps/$1.*" >/dev/null || compgen -G "/usr/share/icons/*/apps/*/$1.*" >/dev/null; }
+# The icon may only be in a theme that isn't the active one (WhatsApp: Papirus,
+# not breeze-dark): a copy in hicolor, which every theme falls back to, makes
+# Rofi and the panel find it whatever the theme
+to_hicolor() {
+  local dest="$icons/scalable/apps/$1.svg" src
+  [ -f "$dest" ] && return 0
+  for src in /usr/share/icons/*/64x64/apps/"$1".svg /usr/share/icons/*/scalable/apps/"$1".svg; do
+    [ -f "$src" ] || continue
+    mkdir -p "$(dirname "$dest")" && cp -L "$src" "$dest" && changed=1
+    return 0
+  done
+}
 
 for f in "$apps"/*flextop*.desktop "$apps"/chrome-*.desktop; do
   [ -f "$f" ] || continue
   icon=$(grep -m1 '^Icon=' "$f" | cut -d= -f2-)
   t=$(theme_icon "$(grep -m1 '^Name=' "$f" | cut -d= -f2-)")
-  if [ -n "$t" ] && [ "$icon" != "$t" ] && have_theme_icon "$t"; then
-    sed -i "s|^Icon=.*|Icon=$t|" "$f"
-    changed=1
+  if [ -n "$t" ] && have_theme_icon "$t"; then
+    to_hicolor "$t"
+    [ "$icon" = "$t" ] || { sed -i "s|^Icon=.*|Icon=$t|" "$f"; changed=1; }
     continue
   fi
   case $icon in
