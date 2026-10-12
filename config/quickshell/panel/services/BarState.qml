@@ -63,6 +63,43 @@ Singleton {
     function togglePopup(monitor) { popupOn = popupOn === monitor ? "" : monitor; }
     Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) root.popupOn = ""; } }
 
+    // ---------------- Messages on the island ----------------
+    // Instead of a popup (services/Notifs.qml arrive): what it shows is copied
+    // now, since the app may close its notification any moment (WhatsApp does);
+    // `notif` stays for Reply / Open while it lives. Same chat again: counted.
+    // Hovering the island holds it (messageHold).
+    readonly property bool takesMessages: enabled && !!Settings.v.barIslandMessages && shown("island")
+    property var message: null              // { notif, who, body, photo, icon, app, key, count }
+    property bool messageHold: false
+    function showMessage(n) {
+        const key = Notifs.conversationOf(n);
+        const same = message && message.key === key;
+        message = { notif: n, who: Notifs.titleOf(n), body: Notifs.plain(Notifs.bodyOf(n)).replace(/\s+/g, " ").trim(),
+                    photo: Settings.v.msgPicture !== "icon" ? Notifs.photoOf(n) : "", icon: Notifs.appIconOf(n),
+                    app: Notifs.appLabel(n), key: key, count: same ? message.count + 1 : 1 };
+        messageTimer.restart();
+    }
+    function clearMessage() { message = null; messageHold = false; }
+    Timer { id: messageTimer; interval: 6000; onTriggered: if (root.messageHold) restart(); else root.message = null }
+    // The notification may be gone (closed by its app): then only Open's dock part works
+    function messageNotif() { try { return message?.notif && message.notif.id !== undefined ? message.notif : null; } catch (e) { return null; } }
+    function openMessage() {
+        const n = messageNotif(), m = message;
+        clearMessage();
+        if (n) {
+            const def = (n.actions ?? []).find(a => a.identifier === "default");
+            const chat = Notifs.chatOf(n);
+            Comms.showFor(n);
+            if (def) def.invoke();
+            Notifs.dismissAll(chat);
+        }
+    }
+    function replyMessage() {
+        const n = messageNotif();
+        clearMessage();
+        if (n && Comms.canReply(n)) Comms.startReply(n);
+    }
+
     // A short message on the island ({ icon, text }), gone after a moment
     property var flash: null
     function say(icon, text) { flash = { icon: icon, text: text }; flashTimer.restart(); }

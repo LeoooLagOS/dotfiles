@@ -111,20 +111,7 @@ Rectangle {
         || (!chat ? Notifs.imageOf(notif) : "")
         || appIconSource
     // The app's icon (path or theme name)
-    readonly property string appIconSource: {
-        const n = notif;
-        if (!n) return "";
-        // A web app installed from the browser: its own icon, not the browser's
-        const web = Notifs.webAppIcon(n);
-        if (web) return web.startsWith("file://") || web.startsWith("/") ? web
-                      : Quickshell.hasThemeIcon(web) ? Quickshell.iconPath(web) : "";
-        const imgIcon = n.image ? n.image.slice("image://icon/".length) : "";
-        if (n.appIcon && (n.appIcon.startsWith("/") || n.appIcon.includes("://"))) return n.appIcon;
-        // Only theme icons that exist (iconPath alone returns a "missing" image)
-        for (const name of [imgIcon, n.appIcon, n.desktopEntry, (n.appName || "").toLowerCase()])
-            if (name && Quickshell.hasThemeIcon(name)) return Quickshell.iconPath(name);
-        return "";
-    }
+    readonly property string appIconSource: Notifs.appIconOf(notif)
 
     MouseArea {
         id: mouse

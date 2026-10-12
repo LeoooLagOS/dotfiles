@@ -186,6 +186,20 @@ Singleton {
     Timer { interval: 300000; repeat: true; running: true; onTriggered: webAppsProc.running = true }
     function appLabel(n) { return webService(n)?.name ?? (n?.appName || "Other"); }
 
+    // The app's icon (a path or URL), or "": a web app's own (not the
+    // browser's), else the notification's app icon or a theme icon that exists
+    function appIconOf(n) {
+        if (!n) return "";
+        const web = webAppIcon(n);
+        if (web) return web.startsWith("file://") || web.startsWith("/") ? web
+                      : Quickshell.hasThemeIcon(web) ? Quickshell.iconPath(web) : "";
+        const imgIcon = n.image ? String(n.image).slice("image://icon/".length) : "";
+        if (n.appIcon && (n.appIcon.startsWith("/") || n.appIcon.includes("://"))) return n.appIcon;
+        // Only theme icons that exist (iconPath alone returns a "missing" image)
+        for (const name of [imgIcon, n.appIcon, n.desktopEntry, (n.appName || "").toLowerCase()])
+            if (name && Quickshell.hasThemeIcon(name)) return Quickshell.iconPath(name);
+        return "";
+    }
     // The notification's picture (image hint), or "". Quickshell gives an
     // image-path hint as "image://icon/<it>": a file when <it> is a path, else
     // a theme icon's name, which isn't a picture
@@ -504,6 +518,12 @@ Singleton {
                 || (pk === "call" && Settings.v.callsThroughDnd);
             const shown = root.placeOf(n) !== "off"
                 && (!root.dnd || bypass || (Settings.v.critical && critical));
+            // Chat messages go to the bar's island instead of a popup (Settings →
+            // Bar → Messages on the island); the history keeps them as usual
+            if (shown && pk === "message" && !root.mailOf(n) && BarState.takesMessages) {
+                BarState.showMessage(n);
+                return;
+            }
             // Same tag as an earlier one: take its place (popup slot included)
             const tag = root.syncTag(n);
             if (tag) {
