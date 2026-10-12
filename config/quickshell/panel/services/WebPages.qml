@@ -109,8 +109,8 @@ Singleton {
         model: Hyprland.toplevels
         delegate: QtObject {
             required property var modelData
-            readonly property string key: root.appOf(modelData) + "\n" + String(modelData?.title ?? "")
-            onKeyChanged: root.want(modelData)
+            readonly property string key: modelData ? root.appOf(modelData) + "\n" + String(modelData.title ?? "") : ""
+            onKeyChanged: if (key) root.want(modelData)
             Component.onCompleted: root.want(modelData)
         }
     }
