@@ -18,6 +18,7 @@ Singleton {
     property bool dndScheduled: false       // turned on by the quiet-hours schedule
     property var popups: []                 // notifications currently shown as popups
     property var received: ({})             // notification id → Date received
+    property int replying: 0                // cards with the reply box open (popups take the keyboard)
 
     // Newest first
     readonly property var list: server.trackedNotifications.values.slice().reverse()
@@ -341,6 +342,7 @@ Singleton {
         bodyMarkupSupported: true
         bodyHyperlinksSupported: true
         actionsSupported: true
+        inlineReplySupported: true
         imageSupported: true
 
         onNotification: n => {

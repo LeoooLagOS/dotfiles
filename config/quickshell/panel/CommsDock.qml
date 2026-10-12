@@ -10,6 +10,8 @@ import "./services"
 // under the running ones, the unread count, the shown one highlighted;
 // hovering grows it and names it. Click: switch to it (it starts if it isn't
 // running); the shown one hides them (as does SUPER Y).
+// Keyboard (SUPER SHIFT Y, Comms.dockFocus): the dock rises and takes it;
+// ←/→ or Tab choose, Enter / Space open, 1–9 by position, Esc back to the app.
 // The app above fills the screen down to the dock: its special workspace has
 // a bottom gap (UserConfigs/user_window_rules.lua) of `peek` + 6 px.
 Scope {
@@ -25,13 +27,26 @@ Scope {
             required property var modelData
             screen: modelData
             readonly property bool up: (Comms.shownOn[modelData.name] ?? "") !== ""
+            // The dock has the keyboard (on the focused monitor)
+            readonly property bool keys: up && Comms.dockFocus && Comms.focusedMonitor === modelData.name
+            property int selected: 0
+            onKeysChanged: if (keys) {
+                selected = Math.max(0, Comms.apps.findIndex(a => a.key === Comms.shown));
+                keyScope.forceActiveFocus();
+            }
+            function open(i) {
+                const a = Comms.apps[i];
+                if (!a) return;
+                Comms.dockFocus = false;
+                if (a.key !== Comms.shown) Comms.show(a.key);
+            }
 
             visible: up || hideAnim.running
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             anchors.bottom: true
             // Room above the raised dock for the grown icon and its name
-            implicitWidth: dock.width + 80
+            implicitWidth: Math.max(dock.width + 80, 460)
             implicitHeight: dock.height + 10 + 56
 
             // Raised while hovered; lowered a moment after the mouse leaves
@@ -39,18 +54,37 @@ Scope {
             readonly property bool hovering: dockHover.hovered
             onHoveringChanged: if (hovering) { lowerTimer.stop(); raised = true; } else lowerTimer.restart()
             onUpChanged: if (!up) raised = false
+            readonly property bool lifted: raised || keys
             Timer { id: lowerTimer; interval: 450; onTriggered: win.raised = false }
 
             WlrLayershell.namespace: "quickshell:dock"
             WlrLayershell.layer: WlrLayer.Top
-            WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: keys ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+
+            FocusScope {
+                id: keyScope
+                anchors.fill: parent
+                focus: win.keys
+                Keys.onPressed: event => {
+                    const n = Comms.apps.length;
+                    if (!n) return;
+                    const k = event.key;
+                    if (k === Qt.Key_Right || k === Qt.Key_Tab || k === Qt.Key_L) win.selected = (win.selected + 1) % n;
+                    else if (k === Qt.Key_Left || k === Qt.Key_Backtab || k === Qt.Key_H) win.selected = (win.selected - 1 + n) % n;
+                    else if (k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space) win.open(win.selected);
+                    else if (k >= Qt.Key_1 && k <= Qt.Key_9) win.open(k - Qt.Key_1);
+                    else if (k === Qt.Key_Escape) Comms.dockFocus = false;
+                    else return;
+                    event.accepted = true;
+                }
+            }
             // Only the dock takes clicks; the rest passes through to the app
             mask: Region { item: dock }
 
             Rectangle {
                 id: dock
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: !win.up ? parent.height + 8 : win.raised ? parent.height - height - 10 : parent.height - peek
+                y: !win.up ? parent.height + 8 : win.lifted ? parent.height - height - 10 : parent.height - peek
                 Behavior on y { NumberAnimation { id: hideAnim; duration: 200; easing.type: Easing.OutCubic } }
                 HoverHandler { id: dockHover }
                 width: row.width + 2 * 10
@@ -69,7 +103,9 @@ Scope {
                         delegate: Item {
                             id: cell
                             required property var modelData
+                            required property int index
                             readonly property bool shown: Comms.shownOn[win.modelData.name] === modelData.key
+                            readonly property bool chosen: win.keys && win.selected === index
                             width: 56
                             height: 56
 
@@ -78,7 +114,8 @@ Scope {
                                 anchors.fill: parent
                                 radius: 14
                                 color: cell.shown ? Theme.withAlpha(Theme.accent, 0.22) : "transparent"
-                                border.color: cell.shown ? Theme.withAlpha(Theme.accent, 0.5) : "transparent"
+                                border.color: cell.chosen ? Theme.accent : cell.shown ? Theme.withAlpha(Theme.accent, 0.5) : "transparent"
+                                border.width: cell.chosen ? 2 : 1
                             }
 
                             Item {
@@ -86,7 +123,7 @@ Scope {
                                 width: 44; height: 44
                                 anchors.centerIn: parent
                                 anchors.verticalCenterOffset: -2
-                                scale: mouse.containsMouse ? 1.28 : 1
+                                scale: mouse.containsMouse || cell.chosen ? 1.28 : 1
                                 transformOrigin: Item.Bottom
                                 Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutBack } }
                                 opacity: cell.modelData.running ? 1 : 0.55
@@ -135,7 +172,7 @@ Scope {
 
                             // Name, above the dock while hovered
                             Rectangle {
-                                visible: mouse.containsMouse
+                                visible: mouse.containsMouse || cell.chosen
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 y: -height - 26
                                 width: tip.implicitWidth + 20
@@ -147,7 +184,9 @@ Scope {
                                     id: tip
                                     anchors.centerIn: parent
                                     font.pixelSize: 12
-                                    text: cell.shown ? "Hide " + cell.modelData.name + "  ·  Super Y"
+                                    // With the keyboard: its number, and what Enter does
+                                    text: win.keys ? (cell.index + 1) + "  ·  " + cell.modelData.name + (cell.shown ? "  ·  Esc to go back" : "")
+                                        : cell.shown ? "Hide " + cell.modelData.name + "  ·  Super Y"
                                         : cell.modelData.running ? cell.modelData.name : "Open " + cell.modelData.name
                                 }
                             }

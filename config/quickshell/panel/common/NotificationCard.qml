@@ -15,6 +15,15 @@ Rectangle {
     property bool compact: false        // small card: one-line body, no actions
     property bool showApp: false        // show the app name above the summary
     property bool hovered: mouse.containsMouse
+    // Quick reply (services/Comms.qml): a box under the card; popups take the
+    // keyboard while it's open (Notifs.replying) and wait instead of hiding
+    readonly property bool canReply: !compact && Comms.canReply(notif)
+    property bool replying: false
+    onReplyingChanged: Notifs.replying += replying ? 1 : -1
+    Component.onDestruction: if (replying) Notifs.replying -= 1
+    function sendReply() {
+        if (Comms.reply(notif, replyField.text)) { replying = false; notif.dismiss(); }
+    }
     readonly property bool critical: notif?.urgency === NotificationUrgency.Critical
 
     // Fixed palette for critical notifications (independent of the wallpaper)
@@ -303,7 +312,29 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             spacing: 6
-            visible: (actionsRepeater.count > 0 || card.code !== "") && !card.compact
+            visible: (actionsRepeater.count > 0 || card.code !== "" || card.canReply) && !card.compact
+
+            // Quick reply: opens the box below
+            Rectangle {
+                visible: card.canReply && !card.replying
+                Layout.fillWidth: true
+                implicitHeight: 30
+                radius: 10
+                color: replyMouse.containsMouse ? Theme.bgHover : Theme.withAlpha(Theme.accent, 0.16)
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 8
+                    Glyph { text: "\uf112"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                    Label { text: "Reply"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                }
+                MouseArea {
+                    id: replyMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: { card.replying = true; replyFocus.start(); }
+                }
+            }
 
             // Security code: copy it (wl-copy) without opening anything
             Rectangle {
@@ -367,6 +398,29 @@ Rectangle {
                 }
             }
         }
+
+        // The reply box: Enter sends, Esc closes
+        RowLayout {
+            Layout.fillWidth: true
+            visible: card.replying
+            spacing: 6
+            TextField {
+                id: replyField
+                Layout.fillWidth: true
+                placeholder: card.notif?.inlineReplyPlaceholder || ("Reply to " + (Notifs.titleOf(card.notif) || "…"))
+                onAccepted: card.sendReply()
+                Keys.onEscapePressed: { card.replying = false; replyField.text = ""; }
+            }
+            IconButton {
+                icon: "\uf1d8"           // paper plane
+                iconSize: 13
+                implicitWidth: 36; implicitHeight: 32
+                active: replyField.text.trim() !== ""
+                enabled: active
+                onClicked: card.sendReply()
+            }
+        }
+        Timer { id: replyFocus; interval: 60; onTriggered: replyField.input.forceActiveFocus() }
     }
 
     FocusRing {}

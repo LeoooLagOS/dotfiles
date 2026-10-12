@@ -177,3 +177,10 @@ apply_window_rule({
 -- its own special workspace special:comms-<app>, filling the screen above the
 -- dock, of which only the top half shows until hovered (40 px + 6 px of air)
 hl.workspace_rule({ workspace = "n[s:special:comms-]", gaps_out = { top = 6, right = 6, bottom = 46, left = 6 } })
+-- A bit translucent, so the wallpaper shows through (behind them the panel
+-- switches to an empty workspace, "comms")
+apply_window_rule({
+  name = "user-comms-translucent",
+  match = { workspace = "n[s:special:comms-]" },
+  opacity = "0.88 0.88",
+})

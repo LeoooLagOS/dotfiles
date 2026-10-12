@@ -53,6 +53,8 @@ ShellRoot {
         function comms(): void { Comms.toggle(); }
         // Open every Comms dock app, hidden (at login: scripts/wm/CommsStartup.sh)
         function commsStart(): void { Comms.startAll(); }
+        // The keyboard to the dock: ←/→, Enter, 1–9, Esc (SUPER SHIFT Y)
+        function commsDock(): void { Comms.focusDock(); }
         // Caffeine on/off (SUPER ALT I)
         function caffeine(): string { Toggles.setCaffeine(!Toggles.caffeine, 0); return Toggles.caffeine ? "on" : "off"; }
         // Colors: `themeMode light|dark|system`, `toggleInverted`, `currentTheme`

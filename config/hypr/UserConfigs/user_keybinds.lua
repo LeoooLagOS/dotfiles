@@ -142,7 +142,8 @@ bind("SUPER ALT", "W", exec_cmd(scripts .. "WallustToggle.sh toggle"), { descrip
 bind("SUPER ALT", "I", exec_cmd("qs -c panel ipc call panel caffeine"), { description = "caffeine: keep the screen awake on/off" })
 -- WhatsApp / Thunderbird above a dock to switch between them (the panel's
 -- services/Comms.qml; each app in its own special workspace)
-bind("SUPER", "Y", exec_cmd("qs -c panel ipc call panel comms"), { description = "communication apps: WhatsApp, Thunderbird with a dock (show / hide)" })
+bind("SUPER", "Y", exec_cmd("qs -c panel ipc call panel comms"), { description = "communication apps: WhatsApp, Thunderbird, Teams with a dock (show / hide)" })
+bind("SUPER SHIFT", "Y", exec_cmd("qs -c panel ipc call panel commsDock"), { description = "communication apps: the keyboard to the dock (←/→, Enter, 1–9, Esc)" })
 bind("SUPER ALT", "Print", exec_cmd("qs -c panel ipc call panel record"), { description = "screen recording start / stop (gpu-screen-recorder)" })
 bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
 

@@ -16,6 +16,11 @@ import "../common"
 // Every special:comms-* workspace has a bottom gap for the dock
 // (UserConfigs/user_window_rules.lua), so the app fills the rest of the screen.
 // At login scripts/wm/CommsStartup.sh calls startAll(): each app opens hidden.
+// Behind the shown app the monitor switches to an empty workspace, "comms", so
+// the wallpaper shows through (the apps are a bit translucent: a window rule;
+// special workspaces aren't dimmed: user_settings.lua); hiding goes back.
+// Keyboard: SUPER SHIFT Y (IPC commsDock) puts the focus on the dock:
+// ←/→ choose, Enter opens, 1–9 by position, Esc back to the app.
 //   apps      [{ ref, key, name, icon, running, address, badge }] (installed ones)
 //   missing   refs in the setting that aren't installed
 //   shownOn   { monitor name: key } — the app shown on each monitor
@@ -33,6 +38,8 @@ Singleton {
     property string last: ""                  // shown by SUPER Y
     property var seenAt: ({})                 // key → when last shown (for the badge)
     property var pending: ({})                // key → { show, since }: started, waiting for its window
+    property var home: ({})                   // monitor → the workspace to go back to on hiding
+    property bool dockFocus: false            // the dock has the keyboard
 
     // ---------------- The apps ----------------
     function entryOf(ref) {
@@ -98,18 +105,37 @@ Singleton {
     })
     readonly property string focusedMonitor: Hyprland.focusedMonitor?.name ?? ""
     readonly property string shown: shownOn[focusedMonitor] ?? ""
-    // SUPER Y brings back the last one seen, however it was shown
-    onShownChanged: if (shown) { last = shown; markSeen(shown); }
+    // SUPER Y brings back the last one seen, however it was shown. Hidden
+    // (whichever way): back from the empty workspace to the one you were in
+    onShownChanged: {
+        if (shown) { last = shown; markSeen(shown); return; }
+        dockFocus = false;
+        const m = Hyprland.focusedMonitor;
+        if (m?.activeWorkspace?.name === "comms" && home[m.name] !== undefined)
+            dispatch(`hl.dsp.focus({ workspace = "${home[m.name]}" })`);
+    }
 
     // ---------------- Actions ----------------
     function dispatch(expr) { Quickshell.execDetached(["hyprctl", "dispatch", expr]); }
+    // Several in one go, in this order
+    function dispatchAll(exprs) { Quickshell.execDetached(["hyprctl", "--batch", exprs.map(e => "dispatch " + e).join(" ; ")]); }
+    // Before showing: the empty workspace behind, remembering where we were
+    function backdrop() {
+        const m = Hyprland.focusedMonitor, ws = m?.activeWorkspace;
+        if (shown || !ws || ws.name === "comms") return [];
+        const h = Object.assign({}, home);
+        h[m.name] = ws.id;
+        home = h;
+        return [`hl.dsp.focus({ workspace = "name:comms" })`];
+    }
     function markSeen(key) { const s = Object.assign({}, seenAt); s[key] = Date.now(); seenAt = s; }
     function moveIn(d, w, focus) {
-        const ws = "special:comms-" + d.key;
+        const ws = "special:comms-" + d.key, cmds = [];
         if (w.workspace.name !== ws)
-            dispatch(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${w.address}" })`);
+            cmds.push(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${w.address}" })`);
         // Focusing a window in a hidden special workspace shows it (and hides another one)
-        if (focus) dispatch(`hl.dsp.focus({ window = "address:${w.address}" })`);
+        if (focus) cmds.push(...backdrop(), `hl.dsp.focus({ window = "address:${w.address}" })`);
+        if (cmds.length) dispatchAll(cmds);
     }
     function launch(d, show) {
         const p = Object.assign({}, pending);
@@ -136,6 +162,12 @@ Singleton {
         show(defs.some(d => d.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? defs[0]?.key ?? ""));
     }
     function pick(key) { key === shown ? hide() : show(key); }
+    // SUPER SHIFT Y: the keyboard to the dock (showing an app first if none is)
+    function focusDock() {
+        if (!defs.length) return;
+        if (!shown) toggle();
+        dockFocus = true;
+    }
     // A notification clicked: if it's from one of these apps, bring it up
     function showFor(n) {
         const d = defs.find(x => isFrom(x, n));
@@ -143,6 +175,30 @@ Singleton {
         PanelState.open = false;
         show(d.key);
     }
+    // ---------------- Quick reply ----------------
+    // From the notification: the app's own inline reply when it offers one;
+    // else, for a message from a dock app (not mail), its action opens the chat
+    // and scripts/reply.sh pastes the text there and presses Enter
+    function canReply(n) {
+        if (!n) return false;
+        if (n.hasInlineReply) return true;
+        const d = defs.find(x => isFrom(x, n));
+        return !!d && !Notifs.mailOf(n) && Notifs.placeKind(n) === "message"
+            && !!mainOf(d) && (n.actions ?? []).some(a => a.identifier === "default");
+    }
+    function reply(n, text) {
+        text = String(text ?? "").trim();
+        if (!n || !text) return false;
+        if (n.hasInlineReply) { n.sendInlineReply(text); return true; }
+        const d = defs.find(x => isFrom(x, n));
+        const w = d ? mainOf(d) : null;
+        const def = (n.actions ?? []).find(a => a.identifier === "default");
+        if (!w || !def) return false;
+        def.invoke();
+        Quickshell.execDetached([Quickshell.shellDir + "/scripts/reply.sh", w.address, text]);
+        return true;
+    }
+
     // At login: open each one, hidden
     function startAll() {
         for (const d of defs) {

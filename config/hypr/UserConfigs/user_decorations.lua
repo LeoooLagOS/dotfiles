@@ -28,7 +28,7 @@ hl.config({
     fullscreen_opacity = 1.0,
     dim_inactive = true,
     dim_strength = 0.1,
-    dim_special = 0.8,
+    dim_special = 0,     -- no dark veil behind special workspaces: the comms apps (SUPER Y) show the wallpaper
     shadow = {
       enabled = true,
       range = 2,

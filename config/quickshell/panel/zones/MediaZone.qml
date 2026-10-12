@@ -136,9 +136,8 @@ Zone {
         // Lyrics on / off (player and library)
         IconButton {
             visible: !root.radio
-            icon: "\u{f0370}"     // handheld microphone with its cable (karaoke)
+            icon: "\u{f0cb8}"     // lines + a note: lyrics
             iconSize: 17
-            iconRotation: 30
             active: Settings.v.mediaLyrics
             onClicked: Settings.set("mediaLyrics", !Settings.v.mediaLyrics)
         }
@@ -239,12 +238,15 @@ Zone {
                 }
             }
 
+            // Lyrics on: the chips' row is kept even without chips, so the
+            // title and the lyrics are always at the same height
+            Item { visible: root.lyrics && !chipFlow.visible; implicitHeight: 26 }
+
             // Lyrics on: the title, small, up here
             ColumnLayout {
                 visible: root.lyrics
                 Layout.fillWidth: true
                 Layout.topMargin: 12
-                Layout.rightMargin: chipFlow.visible ? 0 : chipFlow.Layout.rightMargin   // beside the mode buttons
                 spacing: 2
                 Label { text: root.titleText; color: Theme.accent; font.pixelSize: 17; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
                 Label { text: [root.artistText, root.albumText].filter(x => x).join("  ·  "); dim: true; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true; visible: text !== "" }
@@ -255,6 +257,10 @@ Zone {
             // Track info (or lyrics) + side buttons (volume, output, lyrics / record)
             RowLayout {
                 Layout.fillWidth: true
+                // Lyrics: as tall as fits, up to about five lines (never pushing
+                // the controls and the visualizer out of the card)
+                Layout.fillHeight: root.lyrics
+                Layout.maximumHeight: root.lyrics ? 168 : Number.POSITIVE_INFINITY
                 spacing: 16
 
                 ColumnLayout {
@@ -291,7 +297,7 @@ Zone {
                 Item {
                     visible: root.lyrics
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 168       // about five lines
+                    Layout.fillHeight: true
                     clip: true
 
                     Label {
