@@ -198,6 +198,15 @@ Singleton {
     function titleOf(n) { const m = mailOf(n); return m ? (m.sender || m.account) : (n?.summary || appLabel(n)); }
     function contextOf(n) { const m = mailOf(n); return m ? m.account : ""; }
     function countOf(n) { const m = mailOf(n); return Math.max(m ? m.count : 1, groupCount[n?.id] ?? 1); }
+    // A chat going on: messages of one conversation less than this apart are counted together in popups
+    readonly property int chatWindow: 180000
+    // The history's view of a chat: its messages, newest first (Settings → Group messages)
+    function threadOf(n) {
+        if (!n || !Settings.v.groupMessages || placeKind(n) !== "message" || mailOf(n)) return n ? [n] : [];
+        const t = x => received[x.id]?.getTime() ?? 0;
+        return list.filter(o => o === n || sameConversation(o, n)).sort((a, b) => t(b) - t(a));
+    }
+    function dismissThread(n) { for (const o of threadOf(n).slice()) o.dismiss(); }
     function conversationOf(n) {
         const m = mailOf(n);
         return m ? "mail|" + m.account : appLabel(n) + "|" + plain(n?.summary).trim();
@@ -238,7 +247,13 @@ Singleton {
 
     // filter: "all" | "critical" | "message" | "system" | "app" | "app:<name>"
     function select(filter, query, sort) {
-        let out = list.filter(n => matches(n, query) && (
+        // One card per chat: its newest message stands for the rest (they show under it)
+        const firstOfChat = n => {
+            if (!Settings.v.groupMessages || placeKind(n) !== "message" || mailOf(n)) return true;
+            const head = threadOf(n)[0];
+            return head === n;
+        };
+        let out = list.filter(n => firstOfChat(n) && matches(n, query) && (
             filter === "all" ? true
             : filter.startsWith("app:") ? appLabel(n) === filter.slice(4)
             : kind(n) === filter));
@@ -489,6 +504,14 @@ Singleton {
                     next.push(n);                          // newest: nearest the edge
                     root.popups = next;
                     return;
+                }
+                // Not on screen anymore but recent (a chat going on): count those too
+                const recent = root.list.filter(o => root.sameConversation(o, n)
+                    && Date.now() - (root.received[o.id]?.getTime() ?? 0) < root.chatWindow).length;
+                if (recent > 0) {
+                    const g = Object.assign({}, root.groupCount);
+                    g[n.id] = recent + 1;
+                    root.groupCount = g;
                 }
             }
             // Already on screen (replaced in place): count it, move it to the edge

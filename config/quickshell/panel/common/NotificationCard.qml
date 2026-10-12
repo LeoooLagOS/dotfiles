@@ -60,7 +60,10 @@ Rectangle {
     // Type (Notifs.placeKind): progress bar, security code, call buttons, grouped messages
     readonly property string place: notif ? Notifs.placeKind(notif) : ""
     readonly property string code: place === "security" ? Notifs.codeOf(notif) : ""
-    readonly property int grouped: Notifs.countOf(notif)
+    // In the history a chat is one card: its newest message, the earlier ones under it
+    readonly property var thread: popup || compact ? [] : Notifs.threadOf(notif)
+    readonly property var olderMessages: thread.slice(1)
+    readonly property int grouped: Math.max(Notifs.countOf(notif), thread.length)
     readonly property bool isMail: !!Notifs.mailOf(notif)
     property bool copied: false
 
@@ -284,7 +287,7 @@ Rectangle {
                                                        : (card.critical ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
                         Glyph { pal: card.pal; anchors.centerIn: parent; text: "\uf00d"; font.pixelSize: 11; color: card.critical ? card.critDim : card.pal.fgDim }
                         MouseArea { id: closeMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                    onClicked: card.notif.dismiss() }
+                                    onClicked: card.thread.length > 1 ? Notifs.dismissThread(card.notif) : card.notif.dismiss() }
                     }
                 }
 
@@ -299,6 +302,30 @@ Rectangle {
                     color: card.critical ? card.critFg : card.pal.fgDim
                     font.pixelSize: card.compact ? 12 : 14
                     onLinkActivated: link => Qt.openUrlExternally(link)
+                }
+
+                // History: the chat's earlier messages under the newest (oldest last)
+                Repeater {
+                    model: card.olderMessages.slice(0, 3)
+                    delegate: RowLayout {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Label { pal: card.pal
+                            Layout.fillWidth: true
+                            text: Notifs.plain(Notifs.bodyOf(modelData))
+                            elide: Text.ElideRight
+                            dim: true
+                            font.pixelSize: 12
+                        }
+                        Label { pal: card.pal; text: Notifs.timeAgo(modelData); dim: true; font.pixelSize: 10 }
+                    }
+                }
+                Label { pal: card.pal
+                    visible: card.olderMessages.length > 3
+                    text: "+" + (card.olderMessages.length - 3) + " earlier"
+                    dim: true
+                    font.pixelSize: 11
                 }
 
                 // Progress (downloads, copies…): a bar that fills in place
