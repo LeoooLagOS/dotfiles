@@ -14,8 +14,8 @@ import "../services"
 // (BarState.popupOn): who and how long up, lock / power / settings, the four
 // readings with bars, output volume and brightness, and quick tiles (Wi-Fi,
 // Bluetooth, output, microphone, night light, dark mode). A tile's › opens its
-// detail in the panel (Controls). Closes on a click outside, Esc, or the same
-// pill again (HyprlandFocusGrab with the bar).
+// detail in the panel (Controls). Closes on a click outside (not while a
+// screenshot region is picked: PopupGrab), Esc, or the same pill again.
 PanelWindow {
     id: root
     property var barWindow: null
@@ -34,10 +34,10 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
-    HyprlandFocusGrab {
-        active: root.open
+    PopupGrab {
+        open: root.open
         windows: [root, root.barWindow]
-        onCleared: if (root.open) BarState.popupOn = ""
+        onClose: BarState.popupOn = ""
     }
 
     readonly property var wifiDevice: Networking.devices.values.find(d => d.type === DeviceType.Wifi) ?? null
@@ -108,15 +108,18 @@ PanelWindow {
                 Layout.fillWidth: true
                 columns: 4
                 columnSpacing: 7
+                // A fixed count: a new array each reading would rebuild the cards
+                // and their bars would grow again from zero every time
                 Repeater {
-                    model: [
-                        { icon: "", label: "CPU", v: SystemStats.cpu, text: SystemStats.cpu + "%", warn: 80, bad: 95 },
-                        { icon: "\uefc5", label: "RAM", v: SystemStats.memPct, text: SystemStats.memPct + "%", warn: 80, bad: 92 },
-                        { icon: "\uf0a0", label: "Disk", v: SystemStats.diskPct, text: SystemStats.diskPct + "%", warn: 90, bad: 97 },
-                        { icon: "", label: "Temp", v: SystemStats.temp, text: SystemStats.temp + "°C", warn: 80, bad: 90 }
-                    ]
+                    model: 4
                     delegate: Rectangle {
-                        required property var modelData
+                        required property int index
+                        readonly property var modelData: [
+                            { icon: "", label: "CPU", v: SystemStats.cpu, text: SystemStats.cpu + "%", warn: 80, bad: 95 },
+                            { icon: "\uefc5", label: "RAM", v: SystemStats.memPct, text: SystemStats.memPct + "%", warn: 80, bad: 92 },
+                            { icon: "\uf0a0", label: "Disk", v: SystemStats.diskPct, text: SystemStats.diskPct + "%", warn: 90, bad: 97 },
+                            { icon: "", label: "Temp", v: SystemStats.temp, text: SystemStats.temp + "°C", warn: 80, bad: 90 }
+                        ][index]
                         readonly property color tint: modelData.v >= modelData.bad ? Theme.bad : modelData.v >= modelData.warn ? Theme.warn : BarState.accent
                         Layout.fillWidth: true
                         implicitHeight: 64

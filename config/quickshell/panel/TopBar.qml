@@ -57,10 +57,10 @@ Scope {
                 }
 
                 // The tray's list closes on a click anywhere else
-                HyprlandFocusGrab {
-                    active: tray.open
+                PopupGrab {
+                    open: tray.open
                     windows: [win]
-                    onCleared: tray.open = false
+                    onClose: tray.open = false
                 }
                 Connections {
                     target: BarState
