@@ -6,3 +6,4 @@ StatItem 1.0 StatItem.qml
 TrayModule 1.0 TrayModule.qml
 BarTip 1.0 BarTip.qml
 SystemPopup 1.0 SystemPopup.qml
+SystemMonitor 1.0 SystemMonitor.qml

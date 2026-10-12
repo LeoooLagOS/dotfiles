@@ -58,10 +58,13 @@ Singleton {
     // SUPER CTRL ALT B (IPC barToggle): hide / show the bar for now
     signal toggleRequested()
 
-    // System popup: open on one monitor ("" = closed)
+    // System popup (network, Bluetooth, battery) and system monitor (the
+    // readings): open on one monitor ("" = closed), one at a time
     property string popupOn: ""
-    function togglePopup(monitor) { popupOn = popupOn === monitor ? "" : monitor; }
-    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) root.popupOn = ""; } }
+    property string monitorOn: ""
+    function togglePopup(monitor) { monitorOn = ""; popupOn = popupOn === monitor ? "" : monitor; }
+    function toggleMonitor(monitor) { popupOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; }
+    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; } } }
 
     // ---------------- Messages on the island ----------------
     // Instead of a popup (services/Notifs.qml arrive): what it shows is copied

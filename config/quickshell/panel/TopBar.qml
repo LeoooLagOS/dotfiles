@@ -15,8 +15,9 @@ import "./bar"
 //   center   notifications (click: the panel's Notifications · right click:
 //            Do Not Disturb) · the island (bar/Island.qml) · caffeine
 //   right    CPU, RAM, disk, temperature · Wi-Fi, Bluetooth, battery · tray
-//            (a list that drops down) · power menu. Clicking the readings opens the system popup
-//            (bar/SystemPopup.qml); hovering one shows its details (bar/BarTip.qml)
+//            (bar/TrayModule.qml) · power menu. Clicking the readings opens the
+//            system monitor (bar/SystemMonitor.qml), the network / battery the
+//            system popup (bar/SystemPopup.qml); hovering one shows its details (bar/BarTip.qml)
 // The layer is taller than the bar so the island can grow and the details can
 // show below it; only the bar's groups take input (mask), and only the bar's
 // height is reserved (exclusiveZone). While the panel dims the screen, the
@@ -61,7 +62,11 @@ Scope {
                     windows: [win]
                     onCleared: tray.open = false
                 }
-                Connections { target: BarState; function onPopupOnChanged() { if (BarState.popupOn) tray.open = false; } }
+                Connections {
+                    target: BarState
+                    function onPopupOnChanged() { if (BarState.popupOn) tray.open = false; }
+                    function onMonitorOnChanged() { if (BarState.monitorOn) tray.open = false; }
+                }
                 Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) tray.open = false; } }
 
                 // The panel's dim (Panel.qml's "quickshell:panel-dim" layer stays out
@@ -192,25 +197,25 @@ Scope {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 8
 
-                        // Readings: hover for details, click for the system popup
+                        // Readings: hover for details, click for the system monitor
                         BarPill {
                             id: stats
                             visible: ["cpu", "ram", "disk", "temp"].some(id => win.zone(id))
                             clickable: true
-                            active: BarState.popupOn === win.screen.name
+                            active: BarState.monitorOn === win.screen.name
                             spacing: 13
-                            onClicked: BarState.togglePopup(win.screen.name)
+                            onClicked: BarState.toggleMonitor(win.screen.name)
                             StatItem {
                                 visible: win.zone("cpu"); tipHost: tip
                                 icon: ""; text: SystemStats.cpu + "%"; level: win.lvl(SystemStats.cpu, 80, 95)
                                 tip: ({ title: "CPU", rows: [["Usage", SystemStats.cpu + " %"], ["Temperature", SystemStats.temp + " °C"]],
-                                        hist: SystemStats.cpuHist, hint: "Last minute · click: system" })
+                                        hist: SystemStats.cpuHist, hint: "Last minute · click: system monitor" })
                             }
                             StatItem {
                                 visible: win.zone("ram"); tipHost: tip
                                 icon: "\uefc5"; text: SystemStats.memPct + "%"; level: win.lvl(SystemStats.memPct, 80, 92)
                                 tip: ({ title: "Memory", rows: [["In use", SystemStats.gb(SystemStats.memUsed) + " / " + SystemStats.gb(SystemStats.memTotal) + " GiB"]],
-                                        hist: SystemStats.memHist, hint: "Last minute · click: system" })
+                                        hist: SystemStats.memHist, hint: "Last minute · click: system monitor" })
                             }
                             StatItem {
                                 visible: win.zone("disk"); tipHost: tip
@@ -222,7 +227,7 @@ Scope {
                                 visible: win.zone("temp"); tipHost: tip
                                 icon: ""; text: SystemStats.temp + "°"; level: win.lvl(SystemStats.temp, 80, 90)
                                 tip: ({ title: "CPU temperature", rows: [["Package", SystemStats.temp + " °C"]], hist: SystemStats.tempHist, min: 30, max: 100,
-                                        hint: "Last minute · click: system" })
+                                        hint: "Last minute · click: system monitor" })
                             }
                         }
 
@@ -280,7 +285,7 @@ Scope {
                             id: tray
                             visible: win.zone("tray") && items.length > 0
                             barWindow: win
-                            onOpenChanged: if (open) BarState.popupOn = ""
+                            onOpenChanged: if (open) { BarState.popupOn = ""; BarState.monitorOn = ""; }
                         }
 
                         BarPill {
@@ -297,6 +302,13 @@ Scope {
                     id: tip
                     barBottom: win.top + win.h
                 }
+            }
+
+            SystemMonitor {
+                screen: perScreen.modelData
+                screenName: perScreen.modelData.name
+                barWindow: win
+                rightOffset: barArea.x + right.anchors.rightMargin
             }
 
             SystemPopup {
