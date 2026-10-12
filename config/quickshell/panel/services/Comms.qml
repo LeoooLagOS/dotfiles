@@ -25,6 +25,7 @@ import "../common"
 //   missing   refs in the setting that aren't installed
 //   shownOn   { monitor name: key } — the app shown on each monitor
 //   toggle() · show(key) · hide() · pick(key) · showFor(notification) · startAll()
+//   infoOf(appId, title)  what the bar's window title shows for one of their windows
 Singleton {
     id: root
 
@@ -112,6 +113,31 @@ Singleton {
                  web: isWebApp(d.entry), restarting: !!restarting[d.key],
                  badge: m ? Number(m[1]) : unseen(d) };
     })
+    // What the bar's window title shows for a comms app's window (bar/WindowTitle.qml):
+    //   { name, badge: unread (the web app's title count, the mail's new ones,
+    //     else notifications not seen), context: what the title says besides the
+    //     app ("Inbox · account", "Teams and Channels"), messages: the latest
+    //     three notifications, newest first [{ who, text }] }, or null
+    function infoOf(appId, title) {
+        const id = String(appId ?? "").toLowerCase();
+        const d = defs.find(x => x.classes.includes(id));
+        if (!d) return null;
+        const app = apps.find(a => a.key === d.key);
+        const name = d.name.toLowerCase(), entryName = String(d.entry.name).toLowerCase();
+        const context = String(title ?? "").replace(/^\(\d+\)\s*/, "").split(/\s+[|—–-]\s+/)
+            .map(t => t.trim())
+            .filter(t => t && t.toLowerCase() !== name && t.toLowerCase() !== entryName && !/^(mozilla|microsoft)\b/i.test(t));
+        const mine = Notifs.list.filter(n => isFrom(d, n));
+        const mails = mine.map(n => Notifs.mailOf(n)).filter(m => m);
+        const one = s => Notifs.plain(s).replace(/\s+/g, " ").trim();
+        return {
+            name: d.name,
+            badge: mails.length ? mails.reduce((a, m) => a + m.count, 0) : (app?.badge ?? 0),
+            context: context,
+            messages: mine.slice(0, 3).map(n => ({ who: one(Notifs.titleOf(n)), text: one(Notifs.bodyOf(n)).slice(0, 90) }))
+        };
+    }
+
     readonly property string focusedMonitor: Hyprland.focusedMonitor?.name ?? ""
     readonly property string shown: shownOn[focusedMonitor] ?? ""
     // SUPER Y brings back the last one seen, however it was shown. Hidden

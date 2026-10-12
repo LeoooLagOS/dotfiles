@@ -13,6 +13,9 @@ import "../services"
 // ("… — Brave"). For a browser, the page (services/WebPages.qml): the site's
 // domain and icon instead of the browser's (the browser's stays for searches
 // and sites without one), and the site's name dropped from the title ("… - YouTube").
+// For a comms app (Comms.infoOf): its unread count, then what its title says
+// besides the app (Thunderbird's folder and account, Teams' section) and its
+// latest messages ("who: text").
 // Fades out (keeping its place, so the bar doesn't shift) on an empty workspace.
 BarPill {
     id: root
@@ -29,6 +32,12 @@ BarPill {
     readonly property string appName: entry?.name ?? appId
     readonly property string rawTitle: String(win?.title ?? "")
     readonly property var page: WebPages.of(win)
+    // A comms app (services/Comms.qml): its unread count, what its title says
+    // and its latest messages instead of the bare title
+    readonly property var comms: Comms.infoOf(appId, rawTitle)
+    function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    readonly property string commsText: !comms ? ""
+        : comms.context.map(esc).concat(comms.messages.map(m => (m.who ? "<b>" + esc(m.who) + "</b>: " : "") + esc(m.text))).join("  ·  ")
     readonly property string siteIcon: WebPages.iconOf(win)
     readonly property string title: {
         let t = page?.title || rawTitle;
@@ -42,7 +51,10 @@ BarPill {
         }
         return t === appName ? "" : t;
     }
-    readonly property bool shown: !hide && onThisWorkspace && (title !== "" || appName !== "")
+    // A comms app lives in its own special workspace, shown over the empty "comms" one
+    readonly property bool commsShown: !!comms && String(win?.workspace?.name ?? "").startsWith("special:comms-")
+        && (Comms.shown !== "" || Hyprland.focusedWorkspace?.name === "comms")
+    readonly property bool shown: !hide && (onThisWorkspace || commsShown) && (title !== "" || appName !== "")
 
     implicitWidth: fixedWidth
     opacity: shown ? 1 : 0
@@ -79,17 +91,39 @@ BarPill {
     }
     Label {
         id: name
-        text: page?.domain || root.appName
+        text: root.comms?.name || root.page?.domain || root.appName
         font.pixelSize: 13
         font.weight: Font.DemiBold
         width: Math.min(implicitWidth, (root.fixedWidth - 2 * root.pad) / 2)
         anchors.verticalCenter: parent.verticalCenter
     }
+    // Unread (comms apps)
+    Rectangle {
+        id: badge
+        visible: (root.comms?.badge ?? 0) > 0
+        anchors.verticalCenter: parent.verticalCenter
+        height: 16
+        width: visible ? Math.max(16, badgeText.implicitWidth + 8) : 0
+        radius: 8
+        color: BarState.accent
+        Label {
+            id: badgeText
+            anchors.centerIn: parent
+            text: (root.comms?.badge ?? 0) > 99 ? "99+" : root.comms?.badge ?? ""
+            color: BarState.accentText
+            font.pixelSize: 10
+            font.weight: Font.Bold
+            font.features: { "tnum": 1 }
+        }
+    }
     Marquee {
-        text: root.title ? "·  " + root.title : ""
+        textFormat: root.comms ? Text.StyledText : Text.PlainText
+        text: root.comms ? (root.commsText ? "·  " + root.commsText : "")
+            : root.title ? "·  " + root.title : ""
         dim: true
         // The rest of the pill (the row is pad + icon + spacing + name + spacing + this + pad)
-        width: Math.max(0, root.fixedWidth - 2 * root.pad - 16 - name.width - 2 * root.spacing)
+        width: Math.max(0, root.fixedWidth - 2 * root.pad - 16 - name.width - 2 * root.spacing
+                           - (badge.visible ? badge.width + root.spacing : 0))
         anchors.verticalCenter: parent.verticalCenter
     }
 }
