@@ -231,6 +231,14 @@ Singleton {
         return list.filter(o => o === n || sameConversation(o, n)).sort((a, b) => t(b) - t(a));
     }
     function dismissThread(n) { for (const o of threadOf(n).slice()) o.dismiss(); }
+    // Some may be gone already (the app closed the one clicked)
+    function dismissAll(ns) { for (const o of ns) { try { o?.dismiss(); } catch (e) {} } }
+    // Every message of n's chat (grouped or not), n included; [n] for the rest
+    // (mail too: its "conversation" is the whole account)
+    function chatOf(n) {
+        if (!n || placeKind(n) !== "message" || mailOf(n)) return n ? [n] : [];
+        return list.filter(o => o === n || sameConversation(o, n));
+    }
     function conversationOf(n) {
         const m = mailOf(n);
         return m ? "mail|" + m.account : appLabel(n) + "|" + plain(n?.summary).trim();

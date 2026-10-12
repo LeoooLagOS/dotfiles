@@ -42,9 +42,17 @@ Rectangle {
     activeFocusOnTab: true
     function runDefault() {
         const def = notif?.actions.find(a => a.identifier === "default");
+        // The chat is open now (its action, or the dock app brought up): all its
+        // messages go, not only this one (the app closes just the one clicked;
+        // the copies kept in the history have no action). Taken before:
+        // invoking may destroy notif
+        const opens = !!def || (!!notif && Comms.defs.some(d => Comms.isFrom(d, notif)));
+        const chat = opens && !Notifs.isTest(notif) ? Notifs.chatOf(notif) : [];
         // WhatsApp / Thunderbird live hidden (services/Comms.qml): bring them up with the dock
         if (notif) Comms.showFor(notif);
         if (def) def.invoke();
+        // From the service: this card goes away with the first one
+        if (chat.length) Notifs.dismissAll(chat);
     }
     Keys.onReturnPressed: runDefault()
     Keys.onEnterPressed: runDefault()
