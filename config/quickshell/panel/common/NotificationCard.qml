@@ -20,12 +20,14 @@ Rectangle {
     // Quick reply (services/Comms.qml): the Reply button opens ReplyBox.qml,
     // which outlives this card (the app may close its notification any moment)
     readonly property bool canReply: !compact && Comms.canReply(notif)
-    // For the log: whether a message's popup offers Reply, and why not (no text)
+    // For the log: whether a message's popup offers Reply, and why not (no text),
+    // and where its picture comes from
     function logReply() {
         if (popup && notif && Notifs.placeKind(notif) === "message")
             console.info("quick reply offered:", canReply, "| app", notif.appName, "| entry", notif.desktopEntry,
                          "| from", Comms.defs.filter(d => Comms.isFrom(d, notif)).map(d => d.key).join(",") || "-",
-                         "| actions", (notif.actions ?? []).map(a => a.identifier).join(","), "| inline", !!notif.hasInlineReply);
+                         "| actions", (notif.actions ?? []).map(a => a.identifier).join(","), "| inline", !!notif.hasInlineReply,
+                         "| picture", showPhoto ? "photo" : "icon", "| image", notif.image || "-", "| appIcon", notif.appIcon || "-");
     }
     readonly property bool critical: notif?.urgency === NotificationUrgency.Critical
 
@@ -81,12 +83,22 @@ Rectangle {
                 .replace(/\n/g, "<br>");
     }
 
-    // App icon: image hint > app icon (path or theme name) > generic bell
-    readonly property string iconSource: {
+    // Messages and calls: the chat's photo (Settings → Picture on messages),
+    // with the app's icon as a badge; "App icon" shows only the icon
+    readonly property bool chat: place === "message" || place === "call"
+    readonly property string photoSource: chat && Settings.v.msgPicture !== "icon" ? Notifs.photoOf(notif) : ""
+    // The photo's file may be gone (Brave deletes it when the notification
+    // closes, but the history keeps the card): then the app's icon
+    property string brokenPhoto: ""
+    readonly property bool showPhoto: photoSource !== "" && photoSource !== brokenPhoto
+    // Icon: photo > image hint (not on chats set to "App icon") > app icon > generic bell
+    readonly property string iconSource: (showPhoto ? photoSource : "")
+        || (!chat ? Notifs.imageOf(notif) : "")
+        || appIconSource
+    // The app's icon (path or theme name)
+    readonly property string appIconSource: {
         const n = notif;
         if (!n) return "";
-        // image hint; "image://icon/<name>" is a theme icon that may not exist
-        if (n.image && !n.image.startsWith("image://icon/")) return n.image;
         // A web app installed from the browser: its own icon, not the browser's
         const web = Notifs.webAppIcon(n);
         if (web) return web.startsWith("file://") || web.startsWith("/") ? web
@@ -207,15 +219,36 @@ Rectangle {
                 Layout.preferredWidth: 32
                 Layout.preferredHeight: 32
                 Layout.alignment: Qt.AlignTop
+                // A photo is round (a chat) and fills the circle; an image
+                // hint (screenshot…) gets rounded corners
+                readonly property bool photo: card.showPhoto
                 ClippingRectangle {
                     anchors.fill: parent
-                    radius: card.notif?.image ? 8 : 0
+                    radius: parent.photo ? width / 2 : Notifs.imageOf(card.notif) ? 8 : 0
                     color: "transparent"
                     Image {
                         id: icon
                         anchors.fill: parent
                         source: card.iconSource
+                        onStatusChanged: if (status === Image.Error && card.showPhoto) card.brokenPhoto = card.photoSource
                         sourceSize: Qt.size(64, 64)
+                        fillMode: parent.parent.photo ? Image.PreserveAspectCrop : Image.PreserveAspectFit
+                        asynchronous: true
+                    }
+                }
+                // The app's icon on the photo's corner
+                Rectangle {
+                    visible: parent.photo && icon.status === Image.Ready && badge.status === Image.Ready
+                    width: 16; height: 16; radius: 8
+                    anchors.right: parent.right; anchors.bottom: parent.bottom
+                    anchors.rightMargin: -3; anchors.bottomMargin: -3
+                    color: card.critical ? card.critBg : card.pal.bg
+                    Image {
+                        id: badge
+                        anchors.centerIn: parent
+                        width: 13; height: 13
+                        source: parent.parent.photo ? card.appIconSource : ""
+                        sourceSize: Qt.size(32, 32)
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
                     }

@@ -186,6 +186,27 @@ Singleton {
     Timer { interval: 300000; repeat: true; running: true; onTriggered: webAppsProc.running = true }
     function appLabel(n) { return webService(n)?.name ?? (n?.appName || "Other"); }
 
+    // The notification's picture (image hint), or "". Quickshell gives an
+    // image-path hint as "image://icon/<it>": a file when <it> is a path, else
+    // a theme icon's name, which isn't a picture
+    function imageOf(n) {
+        const img = String(n?.image ?? "");
+        if (!img.startsWith("image://icon/")) return img;
+        const rest = img.slice("image://icon/".length);
+        return rest.startsWith("/") ? "file://" + rest : rest.startsWith("file://") ? rest : "";
+    }
+    // The chat's photo a message comes with, or "" (Settings → Notifications →
+    // Picture on messages): the image hint (Telegram, Discord, Teams, Brave's
+    // sites…), or a file Brave passes as app_icon
+    function photoOf(n) {
+        if (!n) return "";
+        const img = imageOf(n);
+        if (img) return img;
+        const ic = String(n.appIcon || "");
+        if (!originOf(n) && !webService(n)) return "";
+        return ic.startsWith("/") ? "file://" + ic : ic.startsWith("file://") ? ic : "";
+    }
+
     // --- Email (Thunderbird) ---
     // Thunderbird says "<account> received 12 new messages" / "<Subject> from
     // "<Sender>"". Shown as: sender (title), subject (body), the account above,

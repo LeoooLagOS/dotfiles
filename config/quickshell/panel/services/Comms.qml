@@ -200,7 +200,7 @@ Singleton {
     // A reply in progress (ReplyBox.qml shows it): kept apart from the
     // notification, which the app may close at any moment (WhatsApp closes its
     // own when clicked, and after a few seconds anyway)
-    //   { who, app, key, address, notif (inline replies only), openedAt }
+    //   { who, app, photo (the chat's, or ""), icon, key, address, notif (inline replies only), openedAt }
     property var session: null
     property string sessionState: ""          // "" | "sending" | "sent" | "failed"
     // Reply clicked: open that chat now (the notification's action), hidden,
@@ -210,7 +210,9 @@ Singleton {
         const d = defs.find(x => isFrom(x, n));
         const w = d ? mainOf(d) : null;
         const ic = Notifs.webAppIcon(n) || (d ? iconOf(d.entry) : "");
-        session = { who: Notifs.titleOf(n), app: Notifs.appLabel(n),
+        // The chat's photo; once the notification closes it may not load (then the icon)
+        const photo = Settings.v.msgPicture !== "icon" ? Notifs.photoOf(n) : "";
+        session = { who: Notifs.titleOf(n), app: Notifs.appLabel(n), photo: photo,
                     icon: ic.includes("://") || ic.startsWith("/") ? ic : Quickshell.iconPath(ic, true),
                     key: d?.key ?? "", address: w?.address ?? "", notif: n.hasInlineReply ? n : null,
                     openedAt: Date.now() };

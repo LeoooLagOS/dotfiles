@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import Quickshell.Widgets
 import "./common"
 import "./services"
 
@@ -65,12 +66,30 @@ Scope {
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 10
-                        Image {
-                            visible: status === Image.Ready
-                            source: win.s?.icon ?? ""
-                            sourceSize: Qt.size(48, 48)
+                        // The chat's photo (round) if it came with one, else the app's icon
+                        ClippingRectangle {
+                            id: pic
+                            property bool photoOk: !!win.s?.photo && photoImg.status !== Image.Error
+                            visible: (photoOk ? photoImg : appImg).status === Image.Ready
                             Layout.preferredWidth: 26
                             Layout.preferredHeight: 26
+                            radius: photoOk ? 13 : 0
+                            color: "transparent"
+                            Image {
+                                id: photoImg
+                                anchors.fill: parent
+                                visible: pic.photoOk
+                                source: win.s?.photo ?? ""
+                                sourceSize: Qt.size(52, 52)
+                                fillMode: Image.PreserveAspectCrop
+                            }
+                            Image {
+                                id: appImg
+                                anchors.fill: parent
+                                visible: !pic.photoOk
+                                source: pic.photoOk ? "" : (win.s?.icon ?? "")
+                                sourceSize: Qt.size(48, 48)
+                            }
                         }
                         ColumnLayout {
                             Layout.fillWidth: true
