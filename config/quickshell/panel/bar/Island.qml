@@ -40,8 +40,9 @@ Rectangle {
     readonly property color inkDim: Qt.rgba(241 / 255, 243 / 255, 245 / 255, 0.6)
     readonly property color accent: Theme.ensure(BarState.accent, color, 3)
 
-    width: mode === "expanded" ? 440 : isMessage ? 480 : (mode === "flash" ? flashRow.implicitWidth : topRow.implicitWidth) + 34
-    height: mode === "expanded" ? 178 : mode === "messageOpen" ? pillH + msgBody.implicitHeight + 58 : pillH
+    readonly property int expandedH: 196
+    width: mode === "expanded" ? 520 : isMessage ? 480 : (mode === "flash" ? flashRow.implicitWidth : topRow.implicitWidth) + 34
+    height: mode === "expanded" ? expandedH : mode === "messageOpen" ? pillH + msgBody.implicitHeight + 58 : pillH
     radius: mode === "expanded" || mode === "messageOpen" ? 24 : pillH / 2
     color: Theme.mix(Theme.panel.base, "#000000", Theme.light ? 0.85 : 0.55)
     border.width: 1
@@ -120,7 +121,7 @@ Rectangle {
         }
         // Album art (small)
         ClippingRectangle {
-            visible: root.mode === "media" || root.mode === "expanded"
+            visible: root.mode === "media"
             width: 20; height: 20; radius: 6
             anchors.verticalCenter: parent.verticalCenter
             color: root.accent
@@ -157,7 +158,7 @@ Rectangle {
         }
         // Equalizer (decorative: moves while playing)
         Row {
-            visible: root.mode === "media" || root.mode === "expanded"
+            visible: root.mode === "media"
             spacing: 2
             height: 14
             anchors.verticalCenter: parent.verticalCenter
@@ -171,7 +172,7 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     height: 4
                     SequentialAnimation on height {
-                        running: root.playing && (root.mode === "media" || root.mode === "expanded")
+                        running: root.playing && root.mode === "media"
                         loops: Animation.Infinite
                         NumberAnimation { to: 14; duration: modelData; easing.type: Easing.InOutSine }
                         NumberAnimation { to: 4; duration: modelData; easing.type: Easing.InOutSine }
@@ -310,25 +311,34 @@ Rectangle {
     }
 
     // ---------------- Expanded: the player ----------------
+    // Art on the left, as tall as the content; on the right the titles, the
+    // cava visualizer (doubles as the seekable progress: played bars in the
+    // accent) with the times, and shuffle · previous · play · next · loop
+    readonly property bool vizOn: mode === "expanded"
+    onVizOnChanged: Cava.users += vizOn ? 1 : -1
+    Component.onDestruction: if (vizOn) Cava.users -= 1
+    readonly property real progress: (player?.length ?? 0) > 0 ? Math.max(0, Math.min(1, player.position / player.length)) : 0
+
     RowLayout {
         visible: opacity > 0
-        opacity: root.mode === "expanded" && root.height > 120 ? 1 : 0
+        opacity: root.mode === "expanded" && root.height > 140 ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 160 } }
-        x: 16
-        y: root.pillH + 6
-        width: root.width - 32
-        spacing: 14
+        x: 14
+        y: root.pillH + 4
+        width: root.width - 28
+        height: root.expandedH - root.pillH - 18
+        spacing: 16
 
         ClippingRectangle {
-            Layout.preferredWidth: 76
-            Layout.preferredHeight: 76
-            radius: 14
+            Layout.preferredWidth: parent.height
+            Layout.preferredHeight: parent.height
+            radius: 16
             color: root.accent
             Image {
                 anchors.fill: parent
                 source: root.player?.trackArtUrl ?? ""
                 fillMode: Image.PreserveAspectCrop
-                sourceSize: Qt.size(152, 152)
+                sourceSize: Qt.size(280, 280)
                 asynchronous: true
             }
             MouseArea {
@@ -337,9 +347,13 @@ Rectangle {
                 onClicked: { PanelState.open = true; PanelState.goTo("Media", ""); }
             }
         }
+
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 2
+            Layout.fillHeight: true
+            spacing: 0
+
+            // Titles
             Label { text: root.player?.trackTitle ?? ""; color: root.ink; font.pixelSize: 15; font.weight: Font.DemiBold; Layout.fillWidth: true }
             Label {
                 text: [root.player?.trackArtist ?? "", root.player?.identity ?? ""].filter(s => s).join(" · ")
@@ -347,59 +361,99 @@ Rectangle {
                 font.pixelSize: 12
                 Layout.fillWidth: true
             }
-            // Progress
+
+            // Visualizer = progress
+            Item {
+                id: viz
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.topMargin: 6
+                readonly property int count: 44
+                readonly property real slot: width / count
+                Row {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: times.top
+                    anchors.bottomMargin: 3
+                    height: parent.height - times.height - 3
+                    Repeater {
+                        model: viz.count
+                        delegate: Item {
+                            required property int index
+                            width: viz.slot
+                            height: parent.height
+                            readonly property real level: Cava.bars.length ? (Cava.bars[Math.floor(index * Cava.bars.length / viz.count)] ?? 0) : 0
+                            readonly property bool played: (index + 0.5) / viz.count <= root.progress
+                            Rectangle {
+                                anchors.bottom: parent.bottom
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: Math.max(2, viz.slot * 0.6)
+                                height: Math.max(3, parent.height * parent.level)
+                                radius: width / 2
+                                color: parent.played ? root.accent : Qt.rgba(1, 1, 1, 0.22)
+                                Behavior on height { NumberAnimation { duration: 60 } }
+                            }
+                        }
+                    }
+                }
+                RowLayout {
+                    id: times
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    Label { text: Media.fmt(root.player?.position ?? 0); color: root.inkDim; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                    Item { Layout.fillWidth: true }
+                    Label { text: Media.fmt(root.player?.length ?? 0); color: root.inkDim; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: (root.player?.canSeek ?? false) && (root.player?.length ?? 0) > 0
+                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                    onClicked: m => root.player.position = root.player.length * Math.max(0, Math.min(1, m.x / width))
+                }
+            }
+
+            // Shuffle · previous · play / pause · next · loop
             RowLayout {
                 Layout.fillWidth: true
                 Layout.topMargin: 6
-                spacing: 8
-                visible: (root.player?.length ?? 0) > 0
-                Label { text: Media.fmt(root.player?.position ?? 0); color: root.inkDim; font.pixelSize: 10; font.features: { "tnum": 1 } }
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 4
-                    radius: 2
-                    color: Qt.rgba(1, 1, 1, 0.14)
-                    Rectangle {
-                        width: parent.width * Math.max(0, Math.min(1, (root.player?.position ?? 0) / Math.max(1, root.player?.length ?? 1)))
-                        height: parent.height
-                        radius: 2
-                        color: root.accent
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        anchors.margins: -6
-                        cursorShape: Qt.PointingHandCursor
-                        enabled: root.player?.canSeek ?? false
-                        onClicked: m => root.player.position = root.player.length * Math.max(0, Math.min(1, (m.x - 6) / (width - 12)))
-                    }
-                }
-                Label { text: Media.fmt(root.player?.length ?? 0); color: root.inkDim; font.pixelSize: 10; font.features: { "tnum": 1 } }
-            }
-            // Controls
-            Row {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 4
-                spacing: 26
                 Repeater {
                     model: [
-                        { icon: "", size: 15, run: () => root.player?.previous(), ok: root.player?.canGoPrevious ?? false },
-                        { icon: root.playing ? "" : "", size: 19, run: () => root.player?.togglePlaying(), ok: root.player?.canTogglePlaying ?? true },
-                        { icon: "", size: 15, run: () => root.player?.next(), ok: root.player?.canGoNext ?? false }
+                        { icon: "\uf074", size: 13, ok: root.player?.shuffleSupported ?? false, on: root.player?.shuffle ?? false,
+                          run: () => root.player.shuffle = !root.player.shuffle },
+                        { icon: "\uf048", size: 15, ok: root.player?.canGoPrevious ?? false, on: false, run: () => root.player?.previous() },
+                        { icon: root.playing ? "\uf04c" : "\uf04b", size: 19, ok: root.player?.canTogglePlaying ?? true, on: false, big: true,
+                          run: () => root.player?.togglePlaying() },
+                        { icon: "\uf051", size: 15, ok: root.player?.canGoNext ?? false, on: false, run: () => root.player?.next() },
+                        { icon: (root.player?.loopState ?? MprisLoopState.None) === MprisLoopState.Track ? "\u{f0458}" : "\uf01e", size: 13,
+                          ok: root.player?.loopSupported ?? false, on: (root.player?.loopState ?? MprisLoopState.None) !== MprisLoopState.None,
+                          run: () => Media.cycleLoop() }
                     ]
-                    delegate: Glyph {
+                    delegate: Item {
                         required property var modelData
-                        text: modelData.icon
-                        font.pixelSize: modelData.size
-                        color: ctlMouse.containsMouse ? root.accent : root.ink
-                        opacity: modelData.ok ? 1 : 0.35
-                        width: 26
-                        height: 26
-                        MouseArea {
-                            id: ctlMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: parent.modelData.run()
+                        Layout.fillWidth: true
+                        implicitHeight: 32
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: modelData.big ? 36 : 30
+                            height: width
+                            radius: width / 2
+                            color: modelData.big ? root.accent : ctlMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.12) : "transparent"
+                            Glyph {
+                                anchors.centerIn: parent
+                                text: modelData.icon
+                                font.pixelSize: modelData.size
+                                color: modelData.big ? Theme.onColor(root.accent) : modelData.on ? root.accent : root.ink
+                                opacity: modelData.ok ? 1 : 0.35
+                            }
+                            MouseArea {
+                                id: ctlMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                enabled: modelData.ok
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: modelData.run()
+                            }
                         }
                     }
                 }
