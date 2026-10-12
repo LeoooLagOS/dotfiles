@@ -78,7 +78,8 @@ Scope {
 
                                 Timer {
                                     interval: Notifs.timeoutFor(popupCard.modelData)
-                                    running: !popupCard.hovered && interval > 0     // 0 = until dismissed
+                                    // 0 = until dismissed; an expanded chat stays until closed
+                                    running: !popupCard.hovered && !popupCard.expanded && interval > 0
                                     onTriggered: Notifs.removePopup(popupCard.modelData)
                                 }
                             }

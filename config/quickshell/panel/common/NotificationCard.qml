@@ -54,10 +54,17 @@ Rectangle {
     // Type (Notifs.placeKind): progress bar, security code, call buttons, grouped messages
     readonly property string place: notif ? Notifs.placeKind(notif) : ""
     readonly property string code: place === "security" ? Notifs.codeOf(notif) : ""
-    // In the history a chat is one card: its newest message, the earlier ones under it
-    readonly property var thread: popup || compact ? [] : Notifs.threadOf(notif)
+    // In the history a chat is one card: its newest message, the earlier ones
+    // under it (the last 3, one line each). Clicking "N messages" expands it:
+    // every message, whole; on a popup too (the ones it counts, kept in the
+    // history), which then stays until closed
+    property bool expanded: false
+    readonly property var thread: compact ? []
+        : popup ? (expanded ? Notifs.threadOf(notif).slice(0, Notifs.countOf(notif)) : [])
+        : Notifs.threadOf(notif)
     readonly property var olderMessages: thread.slice(1)
     readonly property int grouped: Math.max(Notifs.countOf(notif), thread.length)
+    readonly property bool canExpand: grouped > 1 && !compact && !isMail
     readonly property bool isMail: !!Notifs.mailOf(notif)
     property bool copied: false
 
@@ -289,14 +296,20 @@ Rectangle {
                         font.pixelSize: card.critical ? 12 : (card.compact ? 13 : 15)
                         font.weight: card.critical ? Font.Bold : Font.DemiBold
                     }
-                    // Grouped messages: how many this card stands for
+                    // Grouped messages: how many this card stands for; click
+                    // to see them all (or fold them back)
                     Rectangle {
                         visible: card.grouped > 1
                         implicitHeight: 18
                         implicitWidth: Math.max(18, groupLabel.implicitWidth + 12)
                         radius: 9
-                        color: card.pal.accent
-                        Label { pal: card.pal; id: groupLabel; anchors.centerIn: parent; text: card.grouped + (card.isMail ? " new" : " messages"); color: card.pal.accentText; font.pixelSize: 10; font.weight: Font.DemiBold }
+                        color: groupMouse.containsMouse ? Qt.lighter(card.pal.accent, 1.15) : card.pal.accent
+                        Label { pal: card.pal; id: groupLabel; anchors.centerIn: parent
+                                text: card.grouped + (card.isMail ? " new" : " messages") + (card.canExpand ? (card.expanded ? "  \u25b4" : "  \u25be") : "")
+                                color: card.pal.accentText; font.pixelSize: 10; font.weight: Font.DemiBold }
+                        MouseArea { id: groupMouse; anchors.fill: parent; enabled: card.canExpand
+                                    hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                    onClicked: card.expanded = !card.expanded }
                     }
                     Label { pal: card.pal;
                         text: Notifs.timeAgo(card.notif)
@@ -329,28 +342,34 @@ Rectangle {
                     onLinkActivated: link => Qt.openUrlExternally(link)
                 }
 
-                // History: the chat's earlier messages under the newest (oldest last)
+                // The chat's earlier messages under the newest (oldest last):
+                // 3, one line each; expanded, all of them, whole
                 Repeater {
-                    model: card.olderMessages.slice(0, 3)
+                    model: card.expanded ? card.olderMessages : card.olderMessages.slice(0, 3)
                     delegate: RowLayout {
                         required property var modelData
                         Layout.fillWidth: true
                         spacing: 8
                         Label { pal: card.pal
                             Layout.fillWidth: true
-                            text: Notifs.plain(Notifs.bodyOf(modelData))
+                            text: card.expanded ? card.toStyled(Notifs.bodyOf(modelData)) : Notifs.plain(Notifs.bodyOf(modelData))
+                            textFormat: card.expanded ? Text.StyledText : Text.PlainText
+                            wrapMode: card.expanded ? Text.Wrap : Text.NoWrap
                             elide: Text.ElideRight
+                            maximumLineCount: card.expanded ? 8 : 1
                             dim: true
-                            font.pixelSize: 12
+                            font.pixelSize: card.expanded ? 13 : 12
+                            onLinkActivated: link => Qt.openUrlExternally(link)
                         }
-                        Label { pal: card.pal; text: Notifs.timeAgo(modelData); dim: true; font.pixelSize: 10 }
+                        Label { pal: card.pal; Layout.alignment: Qt.AlignTop; text: Notifs.timeAgo(modelData); dim: true; font.pixelSize: 10 }
                     }
                 }
                 Label { pal: card.pal
-                    visible: card.olderMessages.length > 3
+                    visible: !card.expanded && card.olderMessages.length > 3
                     text: "+" + (card.olderMessages.length - 3) + " earlier"
                     dim: true
                     font.pixelSize: 11
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: card.expanded = true }
                 }
 
                 // Progress (downloads, copies…): a bar that fills in place
