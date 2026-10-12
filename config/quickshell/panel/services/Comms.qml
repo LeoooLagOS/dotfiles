@@ -59,7 +59,15 @@ Singleton {
     }
     // Short name for the dock: "WhatsApp Web" → "WhatsApp", "Teams for Linux" → "Teams"
     function shortName(n) { return String(n).replace(/\s+(Web|for Linux|Desktop)$/i, ""); }
+    // A web app's own icon (the browser makes one from the site) is often a
+    // white tile; the icon theme's one for that app ("whatsapp") wins
+    function themeIconFor(name) {
+        const id = slug(name).split("-")[0];
+        return id.length > 2 ? Quickshell.iconPath(id, true) : "";
+    }
+    function isWebApp(e) { return /^crx_/i.test(e?.startupClass || ""); }
     function iconOf(e) {
+        if (isWebApp(e)) { const t = themeIconFor(shortName(e.name)); if (t) return t; }
         const ic = e.icon || "";
         if (ic.startsWith("/")) return "file://" + ic;
         return Quickshell.iconPath(ic, true) || Quickshell.iconPath(e.id, true);
@@ -101,6 +109,7 @@ Singleton {
         // Web apps put the unread count in the title: "(3) WhatsApp"
         const m = /^\((\d+)\)/.exec(w?.title ?? "");
         return { ref: d.ref, key: d.key, name: d.name, icon: iconOf(d.entry), running: !!w, address: w?.address ?? "",
+                 web: isWebApp(d.entry), restarting: !!restarting[d.key],
                  badge: m ? Number(m[1]) : unseen(d) };
     })
     readonly property string focusedMonitor: Hyprland.focusedMonitor?.name ?? ""
@@ -246,6 +255,44 @@ Singleton {
             root.sessionState = code === 0 ? "sent" : "failed";
             console.info("quick reply: reply.sh exited", code);
             if (code === 0) closeTimer.restart();
+        }
+    }
+
+    // ---------------- When an app hangs ----------------
+    // reload(key)   a web app: the page again (F5), the app keeps running
+    // restart(key)  close it (its window; if it doesn't go, TERM, then KILL),
+    //               then open it again where it was (shown if it was shown)
+    // quit(key)     the same, without opening it again
+    property var restarting: ({})             // key → true while closing / opening
+    function reload(key) {
+        const d = defs.find(x => x.key === key), w = d ? mainOf(d) : null;
+        if (!w) return;
+        dispatch(`hl.dsp.send_shortcut({ mods = "", key = "F5", window = "address:${w.address}" })`);
+    }
+    function restart(key) { stop(key, true); }
+    function quit(key) { stop(key, false); }
+    function stop(key, again) {
+        const d = defs.find(x => x.key === key), w = d ? mainOf(d) : null;
+        if (!d || restarting[key]) return;
+        if (!w) { if (again) launch(d, shown === key); return; }
+        const r = Object.assign({}, restarting); r[key] = true; restarting = r;
+        console.info("comms:", again ? "restart" : "quit", key, "pid", w.pid);
+        const proc = stopComp.createObject(root, { key: key, again: again, show: shown === key,
+            command: [Quickshell.shellDir + "/scripts/comms-stop.sh", w.address, String(w.pid)] });
+        proc.running = true;
+    }
+    Component {
+        id: stopComp
+        Process {
+            property string key
+            property bool again
+            property bool show
+            onExited: {
+                const r = Object.assign({}, root.restarting); delete r[key]; root.restarting = r;
+                const d = root.defs.find(x => x.key === key);
+                if (again && d) root.launch(d, show);
+                destroy();
+            }
         }
     }
 

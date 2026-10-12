@@ -292,7 +292,8 @@ Item {
                         elide: Text.ElideRight
                     }
                     Label {
-                        text: !commsLine.entry ? "Not installed" : commsLine.app?.running ? "Running" : "Not running · opens when you pick it"
+                        text: !commsLine.entry ? "Not installed" : commsLine.app?.restarting ? "Restarting…"
+                            : commsLine.app?.running ? "Running · ↻ restarts it if it hangs" : "Not running · opens when you pick it"
                         dim: true
                         font.pixelSize: 10
                     }
@@ -302,6 +303,11 @@ Item {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 4
+                    // Hung? Close it (forcing it if needed) and open it again
+                    IconButton { icon: "\uf2f9"; iconSize: 11; implicitWidth: 28; implicitHeight: 26
+                                 visible: !!commsLine.app?.running
+                                 opacity: commsLine.app?.restarting ? 0.4 : 1
+                                 onClicked: Comms.restart(commsLine.app.key) }
                     IconButton { icon: "\uf077"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index > 0; opacity: enabled ? 1 : 0.3
                                  onClicked: root.moveComms(commsLine.index, -1) }
                     IconButton { icon: "\uf078"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index < root.commsRefs.length - 1; opacity: enabled ? 1 : 0.3

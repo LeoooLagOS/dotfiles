@@ -157,6 +157,11 @@ Singleton {
     property var webApps: []                   // [{ name, icon, entry }]
     function webAppIcon(n) {
         if (!n) return "";
+        // The icon theme's own for a known service ("whatsapp": the green one)
+        // beats the tile the browser made from the site
+        const svc = webService(n);
+        const themed = svc ? svc.name.toLowerCase().split(" ")[0] : "";
+        if (themed && Quickshell.hasThemeIcon(themed)) return themed;
         const entry = String(n.desktopEntry || "");
         let a = webApps.find(w => entry && w.entry === entry);
         const ws = a ? null : webService(n);
