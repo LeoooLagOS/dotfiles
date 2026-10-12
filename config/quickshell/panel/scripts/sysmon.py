@@ -189,7 +189,9 @@ def main():
     prev_proc = {}
     prev_t = time.monotonic()
     _, prev_proc, *_ = processes({}, 0, 1)
-    model = next((l.split(":", 1)[1].strip() for l in read("/proc/cpuinfo").splitlines() if l.startswith("model name")), "")
+    info = read("/proc/cpuinfo").splitlines()
+    model = next((l.split(":", 1)[1].strip() for l in info if l.startswith("model name")), "")
+    cores = next((int(l.split(":", 1)[1]) for l in info if l.startswith("cpu cores")), NCPU)
     while True:
         time.sleep(INTERVAL)
         t = time.monotonic()
@@ -204,7 +206,7 @@ def main():
         d, n = disk_bytes(), net_bytes()
         la = read("/proc/loadavg").split()
         data = {
-            "model": model,
+            "model": model, "physCores": cores,
             "cpu": usage[0], "cores": usage[1:], "freqs": freqs(), "temps": temps(),
             "load": [float(x) for x in la[:3]], "uptime": float(read("/proc/uptime").split()[0]),
             "mem": mem, "disks": disks(),

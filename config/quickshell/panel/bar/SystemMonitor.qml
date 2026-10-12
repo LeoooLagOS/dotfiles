@@ -3,38 +3,42 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import "../common"
 import "../services"
 
 // The system monitor that drops from the bar's readings (BarState.monitorOn),
-// btop-like in the panel's look: every CPU thread (usage, frequency, last
-// minute), temperatures and load, memory / cache / swap, disks and their I/O,
-// network rates, and the processes: filter, sort by CPU / memory / PID / name,
-// end one (click × twice; Shift: kill -9). Data: scripts/sysmon.py, run only
-// while it's open. Closes on a click outside, Esc, or the readings again.
+// btop-like in the panel's look, compact:
+//   CPU        usage, temperature, frequency, cores / threads and how many are
+//              busy; click it for the detail: every thread (usage, frequency,
+//              last minute), per-core temperatures, load
+//   memory     used · cache, swap   ·   storage: disks and I/O   ·   network rates
+//   processes  filter, sort by CPU / memory / name, end one (× twice; Shift: kill -9)
+// Data: scripts/sysmon.py, run only while it's open. Closes on a click outside
+// (not while a screenshot region is picked: PopupGrab), Esc, or the readings again.
 PanelWindow {
     id: root
     property var barWindow: null
     property real rightOffset: 8
     property string screenName: ""
     readonly property bool open: screenName !== "" && BarState.monitorOn === screenName
+    property bool cpuDetail: false
+    onOpenChanged: if (!open) cpuDetail = false
 
     visible: open || card.opacity > 0
     color: "transparent"
     exclusionMode: ExclusionMode.Normal
     anchors { top: true; right: true }
     margins { top: 6; right: Math.max(8, rightOffset) }
-    implicitWidth: 880
-    implicitHeight: 790
+    implicitWidth: 600
+    implicitHeight: card.implicitHeight + 2
     WlrLayershell.namespace: "quickshell:bar-popup"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
-    HyprlandFocusGrab {
-        active: root.open
+    PopupGrab {
+        open: root.open
         windows: [root, root.barWindow]
-        onCleared: if (root.open) BarState.monitorOn = ""
+        onClose: BarState.monitorOn = ""
     }
 
     // ---------------- Data ----------------
@@ -59,6 +63,8 @@ PanelWindow {
             }
         }
     }
+    readonly property int busy: d ? d.cores.filter(v => v >= 25).length : 0
+    readonly property real avgGHz: d ? d.freqs.reduce((a, b) => a + b, 0) / d.freqs.length / 1000 : 0
 
     function size(b) {
         const u = ["B", "KiB", "MiB", "GiB", "TiB"];
@@ -81,8 +87,7 @@ PanelWindow {
         const q = filter.toLowerCase();
         let ps = d.procs.filter(p => !q || p.name.toLowerCase().includes(q) || (p.cmd ?? "").toLowerCase().includes(q) || String(p.pid) === q);
         const k = sortKey;
-        ps.sort((a, b) => k === "name" ? a.name.localeCompare(b.name) : k === "pid" ? a.pid - b.pid
-                        : k === "mem" ? b.rss - a.rss : b.cpu - a.cpu || b.rss - a.rss);
+        ps.sort((a, b) => k === "name" ? a.name.localeCompare(b.name) : k === "mem" ? b.rss - a.rss : b.cpu - a.cpu || b.rss - a.rss);
         return ps;
     }
     property int confirmPid: -1
@@ -126,7 +131,8 @@ PanelWindow {
 
     Rectangle {
         id: card
-        anchors.fill: parent
+        width: parent.width
+        implicitHeight: (root.d ? col.implicitHeight : 120) + 28
         radius: 18
         color: Theme.bg
         border.color: Theme.border
@@ -135,8 +141,10 @@ PanelWindow {
         transformOrigin: Item.TopRight
         Behavior on opacity { NumberAnimation { duration: 140 } }
         Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+        Behavior on implicitHeight { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        clip: true
         focus: root.open
-        Keys.onEscapePressed: BarState.monitorOn = ""
+        Keys.onEscapePressed: root.cpuDetail ? (root.cpuDetail = false) : (BarState.monitorOn = "")
 
         Label {
             anchors.centerIn: parent
@@ -146,194 +154,228 @@ PanelWindow {
         }
 
         ColumnLayout {
+            id: col
             visible: !!root.d
-            anchors.fill: parent
-            anchors.margins: 14
+            x: 14
+            y: 14
+            width: parent.width - 28
             spacing: 10
 
             // ---------------- Header ----------------
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 10
-                Glyph { text: ""; font.pixelSize: 18; color: BarState.accent }
+                Glyph { text: ""; font.pixelSize: 16; color: BarState.accent }
                 ColumnLayout {
                     spacing: 0
                     Layout.fillWidth: true
-                    Label { text: "System monitor"; font.pixelSize: 15; font.weight: Font.DemiBold }
+                    Label { text: "System monitor"; font.pixelSize: 14; font.weight: Font.DemiBold }
                     Label {
                         Layout.fillWidth: true
                         dim: true
                         font.pixelSize: 11
-                        text: root.d ? root.d.model.replace(/\(R\)|\(TM\)|CPU|Processor/g, "").replace(/\s+/g, " ").trim()
-                                       + "  ·  up " + root.dur(root.d.uptime)
-                                       + "  ·  load " + root.d.load.map(l => l.toFixed(2)).join("  ") : ""
+                        text: root.d ? "up " + root.dur(root.d.uptime) + "  ·  load " + root.d.load.map(l => l.toFixed(2)).join("  ")
+                                       + "  ·  " + root.d.nprocs + " processes" : ""
                     }
                 }
                 IconButton {
-                    icon: ""; iconSize: 12; implicitWidth: 34; implicitHeight: 30
+                    icon: ""; iconSize: 12; implicitWidth: 32; implicitHeight: 28
                     onClicked: { BarState.monitorOn = ""; Quickshell.execDetached(["kitty", "--class", "btop", "-T", "btop", "-e", "btop"]); }
                 }
-                IconButton { icon: ""; iconSize: 12; implicitWidth: 34; implicitHeight: 30; onClicked: BarState.monitorOn = "" }
+                IconButton { icon: ""; iconSize: 12; implicitWidth: 32; implicitHeight: 28; onClicked: BarState.monitorOn = "" }
             }
 
-            // ---------------- CPU · memory / disks / network ----------------
-            RowLayout {
+            // ---------------- CPU · memory / storage · network ----------------
+            GridLayout {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 300
-                Layout.maximumHeight: 300
-                spacing: 10
+                columns: 2
+                columnSpacing: 10
+                rowSpacing: 10
 
-                // CPU
+                // CPU (summary; click: every thread)
                 Card {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.preferredWidth: 3
+                    Layout.preferredWidth: 1
+                    implicitHeight: 108
+                    border.color: root.cpuDetail ? BarState.accent : cpuMouse.containsMouse ? Theme.withAlpha(BarState.accent, 0.5) : Theme.border
+                    color: cpuMouse.containsMouse ? Theme.bgHover : Theme.bgAlt
+                    MouseArea { id: cpuMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cpuDetail = !root.cpuDetail }
+                    Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: 30; values: root.cpuHist; opacity: 0.7 }
+                    ColumnLayout {
+                        x: 12; y: 10
+                        width: parent.width - 24
+                        spacing: 2
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Head { text: "CPU" }
+                            Item { Layout.fillWidth: true }
+                            Glyph { text: root.cpuDetail ? "" : ""; font.pixelSize: 9; color: Theme.fgDim }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label { text: Math.round(root.d?.cpu ?? 0) + "%"; font.pixelSize: 22; font.weight: Font.Bold; font.features: { "tnum": 1 }
+                                    color: (root.d?.cpu ?? 0) >= 80 ? root.tint(root.d.cpu, 80, 95) : Theme.fg }
+                            Label { text: (root.d?.temps.cpu ?? 0) + " °C"; font.pixelSize: 13; font.weight: Font.DemiBold; font.features: { "tnum": 1 }
+                                    color: (root.d?.temps.cpu ?? 0) >= 80 ? root.tint(root.d.temps.cpu, 80, 90) : Theme.fg }
+                            Label { text: root.avgGHz.toFixed(2) + " GHz"; dim: true; font.pixelSize: 12; font.features: { "tnum": 1 } }
+                        }
+                        Label {
+                            dim: true
+                            font.pixelSize: 11
+                            text: root.d ? root.d.physCores + " cores · " + root.d.cores.length + " threads · " + root.busy + " busy" : ""
+                        }
+                    }
+                }
+
+                // Memory: used · cache · free, and swap
+                Card {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    implicitHeight: 108
                     ColumnLayout {
                         anchors.fill: parent
                         anchors.margins: 12
-                        spacing: 8
+                        spacing: 6
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: 10
-                            Head { text: "CPU" }
-                            Label { text: (root.d?.cpu ?? 0).toFixed(0) + "%"; font.pixelSize: 20; font.weight: Font.Bold; font.features: { "tnum": 1 }
-                                    color: (root.d?.cpu ?? 0) >= 80 ? root.tint(root.d.cpu, 80, 95) : Theme.fg }
+                            Head { text: "MEMORY" }
                             Item { Layout.fillWidth: true }
-                            Label {
-                                dim: true; font.pixelSize: 11; font.features: { "tnum": 1 }
-                                text: root.d ? (root.d.freqs.reduce((a, b) => a + b, 0) / root.d.freqs.length / 1000).toFixed(2) + " GHz avg  ·  "
-                                               + root.d.temps.cpu + " °C  ·  " + root.d.nprocs + " processes" : ""
+                            Label { text: memBar.m ? root.size(memBar.m.used) + " / " + root.size(memBar.m.total) : ""; font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
+                        }
+                        Rectangle {
+                            id: memBar
+                            readonly property var m: root.d?.mem
+                            Layout.fillWidth: true
+                            height: 10
+                            radius: 5
+                            color: Theme.track
+                            clip: true
+                            Row {
+                                anchors.fill: parent
+                                Rectangle { height: parent.height; width: memBar.m ? memBar.width * memBar.m.used / memBar.m.total : 0; color: root.tint(memBar.m ? 100 * memBar.m.used / memBar.m.total : 0, 80, 92) }
+                                Rectangle { height: parent.height; width: memBar.m ? memBar.width * Math.min(memBar.m.cache, memBar.m.avail) / memBar.m.total : 0; color: Theme.withAlpha(Theme.accent2, 0.55) }
                             }
                         }
-                        Graph { Layout.fillWidth: true; Layout.preferredHeight: 58; values: root.cpuHist }
-                        // Every thread: usage, its last 40 samples, frequency
-                        GridLayout {
+                        RowLayout {
                             Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            columns: Math.min(6, Math.max(1, root.d?.cores.length ?? 1))
-                            columnSpacing: 6
-                            rowSpacing: 6
-                            Repeater {
-                                model: root.d?.cores.length ?? 0
-                                delegate: Rectangle {
-                                    required property int index
-                                    readonly property real v: root.d?.cores[index] ?? 0
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    radius: 8
-                                    color: Theme.withAlpha(Theme.fg, 0.035)
-                                    Graph {
-                                        anchors.fill: parent
-                                        anchors.margins: 1
-                                        values: root.coreHist[index] ?? []
-                                        stroke: root.tint(v, 80, 95)
-                                        opacity: 0.8
-                                    }
-                                    Label { x: 7; y: 4; text: "T" + index; dim: true; font.pixelSize: 9; font.weight: Font.DemiBold }
-                                    Label { anchors.right: parent.right; anchors.rightMargin: 7; y: 3; text: Math.round(v) + "%"
-                                            font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 }; color: v >= 80 ? root.tint(v, 80, 95) : Theme.fg }
-                                    Label { anchors.right: parent.right; anchors.rightMargin: 7; anchors.bottom: parent.bottom; anchors.bottomMargin: 3
-                                            text: ((root.d?.freqs[index] ?? 0) / 1000).toFixed(1) + " GHz"; dim: true; font.pixelSize: 9; font.features: { "tnum": 1 } }
-                                }
+                            spacing: 12
+                            Label { text: "● used"; color: BarState.accent; font.pixelSize: 10 }
+                            Label { text: "● cache " + (memBar.m ? root.size(memBar.m.cache) : ""); color: Theme.accent2; font.pixelSize: 10 }
+                        }
+                        Label { text: "swap " + (memBar.m ? root.size(memBar.m.swapUsed) + " / " + root.size(memBar.m.swapTotal) : ""); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                    }
+                }
+
+                // Storage and I/O
+                Card {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    implicitHeight: Math.max(84, diskCol.implicitHeight + 22)
+                    ColumnLayout {
+                        id: diskCol
+                        x: 12; y: 11
+                        width: parent.width - 24
+                        spacing: 5
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Head { text: "STORAGE" }
+                            Item { Layout.fillWidth: true }
+                            Label { text: root.d ? "↓ " + root.rate(root.d.io.read) + "  ↑ " + root.rate(root.d.io.write) : ""; dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                        }
+                        // A fixed count (the disks don't change): rows stay, bars don't regrow
+                        Repeater {
+                            model: root.d?.disks.length ?? 0
+                            delegate: RowLayout {
+                                required property int index
+                                readonly property var disk: root.d?.disks[index] ?? ({ mount: "", used: 0, total: 1 })
+                                Layout.fillWidth: true
+                                spacing: 8
+                                Label { text: disk.mount; font.pixelSize: 10; Layout.preferredWidth: 58; font.family: "JetBrains Mono" }
+                                Bar { Layout.fillWidth: true; value: Math.round(1000 * disk.used / disk.total) / 1000; fillColor: root.tint(100 * disk.used / disk.total, 90, 97) }
+                                Label { text: Math.round(100 * disk.used / disk.total) + "%"; dim: true; font.pixelSize: 10; font.features: { "tnum": 1 }; Layout.preferredWidth: 30; horizontalAlignment: Text.AlignRight }
                             }
                         }
                     }
                 }
 
-                ColumnLayout {
+                // Network
+                Card {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     Layout.fillHeight: true
-                    Layout.preferredWidth: 2
-                    spacing: 10
+                    implicitHeight: 84
+                    Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: parent.height - 34; values: root.rxHist; autoMax: true }
+                    Graph { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 1; height: parent.height - 34; values: root.txHist; autoMax: true; stroke: Theme.accent2 }
+                    RowLayout {
+                        x: 12; y: 11
+                        width: parent.width - 24
+                        Head { text: "NETWORK" }
+                        Item { Layout.fillWidth: true }
+                        Label { text: root.d ? "↓ " + root.rate(root.d.net.rx) : ""; color: BarState.accent; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
+                        Label { text: root.d ? "↑ " + root.rate(root.d.net.tx) : ""; color: Theme.accent2; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
+                    }
+                }
+            }
 
-                    // Memory: used · cache · free, and swap
-                    Card {
+            // ---------------- CPU detail: every thread ----------------
+            Card {
+                visible: root.cpuDetail
+                Layout.fillWidth: true
+                implicitHeight: cpuCol.implicitHeight + 24
+                ColumnLayout {
+                    id: cpuCol
+                    x: 12; y: 12
+                    width: parent.width - 24
+                    spacing: 8
+                    RowLayout {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 100
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 6
-                            RowLayout {
+                        Head { text: "THREADS" }
+                        Label {
+                            Layout.fillWidth: true
+                            dim: true
+                            font.pixelSize: 11
+                            text: root.d ? root.d.model.replace(/\(R\)|\(TM\)|CPU|Processor/g, "").replace(/\s+/g, " ").trim()
+                                           + "  ·  " + (Math.min(...root.d.freqs) / 1000).toFixed(1) + "–" + (Math.max(...root.d.freqs) / 1000).toFixed(1) + " GHz now" : ""
+                        }
+                    }
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 6
+                        columnSpacing: 6
+                        rowSpacing: 6
+                        Repeater {
+                            model: root.d?.cores.length ?? 0
+                            delegate: Rectangle {
+                                required property int index
+                                readonly property real v: root.d?.cores[index] ?? 0
                                 Layout.fillWidth: true
-                                Head { text: "MEMORY" }
-                                Item { Layout.fillWidth: true }
-                                Label { text: memBar.m ? root.size(memBar.m.used) + " / " + root.size(memBar.m.total) : ""; font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
-                            }
-                            Rectangle {
-                                id: memBar
-                                readonly property var m: root.d?.mem
-                                Layout.fillWidth: true
-                                height: 10
-                                radius: 5
-                                color: Theme.track
-                                clip: true
-                                Row {
-                                    anchors.fill: parent
-                                    Rectangle { height: parent.height; width: memBar.m ? memBar.width * memBar.m.used / memBar.m.total : 0; color: root.tint(memBar.m ? 100 * memBar.m.used / memBar.m.total : 0, 80, 92) }
-                                    Rectangle { height: parent.height; width: memBar.m ? memBar.width * Math.min(memBar.m.cache, memBar.m.avail) / memBar.m.total : 0; color: Theme.withAlpha(Theme.accent2, 0.55) }
-                                }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 12
-                                Label { text: "● used"; color: BarState.accent; font.pixelSize: 10 }
-                                Label { text: "● cache " + (memBar.m ? root.size(memBar.m.cache) : ""); color: Theme.accent2; font.pixelSize: 10 }
-                                Item { Layout.fillWidth: true }
-                                Label { text: "swap " + (memBar.m ? root.size(memBar.m.swapUsed) + " / " + root.size(memBar.m.swapTotal) : ""); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                                implicitHeight: 52
+                                radius: 8
+                                color: Theme.withAlpha(Theme.fg, 0.035)
+                                Graph { anchors.fill: parent; anchors.margins: 1; values: root.coreHist[index] ?? []; stroke: root.tint(v, 80, 95); opacity: 0.8 }
+                                Label { x: 7; y: 4; text: "T" + index; dim: true; font.pixelSize: 9; font.weight: Font.DemiBold }
+                                Label { anchors.right: parent.right; anchors.rightMargin: 7; y: 3; text: Math.round(v) + "%"
+                                        font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 }; color: v >= 80 ? root.tint(v, 80, 95) : Theme.fg }
+                                Label { anchors.right: parent.right; anchors.rightMargin: 7; anchors.bottom: parent.bottom; anchors.bottomMargin: 3
+                                        text: ((root.d?.freqs[index] ?? 0) / 1000).toFixed(1) + " GHz"; dim: true; font.pixelSize: 9; font.features: { "tnum": 1 } }
                             }
                         }
                     }
-
-                    // Disks and I/O
-                    Card {
+                    // Per-core temperatures
+                    Flow {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: diskCol.implicitHeight + 24
-                        ColumnLayout {
-                            id: diskCol
-                            x: 12; y: 12
-                            width: parent.width - 24
-                            spacing: 6
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Head { text: "STORAGE" }
-                                Item { Layout.fillWidth: true }
-                                Label { text: root.d ? "↓ " + root.rate(root.d.io.read) + "   ↑ " + root.rate(root.d.io.write) : ""; dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
-                            }
-                            Repeater {
-                                model: root.d?.disks ?? []
-                                delegate: RowLayout {
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    spacing: 8
-                                    Label { text: modelData.mount; font.pixelSize: 11; Layout.preferredWidth: 62; font.family: "JetBrains Mono" }
-                                    Bar { Layout.fillWidth: true; value: modelData.used / modelData.total; fillColor: root.tint(100 * modelData.used / modelData.total, 90, 97) }
-                                    Label { text: root.size(modelData.used) + " / " + root.size(modelData.total); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 }; Layout.preferredWidth: 104; horizontalAlignment: Text.AlignRight }
-                                }
-                            }
-                        }
-                    }
-
-                    // Network
-                    Card {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 4
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Head { text: "NETWORK" }
-                                Item { Layout.fillWidth: true }
-                                Label { text: root.d ? "↓ " + root.rate(root.d.net.rx) : ""; color: BarState.accent; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
-                                Label { text: root.d ? "↑ " + root.rate(root.d.net.tx) : ""; color: Theme.accent2; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
-                            }
-                            Item {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                Graph { anchors.fill: parent; values: root.rxHist; autoMax: true }
-                                Graph { anchors.fill: parent; values: root.txHist; autoMax: true; stroke: Theme.accent2 }
+                        spacing: 6
+                        Repeater {
+                            model: root.d ? Object.keys(root.d.temps.cores).sort((a, b) => Number(a.split(" ")[1]) - Number(b.split(" ")[1])) : []
+                            delegate: Rectangle {
+                                required property string modelData
+                                readonly property int t: root.d?.temps.cores[modelData] ?? 0
+                                implicitWidth: tl.implicitWidth + 14
+                                implicitHeight: 20
+                                radius: 10
+                                color: Theme.withAlpha(Theme.fg, 0.05)
+                                Label { id: tl; anchors.centerIn: parent; text: parent.modelData.replace("Core ", "C") + "  " + parent.t + "°"
+                                        font.pixelSize: 10; font.features: { "tnum": 1 }; color: parent.t >= 80 ? root.tint(parent.t, 80, 90) : Theme.fgDim }
                             }
                         }
                     }
@@ -343,43 +385,39 @@ PanelWindow {
             // ---------------- Processes ----------------
             Card {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                implicitHeight: 262
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 12
                     spacing: 6
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 10
+                        spacing: 8
                         Head { text: "PROCESSES" }
-                        Label { text: root.d ? root.d.nprocs + " · " + root.d.nthreads + " threads · " + root.d.running + " running" : ""; dim: true; font.pixelSize: 11 }
                         Item { Layout.fillWidth: true }
                         TextField {
-                            Layout.preferredWidth: 220
-                            implicitHeight: 28
+                            Layout.preferredWidth: 170
+                            implicitHeight: 26
                             icon: ""
-                            placeholder: "Name, command or PID"
+                            placeholder: "Filter"
                             onTextChanged: root.filter = text
                         }
                         Segmented {
-                            options: [{ value: "cpu", label: "CPU" }, { value: "mem", label: "Memory" }, { value: "pid", label: "PID" }, { value: "name", label: "Name" }]
+                            options: [{ value: "cpu", label: "CPU" }, { value: "mem", label: "Memory" }, { value: "name", label: "Name" }]
                             value: root.sortKey
                             onSelected: v => root.sortKey = v
                         }
                     }
-                    // Columns
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.leftMargin: 8
                         Layout.rightMargin: 8
                         spacing: 10
-                        Head { text: "PID"; Layout.preferredWidth: 58; Layout.maximumWidth: 58 }
+                        Head { text: "PID"; Layout.preferredWidth: 50; Layout.maximumWidth: 50 }
                         Head { text: "NAME"; Layout.fillWidth: true; Layout.preferredWidth: 80 }
-                        Head { text: "USER"; Layout.preferredWidth: 80; Layout.maximumWidth: 80 }
-                        Head { text: "THREADS"; Layout.preferredWidth: 64; Layout.maximumWidth: 64; horizontalAlignment: Text.AlignRight }
-                        Head { text: "MEMORY"; Layout.preferredWidth: 78; Layout.maximumWidth: 78; horizontalAlignment: Text.AlignRight }
-                        Head { text: "CPU"; Layout.preferredWidth: 96; Layout.maximumWidth: 96; horizontalAlignment: Text.AlignRight }
-                        Item { Layout.preferredWidth: 52; Layout.maximumWidth: 52 }
+                        Head { text: "MEMORY"; Layout.preferredWidth: 70; Layout.maximumWidth: 70; horizontalAlignment: Text.AlignRight }
+                        Head { text: "CPU"; Layout.preferredWidth: 84; Layout.maximumWidth: 84; horizontalAlignment: Text.AlignRight }
+                        Item { Layout.preferredWidth: 40; Layout.maximumWidth: 40 }
                     }
                     // A fixed number of rows reading root.procs[index]: a new model every
                     // update would rebuild the list and lose the scroll position
@@ -392,10 +430,10 @@ PanelWindow {
                         delegate: Rectangle {
                             id: prow
                             required property int index
-                            readonly property var modelData: root.procs[index] ?? ({ pid: 0, name: "", cmd: "", user: "", threads: 0, rss: 0, mem: 0, cpu: 0 })
+                            readonly property var modelData: root.procs[index] ?? ({ pid: 0, name: "", cmd: "", rss: 0, mem: 0, cpu: 0 })
                             visible: index < root.procs.length
                             width: ListView.view.width
-                            height: visible ? 29 : 0
+                            height: visible ? 27 : 0
                             radius: 7
                             color: rowHover.hovered ? Theme.bgHover : "transparent"
                             HoverHandler { id: rowHover }
@@ -404,9 +442,8 @@ PanelWindow {
                                 anchors.leftMargin: 8
                                 anchors.rightMargin: 8
                                 spacing: 10
-                                Label { text: prow.modelData.pid; dim: true; font.pixelSize: 11; font.family: "JetBrains Mono"; Layout.preferredWidth: 58; Layout.maximumWidth: 58 }
+                                Label { text: prow.modelData.pid; dim: true; font.pixelSize: 10; font.family: "JetBrains Mono"; Layout.preferredWidth: 50; Layout.maximumWidth: 50 }
                                 Label {
-                                    // Small preferred width: every row splits the space the same way
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 80
                                     font.pixelSize: 12
@@ -414,29 +451,28 @@ PanelWindow {
                                     text: "<b>" + prow.modelData.name + "</b>"
                                           + (prow.modelData.cmd ? "  <font color='" + Theme.fgDim + "'>" + prow.modelData.cmd.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</font>" : "")
                                 }
-                                Label { text: prow.modelData.user; dim: true; font.pixelSize: 11; Layout.preferredWidth: 80; Layout.maximumWidth: 80 }
-                                Label { text: prow.modelData.threads; dim: true; font.pixelSize: 11; font.features: { "tnum": 1 }; Layout.preferredWidth: 64; Layout.maximumWidth: 64; horizontalAlignment: Text.AlignRight }
-                                Label { text: root.size(prow.modelData.rss); font.pixelSize: 11; font.features: { "tnum": 1 }; Layout.preferredWidth: 78; Layout.maximumWidth: 78; horizontalAlignment: Text.AlignRight
+                                Label { text: root.size(prow.modelData.rss); font.pixelSize: 11; font.features: { "tnum": 1 }; Layout.preferredWidth: 70; Layout.maximumWidth: 70; horizontalAlignment: Text.AlignRight
                                         color: prow.modelData.mem >= 10 ? Theme.warn : Theme.fg }
                                 RowLayout {
-                                    Layout.preferredWidth: 96
-                                    Layout.maximumWidth: 96
+                                    Layout.preferredWidth: 84
+                                    Layout.maximumWidth: 84
                                     spacing: 6
                                     Bar { Layout.fillWidth: true; value: Math.min(1, prow.modelData.cpu / 25); fillColor: root.tint(prow.modelData.cpu, 25, 60) }
-                                    Label { text: prow.modelData.cpu.toFixed(1) + "%"; font.pixelSize: 11; font.features: { "tnum": 1 }; Layout.preferredWidth: 40; horizontalAlignment: Text.AlignRight
+                                    Label { text: prow.modelData.cpu.toFixed(1) + "%"; font.pixelSize: 11; font.features: { "tnum": 1 }; Layout.preferredWidth: 38; horizontalAlignment: Text.AlignRight
                                             color: prow.modelData.cpu >= 25 ? root.tint(prow.modelData.cpu, 25, 60) : Theme.fg }
                                 }
                                 // End it: × once, then "End?" (Shift: kill -9)
                                 Rectangle {
                                     readonly property bool confirming: root.confirmPid === prow.modelData.pid
-                                    Layout.preferredWidth: 52
-                                    implicitHeight: 22
-                                    radius: 11
+                                    Layout.preferredWidth: 40
+                                    Layout.maximumWidth: 40
+                                    implicitHeight: 20
+                                    radius: 10
                                     // opacity, not visible: hidden items leave the layout and the row would shift
                                     opacity: rowHover.hovered || confirming ? 1 : 0
                                     enabled: opacity > 0
                                     color: confirming ? Theme.bad : endMouse.containsMouse ? Theme.withAlpha(Theme.bad, 0.2) : "transparent"
-                                    Label { anchors.centerIn: parent; text: parent.confirming ? "End?" : "×"; font.pixelSize: parent.confirming ? 11 : 14
+                                    Label { anchors.centerIn: parent; text: parent.confirming ? "End?" : "×"; font.pixelSize: parent.confirming ? 10 : 14
                                             font.weight: Font.DemiBold; color: parent.confirming ? Theme.onColor(Theme.bad) : Theme.bad }
                                     MouseArea {
                                         id: endMouse
