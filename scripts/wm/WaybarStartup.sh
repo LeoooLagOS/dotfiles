@@ -110,6 +110,10 @@ main() {
         sync_portal_env || true
         ensure_wallust_waybar_colors
 
+        # The Quickshell panel's bar is in use (BarSwitch.sh): no waybar. The
+        # wallust colors above are still needed: the panel reads them too.
+        [ "$(cat "${XDG_CONFIG_HOME:-$HOME/.config}/lagos/bar" 2>/dev/null)" = waybar ] || exit 0
+
         # Try systemd first if enabled, otherwise launch directly
         if start_waybar_via_systemd; then
             exit 0

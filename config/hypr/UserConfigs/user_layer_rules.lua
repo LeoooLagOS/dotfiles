@@ -113,3 +113,18 @@ apply_layer_rule({
   blur = true,
   ignore_alpha = 0.05,
 })
+
+-- Quickshell top bar (TopBar.qml): its translucent groups and the system
+-- popup are frosted; follows the panel's blur switch (PanelBlur.sh)
+apply_layer_rule({
+  name = "user-quickshell-bar-blur",
+  match = { namespace = "quickshell:bar" },
+  blur = panel_blur,
+  ignore_alpha = 0.05,
+})
+apply_layer_rule({
+  name = "user-quickshell-bar-popup-blur",
+  match = { namespace = "quickshell:bar-popup" },
+  blur = panel_blur,
+  ignore_alpha = 0.05,
+})

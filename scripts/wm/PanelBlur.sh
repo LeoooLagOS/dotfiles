@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Blur behind the Quickshell panel (config/quickshell/panel): the frosted card
-# and the soft blur of the whole screen while the panel is hovered.
+# Blur behind the Quickshell panel (config/quickshell/panel): the frosted card,
+# the soft blur of the whole screen while the panel is hovered, and the top
+# bar's groups and system popup.
 #   PanelBlur.sh on | off | toggle | status
 # The choice is saved in ~/.config/lagos/panel-blur ("on"/"off"), which
 # config/hypr/UserConfigs/user_layer_rules.lua reads when Hyprland loads, and it
@@ -17,6 +18,8 @@ apply() {
   local blur=$1   # true | false
   hyprctl eval "hl.layer_rule({ name = 'user-quickshell-panel-blur', match = { namespace = 'quickshell:panel' }, blur = $blur, ignore_alpha = 0.05 })" >/dev/null
   hyprctl eval "hl.layer_rule({ name = 'user-quickshell-panel-dim-blur', match = { namespace = 'quickshell:panel-dim' }, blur = $blur, ignore_alpha = 0 })" >/dev/null
+  hyprctl eval "hl.layer_rule({ name = 'user-quickshell-bar-blur', match = { namespace = 'quickshell:bar' }, blur = $blur, ignore_alpha = 0.05 })" >/dev/null
+  hyprctl eval "hl.layer_rule({ name = 'user-quickshell-bar-popup-blur', match = { namespace = 'quickshell:bar-popup' }, blur = $blur, ignore_alpha = 0.05 })" >/dev/null
 }
 
 set_state() {

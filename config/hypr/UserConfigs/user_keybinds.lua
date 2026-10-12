@@ -140,6 +140,10 @@ bind("SUPER ALT", "minus", exec_cmd(scripts .. "PanelOpacity.sh -5"), { descript
 bind("SUPER ALT", "equal", exec_cmd(scripts .. "PanelOpacity.sh +5"), { description = "panel more opaque", repeating = true })
 bind("SUPER ALT", "W", exec_cmd(scripts .. "WallustToggle.sh toggle"), { description = "colors from the wallpaper (wallust) on/off" })
 bind("SUPER ALT", "I", exec_cmd("qs -c panel ipc call panel caffeine"), { description = "caffeine: keep the screen awake on/off" })
+-- The top bar is the panel's (TopBar.qml), not waybar: SUPER CTRL ALT B hides
+-- or shows it (scripts/wm/BarSwitch.sh switches back to waybar for good)
+unbind("SUPER CTRL ALT", "B")
+bind("SUPER CTRL ALT", "B", exec_cmd("qs -c panel ipc call panel barToggle"), { description = "top bar: hide / show" })
 -- WhatsApp / Thunderbird above a dock to switch between them (the panel's
 -- services/Comms.qml; each app in its own special workspace)
 bind("SUPER", "Y", exec_cmd("qs -c panel ipc call panel comms"), { description = "communication apps: WhatsApp, Thunderbird, Teams with a dock (show / hide)" })

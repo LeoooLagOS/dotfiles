@@ -110,6 +110,8 @@ ensure_wayland_env() {
 # waybar never gets launched and the bar stays gone. Running the restart as a transient
 # systemd unit puts it outside that cgroup, where it survives the teardown.
 restart_waybar() {
+  # The Quickshell panel's bar is in use (BarSwitch.sh): don't bring waybar back
+  [ "$(cat "${XDG_CONFIG_HOME:-$HOME/.config}/lagos/bar" 2>/dev/null)" = waybar ] || return 0
   ensure_wayland_env
   local restart_cmd
 
