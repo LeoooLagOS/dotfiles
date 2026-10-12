@@ -359,9 +359,9 @@ Singleton {
     // --- Test notifications (Settings → Notifications → Try them) ---
     // Marked x-lagos-test: no quick reply, and a click opens nothing
     readonly property var tests: [
-        { id: "message", label: "Message", args: ["-a", "Teams", "-h", "string:category:im.received", "Ana López", "¿Puedes revisar el documento antes de la clase?", "-A", "default=Open"] },
-        { id: "call", label: "Call", args: ["-a", "Teams", "-h", "string:category:call.incoming", "Incoming call", "Ana López is calling you", "-A", "answer=Answer", "-A", "decline=Decline"] },
-        { id: "reminder", label: "Reminder", args: ["-a", "Calendar", "-h", "string:category:calendar", "Redes · in 10 minutes", "15:00 – 16:00 · CCO4 201"] },
+        { id: "message", label: "Message", args: ["-a", "Teams", "-h", "string:category:im.received", "Octavio Paz", "¿Puedes revisar la presentación antes de la clase?", "-A", "default=Open"] },
+        { id: "call", label: "Call", args: ["-a", "Teams", "-h", "string:category:call.incoming", "Incoming call", "Edith Flores is calling you", "-A", "answer=Answer", "-A", "decline=Decline"] },
+        { id: "reminder", label: "Reminder", args: ["-a", "Calendar", "-h", "string:category:calendar", "Reunión con Octavio Paz · in 10 minutes", "16:00 – 17:00 · Sala de juntas"] },
         { id: "security", label: "Security code", args: ["-a", "Microsoft account", "Your security code", "Use 482913 to sign in. It expires in 10 minutes."] },
         { id: "level", label: "Volume", args: ["-a", "Volume", "-h", "string:x-canonical-private-synchronous:volume", "-h", "int:value:65", "Volume"] },
         { id: "progress", label: "Progress", args: ["-a", "Downloads", "-h", "int:value:40", "Downloading fedora.iso", "1.2 GB of 3.0 GB"] },
@@ -375,6 +375,10 @@ Singleton {
         if (!t) return;
         // With actions notify-send waits for an answer: in the background, at most a minute
         Quickshell.execDetached(["timeout", "60", "notify-send", "-h", "boolean:x-lagos-test:true"].concat(t.args));
+    }
+    // Every kind in a row, paced for a video (scripts/wm/NotifDemo.sh), after a 3 s countdown
+    function runDemo() {
+        Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/NotifDemo.sh", "-w", "3"]);
     }
     function clearAll() { for (const n of list.slice()) n.dismiss(); }
     function toggleDnd() { setDnd(!dnd, null); }

@@ -349,8 +349,14 @@ Item {
         Chip {
             text: "All"
             icon: "\uf0f3"
-            filled: true
             onClicked: { for (const t of Notifs.tests) Notifs.sendTest(t.id); }
+        }
+        // For a video: one after another, paced (scripts/wm/NotifDemo.sh)
+        Chip {
+            text: "Demo (3 s)"
+            icon: "\uf03d"
+            filled: true
+            onClicked: Notifs.runDemo()
         }
     }
 }
