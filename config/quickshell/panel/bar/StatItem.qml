@@ -22,6 +22,7 @@ Row {
     }
 
     Glyph {
+        optical: true
         text: root.icon
         font.pixelSize: root.iconSize
         color: root.level ? root.tint : Theme.fgDim
