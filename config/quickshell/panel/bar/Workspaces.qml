@@ -22,6 +22,36 @@ BarPill {
         s.add(activeId);
         return [...s].filter(i => i > 0).sort((a, b) => a - b);
     }
+    // As wide as its content, growing with the apps up to `cap` (TopBar.qml);
+    // past it each workspace shows fewer app icons ("+N" for the rest)
+    property real cap: 100000
+    // Icons per workspace that fit in `cap` (4 at most, 1 at least): each
+    // workspace is its number + 5 + 15 per icon (+ 5 + "+N") + its padding
+    readonly property int iconLimit: {
+        layoutTick;
+        const items = [];
+        for (let i = 0; i < wsRepeater.count; i++) { const it = wsRepeater.itemAt(i); if (it) items.push(it); }
+        const widthWith = k => items.reduce((a, it) => {
+            const n = Settings.v.barWsIcons ? it.apps.length : 0;
+            return a + it.numWidth + Math.min(n, k) * 20 + (n > k ? 21 : 0) + (it.empty ? 12 : 16);
+        }, 0) + Math.max(0, items.length - 1) * spacing + 2 * pad;
+        for (let k = 4; k > 1; k--) if (widthWith(k) <= cap) return k;
+        return 1;
+    }
+    // When the bar makes the card wider (the panel open: both halves measure
+    // the same) the extra is shared among the workspaces, so they spread out
+    property int layoutTick: 0
+    // Later, once: a delegate's size changing while these are evaluated would loop
+    function relayout() { Qt.callLater(bump); }
+    function bump() { layoutTick++; }
+    readonly property real baseSum: {
+        layoutTick;
+        let w = 0;
+        for (let i = 0; i < wsRepeater.count; i++) w += wsRepeater.itemAt(i)?.baseWidth ?? 0;
+        return w;
+    }
+    readonly property real natural: baseSum + Math.max(0, wsRepeater.count - 1) * spacing + 2 * pad
+    readonly property real extraEach: wsRepeater.count ? Math.max(0, (width - natural) / wsRepeater.count) : 0
     function go(target) { Quickshell.execDetached(["hyprctl", "dispatch", `hl.dsp.focus({ workspace = ${target} })`]); }
     onWheel: d => go(d > 0 ? '"e-1"' : '"e+1"')
 
@@ -37,7 +67,9 @@ BarPill {
     }
 
     Repeater {
+        id: wsRepeater
         model: root.ids
+        onCountChanged: root.relayout()
         delegate: Rectangle {
             id: ws
             required property int modelData
@@ -54,7 +86,12 @@ BarPill {
             readonly property bool empty: !Hyprland.toplevels.values.some(t => t.workspace?.id === modelData)
             anchors.verticalCenter: parent.verticalCenter
             implicitHeight: Settings.v.barHeight - 16
-            implicitWidth: wsRow.implicitWidth + (empty ? 12 : 16)
+            readonly property real numWidth: num.implicitWidth
+            readonly property real baseWidth: wsRow.implicitWidth + (empty ? 12 : 16)
+            onBaseWidthChanged: root.relayout()
+            onAppsChanged: root.relayout()
+            Component.onCompleted: root.relayout()
+            implicitWidth: baseWidth + root.extraEach
             radius: 8
             color: on ? Theme.withAlpha(BarState.accent, 0.18) : wsMouse.containsMouse ? Theme.bgHover : "transparent"
             Behavior on color { ColorAnimation { duration: Theme.anim } }
@@ -74,6 +111,7 @@ BarPill {
                 anchors.centerIn: parent
                 spacing: 5
                 Label {
+                    id: num
                     text: ws.modelData
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
@@ -83,7 +121,7 @@ BarPill {
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Repeater {
-                    model: Settings.v.barWsIcons ? ws.apps.slice(0, 4) : []
+                    model: Settings.v.barWsIcons ? ws.apps.slice(0, root.iconLimit) : []
                     delegate: IconImage {
                         required property string modelData
                         source: modelData
@@ -92,8 +130,8 @@ BarPill {
                     }
                 }
                 Label {
-                    visible: Settings.v.barWsIcons && ws.apps.length > 4
-                    text: "+" + (ws.apps.length - 4)
+                    visible: Settings.v.barWsIcons && ws.apps.length > root.iconLimit
+                    text: "+" + (ws.apps.length - root.iconLimit)
                     font.pixelSize: 10
                     dim: true
                     anchors.verticalCenter: parent.verticalCenter

@@ -21,7 +21,8 @@ import "../services"
 // · ! conflicts, ✓ when clean), checked as its title changes and every few seconds.
 // Always the width it's given (the gap to the center stays the same); what it
 // shows is centered in it while it's shorter.
-// Fades out (keeping its place, so the bar doesn't shift) on an empty workspace.
+// Fades out (keeping its place, so the bar doesn't shift) on an empty workspace,
+// where the next event shows instead (bar/Agenda.qml, TopBar.qml).
 BarPill {
     id: root
     property int fixedWidth: 340
@@ -59,7 +60,9 @@ BarPill {
     // A comms app lives in its own special workspace, shown over the empty "comms" one
     readonly property bool commsShown: !!comms && String(win?.workspace?.name ?? "").startsWith("special:comms-")
         && (Comms.shown !== "" || Hyprland.focusedWorkspace?.name === "comms")
-    readonly property bool shown: !hide && (onThisWorkspace || commsShown) && (title !== "" || appName !== "")
+    // A window to show (else bar/Agenda.qml takes the place)
+    readonly property bool hasWindow: (onThisWorkspace || commsShown) && (title !== "" || appName !== "")
+    readonly property bool shown: !hide && hasWindow
 
     // Git, for a terminal: [repo, branch, ahead, behind, staged, modified, untracked, conflicts]
     readonly property bool terminal: /^(kitty|foot|footclient|alacritty|com\.mitchellh\.ghostty|org\.wezfurlong\.wezterm|wezterm)$/i.test(appId)

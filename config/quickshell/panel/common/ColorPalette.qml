@@ -115,19 +115,33 @@ QtObject {
                                  : C.ensure(C.over(C.withAlpha(fg, !light ? 0.72 : inverted ? 0.68 : 0.62), bgAlt), bgAlt, 4.5)
 
     // ---------------- 3. Semantic colors ----------------
-    // Standard green / amber / red, unless the wallust palette already uses that
-    // hue (e.g. a red wallpaper with a red accent): then that level takes the
-    // inverse (complementary hue) of the palette color it collides with, so a
-    // warning never looks like decoration. Outside the original theme they are
-    // also darkened (light modes) and pushed to 3:1 against the zones.
+    // Amber and red are reserved for warnings: always amber and red, whatever
+    // the wallpaper. When the wallust palette uses that hue too (a red
+    // wallpaper), warnClash / badClash are true and the readings mark the
+    // warning with a solid disc behind their icon (bar/StatItem.qml,
+    // common/StatRow.qml), so it can't pass for decoration. Green (good) still
+    // takes the inverse (complementary hue) of a palette color it collides
+    // with. Outside the original theme they are also darkened (light modes)
+    // and pushed to 3:1 against the zones.
     readonly property color goodBase: "#6cc58a"
     readonly property color warnBase: "#e6b450"
     readonly property color badBase: "#ec6a6a"
     readonly property color good: semantic(goodBase)
-    readonly property color warn: semantic(warnBase)
-    readonly property color bad: semantic(badBase)
+    readonly property color warn: alarm(warnBase)
+    readonly property color bad: alarm(badBase)
+    readonly property bool warnClash: clashes(warnBase)
+    readonly property bool badClash: clashes(badBase)
     readonly property color rain: original ? "#62a8e8" : semantic("#62a8e8")
     readonly property color critical: badBase               // critical notifications stay red
+    function alarm(c) {
+        c = Qt.color(c);
+        if (original) return c;
+        return C.ensure(light ? Qt.hsla(C.hue(c), c.hslSaturation, 0.40, 1) : c, bgAlt, 3);
+    }
+    function clashes(c) {
+        c = Qt.color(c);
+        return paletteHues.some(p => C.hueDist(p.hslHue, c.hslHue) < 0.05);
+    }
     function semantic(c) {
         if (original) return avoidPalette(c);
         const a = avoidPalette(c);

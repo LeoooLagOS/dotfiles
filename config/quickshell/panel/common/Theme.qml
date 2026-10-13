@@ -121,6 +121,18 @@ Singleton {
     readonly property color good: panel.good
     readonly property color warn: panel.warn
     readonly property color bad: panel.bad
+    // The wallpaper's palette has that hue too: mark the warning with a disc (see ColorPalette)
+    readonly property bool warnClash: panel.warnClash
+    readonly property bool badClash: panel.badClash
+    function clashOf(c) { return (Qt.colorEqual(c, bad) && badClash) || (Qt.colorEqual(c, warn) && warnClash); }
+    // How a warning color is marked (Settings → Appearance → Warnings):
+    // "pill" (a solid shape around icon and number), "icon" (a disc behind the
+    // icon) or "" (just the color)
+    function markOf(c) {
+        if (!Qt.colorEqual(c, bad) && !Qt.colorEqual(c, warn)) return "";
+        const when = Settings.v.alertMark;
+        return when === "always" || (when === "auto" && clashOf(c)) ? Settings.v.alertShape : "";
+    }
     readonly property color rain: panel.rain
     readonly property color critical: panel.critical
     function onColor(c) { return panel.onColor(c); }

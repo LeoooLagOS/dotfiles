@@ -18,6 +18,7 @@ Singleton {
 
     readonly property var defaults: ({
         // Appearance (the theme is also set from Controls → Dark mode)
+        alertMark: "auto", alertShape: "pill",                   // how warnings stand out (Theme.markOf)
         mode: "system", inverted: false, themeScope: "both", themeLaunchers: ["all"], opacity: 72, blur: true, animations: true, rofiPosition: "bottom",
         // Panel
         openTab: "Overview", closeOutside: true, dimHover: true, width: 50, height: 50,
@@ -32,7 +33,8 @@ Singleton {
         dim: 300, warn: 540, lock: 600, screenOff: 630, suspend: 1200, mediaGuard: true,
         battery: [50, 20, 10, 5], loginProfile: "keep",
         // Weather & calendar
-        weekStart: 0, calRefresh: 30,
+        weekStart: 0, calRefresh: 30, agendaView: "list",
+        dueStages: [4320, 1440, 180, 60], briefOn: true, briefHour: 7, soonEvent: 30, soonDue: 6,  // services/Events.qml
         // Wallpaper
         wallust: true, rotate: false, rotateMin: 30,
         // Not shown in Settings (set from Controls)
@@ -45,6 +47,7 @@ Singleton {
         barLeft: ["logo", "tray", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],
         barRight: ["glance", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
         barDetailGap: 200,
+        barBellCount: true, barBellEvery: 5, barBellFor: 1000,   // the bell shows the count now and then
         barEmptyWs: "show", barWsIcons: true, barDate: true, bar24h: true, barIslandMessages: true,
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
         commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"]
@@ -125,6 +128,12 @@ Singleton {
                 { key: "opacity", label: "Opacity", help: "Of the panel card · light and inverted modes add a little", type: "range", min: 50, max: 100, step: 1, unit: "%" },
                 { key: "blur", label: "Blur", help: "Frosted card, and the screen behind while hovering", type: "switch", system: true },
                 { key: "animations", label: "Animations", help: "Color and highlight transitions", type: "switch" } ] },
+            { title: "Warnings", rows: [
+                { key: "alertMark", label: "Mark warnings", help: "Readings past their limits (CPU, memory, temperature…) are always amber or red. A solid mark makes them stand out on a wallpaper that already has those colors", type: "seg",
+                  opts: [["auto", "When the wallpaper has red / amber"], ["always", "Always"], ["never", "Color only"]] },
+                { key: "alertShape", label: "Mark", help: "A solid amber / red shape behind the reading", type: "seg",
+                  opts: [["pill", "Icon and number"], ["icon", "Icon only"]],
+                  visibleIf: v => v.alertMark !== "never" } ] },
             { title: "Menus (rofi)", rows: [
                 { key: "rofiPosition", label: "Where menus open", help: "App launcher, keybinds, clipboard, wallpapers… Same look either way", type: "seg",
                   opts: [["bottom", "Slide up from the bottom"], ["center", "Floating, centered"]], system: true } ] } ] },
@@ -158,6 +167,10 @@ Singleton {
                 { key: "barWsIcons", label: "Icons of the apps on each workspace", type: "switch" },
                 { key: "barDate", label: "Date next to the time", type: "switch" },
                 { key: "bar24h", label: "24-hour clock", type: "switch" } ] },
+            { title: "Notifications bell", rows: [
+                { key: "barBellCount", label: "Show the count now and then", help: "While there are notifications, the number takes the bell's place for a moment (a new one always shows it)", type: "switch" },
+                { key: "barBellEvery", label: "Every", type: "select", opts: [[3, "3 s"], [5, "5 s"], [10, "10 s"], [30, "30 s"], [60, "1 min"]] },
+                { key: "barBellFor", label: "For", type: "select", opts: [[500, "0.5 s"], [1000, "1 s"], [2000, "2 s"], [3000, "3 s"]] } ] },
             { title: "Island", rows: [
                 { key: "barIslandMessages", label: "Messages on the island", help: "Chat messages stretch the island with the chat's photo instead of a popup. Hover: the whole message, Reply and Open", type: "switch" } ] } ] },
         { id: "notifications", icon: "", label: "Notifications", lead: "Where popups appear, quiet hours and history.", groups: [
@@ -210,7 +223,7 @@ Singleton {
                 { key: "battery", label: "Alert at", help: "10% and below show a big popup", type: "chips", opts: [50, 30, 20, 15, 10, 5], unit: "%", system: true },
                 { key: "loginProfile", label: "Power profile at login", type: "select",
                   opts: [["keep", "Keep the last one"], ["power-saver", "Power saver"], ["balanced", "Balanced"], ["performance", "Performance"]] } ] } ] },
-        { id: "weather", icon: "", label: "Weather & calendar", lead: "Where the weather is for, the week start and how often events refresh.", groups: [
+        { id: "weather", icon: "", label: "Weather & calendar", lead: "Where the weather is for, the calendar, reminders of what's due and quick capture.", groups: [
             { title: "Weather", rows: [
                 // Units are not here: the weather cache is shared with waybar, which
                 // takes them from $WEATHER_UNITS (Hyprland startup)
@@ -218,7 +231,19 @@ Singleton {
             { title: "Calendar", rows: [
                 { key: "weekStart", label: "Week starts on", type: "seg", opts: [[0, "Sunday"], [1, "Monday"]] },
                 { key: "calRefresh", label: "Refresh events every", type: "select", opts: [[15, "15 min"], [30, "30 min"], [60, "1 hour"]] },
-                { label: "Sources", help: "Evolution webcal + ~/.config/lagos/calendars/*.ics", type: "info", infoKey: "calendars" } ] } ] },
+                { label: "Sources", help: "Evolution webcal + ~/.config/lagos/calendars/*.ics", type: "info", infoKey: "calendars" } ] },
+            { title: "Reminders", rows: [
+                { key: "dueStages", label: "Remind me of what's due", help: "Before each to-do with a date and each Teams assignment; when overdue too. Each stays until you answer: Done · In 1 h · Tomorrow", type: "chips",
+                  opts: [[10080, "1 week"], [4320, "3 days"], [1440, "1 day"], [180, "3 h"], [60, "1 h"], [30, "30 min"]] },
+                { key: "briefOn", label: "Morning brief", help: "Today's events, what's due and the open to-dos, once a day", type: "switch" },
+                { key: "briefHour", label: "Morning brief at", help: "Or the first time you turn on the computer after it", type: "select",
+                  opts: [[5, "5:00"], [6, "6:00"], [7, "7:00"], [8, "8:00"], [9, "9:00"], [10, "10:00"]], visibleIf: v => v.briefOn },
+                { key: "soonEvent", label: "Events on the bar", help: "The left of the bar shows the next one this long before it starts (instead of the window title)", type: "select",
+                  opts: [[0, "Never"], [15, "15 min before"], [30, "30 min before"], [60, "1 h before"]] },
+                { key: "soonDue", label: "Deadlines on the bar", help: "The left of the bar shows what's due this long before (overdue ones always)", type: "select",
+                  opts: [[0, "Only overdue"], [3, "3 h before"], [6, "6 h before"], [12, "12 h before"], [24, "1 day before"]] } ] },
+            { title: "Quick capture", rows: [
+                { label: "Add anything", help: "SUPER Z: one line in your words (“entregar reporte viernes 18:00”, “clase mañana de 10 a 12 @ CCO3 310”, “pagar la luz cada mes”). SUPER SHIFT Z: the selected text. Notifications have an Add button", type: "info", value: "SUPER Z" } ] } ] },
         { id: "wallpaper", icon: "", label: "Wallpaper", lead: "Wallpaper folder and automatic changes.", groups: [
             { title: "Wallpaper", rows: [
                 { label: "Folder", type: "info", infoKey: "wallpaperDir", mono: true },

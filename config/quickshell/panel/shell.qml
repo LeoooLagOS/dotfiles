@@ -20,6 +20,7 @@ ShellRoot {
     NotificationPopups {}
     CommsDock {}
     ReplyBox {}
+    QuickAdd {}
 
     IpcHandler {
         target: "panel"
@@ -59,7 +60,16 @@ ShellRoot {
         function commsDock(): void { Comms.focusDock(); }
         // The top bar: hide / show it for now (SUPER CTRL ALT B; TopBar.qml)
         function barToggle(): void { BarState.toggleRequested(); }
-        // Next / previous app while one is up (CTRL TAB / CTRL SHIFT TAB)
+        // Next / previous app while one is up (SUPER TAB / SUPER SHIFT TAB)
+        // Quick capture (QuickAdd.qml): SUPER Z, prefilled with `text`; SUPER SHIFT Z: the selected text
+        function quickAdd(text: string): void { Capture.open(text, ""); }
+        function quickAddSelection(): void { Capture.openSelection(); }
+        function quickAddClose(): void { Capture.close(); }
+        // The call going on (services/Call.qml), as JSON
+        function call(): string {
+            return JSON.stringify({ active: Call.active, name: Call.name, detail: Call.detail, title: Call.title, pid: Call.pid,
+                                    binary: Call.binary, mic: Call.micState, micMuted: Call.micMuted, cam: Call.camOn, exact: Call.exact });
+        }
         function commsNext(): void { Comms.cycle(1); }
         function commsPrev(): void { Comms.cycle(-1); }
         // Caffeine on/off (SUPER ALT I)

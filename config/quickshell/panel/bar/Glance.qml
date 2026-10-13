@@ -9,7 +9,10 @@ import "../services"
 // art, title and artist; otherwise the weather: icon, temperature, then the
 // sky, high / low, rain and the place, scrolling when they don't fit (bar/Marquee.qml).
 // `weatherOnly`: the weather even while music plays (the island grown shows the player).
-// Click: the Media or Weather tab · middle click (music): play / pause.
+// A video call (services/Call.qml) comes first when the left twin is taken by
+// something urgent (else the call is there): the app and the meeting, and
+// buttons for the microphone and the camera (red while off).
+// Click: the Media or Weather tab (a call: its window) · middle click (music): play / pause.
 BarPill {
     id: root
     property int fixedWidth: 340
@@ -18,8 +21,10 @@ BarPill {
     signal openTab(string name)
 
     readonly property var player: Media.player
-    readonly property bool music: Media.active && !weatherOnly
-    readonly property bool shown: !hide && (music || Weather.ready)
+    // The call, when the left twin is busy with something urgent (else it's there)
+    readonly property bool call: Call.active && !Call.onLeft
+    readonly property bool music: Media.active && !weatherOnly && !call
+    readonly property bool shown: !hide && (call || music || Weather.ready)
     readonly property int rain: Math.max(0, ...(Weather.rainNext.length ? Weather.rainNext : [0]))
     function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
@@ -29,7 +34,8 @@ BarPill {
     clip: true
     clickable: shown
     onClicked: b => {
-        if (b === Qt.MiddleButton && music) player.togglePlaying();
+        if (call) Call.show();
+        else if (b === Qt.MiddleButton && music) player.togglePlaying();
         else root.openTab(music ? "Media" : "Weather");
     }
 
@@ -54,14 +60,14 @@ BarPill {
             anchors.centerIn: parent
             optical: true
             visible: !root.music
-            text: Weather.icon
+            text: root.call ? "\u{f0567}" : Weather.icon
             font.pixelSize: 15
             color: BarState.accent
         }
     }
     Label {
         id: lead
-        visible: !root.music
+        visible: !root.music && !root.call
         text: Math.round(Weather.temp) + "°"
         font.pixelSize: 13
         font.weight: Font.DemiBold
@@ -69,17 +75,25 @@ BarPill {
     }
     Marquee {
         textFormat: Text.StyledText
-        text: root.music
+        text: root.call ? "<b>" + root.esc(Call.name) + "</b>" + (Call.detail ? "  ·  " + root.esc(Call.detail) : "")
+            : root.music
             ? "<b>" + root.esc(root.player?.trackTitle) + "</b>"
               + (root.player?.trackArtist ? "  ·  " + root.esc(root.player.trackArtist) : "")
             : "·  " + [root.esc(Weather.description),
                        "↑" + Math.round(Weather.high) + "° ↓" + Math.round(Weather.low) + "°",
                        root.rain > 0 ? "rain " + root.rain + "%" : "",
                        root.esc(Weather.place)].filter(s => s).join("  ·  ")
-        dim: !root.music
+        dim: !root.music && !root.call
         // Its text (centered in the pill), up to the rest of the pill
         width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - 18 - root.spacing
-                           - (lead.visible ? lead.width + root.spacing : 0)))
+                           - (lead.visible ? lead.width + root.spacing : 0)
+                           - (callButtons.visible ? callButtons.width + root.spacing : 0)))
+        anchors.verticalCenter: parent.verticalCenter
+    }
+    // The call's microphone and camera
+    CallButtons {
+        id: callButtons
+        visible: root.call
         anchors.verticalCenter: parent.verticalCenter
     }
 }

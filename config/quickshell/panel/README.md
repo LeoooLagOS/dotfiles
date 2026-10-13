@@ -44,16 +44,17 @@ and the island at the center is the only solid, near-black piece.
 | Center | notifications (bell · click: the Notifications tab · right click: Do Not Disturb) · **island** · caffeine |
 | Right | music or weather (the window title's twin) · CPU, RAM, disk, temperature (click: system monitor) · Wi-Fi, Bluetooth, battery (click: system popup) · power menu |
 
-- **The details** (`TopBar.qml`): the window title fills from the workspaces toward the center and its twin from the readings, up to a gap before the bell / caffeine that is the same on both sides (Settings → Bar → Gap to the center). Text that doesn't fit scrolls (`bar/Marquee.qml`; hovering holds it). Each keeps its width (what it shows is centered while shorter). While the panel is open on their monitor both hide, the readings and connections show their icons alone, and both sides measure the same (the narrower one's workspaces or readings card widens).
+- **The details** (`TopBar.qml`): the window title fills from the workspaces toward the center and its twin from the readings, up to a gap before the bell / caffeine that is the same on both sides (Settings → Bar → Gap to the center). Text that doesn't fit scrolls (`bar/Marquee.qml`; hovering holds it). Each keeps its width (what it shows is centered while shorter). Both halves of the bar always measure the same: the narrower side's workspaces or readings card widens to the other's width (the workspaces then share the extra, spreading over the whole card), so the twins are the same width too. The twins come and go together: both hide while the panel is open on their monitor (the readings and connections then show their icons alone), while the island shows the weather grown, or while the right one has nothing yet. Something urgent (what's due within a few hours, overdue, an event about to start: `Events.soon`) takes the window title's place, tinted by its urgency; on an empty workspace that place shows the next event (`bar/Agenda.qml`: the calendar's next 7 days, "Meeting · 16:00 · in 2 h", "now · until 17:00", all-day ones as "today"; else the first open to-do; else that the week is free; click: the Calendar tab).
+- **A call** (`services/Call.qml`, `scripts/call.py`, `bar/CallButtons.qml`): while a Meet window (title "Meet - abc-defg-hij") or a Teams meeting / call is open, the left twin shows it ("Meet · kai-rxpp-mqx", more room) with a microphone and a camera button, red while off; a click elsewhere on it goes to the call's window. When something urgent has the left twin (`Events.soon`), the call goes to the right one instead, with the mini weather beside it as with music (`Call.onLeft`). Left twin order: urgent · call · window title · (empty workspace) next event. Both buttons send the app's own shortcut to its window (Meet Ctrl+D / Ctrl+E, Teams Ctrl+Shift+M / Ctrl+Shift+O), so the call shows the same. Their state (`scripts/call.py`, every 1.5 s): the app's own buttons read through accessibility (AT-SPI) when it is on — exact, also for what's switched inside the call; without it the camera is "on" while the program has `/dev/video*` open, and the microphone is as last switched from the bar (a muted call keeps recording, so a mute done inside the call can't be seen). IPC `call` prints the state. The weather keeps its mini pill beside it, as with music.
 - **Window title** (`bar/WindowTitle.qml`): the app's icon and name, then the title. For a browser, the page: the site's domain and icon, and the site's name dropped from the title. For a terminal in a git repository (`scripts/gitstatus.sh`: the tab typed in last): the repo, branch and what's pending (↑ ahead ↓ behind · + staged · ~ modified · ? new · ! conflicts, ✓ clean).
 - **Browser pages** (`services/WebPages.qml`, `scripts/weburl.py`): any browser, native or Flatpak. Firefox family (Firefox, LibreWolf, Zen, Floorp, Waterfox): the session's open tabs, else the history; Chromium family (Brave, Chrome, Chromium, Vivaldi, Edge, Opera): the history, any profile. Icons from the browser's favicons, cached in `~/.cache/quickshell-panel/favicons`. The workspaces show the site's icon instead of the browser's; the browser's stays for searches (Google, Bing, DuckDuckGo, Brave Search…), sites without an icon and its own pages. A page just opened can take 5–15 s (the browser saves it).
 - **Music / weather** (`bar/Glance.qml`): while something plays (`Media.active`, still true 20 s after a pause), the art, title and artist, with the weather in a small pill at its inner edge; otherwise the weather (temperature, sky, high / low, rain, place). The grown island is its bigger view: showing the player, this turns to the whole weather; showing the weather, this hides. Click: the Media or Weather tab · middle click: play / pause.
-- **Bell**: as wide as an icon (the gaps stay even): in the accent while there are notifications; a new one shows the count instead for a second.
+- **Bell**: as wide as an icon (the gaps stay even): in the accent while there are notifications; a new one shows the count instead for a second, and while there are some so does every few seconds (Settings → Bar → Notifications bell: on/off, every 3 s – 1 min, for 0.5 – 3 s; default every 5 s for 1 s).
 - **Icons** are centered by their ink (`Glyph { optical: true }`): Nerd Font glyphs sit off-center in their box.
 - **Island** (`bar/Island.qml`): date · time; while a player plays, its art and an equalizer around the time; hovering it while something plays (`Media.active`) grows it down: big art on the left; on the right the titles, a cava visualizer that doubles as the seekable progress, and shuffle · previous · play · next · loop (the small art and equalizer leave the top row); otherwise the weather: the sky's icon, temperature and sky, place and feels-like, the chance of rain in the next six hours, high / low, humidity and wind (click: the Weather tab); recording shows a red dot and the time (click stops it); short messages for Do Not Disturb, caffeine, volume. Click: the panel · wheel: output volume. It doesn't grow while the panel is open (it would open behind it), and stays grown while a screenshot region is picked (slurp covers it; `PanelState.capturing`).
 - **Messages on the island** (Settings → Bar → Island, on by default): chat messages (not mail) go to the island instead of a popup (`Notifs.arrive` → `BarState.showMessage`): the chat's photo with the app's icon, who and the text, for 6 s; the same chat again counts up. Hovering holds it and shows the whole text with Reply (dock apps, `Comms.startReply`) and Open (the chat; its messages leave the history). Do Not Disturb keeps them quiet as usual.
 - **Panel open**: the bar's strip is dimmed and blurred like the rest of the screen, around and behind its groups (the panel's dim layer stays out of the reserved strip, so the bar draws the same backdrop).
-- **Readings**: neutral while normal, amber / red past CPU/RAM 80 %, disk 90 %, temperature 80 °C. Hovering one shows its details and the last minute (`bar/BarTip.qml`; `SystemStats` polls every 2 s while the bar shows a reading).
+- **Readings**: neutral while normal, amber / red past CPU/RAM 80 %, disk 90 %, temperature 80 °C (with a solid pill when the wallpaper's palette has that hue: Settings → Appearance → Warnings). Hovering one shows its details and the last minute (`bar/BarTip.qml`; `SystemStats` polls every 2 s while the bar shows a reading).
 - **System monitor** (`bar/SystemMonitor.qml`, data from `scripts/sysmon.py` while it's open, every 1.5 s): click the readings. Compact, btop-like. Left: CPU (usage, temperature, frequency, cores · threads · busy) and network (rates, last minute). Right, a big block: memory (used · cache, swap) and storage (disks, I/O); clicking CPU or network shows its detail there instead: every thread (usage, frequency, last minute) and per-core temperatures, or each interface (address, rates, traffic since boot); × or Esc goes back. Below, processes with filter and sort (CPU, memory, name), CPU as a share of the whole machine; end one with × twice (Shift: kill -9). A button opens btop in kitty.
 - **Tray** (`bar/TrayModule.qml`): a chevron next to the distro logo that drops three views: **Tray** (the apps' tray icons: click, right click for the menu, middle click), **Apps** (every program with a window, grouped, hidden ones marked, plus Flatpak apps running without one: click goes there, × closes / stops it, asking twice) and **Services** (your systemd user services: restart, stop asking twice; the system's, read only). Its footer opens the system monitor for processes.
 - **System popup** (`bar/SystemPopup.qml`): click the network, Bluetooth or battery.
@@ -66,6 +67,8 @@ and the island at the center is the only solid, near-black piece.
 
 The panel works without a mouse. Open it with `SUPER ALT + N` (Overview) or
 `SUPER SHIFT + N / M / T / V / D / P / C` (a tab); the keyboard goes to the panel while it is open.
+
+`SUPER Z` quick capture (a to-do or an event in plain words) · `SUPER SHIFT Z` from the selected text. `SUPER O`: the focused window out to the next empty workspace, following it (from a comms app too: a Meet call opened from a WhatsApp link lands there; `UserConfigs/user_keybinds.lua`).
 
 | Keys | Action |
 |---|---|
@@ -136,9 +139,9 @@ panel/
 │   ├── NotificationsZone.qml  count badge, latest as a card; ⌄ expands it over the column (Panel.qml)
 │   ├── NotificationListZone.qml  full list grouped by app
 │   ├── ProfileZone.qml      avatar, full name, user@host, distro, uptime (click → Controls)
-│   ├── CalendarZone.qml     month grid + selected day's events (props: showDayEvents)
+│   ├── CalendarZone.qml     month grid + selected day: to hand in, events not over (props: showDayEvents)
 │   ├── AgendaZone.qml       selected day + next 7 days, new-event form, refresh
-│   ├── TodoZone.qml         tasks and ideas
+│   ├── TodoZone.qml         Teams assignments to hand in, tasks and ideas
 │   ├── SystemZone.qml       CPU, memory, temp, disk, battery (+ power profile in Controls)
 │   ├── MediaMiniZone.qml    compact player: big art, title, 5 buttons, progress
 │   ├── MediaZone.qml        full player
@@ -155,6 +158,7 @@ panel/
     ├── events.py          calendar events as JSON (needs the venv, see below)
     ├── forecast.py        Open-Meteo hourly/daily forecast (cached 30 min)
     ├── cava.conf          cava in raw mode (PulseAudio input) for services/Cava.qml
+    ├── dndmute.py         mutes the comms apps' own sounds during Do Not Disturb (services/Comms.qml)
     └── wallpapers.py      wallpaper list + background thumbnail generation
 ```
 
@@ -292,6 +296,28 @@ Sources:
 3. **Local `.ics` files** in `~/.config/lagos/calendars/`. Events created from
    the panel go to `panel.ics` there (stored in UTC, with a VALARM for the
    chosen reminder) and can be deleted from the agenda.
+4. **Teams assignments** (`scripts/assignments.py`, run by `services/Events.qml`
+   on every refresh): `~/.config/lagos/calendars/Teams.ics`, one event
+   "Entrega: <assignment>" at its due time with a reminder a day before.
+   Two sources: Microsoft Graph's education API once signed in
+   (`assignments.py login`, device code, read-only `EduAssignments.ReadBasic`
+   and `EduRoster.ReadBasic` as *Microsoft Graph Command Line Tools*; the
+   school's administrator has to allow it — requested, pending), which lists
+   every assignment not handed in; and, meanwhile, Teams' notifications and its
+   mails as Thunderbird announces them (`Notifs.arrive` → `Events.teamsNote` →
+   `assignments.py note`): "New assignment: "…" Due Oct 15 at 11:59 PM",
+   "Fecha de entrega mañana: "…"", "… is due Friday"… A note with a date is an
+   event (the island says so); without one, a to-do. Matches are logged to
+   `~/.local/state/quickshell-panel/teams-notes.jsonl` to tune the patterns;
+   state in `assignments.json` there; the token in `graph-token.json` (mode 600).
+   Handed in or a week past due: gone. **To hand in** (`Events.deadlines`,
+   `common/DeadlineRow.qml`): these and the open to-do tasks, soonest first,
+   with the exact time left (red under a day, amber under three); in the
+   Overview's day column (today: all of them; another day: what's due then)
+   and on top of the To-do zone. Their circle marks one done (`assignments.py
+   done UID` for a Teams one). Today's events that are over leave the day lists
+   (`Events.dayEvents`, by the real start, so last night's late event doesn't
+   linger); the one going on is marked "Now".
 
 **Importance and reminders.** Outlook events are treated as important (★) and
 get a **critical** notification 15 minutes before they start (critical =
@@ -314,9 +340,53 @@ python3 -m venv ~/.local/share/quickshell-panel/venv
 
 ## To-do list
 
-Tasks and ideas in `~/.config/lagos/todo.json` (`services/Todos.qml`):
-optional due date (Today / Tomorrow), overdue dates in red, click the text to
-edit, the circle to complete, "Clear done" removes completed items.
+Tasks and ideas in `~/.config/lagos/todo.json` (`services/Todos.qml`): a due
+date and optionally a time (`due`, `time`), a repeat (`repeat`: daily ·
+weekdays · weekly · monthly — completing one moves it to its next date), a
+place. The "New task…" field reads plain words like the quick capture box
+(below), with a preview of what it understood; the Today / Tomorrow chips win
+over it. Each due date shows the time left (red under a day, amber under
+three); click it (or "+ date") for `common/DuePicker.qml`: Today · Tomorrow ·
+the next weekdays · Next week · No date, typed ("vie 18:00"), and the repeat.
+Click the text to edit, the circle to complete, × to remove; completing and
+removing say so on the island with an **Undo** (click the island, 6 s).
+
+## Capture, reminders and the day at a glance
+
+- **Quick capture** (`QuickAdd.qml`, `services/Capture.qml`, `common/When.js`):
+  SUPER Z (IPC `quickAdd TEXT`) opens one line under the bar; type in plain
+  Spanish or English and chips show, live, what it understood: task or event,
+  day, time or range, repeat, place, and the title left. Something to do
+  (entregar, tarea, estudiar, pagar…) or no time is a to-do; a class, meeting,
+  exam… or a time given is an event (`events.py add`, 10 min reminder; a
+  repeat becomes an RRULE). Enter saves (the island says it, with Undo) ·
+  Tab or the first chip: task ↔ event · Esc closes. SUPER SHIFT Z
+  (`quickAddSelection`) starts from the selected text (else the clipboard).
+  Notifications (messages, apps, system) have an **Add** button: the box
+  opens with their text, its date already read, and "From <app · who>"
+  saved as the event's notes.
+- **What's due** (`Events.deadlines`): to-dos with a date and Teams
+  assignments. Reminded at each stage (Settings → Weather & calendar →
+  Reminders: 3 days, 1 day, 3 h, 1 h by default; one reached while off is
+  said once) and when overdue; each stays until answered: Done · In 1 h ·
+  Tomorrow (9:00) (`notify-send -A`, snoozes kept in `reminded.json`).
+- **While you were away**: the panel writes `~/.local/state/quickshell-panel/alive`
+  every minute; starting again, events that began meanwhile come in one notification.
+- **Morning brief**: once a day from 7:00 (or the first start after it):
+  today's events (first one), what's due today and overdue, the other to-dos.
+  Open: the Overview.
+- **Coming up on the bar**: the left twin (`bar/Agenda.qml`) shows, over the
+  window title, the most urgent thing: what's due within 6 h (overdue ones
+  always) or the next event 30 min before it starts, tinted by its urgency
+  (`Events.soon`; both configurable). With nothing urgent it's the window
+  title again, and on an empty workspace the next event. The island stays
+  date · time, so the bar keeps its mirror.
+- **Timeline** (Agenda's ⏱ button, `common/DayTimeline.qml`): the selected
+  day by the hour, overlapping events side by side, free gaps of 30 min or
+  more ("Free 1 h 30", from now on for today), what's due as a flag at its
+  time, the current time as a line; all-day events above.
+- **Undo**: completing / removing a to-do, handing in a Teams assignment,
+  removing an event, and everything added from the capture box.
 
 ---
 
@@ -328,7 +398,14 @@ Colors live in `common/Theme.qml`, in three layers:
    regenerates `~/.config/waybar/wallust/colors-waybar.css`.
 2. **Neutral text** — near-white with a hint of the wallpaper, so the accent
    stands out instead of everything sharing one hue.
-3. **Semantic colors (fixed)** — data reads the same on any wallpaper.
+3. **Semantic colors (fixed)** — data reads the same on any wallpaper. Amber
+   and red are reserved for warnings and never change hue; when the wallust
+   palette has that hue too (`Theme.warnClash` / `badClash`), the readings
+   (bar `StatItem`, `StatRow`) carry a solid amber / red mark, so a warning
+   can't pass for decoration. Settings → Appearance → Warnings
+   (`Theme.markOf`): when (`alertMark`: when the wallpaper has red / amber ·
+   always · color only) and which mark (`alertShape`: a pill around icon and
+   number, in the color that reads on it · a disc behind the icon alone).
 
 ### Modes
 
@@ -579,7 +656,7 @@ also goes in `SystemSettings`).
 | Calendar | local clock + `scripts/events.py`; week start and refresh: Settings → Weather & calendar |
 | System | `/proc/stat`, `/proc/meminfo`, coretemp hwmon, `df /`, `/sys/class/power_supply` |
 | Media | MPRIS over D-Bus (`services/Media.qml`; the `playerctld` proxy is skipped, it duplicated the active player); volume and outputs are the system's (PipeWire default sink); visualizer: `cava -p scripts/cava.conf` while the Media tab is open (this cava build has no PipeWire input, so it uses `pulse`). Radio (`services/Radio.qml`): stations in `~/.config/lagos/radio-stations` (`Name \| stream URL \| subtitle \| logo URL`; created with Radio BUAP, the default, `Settings.v.radioStation`), played by `mpv --no-video` with a JSON IPC socket the panel reads for the ICY title (what's on air); IPC `radio` starts / stops it. Library (`services/Library.qml`): MPD (`config/mpd/mpd.conf`: `~/Music`, PipeWire output, gapless, ReplayGain by album; user service `systemctl --user enable --now mpd`) driven by `scripts/library.py` over MPD's socket (`~/.local/state/mpd/socket`): albums grouped by album artist + album, covers from `cover/folder/front.jpg` or the embedded picture (cached), cache of the album list until MPD's database changes; "bit-perfect" = a sound card's real rate (`/proc/asound/card*/pcm*p/sub*/hw_params`) equals the music's. PipeWire may switch the device to the music's rate (`config/pipewire/pipewire.conf.d/10-hires.conf`: 44.1–192 kHz). beets (`config/beets/config.yaml`) imports and tags into `Artist/Album (Year)/NN - Title`, with cover.jpg and ReplayGain. Player, radio or library view: `Settings.v.mediaMode`. Lyrics (`services/Lyrics.qml`, `scripts/lyrics.py`, `Settings.v.mediaLyrics`): a library file's `.lrc` or LYRICS tag, else LRCLIB (lrclib.net, free, no account; timed lyrics preferred), cached in `~/.cache/quickshell-panel/lyrics`. App volume: the PipeWire playback streams matching the player (desktop entry / name words: `com.spotify.Client`, `Firefox`, `mpd.PipeWire`, `mpv`) |
-| Comms dock | `CommsDock.qml` + `services/Comms.qml`: messaging / mail apps (Settings → Comms dock, `Settings.v.commsApps`: desktop entry ids, or `name:<Name>` for a browser web app; WhatsApp, Thunderbird and Teams by default; add a suggested installed one or any app with a window open, reorder, remove — its window comes back) each run hidden in their special workspace `special:comms-<app>`, started at login by `scripts/wm/CommsStartup.sh` (IPC `commsStart`, launched through Hyprland with `gtk-launch`, then moved once their main window — the one titled with the app's name — appears). SUPER Y (IPC `comms`) shows the last one used, full screen above a macOS-style dock that rests half hidden and rises on hover (running dot, unread count from the title or new notifications, hover grows the icon and names it); a dock icon switches app or starts it; the shown one hides. Clicking one of their notifications opens it there. Behind the shown app the monitor switches to an empty workspace `comms` (hidden in waybar) so the wallpaper shows through the slightly translucent app (window rule on `n[s:special:comms-]`, `dim_special = 0`); hiding goes back. SUPER SHIFT Y (IPC `commsDock`): the keyboard to the dock (←/→, Enter, 1–9, Esc). Quick reply from the notification (Reply button): the app's own inline reply when it has one (`inlineReplySupported`), else for a message from a dock app (not mail) its action opens the chat as soon as the reply box opens, and on Enter `scripts/reply.sh` pastes the text and presses Enter in that window (`send_shortcut`). Only the focused window may read the clipboard, so it gets the focus for half a second, invisibly: opacity 0, animations and special-workspace blur off, the previous window keeping its look; then everything is restored (clipboard, opacities, options, focus), even on failure. Apps that reuse one notification (WhatsApp in Brave) replace its text in place: the earlier text stays in the history as a plain copy (`Notifs.archive`) and the new one pops up again. A message the app closes itself (WhatsApp Web does, after a few seconds) also stays as a copy. Popup colors: Settings → Notifications → Colors (`notifTheme`: panel · system · dark · light · inverted; `Theme.notifications`, a third ColorPalette; Label / Glyph / IconButton / TextField take a `pal`). Settings → Notifications → Try them sends a test of each kind (marked `x-lagos-test`: no quick reply, a click opens nothing). Thunderbird's calendar reminder dialog floats small at the top right, pinned (window rule). A stopped MPRIS player with no track (a browser after a video) isn't listed. The bottom gap is one workspace rule for `n[s:special:comms-]` (`UserConfigs/user_window_rules.lua`); special workspaces are full size (`dwindle.special_scale_factor = 1`, `user_settings.lua`) |
+| Comms dock | `CommsDock.qml` + `services/Comms.qml`: messaging / mail apps (Settings → Comms dock, `Settings.v.commsApps`: desktop entry ids, or `name:<Name>` for a browser web app; WhatsApp, Thunderbird and Teams by default; add a suggested installed one or any app with a window open, reorder, remove — its window comes back) each run hidden in their special workspace `special:comms-<app>`, started at login by `scripts/wm/CommsStartup.sh` (IPC `commsStart`, launched through Hyprland with `gtk-launch`, then moved once their main window — the one titled with the app's name — appears). SUPER Y (IPC `comms`) shows the last one used, full screen above a macOS-style dock that rests half hidden and rises on hover (running dot, unread count from the title or new notifications, hover grows the icon and names it); a dock icon switches app or starts it; the shown one hides. Clicking one of their notifications opens it there. Behind the shown app the monitor switches to an empty workspace `comms` (hidden in waybar) so the wallpaper shows through the slightly translucent app (window rule on `n[s:special:comms-]`, `dim_special = 0`); hiding goes back. Shown some other way (the app focusing itself), the panel moves to `comms` too, remembering where to go back. While one is shown it stays put (`UserConfigs/user_window_rules.lua`, `hl.on` workspace.active / window.active): switching workspace (keys, the bar, ALT TAB) goes back to `comms`, and the focus can't leave it except for pinned windows; leave with SUPER Y; SUPER TAB / SUPER SHIFT TAB go to the next / previous app (elsewhere they keep switching workspace and group tab; CTRL TAB goes to the app, e.g. its tabs). SUPER SHIFT Y (IPC `commsDock`): the keyboard to the dock (←/→, Enter, 1–9, Esc). Quick reply from the notification (Reply button): the app's own inline reply when it has one (`inlineReplySupported`), else for a message from a dock app (not mail) its action opens the chat as soon as the reply box opens, and on Enter `scripts/reply.sh` pastes the text and presses Enter in that window (`send_shortcut`). Only the focused window may read the clipboard, so it gets the focus for half a second, invisibly: opacity 0, animations and special-workspace blur off, the previous window keeping its look; then everything is restored (clipboard, opacities, options, focus), even on failure. Apps that reuse one notification (WhatsApp in Brave) replace its text in place: the earlier text stays in the history as a plain copy (`Notifs.archive`) and the new one pops up again. A message the app closes itself (WhatsApp Web does, after a few seconds) also stays as a copy. Read in the app, messages leave the history: when the unread count in its title ("(3) WhatsApp") drops to none, or the app is shown with none (for apps whose title has shown a count); a quick reply sent clears that chat. Do Not Disturb also quiets the apps' own sounds (WhatsApp Web plays its ping in the page): `scripts/dndmute.py` mutes the audio streams of the dock apps' processes (and their children; Chromium's sandboxed audio by its program name) while they're hidden. Its `pactl subscribe` dies with it (PR_SET_PDEATHSIG): each panel reload used to leave one behind until pipewire-pulse refused new clients — not the one shown or focused, one ringing with a call let through, or one recording (a call). WirePlumber remembers a muted app, so the names muted are kept in `~/.local/state/quickshell-panel/dnd-muted.json` and a stream of one shows up unmuted again after DND. Two web apps of one browser share its process: Brave (WhatsApp) is muted as a whole. Popup colors: Settings → Notifications → Colors (`notifTheme`: panel · system · dark · light · inverted; `Theme.notifications`, a third ColorPalette; Label / Glyph / IconButton / TextField take a `pal`). Settings → Notifications → Try them sends a test of each kind (marked `x-lagos-test`: no quick reply, a click opens nothing). Thunderbird's calendar reminder dialog floats small at the top right, pinned (window rule). A stopped MPRIS player with no track (a browser after a video) isn't listed. The bottom gap is one workspace rule for `n[s:special:comms-]` (`UserConfigs/user_window_rules.lua`); special workspaces are full size (`dwindle.special_scale_factor = 1`, `user_settings.lua`) |
 | Forecast | `scripts/forecast.py` → Open-Meteo forecast + air-quality API (US AQI), same coordinates as waybar's weather cache |
 | Wallpapers | `~/Pictures/wallpapers` (`wallpaperDir` in Config); thumbnails in `~/.cache/quickshell-panel/thumbs/`; applied with `scripts/wm/WallpaperSelect.sh <file>` (awww + wallust + bar refresh) |
 | Sliders | `services/Audio.qml` (PipeWire default sink/source, device lists), `brightnessctl` |

@@ -163,8 +163,8 @@ Scope {
                         }
                         Workspaces {
                             id: workspaces
-                            readonly property real natural: contentWidth + 2 * pad
                             implicitWidth: Math.max(natural, details.match(workspaces, [logo, tray, workspaces], left.anchors.leftMargin))
+                            cap: details.wsCap
                             visible: win.zone("workspaces")
                             monitor: win.monitor
                         }
@@ -197,10 +197,14 @@ Scope {
                         readonly property int wLeft: Math.max(0, mid - inner - leftEnd)
                         readonly property int wRight: Math.max(0, rightStart - mid - inner)
                         // Both hide while the panel is open on this monitor, and the
-                        // readings and connections show their icons alone (StatItem.compact);
-                        // then both sides measure the same: the narrower one's middle
-                        // card (workspaces, readings) widens to the other's width
+                        // readings and connections show their icons alone (StatItem.compact)
                         readonly property bool panelOpen: PanelState.open && Hyprland.focusedMonitor?.name === win.screen.name
+                        // The two twins come and go together, so the bar stays the same on
+                        // both halves: with the panel open, while the island shows the
+                        // weather grown (the right one's bigger view), or with nothing for
+                        // the right one to show yet
+                        readonly property bool twinsOff: panelOpen || island.mode === "weather"
+                            || (win.zone("glance") && !Media.active && !Weather.ready)
                         // Each side's width with its cards as wide as their content, from the screen's edge
                         function natural(items, margin) {
                             const shown = items.filter(i => i.visible);
@@ -208,27 +212,45 @@ Scope {
                         }
                         readonly property real side: Math.max(natural([logo, tray, workspaces], left.anchors.leftMargin),
                                                               natural([stats, conn, power], right.anchors.rightMargin))
+                        // With the panel open both sides measure the same: the narrower
+                        // one's middle card (workspaces, readings) widens to the other's width.
                         // How wide the middle card has to be for its side to measure `side`
                         function match(card, items, margin) {
                             return panelOpen ? side - natural(items, margin) + card.natural : 0;
                         }
+                        // The workspaces grow with their apps up to where the readings side
+                        // reaches (the left side never wider than the right); the window
+                        // title takes what they leave, so each half still spans the same
+                        readonly property real wsCap: natural([stats, conn, power], right.anchors.rightMargin)
+                            - natural([logo, tray], left.anchors.leftMargin) - (logo.visible || tray.visible ? 8 : 0)
                     }
                     WindowTitle {
+                        id: windowTitle
                         visible: win.zone("window") && details.wLeft >= 100
-                        hide: details.panelOpen
+                        // Something urgent, or a call, takes its place (Agenda below)
+                        hide: details.twinsOff || !!Events.soon || Call.onLeft
                         fixedWidth: details.wLeft
                         x: Math.round(details.mid - details.inner - details.wLeft)
                         anchors.verticalCenter: parent.verticalCenter
                     }
-                    // While music plays the twin is the music: the weather stays
+                    // The window title's place: what's urgent first, then a call; on an empty workspace the next event
+                    Agenda {
+                        visible: windowTitle.visible
+                        hide: details.twinsOff || (windowTitle.hasWindow && !Events.soon && !Call.onLeft)
+                        fixedWidth: details.wLeft
+                        x: windowTitle.x
+                        anchors.verticalCenter: parent.verticalCenter
+                        onOpenTab: name => win.openTab(name)
+                    }
+                    // While music plays (or a call goes on) the twin is that: the weather stays
                     // at hand in a small pill at its inner edge (the gap unchanged).
                     // The island grown is the twin's bigger view: showing the
                     // player, the twin turns to the whole weather; showing the
                     // weather, the twin hides.
                     BarPill {
                         id: miniWeather
-                        readonly property bool wanted: win.zone("glance") && Media.active && Weather.ready
-                                                       && !island.grown && !details.panelOpen && details.wRight >= 100 + width + 8
+                        readonly property bool wanted: win.zone("glance") && (Media.active || (Call.active && !Call.onLeft)) && Weather.ready
+                                                       && !island.grown && !details.twinsOff && details.wRight >= 100 + width + 8
                         visible: wanted
                         x: Math.round(details.mid + details.inner)
                         anchors.verticalCenter: parent.verticalCenter
@@ -241,7 +263,7 @@ Scope {
                     Glance {
                         readonly property int shift: miniWeather.wanted ? miniWeather.width + 8 : 0
                         visible: win.zone("glance") && details.wRight >= 100
-                        hide: island.mode === "weather" || details.panelOpen
+                        hide: details.twinsOff
                         weatherOnly: island.mode === "expanded"
                         fixedWidth: details.wRight - shift
                         x: Math.round(details.mid + details.inner + shift)
@@ -263,12 +285,19 @@ Scope {
                             id: bell
                             // Always one icon wide (the bar's gaps stay even): the bell, in the
                             // accent while there are notifications; a new one shows the count
-                            // instead of the bell for a second
+                            // instead of the bell for a moment, and so does every few seconds
+                            // while there are some (Settings → Bar → Notifications bell)
                             readonly property bool unread: !Notifs.dnd && Notifs.count > 0
                             property int seen: 0
                             Component.onCompleted: seen = Notifs.count
                             readonly property bool counting: countFlash.running
-                            Timer { id: countFlash; interval: 1000 }
+                            Timer { id: countFlash; interval: Settings.v.barBellFor }
+                            Timer {
+                                interval: Settings.v.barBellEvery * 1000
+                                repeat: true
+                                running: Settings.v.barBellCount && bell.unread && bell.visible
+                                onTriggered: countFlash.restart()
+                            }
                             Connections {
                                 target: Notifs
                                 function onCountChanged() {

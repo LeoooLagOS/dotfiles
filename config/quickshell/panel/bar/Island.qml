@@ -18,7 +18,8 @@ import "../services"
 //              temperatures, rain in the next hours); a click on it: the Weather tab
 //   rec        screen recording (services/Recorder.qml): red dot and elapsed
 //              time; a click stops it
-//   flash      a short message (BarState.say: Do Not Disturb, caffeine, volume)
+//   flash      a short message (BarState.say: Do Not Disturb, caffeine, volume),
+//              with an Undo when it has one (click the island)
 //   message    a chat message (BarState.message, instead of a popup): the
 //              chat's photo, who and the text; hovering holds it and shows the
 //              whole text with Reply and Open; a click opens the chat
@@ -90,7 +91,7 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.isMessage ? BarState.openMessage() : Recorder.recording ? Recorder.stop() : (PanelState.open = !PanelState.open)
+        onClicked: BarState.flash?.undo ? BarState.undoFlash() : root.isMessage ? BarState.openMessage() : Recorder.recording ? Recorder.stop() : (PanelState.open = !PanelState.open)
         onWheel: w => {
             const a = Media.sink?.audio;
             if (!a) return;
@@ -196,7 +197,18 @@ Rectangle {
         anchors.centerIn: parent
         spacing: 9
         Glyph { optical: true; text: BarState.flash?.icon ?? ""; color: root.accent; font.pixelSize: 14; anchors.verticalCenter: parent.verticalCenter }
-        Label { text: BarState.flash?.text ?? ""; color: root.ink; font.pixelSize: 13; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+        Label { text: BarState.flash?.text ?? ""; color: root.ink; font.pixelSize: 13; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter
+                elide: Text.ElideRight; width: Math.min(implicitWidth, 360) }
+        // Undo (click anywhere on the island)
+        Rectangle {
+            visible: !!BarState.flash?.undo
+            implicitWidth: undoText.implicitWidth + 16
+            implicitHeight: 20
+            radius: 10
+            color: root.accent
+            anchors.verticalCenter: parent.verticalCenter
+            Label { id: undoText; anchors.centerIn: parent; text: "Undo"; color: Theme.onColor(root.accent); font.pixelSize: 11; font.weight: Font.Bold }
+        }
     }
 
     // ---------------- Message ----------------
