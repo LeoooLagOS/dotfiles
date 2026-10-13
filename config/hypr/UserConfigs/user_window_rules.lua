@@ -184,6 +184,33 @@ apply_window_rule({
   match = { workspace = "n[s:special:comms-]" },
   opacity = "0.88 0.88",
 })
+-- While one is shown it stays put: whatever tries to switch workspace (SUPER 1,
+-- SUPER TAB, the bar, ALT TAB…) goes back to "comms", so behind it there's
+-- always the wallpaper, and the focus doesn't leave it (pinned windows
+-- aside). Leave with SUPER Y, the dock or SUPER TAB (another app)
+local function comms_shown(m)
+  local s = m and m.active_special_workspace
+  return s and type(s.name) == "string" and s.name:match("^special:comms%-") and s or nil
+end
+hl.on("workspace.active", function()
+  local m = hl.get_active_monitor()
+  local ws = m and m.active_workspace
+  if comms_shown(m) and ws and ws.name ~= "comms" then
+    hl.dispatch(hl.dsp.focus({ workspace = "name:comms" }))
+  end
+end)
+hl.on("window.active", function()
+  local w = hl.get_active_window()
+  local s = w and comms_shown(w.monitor)
+  if not s or w.pinned then return end
+  -- In one of them (SUPER TAB / the dock switch app): fine
+  local name = w.workspace and w.workspace.name
+  if type(name) == "string" and name:match("^special:comms%-") then return end
+  local own = hl.get_workspace_windows(s)
+  if own and own[1] then
+    hl.dispatch(hl.dsp.focus({ window = "address:" .. own[1].address }))
+  end
+end)
 
 -- Thunderbird's calendar reminders: a small box at the top right, on every
 -- workspace, instead of a tiled window taking the screen (the panel's own

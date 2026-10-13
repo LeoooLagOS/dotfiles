@@ -148,22 +148,55 @@ bind("SUPER CTRL ALT", "B", exec_cmd("qs -c panel ipc call panel barToggle"), { 
 -- services/Comms.qml; each app in its own special workspace)
 bind("SUPER", "Y", exec_cmd("qs -c panel ipc call panel comms"), { description = "communication apps: WhatsApp, Thunderbird, Teams with a dock (show / hide)" })
 bind("SUPER SHIFT", "Y", exec_cmd("qs -c panel ipc call panel commsDock"), { description = "communication apps: the keyboard to the dock (←/→, Enter, 1–9, Esc)" })
--- Inside one of them (its window in special:comms-*), CTRL TAB / CTRL SHIFT TAB
--- go to the next / previous app of the dock; anywhere else the keys go on to
--- the window as usual (browser tabs…)
-local function comms_cycle(ipc, mods)
+-- Inside one of them (its window in special:comms-*), SUPER TAB / SUPER SHIFT
+-- TAB go to the next / previous app of the dock (the comms lock keeps you there
+-- anyway: user_window_rules.lua); anywhere else they do what they did: the
+-- group's next / previous tab and the monitor's next / previous workspace
+local function comms_cycle(ipc, step)
   return function()
     local w = hl.get_active_window and hl.get_active_window()
-    local ws = w and w.workspace
-    if ws and type(ws.name) == "string" and ws.name:match("^special:comms%-") then
+    local name = w and w.workspace and w.workspace.name
+    if type(name) == "string" and name:match("^special:comms%-") then
       hl.exec_cmd("qs -c panel ipc call panel " .. ipc)
-    else
-      hl.dispatch(hl.dsp.send_shortcut({ mods = mods, key = "Tab" }))
+      return
     end
+    -- The group's tab (nothing outside a group), then the workspace
+    pcall(function() hl.dispatch(step > 0 and hl.dsp.group.next() or hl.dsp.group.prev()) end)
+    hl.dispatch(hl.dsp.focus({ workspace = step > 0 and "m+1" or "m-1" }))
   end
 end
-bind("CTRL", "Tab", comms_cycle("commsNext", "CTRL"), { description = "communication apps: next app (elsewhere: CTRL TAB as usual)" })
-bind("CTRL SHIFT", "Tab", comms_cycle("commsPrev", "CTRL SHIFT"), { description = "communication apps: previous app (elsewhere: CTRL SHIFT TAB as usual)" })
+unbind("SUPER", "Tab")
+unbind("SUPER SHIFT", "Tab")
+unbind("CTRL", "Tab")
+unbind("CTRL SHIFT", "Tab")
+bind("SUPER", "Tab", comms_cycle("commsNext", 1), { description = "next workspace / group tab; in the communication apps: next app" })
+bind("SUPER SHIFT", "Tab", comms_cycle("commsPrev", -1), { description = "previous workspace / group tab; in the communication apps: previous app" })
+-- SUPER O: the focused window out to the next empty workspace (after the
+-- current one; from a special workspace, the first empty one), following it.
+-- From a special workspace (a comms app: a call opened from a WhatsApp link
+-- lands there) that layer is closed first, so the comms lock lets you go
+local function window_to_empty()
+  local w = hl.get_active_window and hl.get_active_window()
+  if not w then return end
+  local cur = w.workspace
+  local used = {}
+  for _, ws in ipairs(hl.get_workspaces()) do
+    if ws.id > 0 and ws.windows > 0 then used[ws.id] = true end
+  end
+  local target = (cur and cur.id and cur.id > 0) and cur.id + 1 or 1
+  while used[target] do target = target + 1 end
+  local name = cur and cur.name or ""
+  if type(name) == "string" and name:match("^special:") then
+    hl.dispatch(hl.dsp.workspace.toggle_special((name:gsub("^special:", ""))))
+  end
+  hl.dispatch(hl.dsp.window.move({ workspace = target, follow = true, window = "address:" .. w.address }))
+end
+bind("SUPER", "O", window_to_empty, { description = "window out to the next empty workspace (also out of comms)" })
+
+-- Quick capture (the panel's QuickAdd.qml): one line in plain words becomes a
+-- to-do or an event; SUPER SHIFT Z starts from the selected text
+bind("SUPER", "Z", exec_cmd("qs -c panel ipc call panel quickAdd ''"), { description = "quick add: a to-do or an event, in plain words" })
+bind("SUPER SHIFT", "Z", exec_cmd("qs -c panel ipc call panel quickAddSelection"), { description = "quick add from the selected text" })
 bind("SUPER ALT", "Print", exec_cmd("qs -c panel ipc call panel record"), { description = "screen recording start / stop (gpu-screen-recorder)" })
 bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
 
