@@ -144,7 +144,7 @@ Singleton {
     // (whichever way): back from the empty workspace to the one you were in
     onShownChanged: {
         if (quiet) return;                    // a quick reply passing through
-        if (shown) { last = shown; markSeen(shown); return; }
+        if (shown) { last = shown; markSeen(shown); readCheck.key = shown; readCheck.restart(); return; }
         dockFocus = false;
         const m = Hyprland.focusedMonitor;
         if (m?.activeWorkspace?.name === "comms" && home[m.name] !== undefined)
@@ -198,7 +198,7 @@ Singleton {
         show(defs.some(d => d.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? defs[0]?.key ?? ""));
     }
     function pick(key) { key === shown ? hide() : show(key); }
-    // CTRL TAB / CTRL SHIFT TAB inside an app (UserConfigs/user_keybinds.lua):
+    // SUPER TAB / SUPER SHIFT TAB inside an app (UserConfigs/user_keybinds.lua):
     // the next / previous one in the dock's order, round
     function cycle(step) {
         if (!shown || defs.length < 2) return;
@@ -233,7 +233,7 @@ Singleton {
     // A reply in progress (ReplyBox.qml shows it): kept apart from the
     // notification, which the app may close at any moment (WhatsApp closes its
     // own when clicked, and after a few seconds anyway)
-    //   { who, app, photo (the chat's, or ""), icon, key, address, notif (inline replies only), openedAt }
+    //   { who, app, photo (the chat's, or ""), icon, key, address, notif (inline replies only), conv (the chat: Notifs.conversationOf), openedAt }
     property var session: null
     property string sessionState: ""          // "" | "sending" | "sent" | "failed"
     // Reply clicked: open that chat now (the notification's action), hidden,
@@ -248,13 +248,17 @@ Singleton {
         session = { who: Notifs.titleOf(n), app: Notifs.appLabel(n), photo: photo,
                     icon: ic.includes("://") || ic.startsWith("/") ? ic : Quickshell.iconPath(ic, true),
                     key: d?.key ?? "", address: w?.address ?? "", notif: n.hasInlineReply ? n : null,
-                    openedAt: Date.now() };
+                    conv: Notifs.conversationOf(n), openedAt: Date.now() };
         sessionState = "";
         console.info("quick reply: box opened |", n.hasInlineReply ? "inline" : "paste into " + (d?.key ?? "?"), "| app", n.appName);
         if (!n.hasInlineReply) {
             const def = (n.actions ?? []).find(a => a.identifier === "default");
             if (def) def.invoke();
         }
+    }
+    // Answered: that chat's messages leave the history
+    function clearChat(s) {
+        if (s?.conv) Notifs.dismissAll(Notifs.list.filter(n => Notifs.placeKind(n) === "message" && Notifs.conversationOf(n) === s.conv));
     }
     function cancelReply() { session = null; sessionState = ""; }
     // While reply.sh pastes, the app's workspace shows for a moment: no dock
@@ -267,7 +271,7 @@ Singleton {
         if (!s || !text) return;
         if (s.notif) {
             console.info("quick reply: inline");
-            try { s.notif.sendInlineReply(text); sessionState = "sent"; }
+            try { s.notif.sendInlineReply(text); sessionState = "sent"; clearChat(s); }
             catch (e) { sessionState = "failed"; }
             closeTimer.restart();
             return;
@@ -289,7 +293,7 @@ Singleton {
         onExited: code => {
             root.sessionState = code === 0 ? "sent" : "failed";
             console.info("quick reply: reply.sh exited", code);
-            if (code === 0) closeTimer.restart();
+            if (code === 0) { root.clearChat(root.session); closeTimer.restart(); }
         }
     }
 
@@ -330,6 +334,80 @@ Singleton {
             }
         }
     }
+
+    // ---------------- Read in the app ----------------
+    // A web app's title counts its unread chats ("(3) WhatsApp"). When that
+    // drops to none, or the app is shown with none, its messages were read
+    // there: they leave the history. Only for apps whose title has shown a
+    // count (so a title without one means none)
+    property var unreadOf: ({})               // key → the title's last count
+    function titleCount(w) {
+        const m = /^(?:[^(]*\s[—–-]\s)?\((\d+)\)/.exec(w?.title ?? "");
+        return m ? Number(m[1]) : -1;
+    }
+    function clearRead(d) {
+        Notifs.dismissAll(Notifs.list.filter(n => isFrom(d, n) && Notifs.placeKind(n) === "message"));
+    }
+    onClientsChanged: {
+        const u = Object.assign({}, unreadOf);
+        let changed = false;
+        for (const d of defs) {
+            const w = mainOf(d);
+            if (!w) continue;
+            const had = u[d.key], c = titleCount(w);
+            const now = c >= 0 ? c : had === undefined ? undefined : 0;
+            if (now === undefined || now === had) continue;
+            if (had > 0 && now === 0) clearRead(d);
+            u[d.key] = now;
+            changed = true;
+        }
+        if (changed) unreadOf = u;
+    }
+    // Shown: a moment for the title to catch up, then read if it counts none
+    Timer {
+        id: readCheck
+        interval: 2000
+        property string key
+        onTriggered: {
+            const d = root.defs.find(x => x.key === key);
+            if (d && root.shown === key && root.unreadOf[key] === 0) root.clearRead(d);
+        }
+    }
+
+    // ---------------- Quiet while Do Not Disturb ----------------
+    // These apps play their own notification sound (WhatsApp Web in the page),
+    // which the daemon can't hold back: during DND scripts/dndmute.py mutes
+    // their audio while they're hidden. Not the one shown or focused, nor one
+    // ringing with a call let through (Settings → Calls ring through DND), nor
+    // one recording (a call going on: dndmute.py checks)
+    readonly property string quietPids: {
+        if (!Notifs.dnd) return "";
+        const focused = "0x" + String(Hyprland.activeToplevel?.address ?? "");
+        const shownKeys = Object.values(shownOn);
+        const quiet = [], loud = [];
+        for (const d of defs) {
+            const w = mainOf(d);
+            if (!w) continue;
+            const ringing = Settings.v.callsThroughDnd
+                && Notifs.popups.some(n => Notifs.placeKind(n) === "call" && isFrom(d, n));
+            // Two web apps of one browser share its PID: either one loud keeps both
+            (shownKeys.includes(d.key) || w.address === focused || ringing ? loud : quiet).push(w.pid);
+        }
+        return [...new Set(quiet.filter(p => !loud.includes(p)))].join(" ");
+    }
+    onQuietPidsChanged: {
+        console.info("comms: quiet during DND:", quietPids || "none");
+        if (muteProc.running) muteProc.write(quietPids + "\n");
+    }
+    Process {
+        id: muteProc
+        running: true
+        stdinEnabled: true
+        command: [Quickshell.shellDir + "/scripts/dndmute.py"]
+        onStarted: write(root.quietPids + "\n")
+        onExited: muteRestart.start()
+    }
+    Timer { id: muteRestart; interval: 5000; onTriggered: muteProc.running = true }
 
     // At login: open each one, hidden
     function startAll() {
@@ -392,7 +470,17 @@ Singleton {
                 const s = {};
                 for (const m of ms) {
                     const name = m.specialWorkspace?.name ?? "";
-                    if (name.startsWith("special:comms-")) s[m.name] = name.slice("special:comms-".length);
+                    if (!name.startsWith("special:comms-")) continue;
+                    s[m.name] = name.slice("special:comms-".length);
+                    // Shown some other way than show() (the app focused itself…): the
+                    // empty workspace behind it too, so it's always the wallpaper
+                    const ws = m.activeWorkspace;
+                    if (m.focused && ws && ws.name !== "comms") {
+                        const h = Object.assign({}, root.home);
+                        h[m.name] = ws.id;
+                        root.home = h;
+                        root.dispatch(`hl.dsp.focus({ workspace = "name:comms" })`);
+                    }
                 }
                 root.shownOn = s;
             }

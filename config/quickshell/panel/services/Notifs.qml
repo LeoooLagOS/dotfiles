@@ -503,6 +503,15 @@ Singleton {
 
     // A notification arrives (or a replaced one arrives again): popup or not
     function arrive(n) {
+        // Teams' assignments to the calendar (services/Events.qml, scripts/assignments.py):
+        // its notifications, and its mails as Thunderbird announces them
+        if (!isTest(n)) {
+            const mail = mailOf(n);
+            if (mail ? /teams|assignments/i.test(mail.sender + " " + mail.account)
+                     : /teams/i.test(appLabel(n) + " " + (n.appName || "") + " " + (n.desktopEntry || "")))
+                Events.teamsNote(mail ? { app: "mail", summary: mail.sender, body: mail.subject, mail: true }
+                                      : { app: appLabel(n), summary: plain(n.summary), body: plain(bodyOf(n)) });
+        }
         {
             // Muted app: not even in the history
             if (root.ruleOf(n) === "mute" && root.placeKind(n) !== "critical" && root.placeKind(n) !== "call") {
