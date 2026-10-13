@@ -3,9 +3,12 @@ import QtQuick.Layouts
 import "../common"
 import "../services"
 
-// ZONE: Calendar — month grid (left) and the selected day's events (right).
-// Days with events get a dot. Click a day to see its events; click the month
-// name to go back to today. Events: services/Events.qml (scripts/events.py).
+// ZONE: Calendar — month grid (left) and the selected day (right): today,
+// everything still to hand in (Events.deadlines: Teams assignments and to-do
+// tasks, soonest first, with the time left) and the events not over yet (the
+// one going on marked "Now"); another day, what's due then and its events.
+// Days with events get a dot. Click a day to see it; click the month name to
+// go back to today. Events: services/Events.qml (scripts/events.py).
 Zone {
     id: root
 
@@ -210,7 +213,11 @@ Zone {
             Layout.fillHeight: true
             spacing: 8
 
-            readonly property var events: Events.eventsOn(root.selected)
+            // Today: everything still to hand in, then the events not over yet;
+            // another day: what's due that day, then its events
+            readonly property bool isToday: root.sameDay(root.selected, Events.now)
+            readonly property var due: isToday ? Events.deadlines : Events.deadlinesOn(root.selected)
+            readonly property var events: Events.dayEvents(root.selected)
 
             // "Today" (Tomorrow / Yesterday / Events for other days) over
             // "SUN · Oct 11", both centered
@@ -237,68 +244,111 @@ Zone {
                 }
             }
 
-            ListView {
+            Flickable {
+                id: dayList
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
-                spacing: 6
-                model: parent.events
+                contentHeight: dayCol.implicitHeight
                 boundsBehavior: Flickable.StopAtBounds
+                readonly property var due: parent.due
+                readonly property var events: parent.events
 
-                delegate: Rectangle {
-                    required property var modelData
-                    width: ListView.view.width
-                    implicitHeight: info.implicitHeight + 12
-                    radius: 8
-                    color: Theme.withAlpha(Theme.accent2, 0.10)
+                Column {
+                    id: dayCol
+                    width: dayList.width
+                    spacing: 6
 
-                    // Accent bar on the left
-                    Rectangle {
-                        width: 3
-                        height: parent.height - 12
-                        anchors.verticalCenter: parent.verticalCenter
-                        x: 6
-                        radius: 1.5
-                        color: Theme.accent2
+                    Label {
+                        visible: dayList.due.length > 0
+                        text: "TO HAND IN · " + dayList.due.length
+                        dim: true
+                        font.pixelSize: 10
+                        font.weight: Font.DemiBold
+                        font.letterSpacing: 1
                     }
+                    Repeater {
+                        model: dayList.due
+                        delegate: DeadlineRow { required property var modelData; item: modelData; width: dayCol.width; compact: true }
+                    }
+                    Label {
+                        visible: dayList.due.length > 0 && dayList.events.length > 0
+                        topPadding: 4
+                        text: "EVENTS"
+                        dim: true
+                        font.pixelSize: 10
+                        font.weight: Font.DemiBold
+                        font.letterSpacing: 1
+                    }
+                    Repeater {
+                        model: dayList.events
+                        delegate: Rectangle {
+                            required property var modelData
+                            readonly property bool live: Events.isNow(modelData)
+                            width: dayCol.width
+                            implicitHeight: info.implicitHeight + 12
+                            radius: 8
+                            color: Theme.withAlpha(Theme.accent2, live ? 0.22 : 0.10)
 
-                    ColumnLayout {
-                        id: info
-                        x: 16
-                        width: parent.width - 22
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 1
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 5
-                            Glyph {
-                                visible: modelData.important
-                                text: "\uf005"            // ★ important (Outlook); amber when High importance
-                                font.pixelSize: 9
-                                color: modelData.high ? Theme.warn : Theme.accent
+                            // Accent bar on the left
+                            Rectangle {
+                                width: 3
+                                height: parent.height - 12
+                                anchors.verticalCenter: parent.verticalCenter
+                                x: 6
+                                radius: 1.5
+                                color: Theme.accent2
                             }
-                            Label {
-                                Layout.fillWidth: true
-                                text: modelData.title
-                                font.pixelSize: 12
-                                font.weight: Font.DemiBold
+
+                            ColumnLayout {
+                                id: info
+                                x: 16
+                                width: parent.width - 22
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 1
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 5
+                                    Glyph {
+                                        visible: modelData.important
+                                        text: "\uf005"            // ★ important (Outlook); amber when High importance
+                                        font.pixelSize: 9
+                                        color: modelData.high ? Theme.warn : Theme.accent
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: modelData.title
+                                        font.pixelSize: 12
+                                        font.weight: Font.DemiBold
+                                    }
+                                    // Going on now
+                                    Rectangle {
+                                        visible: live
+                                        implicitWidth: nowText.implicitWidth + 10
+                                        implicitHeight: 16
+                                        radius: 8
+                                        color: Theme.accent2
+                                        Label { id: nowText; anchors.centerIn: parent; text: "Now"; font.pixelSize: 9; font.weight: Font.Bold; color: Theme.accent2Text }
+                                    }
+                                }
+                                Label {
+                                    Layout.fillWidth: true
+                                    text: (modelData.allDay ? "All day" : modelData.start + " – " + modelData.end)
+                                          + (modelData.location ? "  ·  " + modelData.location : "")
+                                    dim: true
+                                    font.pixelSize: 11
+                                }
                             }
-                        }
-                        Label {
-                            Layout.fillWidth: true
-                            text: (modelData.allDay ? "All day" : modelData.start + " – " + modelData.end)
-                                  + (modelData.location ? "  ·  " + modelData.location : "")
-                            dim: true
-                            font.pixelSize: 11
                         }
                     }
                 }
 
                 // Empty state
                 Label {
-                    anchors.centerIn: parent
-                    visible: parent.count === 0
-                    text: Events.loading ? "Loading…" : "No events"
+                    x: (dayList.width - width) / 2
+                    y: (dayList.height - height) / 2
+                    visible: dayList.due.length === 0 && dayList.events.length === 0
+                    text: Events.loading ? "Loading…" : root.sameDay(root.selected, Events.now) ? "Nothing left today" : "No events"
                     dim: true
                     font.pixelSize: 12
                 }

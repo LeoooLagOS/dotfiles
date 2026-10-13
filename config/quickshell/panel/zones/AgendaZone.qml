@@ -3,10 +3,11 @@ import QtQuick.Layouts
 import "../common"
 import "../services"
 
-// ZONE: Agenda (Calendar tab) — the selected day's events, then the next 7
-// days. ★ = important (Outlook events; amber = High importance). Events
+// ZONE: Agenda (Calendar tab) — the selected day's events (today: the ones
+// not over yet), then the next 7 days. Teams assignments are in the To-do zone. ★ = important (Outlook events; amber = High importance). Events
 // created in the panel can be deleted (×). Header: refresh (forces an Outlook
-// download) and "+ New event", which opens the form below the header.
+// download), List ↔ Timeline (common/DayTimeline.qml: the selected day by the
+// hour, free gaps and what's due) and "+ New event", which opens the form below the header.
 // Keyboard: Tab to "New event", Enter; in the form Tab between fields, Enter
 // on a field saves, Esc closes the form.
 Zone {
@@ -15,6 +16,8 @@ Zone {
     icon: ""
 
     property bool creating: false
+    // List or Timeline (common/DayTimeline.qml), remembered
+    readonly property bool timeline: Settings.v.agendaView === "timeline"
 
     function dayTitle(d) {
         const t = new Date(); t.setHours(0, 0, 0, 0);
@@ -27,7 +30,7 @@ Zone {
     readonly property var upcomingGroups: {
         const sel = Events.key(Events.selected), groups = [], map = {};
         for (const e of Events.upcoming) {
-            if (e.date === sel) continue;
+            if (e.date === sel || Events.isDeadline(e)) continue;     // deadlines: the To-do zone
             if (!map[e.date]) { map[e.date] = []; groups.push({ date: e.date, items: map[e.date] }); }
             map[e.date].push(e);
         }
@@ -35,6 +38,11 @@ Zone {
     }
 
     actions: [
+        IconButton {
+            icon: root.timeline ? "\uf03a" : "\uf017"; iconSize: 11; implicitWidth: 30; implicitHeight: 26
+            active: root.timeline
+            onClicked: Settings.set("agendaView", root.timeline ? "list" : "timeline")
+        },
         IconButton {
             icon: ""; iconSize: 11; implicitWidth: 30; implicitHeight: 26
             rotation: Events.loading ? 360 : 0
@@ -62,10 +70,17 @@ Zone {
             onDone: root.creating = false
         }
 
+        // ---------------- Timeline ----------------
+        DayTimeline {
+            anchors.fill: parent
+            visible: !root.creating && root.timeline
+            day: Events.selected
+        }
+
         // ---------------- Lists ----------------
         Flickable {
             anchors.fill: parent
-            visible: !root.creating
+            visible: !root.creating && !root.timeline
             contentHeight: lists.implicitHeight
             clip: true
             boundsBehavior: Flickable.StopAtBounds
@@ -79,7 +94,7 @@ Zone {
                 Column {
                     width: parent.width
                     spacing: 6
-                    readonly property var dayEvents: Events.eventsOn(Events.selected)
+                    readonly property var dayEvents: Events.dayEvents(Events.selected)
 
                     Row {
                         spacing: 8

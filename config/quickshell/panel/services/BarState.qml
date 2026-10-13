@@ -103,8 +103,18 @@ Singleton {
         if (n && Comms.canReply(n)) Comms.startReply(n);
     }
 
-    // A short message on the island ({ icon, text }), gone after a moment
+    // A short message on the island ({ icon, text, undo }), gone after a moment.
+    // With `undo` (a function) it stays 6 s and clicking the island runs it
     property var flash: null
-    function say(icon, text) { flash = { icon: icon, text: text }; flashTimer.restart(); }
+    function say(icon, text, undo) {
+        flash = { icon: icon, text: text, undo: undo ?? null };
+        flashTimer.interval = undo ? 6000 : 1800;
+        flashTimer.restart();
+    }
+    function undoFlash() {
+        const f = flash;
+        flash = null;
+        if (f?.undo) { f.undo(); say("\uf0e2", "Undone"); }
+    }
     Timer { id: flashTimer; interval: 1800; onTriggered: root.flash = null }
 }

@@ -2,8 +2,11 @@ import QtQuick
 import QtQuick.Layouts
 import "../common"
 import "../services"
+import "../common/When.js" as When
 
-// ZONE: To-do (Calendar tab) — tasks and ideas (~/.config/lagos/todo.json).
+// ZONE: To-do (Calendar tab) — Teams assignments to hand in (Events.deadlines,
+// done with their circle), then tasks and ideas (~/.config/lagos/todo.json),
+// each due date with the time left (red under a day, amber under three).
 // Add with Enter; choose Task or Idea and an optional due date (Today /
 // Tomorrow / none). Click the circle to complete, click the text to edit,
 // × to delete. Overdue items show their date in red.
@@ -24,8 +27,13 @@ Zone {
         if (which === "tomorrow") d.setDate(d.getDate() + 1);
         return Events.key(d);
     }
+    // A task is read in plain words (common/When.js: "pagar la luz viernes",
+    // "estudiar BD todos los días 8pm"); the Today / Tomorrow chips win over it
+    readonly property var parsed: newKind === "task" && input.text.trim() ? When.parse(input.text + " #task") : null
     function addCurrent() {
-        Todos.add(input.text, newKind, dueKey(newDue));
+        const r = parsed;
+        if (r && r.title) Todos.add(r.title, "task", dueKey(newDue) || r.date, newDue ? "" : r.start, r.repeat, r.place);
+        else Todos.add(input.text, newKind, dueKey(newDue));
         input.text = "";
         newDue = "";
     }
@@ -78,6 +86,15 @@ Zone {
             IconButton { icon: "\uf067"; iconSize: 11; implicitWidth: 30; implicitHeight: 30; active: input.text.trim() !== ""
                          onClicked: root.addCurrent() }
         }
+        // What it understood
+        Label {
+            visible: !!root.parsed && (root.parsed.date !== "" || root.parsed.repeat !== "")
+            Layout.fillWidth: true
+            text: root.parsed ? When.describe(root.parsed).slice(1).map(c => c.text).join("  ·  ") + "  →  “" + root.parsed.title + "”" : ""
+            color: Theme.accent2
+            font.pixelSize: 10
+            elide: Text.ElideRight
+        }
         Flow {
             Layout.fillWidth: true
             spacing: 4
@@ -104,6 +121,19 @@ Zone {
             }
         }
 
+        // Teams assignments to hand in (Events.deadlines), above the list
+        Column {
+            Layout.fillWidth: true
+            spacing: 4
+            visible: root.filter !== "idea" && teamsDue.length > 0
+            readonly property var teamsDue: Events.deadlines.filter(x => x.kind === "teams")
+            Label { text: "FROM TEAMS"; dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+            Repeater {
+                model: parent.teamsDue
+                delegate: DeadlineRow { required property var modelData; item: modelData; width: parent.width }
+            }
+        }
+
         // List
         ListView {
             id: list
@@ -118,8 +148,9 @@ Zone {
                 id: row
                 required property var modelData
                 property bool editing: false
+                property bool picking: false              // the date picker open
                 width: ListView.view.width
-                implicitHeight: Math.max(34, content.implicitHeight + 12)
+                implicitHeight: Math.max(34, content.implicitHeight + 12) + (picking ? picker.implicitHeight + 8 : 0)
                 radius: 8
                 color: rowMouse.containsMouse || activeFocus ? Theme.withAlpha(Theme.fg, 0.05) : "transparent"
 
@@ -134,9 +165,11 @@ Zone {
 
                 RowLayout {
                     id: content
-                    anchors.fill: parent
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     anchors.leftMargin: 6
                     anchors.rightMargin: 4
+                    y: Math.max(6, (Math.max(34, implicitHeight + 12) - implicitHeight) / 2)
                     spacing: 8
 
                     // Check circle
@@ -168,7 +201,7 @@ Zone {
                         }
                         Row {
                             spacing: 6
-                            visible: row.modelData.kind === "idea" || row.modelData.due !== ""
+                            visible: row.modelData.kind === "idea" || row.modelData.due !== "" || (!row.modelData.done && rowMouse.containsMouse)
                             Label {
                                 visible: row.modelData.kind === "idea"
                                 text: "• Idea"
@@ -176,10 +209,13 @@ Zone {
                                 font.pixelSize: 9
                             }
                             Label {
-                                visible: row.modelData.due !== ""
-                                text: "⏰ " + Qt.formatDate(new Date(row.modelData.due + "T12:00"), "MMM d")
-                                color: Todos.isOverdue(row.modelData) ? Theme.bad : Theme.fgDim
+                                visible: row.modelData.kind !== "idea" && (row.modelData.due !== "" || !row.modelData.done)
+                                readonly property var asDeadline: ({ due: Todos.dueAt(row.modelData), dateOnly: !row.modelData.time })
+                                text: row.modelData.due ? "⏰ " + Events.dueText(asDeadline) + (row.modelData.repeat ? "  \uf01e" : "") : "+ date"
+                                color: row.modelData.done || !row.modelData.due ? Theme.fgDim : Events.dueColor(asDeadline)
                                 font.pixelSize: 9
+                                MouseArea { anchors.fill: parent; anchors.margins: -3; enabled: !row.modelData.done
+                                            cursorShape: Qt.PointingHandCursor; onClicked: row.picking = !row.picking }
                             }
                         }
                     }
@@ -192,10 +228,22 @@ Zone {
                     }
 
                     IconButton {
-                        visible: rowMouse.containsMouse && !row.editing
+                        visible: (rowMouse.containsMouse || row.picking) && !row.editing
                         icon: ""; iconSize: 9; implicitWidth: 20; implicitHeight: 20; border.width: 0
                         onClicked: Todos.remove(row.modelData.id)
                     }
+                }
+                DuePicker {
+                    id: picker
+                    visible: row.picking
+                    x: 32
+                    y: content.y + content.height + 6
+                    width: row.width - 40
+                    due: row.modelData.due
+                    time: row.modelData.time ?? ""
+                    repeat: row.modelData.repeat ?? ""
+                    onPicked: (due, time) => { Todos.setDue(row.modelData.id, due, time); row.picking = false; }
+                    onRepeatPicked: r => Todos.setRepeat(row.modelData.id, r)
                 }
             }
 

@@ -392,24 +392,59 @@ Rectangle {
             visible: (actionsRepeater.count > 0 || card.code !== "" || card.canReply) && !card.compact
 
             // Quick reply: opens the box below
-            Rectangle {
-                visible: card.canReply
+            // Reply · Add (to the calendar / to-dos: the quick capture box,
+            // prefilled with the text, its date already understood)
+            RowLayout {
+                readonly property bool addable: !!card.notif && !Notifs.isTest(card.notif)
+                    && ["message", "app", "system"].includes(Notifs.placeKind(card.notif))
+                visible: card.canReply || addable
                 Layout.fillWidth: true
-                implicitHeight: 30
-                radius: 10
-                color: replyMouse.containsMouse ? card.pal.bgHover : Theme.withAlpha(card.pal.accent, 0.16)
-                Row {
-                    anchors.centerIn: parent
-                    spacing: 8
-                    Glyph { pal: card.pal; text: "\uf112"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
-                    Label { pal: card.pal; text: "Reply"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                spacing: 6
+                Rectangle {
+                    visible: card.canReply
+                    Layout.fillWidth: true
+                    implicitHeight: 30
+                    radius: 10
+                    color: replyMouse.containsMouse ? card.pal.bgHover : Theme.withAlpha(card.pal.accent, 0.16)
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 8
+                        Glyph { pal: card.pal; text: "\uf112"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                        Label { pal: card.pal; text: "Reply"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                    }
+                    MouseArea {
+                        id: replyMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Comms.startReply(card.notif)
+                    }
                 }
-                MouseArea {
-                    id: replyMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: Comms.startReply(card.notif)
+                Rectangle {
+                    visible: parent.addable
+                    Layout.fillWidth: !card.canReply
+                    Layout.preferredWidth: card.canReply ? addRow.implicitWidth + 24 : -1
+                    implicitHeight: 30
+                    radius: 10
+                    color: addMouse.containsMouse ? card.pal.bgHover : Theme.withAlpha(card.pal.accent, 0.16)
+                    Row {
+                        id: addRow
+                        anchors.centerIn: parent
+                        spacing: 7
+                        Glyph { pal: card.pal; text: "\uf271"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                        Label { pal: card.pal; text: "Add"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                    }
+                    MouseArea {
+                        id: addMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            const n = card.notif;
+                            const body = Notifs.plain(Notifs.bodyOf(n)).replace(/\s+/g, " ").trim();
+                            Capture.open(body || Notifs.titleOf(n), Notifs.appLabel(n) + " · " + Notifs.titleOf(n));
+                        }
+                    }
                 }
             }
 

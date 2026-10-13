@@ -4,7 +4,8 @@
 Usage:
   events.py list FROM TO [--force]   events between two dates (YYYY-MM-DD, inclusive)
   events.py add                      create a local event; JSON on stdin:
-                                     {title, date, start, end, allDay, location, notes, reminder}
+                                     {title, date, start, end, allDay, location, notes, reminder,
+                                      repeat: daily | weekdays | weekly | monthly}
   events.py delete UID               delete a local event
 
 `list` prints JSON: {"events": [...], "sources": N, "errors": [...]}; each event:
@@ -247,6 +248,11 @@ def cmd_add(spec):
         # Stored in UTC: unambiguous for any reader
         ev.add("dtstart", start.astimezone(timezone.utc))
         ev.add("dtend", end.astimezone(timezone.utc))
+
+    rules = {"daily": {"freq": "daily"}, "weekly": {"freq": "weekly"}, "monthly": {"freq": "monthly"},
+             "weekdays": {"freq": "weekly", "byday": ["MO", "TU", "WE", "TH", "FR"]}}
+    if spec.get("repeat") in rules:
+        ev.add("rrule", rules[spec["repeat"]])
 
     minutes = int(spec.get("reminder") or 0)
     if minutes > 0 and not spec.get("allDay"):
