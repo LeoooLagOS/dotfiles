@@ -15,6 +15,10 @@ import "../services"
 //   Apps      every program with a window, grouped (hidden ones marked: the
 //             comms dock's, other special workspaces), and Flatpak apps
 //             running without one: click goes to it · × closes / stops it
+//   Startup   what starts at login (services/Startup.qml), running or not,
+//             with what it holds: click opens it (its tray icon's window, its
+//             window, or starts it) · ▶ starts it · × stops it (twice) · the
+//             switch: at login or not (Settings → Startup apps, the same)
 //   Services  daemons: your systemd user services (restart, stop: click ■
 //             twice), and the system's (read only)
 // Processes are in the system monitor (the footer link). The lists are read
@@ -69,6 +73,7 @@ BarPill {
         if (!sysProc.running) sysProc.running = true;
     }
     onOpenChanged: if (open) refresh()
+    Binding { target: Startup; property: "trayWatching"; value: root.open && root.view === "startup" }
     Timer { interval: 3000; repeat: true; running: root.open; onTriggered: root.refresh() }
     function units(text) {
         return text.split("\n").filter(l => l.trim()).map(l => {
@@ -142,6 +147,7 @@ BarPill {
             width: parent.width - 20
             options: [{ value: "tray", label: "Tray " + root.items.length },
                       { value: "apps", label: "Apps " + (root.apps.length + root.headless.length) },
+                      { value: "startup", label: "Startup " + Startup.running.length },
                       { value: "services", label: "Services " + root.userServices.length }]
             value: root.view
             onSelected: v => root.view = v
@@ -219,6 +225,42 @@ BarPill {
                         onClicked: { if (modelData.entry) modelData.entry.execute(); root.open = false; }
                         onAction: root.twice("fp:" + modelData.app, () => Quickshell.execDetached(["flatpak", "kill", modelData.app]))
                     }
+                }
+
+                // ---------------- Startup ----------------
+                Section {
+                    visible: root.view === "startup"
+                    text: "AT LOGIN · " + Startup.running.length + " running" + (Startup.memory > 0 ? " · " + Startup.size(Startup.memory) : "")
+                }
+                Repeater {
+                    model: root.view === "startup" ? Startup.apps.filter(a => a.kind === "xdg" || a.enabled) : []
+                    delegate: Row_ {
+                        required property var modelData
+                        icon: Startup.iconOf(modelData)
+                        glyph: modelData.kind === "hypr" ? "\uf120" : "\uf135"
+                        title: modelData.name
+                        subtitle: Startup.stateText(modelData)
+                        badge: modelData.kind === "hypr" ? "hyprland" : ""
+                        dimmed: !modelData.enabled && modelData.state !== "running"
+                        clickable: Startup.openable(modelData)
+                        actionIcon: modelData.state === "running" && !modelData.locked ? "\uf00d" : ""
+                        action2Icon: modelData.state !== "running" ? "\uf04b" : ""
+                        confirming: root.confirm === "stop:" + modelData.id
+                        toggle: modelData.locked ? -1 : modelData.enabled ? 1 : 0
+                        onClicked: { Startup.open(modelData); root.open = false; }
+                        onAction: root.twice("stop:" + modelData.id, () => Startup.stop(modelData))
+                        onAction2: Startup.start(modelData)
+                        onToggled: Startup.setEnabled(modelData, !modelData.enabled)
+                    }
+                }
+                Label {
+                    visible: root.view === "startup" && Startup.error !== ""
+                    text: Startup.error
+                    color: Theme.bad
+                    font.pixelSize: 11
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                    Layout.margins: 8
                 }
 
                 // ---------------- Services ----------------
@@ -300,21 +342,24 @@ BarPill {
         property string actionIcon: ""
         property string action2Icon: ""
         property bool confirming: false
+        property bool clickable: !dimmed
+        property int toggle: -1                 // a switch at the end: -1 none, 0 off, 1 on
         signal clicked(var mouse)
         signal action()
         signal action2()
+        signal toggled()
         Layout.fillWidth: true
         implicitHeight: 42
         radius: 10
-        color: rowMouse.containsMouse && !dimmed ? Theme.bgHover : "transparent"
+        color: rowMouse.containsMouse && r.clickable ? Theme.bgHover : "transparent"
         MouseArea {
             id: rowMouse
             anchors.fill: parent
             hoverEnabled: true
-            enabled: !r.dimmed
-            cursorShape: Qt.PointingHandCursor
+            enabled: r.clickable || r.toggle >= 0
+            cursorShape: r.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-            onClicked: m => r.clicked(m)
+            onClicked: m => { if (r.clickable) r.clicked(m); }
         }
         RowLayout {
             anchors.fill: parent
@@ -367,6 +412,11 @@ BarPill {
                         onClicked: parent.primary ? r.action() : r.action2()
                     }
                 }
+            }
+            Switch {
+                visible: r.toggle >= 0
+                checked: r.toggle === 1
+                onToggled: r.toggled()
             }
         }
     }

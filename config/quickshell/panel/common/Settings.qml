@@ -210,6 +210,12 @@ Singleton {
           lead: "Messaging and mail apps kept running out of sight, so their notifications arrive. SUPER Y shows them full screen above a dock.", groups: [
             { title: "Apps", rows: [
                 { key: "commsApps", label: "In the dock", help: "Each opens hidden at login, in its own workspace. Remove one and its window comes back to the current workspace", type: "commsapps" } ] } ] },
+        { id: "startup", icon: "\uf135", label: "Startup apps", system: true,
+          lead: "What opens on its own when you log in, and what it holds right now. Off takes effect from the next login; ■ stops it now. Also in the tray's Startup view.", groups: [
+            { title: "Apps", rows: [
+                { label: "Start at login", help: "XDG autostart: ~/.config/autostart over /etc/xdg/autostart (off: Hidden=true in your copy)", type: "startupapps", kind: "xdg" } ] },
+            { title: "Started by Hyprland", rows: [
+                { label: "Your startup commands", help: "startup_commands in UserConfigs/user_startup.lua: off comments the line out, and Hyprland reloads its config. The panel's own line stays", type: "startupapps", kind: "hypr" } ] } ] },
         { id: "power", icon: "", label: "Power & idle", system: true,
           lead: "Idle timeouts (hypridle), battery alerts and the power profile.", groups: [
             { title: "When idle", rows: [

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Widgets
 import "../../common"
 import "../../services"
 
@@ -32,8 +33,9 @@ Item {
     }
 
     // apprules / commsapps: label on top, the list of apps below (full width)
-    readonly property bool stacked: type === "apprules" || type === "commsapps" || type === "notiftests"
-    implicitHeight: stacked ? labels.implicitHeight + (type === "apprules" ? rules : type === "commsapps" ? comms : tests).implicitHeight + 28
+    readonly property bool stacked: type === "apprules" || type === "commsapps" || type === "notiftests" || type === "startupapps"
+    implicitHeight: stacked ? labels.implicitHeight + (type === "apprules" ? rules : type === "commsapps" ? comms
+                                                       : type === "startupapps" ? startup : tests).implicitHeight + 28
                             : Math.max(46, Math.max(labels.implicitHeight, ctl.implicitHeight) + 18)
 
     Rectangle { visible: !root.first; width: parent.width; height: 1; color: Theme.border }
@@ -389,6 +391,109 @@ Item {
             icon: "\uf03d"
             filled: true
             onClicked: Notifs.runDemo()
+        }
+    }
+
+    // ---------------- startupapps: what starts at login (services/Startup.qml) ----------------
+    // row.kind: xdg | hypr. Icon, name, what it is, its state and memory; ▶ / ■, the switch
+    readonly property var startupApps: type === "startupapps" ? Startup.apps.filter(a => a.kind === row.kind) : []
+    Column {
+        id: startup
+        visible: root.type === "startupapps"
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: labels.bottom
+        anchors.topMargin: 8
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        spacing: 2
+        Label {
+            visible: root.row.kind === "xdg" && Startup.running.length > 0
+            text: Startup.running.length + " running now · " + Startup.size(Startup.memory)
+            dim: true
+            font.pixelSize: 11
+            bottomPadding: 4
+        }
+        Label {
+            visible: root.startupApps.length === 0
+            text: Startup.apps.length ? "Nothing here." : "Reading…"
+            dim: true
+            font.pixelSize: 12
+        }
+        Repeater {
+            model: root.startupApps
+            delegate: Item {
+                id: startLine
+                required property var modelData
+                readonly property string iconSrc: Startup.iconOf(modelData)
+                width: startup.width
+                height: 44
+                opacity: Startup.busy === modelData.id ? 0.5 : 1
+                Item {
+                    id: startIcon
+                    width: 22; height: 22
+                    anchors.verticalCenter: parent.verticalCenter
+                    IconImage { anchors.fill: parent; visible: startLine.iconSrc !== ""; source: startLine.iconSrc; implicitSize: 22 }
+                    Glyph {
+                        anchors.centerIn: parent
+                        visible: startLine.iconSrc === ""
+                        text: startLine.modelData.kind === "hypr" ? "" : ""
+                        font.pixelSize: 13
+                        color: Theme.fgDim
+                    }
+                }
+                Column {
+                    anchors.left: startIcon.right
+                    anchors.leftMargin: 10
+                    anchors.right: startButtons.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    Label {
+                        width: parent.width
+                        text: startLine.modelData.name.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                            + (startLine.modelData.comment ? "<font color='" + Theme.fgDim + "'>  ·  "
+                               + startLine.modelData.comment.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</font>" : "")
+                        textFormat: Text.StyledText
+                        font.pixelSize: 13
+                        elide: Text.ElideRight
+                        color: startLine.modelData.enabled ? Theme.fg : Theme.fgDim
+                    }
+                    Label {
+                        width: parent.width
+                        text: startLine.modelData.locked ? "Starts this panel" : Startup.stateText(startLine.modelData)
+                        color: startLine.modelData.state === "failed" ? Theme.bad : Theme.fgDim
+                        font.pixelSize: 10
+                        elide: Text.ElideRight
+                    }
+                }
+                Row {
+                    id: startButtons
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 8
+                    IconButton {
+                        visible: !startLine.modelData.locked
+                        anchors.verticalCenter: parent.verticalCenter
+                        icon: startLine.modelData.state === "running" ? "" : ""
+                        iconSize: 10; implicitWidth: 28; implicitHeight: 26
+                        onClicked: startLine.modelData.state === "running" ? Startup.stop(startLine.modelData) : Startup.start(startLine.modelData)
+                    }
+                    Switch {
+                        visible: !startLine.modelData.locked
+                        anchors.verticalCenter: parent.verticalCenter
+                        checked: startLine.modelData.enabled
+                        onToggled: Startup.setEnabled(startLine.modelData, !startLine.modelData.enabled)
+                    }
+                }
+            }
+        }
+        Label {
+            visible: root.row.kind === "xdg" && Startup.error !== ""
+            text: Startup.error
+            color: Theme.bad
+            font.pixelSize: 11
+            width: parent.width
+            wrapMode: Text.Wrap
         }
     }
 }
