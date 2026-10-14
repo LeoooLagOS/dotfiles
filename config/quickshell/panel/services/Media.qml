@@ -11,14 +11,53 @@ Singleton {
     id: root
     // playerctld is a proxy that mirrors the active player: skip it (it showed up as a duplicate)
     // A stopped player with nothing loaded is left over (a browser keeps one
-    // after a video ends, e.g. WhatsApp's in Brave): hidden too
+    // after a video ends, e.g. WhatsApp's in Brave): hidden too. So is a
+    // YouTube hover preview (isPreview)
     readonly property var players: Mpris.players.values.filter(p => !(p.dbusName ?? "").includes("playerctld")
-        && !(p.playbackState === MprisPlaybackState.Stopped && !p.trackTitle))
+        && !(p.playbackState === MprisPlaybackState.Stopped && !p.trackTitle) && !isPreview(p))
     property var picked: null
 
     readonly property var player: {
         if (picked && players.includes(picked)) return picked;
-        return players.find(p => p.isPlaying) ?? players[0] ?? null;
+        return players.find(p => p.isPlaying && counts(p)) ?? players.find(p => p.isPlaying) ?? players[0] ?? null;
+    }
+
+    // ---------------- Previews aren't music ----------------
+    // Hovering a video on a site plays it muted, and the browser reports that
+    // as a player. Two rules keep it out of the bar:
+    //   1. isPreview: a YouTube page that isn't a video (the feed, search, a
+    //      channel: the url is the page's, e.g. https://www.youtube.com/) is a
+    //      hover preview: the player is hidden altogether
+    //   2. counts: a browser's track only counts as music once its audio stream
+    //      has made sound (a peak, PwNodePeakMonitor). A muted preview has no
+    //      stream at all; an idle stream left by a paused video never peaks
+    function isBrowser(p) {
+        const s = [p?.desktopEntry, p?.identity, p?.dbusName].join(" ").toLowerCase();
+        return /firefox|brave|chrom|librewolf|zen|vivaldi|edge|opera|epiphany/.test(s);
+    }
+    function urlOf(p) { return String(p?.metadata?.["xesam:url"] ?? ""); }
+    function isPreview(p) {
+        const m = urlOf(p).match(/^https?:\/\/(?:www\.|m\.)?youtube\.com(\/[^?#]*)?/);
+        return !!m && !/^\/(watch|shorts\/|live\/|embed\/)/.test(m[1] ?? "/");
+    }
+    // Browser tracks that made sound: "<player>|<title>" → true
+    property var heard: ({})
+    function keyOf(p) { return (p?.dbusName ?? "") + "|" + (p?.trackTitle ?? ""); }
+    function counts(p) { return !!p && (!isBrowser(p) || !!heard[keyOf(p)]); }
+    // Listen to the shown player's streams while it plays and hasn't been heard yet
+    readonly property bool listening: !!player && player.isPlaying && isBrowser(player) && !heard[keyOf(player)]
+    function markHeard() {
+        const h = Object.keys(heard).length > 100 ? {} : Object.assign({}, heard);
+        h[keyOf(player)] = true;
+        heard = h;
+    }
+    Instantiator {
+        model: root.listening ? root.streamsFor(root.playerKeys(root.player)) : []
+        delegate: PwNodePeakMonitor {
+            required property var modelData
+            node: modelData
+            onPeakChanged: if (peak > 0.01 && root.listening) root.markHeard()
+        }
     }
 
     function pick(p) { picked = p; }
@@ -26,7 +65,7 @@ Singleton {
     // "Something is playing", for the bar (its right twin and the island):
     // still true a little after a pause, so pausing from the island keeps
     // play at hand instead of switching to the weather under the pointer
-    readonly property bool hasTrack: !!player && !!player.trackTitle
+    readonly property bool hasTrack: !!player && !!player.trackTitle && counts(player)
     readonly property bool playing: hasTrack && player.isPlaying
     readonly property bool active: playing || (hasTrack && pausedJustNow.running)
     onPlayingChanged: if (!playing) pausedJustNow.restart()

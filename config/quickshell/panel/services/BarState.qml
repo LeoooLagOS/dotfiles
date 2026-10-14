@@ -38,7 +38,7 @@ Singleton {
 
     // Modules shown, per zone, in this order (Settings → Bar → Modules)
     readonly property var allModules: ({
-        left: [["logo", "Logo"], ["workspaces", "Workspaces"], ["window", "Window title"]],
+        left: [["logo", "Logo"], ["workspaces", "Workspaces"], ["window", "Window / weather"]],
         center: [["bell", "Notifications"], ["island", "Island"], ["caffeine", "Caffeine"]],
         right: [["tray", "Tray"], ["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", "Temperature"],
                 ["wifi", "Wi-Fi"], ["bluetooth", "Bluetooth"], ["battery", "Battery"], ["power", "Power"]]

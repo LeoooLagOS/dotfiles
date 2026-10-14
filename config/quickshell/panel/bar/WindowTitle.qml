@@ -19,13 +19,17 @@ import "../services"
 // For a terminal in a git repository (scripts/gitstatus.sh): the repo, its
 // branch and what's pending (↑ ahead ↓ behind · + staged · ~ modified · ? new
 // · ! conflicts, ✓ when clean), checked as its title changes and every few seconds.
-// Always the width it's given (the gap to the center stays the same); what it
-// shows is centered in it while it's shorter.
+// In a repository only the repo's details show (not the app nor the title),
+// and the title is left out rather than scrolling in a sliver (under 80 px):
+// then it's `compact`, and TopBar.qml gives it just its `natural` width (the
+// mini weather beside it takes the rest). Else the width it's given (`room`:
+// the gap to the center stays the same), what it shows centered in it.
 // Fades out (keeping its place, so the bar doesn't shift) on an empty workspace,
-// where the next event shows instead (bar/Agenda.qml, TopBar.qml).
+// where the whole weather shows instead (bar/Glance.qml, TopBar.qml).
 BarPill {
     id: root
     property int fixedWidth: 340
+    property int room: fixedWidth               // the most it may take (TopBar.qml)
     property bool hide: false
     // Quickshell learns the focused window from Hyprland's focus events: until
     // the first one (right after the panel starts) it's hyprctl's answer
@@ -60,9 +64,17 @@ BarPill {
     // A comms app lives in its own special workspace, shown over the empty "comms" one
     readonly property bool commsShown: !!comms && String(win?.workspace?.name ?? "").startsWith("special:comms-")
         && (Comms.shown !== "" || Hyprland.focusedWorkspace?.name === "comms")
-    // A window to show (else bar/Agenda.qml takes the place)
+    // A window to show (else bar/Glance.qml takes the place)
     readonly property bool hasWindow: (onThisWorkspace || commsShown) && (title !== "" || appName !== "")
     readonly property bool shown: !hide && hasWindow
+
+    // The title only with room to read it (no sliver of scrolling); a repo shows only its details
+    readonly property bool repo: gitText !== ""
+    readonly property real titleRoom: room - 2 * pad - 16 - spacing - (name.visible ? name.width + spacing : 0)
+        - (badge.visible ? badge.width + spacing : 0) - (gitInfo.visible ? gitInfo.width + spacing : 0)
+    readonly property bool showTitle: !repo && marquee.text !== "" && titleRoom >= 80
+    readonly property bool compact: !showTitle
+    readonly property real natural: contentWidth + 2 * pad
 
     // Git, for a terminal: [repo, branch, ahead, behind, staged, modified, untracked, conflicts]
     readonly property bool terminal: /^(kitty|foot|footclient|alacritty|com\.mitchellh\.ghostty|org\.wezfurlong\.wezterm|wezterm)$/i.test(appId)
@@ -142,10 +154,11 @@ BarPill {
     }
     Label {
         id: name
+        visible: !root.repo
         text: root.comms?.name || root.page?.domain || root.appName
         font.pixelSize: 13
         font.weight: Font.DemiBold
-        width: Math.min(implicitWidth, (root.fixedWidth - 2 * root.pad) / 2)
+        width: Math.min(implicitWidth, (root.room - 2 * root.pad) / 2)
         anchors.verticalCenter: parent.verticalCenter
     }
     // Unread (comms apps)
@@ -184,15 +197,13 @@ BarPill {
     }
     Marquee {
         id: marquee
-        visible: text !== ""
+        visible: root.showTitle
         textFormat: root.comms ? Text.StyledText : Text.PlainText
         text: root.comms ? (root.commsText ? "·  " + root.commsText : "")
             : root.title ? "·  " + root.title : ""
         dim: true
-        // Its text, up to the rest of the pill (the row is pad + icon + spacing + name + spacing + this + pad)
-        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - 16 - name.width - 2 * root.spacing
-                           - (badge.visible ? badge.width + root.spacing : 0)
-                           - (gitInfo.visible ? gitInfo.width + root.spacing : 0)))
+        // Its text, up to the rest of the pill
+        width: Math.min(implicitWidth, Math.max(0, root.titleRoom))
         anchors.verticalCenter: parent.verticalCenter
     }
 }

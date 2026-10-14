@@ -18,7 +18,10 @@ Item {
     property int iconSize: 13
     property var tip: null                 // { title, rows, hist }
     property var tipHost: null             // the bar's BarTip
-    property bool compact: false           // the icon alone (the bar while the panel is open)
+    property bool compact: false           // the icon alone (the bar mirrored: TopBar.qml)
+    // Its width with the number, whether shown or not (TopBar decides from it
+    // whether the numbers fit; it doesn't depend on `compact`, so no binding loop)
+    readonly property real fullWidth: iconBox.implicitWidth + (text !== "" ? row.spacing + numLabel.implicitWidth : 0) + (pill ? 14 : 0)
     readonly property color tint: level === "bad" ? Theme.bad : level === "warn" ? Theme.warn : Theme.fg
     readonly property string mark: level ? Theme.markOf(tint) : ""
     readonly property bool pill: mark === "pill"
@@ -45,6 +48,7 @@ Item {
         spacing: 5
 
         Item {
+            id: iconBox
             implicitWidth: root.disc ? root.iconSize + 9 : icon.implicitWidth
             implicitHeight: root.disc ? root.iconSize + 9 : icon.implicitHeight
             anchors.verticalCenter: parent.verticalCenter
@@ -64,6 +68,7 @@ Item {
             }
         }
         Label {
+            id: numLabel
             visible: root.text !== "" && !root.compact
             text: root.text
             color: root.pill ? root.onTint : root.disc ? Theme.fg : root.tint

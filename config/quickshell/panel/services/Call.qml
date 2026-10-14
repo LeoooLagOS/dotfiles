@@ -36,9 +36,6 @@ Singleton {
         return null;
     }
     readonly property bool active: !!found
-    // Where the bar shows it: the left twin (more room), unless something
-    // urgent has it (Events.soon) — then the right one (bar/Glance.qml)
-    readonly property bool onLeft: active && !Events.soon
     readonly property string name: found?.app.name ?? ""
     readonly property string detail: found?.detail ?? ""
     readonly property string address: found ? "0x" + found.win.address : ""

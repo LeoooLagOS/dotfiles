@@ -10,8 +10,8 @@ import "../services"
 // Grown, it's the bigger view of the bar's right twin (bar/Glance.qml): the
 // music while something plays (Media.active), else the weather.
 //   rest       date · time
-//   media      while a player plays: its art on the left, an equalizer on
-//              the right; the time stays where it was
+//   media      while a player plays and no twin shows it (playerShown): its
+//              art on the left, an equalizer on the right; the time stays where it was
 //   expanded   hovering it while a player plays (or paused it a moment ago):
 //              it grows down with the art, title, progress and controls
 //   weather    hovering it otherwise: it grows down with the weather (sky,
@@ -30,17 +30,21 @@ Rectangle {
     id: root
 
     readonly property var player: Media.player
-    readonly property bool hasTrack: !!player && !!player.trackTitle
-    readonly property bool playing: hasTrack && player.isPlaying
+    readonly property bool hasTrack: Media.hasTrack       // a hover preview doesn't count (services/Media.qml)
+    readonly property bool playing: Media.playing
     readonly property bool music: Media.active
     property bool expandWanted: false
+    // The bar already shows the player in a twin (TopBar.qml): then the pill
+    // stays day · time · date while it plays (no small art, no equalizer), so
+    // its width, and the twins' room, don't change when music starts or stops
+    property bool playerShown: false
     readonly property var msg: BarState.message
     readonly property string mode: BarState.flash ? "flash"
         : msg ? (expandWanted ? "messageOpen" : "message")
         : Recorder.recording ? "rec"
         : expandWanted && music ? "expanded"
         : expandWanted && Weather.ready ? "weather"
-        : playing ? "media" : "rest"
+        : playing && !playerShown ? "media" : "rest"
     readonly property bool isMessage: mode === "message" || mode === "messageOpen"
     readonly property int pillH: Settings.v.barHeight - 6
     readonly property color ink: "#f1f3f5"
@@ -101,89 +105,203 @@ Rectangle {
     }
 
     // ---------------- Top row (the pill) ----------------
+    // Mirrored like the bar, around the time's colon (on the screen's center):
+    //   [day | day of the month] · [hours] : [minutes] · [day of the month | month]
+    // The hours and minutes boxes share one width, and so do the day and date
+    // boxes (each label centered in its own), so both halves measure the same.
+    // While a player plays, its art joins the day and the equalizer the date;
+    // while recording, the REC counter takes the day's side
     Row {
         id: topRow
         visible: root.mode !== "flash" && !root.isMessage
         anchors.horizontalCenter: parent.horizontalCenter
         y: 0
         height: root.pillH
-        spacing: 12
+        readonly property bool showDate: Settings.v.barDate && root.mode !== "rec"
+        // The day and the date roll together every few seconds, so each side
+        // stays about three characters: "Tue 23:20 13" → "13 23:20 Oct"
+        property bool later: false               // false: day | day of the month · true: day of the month | month
+        readonly property int rollEvery: 6000    // ms between the two
+        readonly property int rollOut: 450       // ms to fade / slide out, then in
+        readonly property int rollIn: 600
+        // Both boxes as wide as the widest of the three texts: the pill never changes size
+        readonly property real dateBox: Math.ceil(Math.max(dayMetrics.advanceWidth, numMetrics.advanceWidth, monMetrics.advanceWidth))
+        TextMetrics { id: dayMetrics; font: dateText.font; text: Qt.formatDate(clock.date, "ddd") }
+        TextMetrics { id: numMetrics; font: dateText.font; text: Qt.formatDate(clock.date, "d") }
+        TextMetrics { id: monMetrics; font: dateText.font; text: Qt.formatDate(clock.date, "MMM") }
+        Timer {
+            interval: topRow.rollEvery
+            repeat: true
+            running: topRow.showDate && topRow.visible
+            onTriggered: roll.restart()
+        }
+        SequentialAnimation {
+            id: roll
+            ParallelAnimation {
+                NumberAnimation { targets: [dayText, dateText]; property: "opacity"; to: 0; duration: topRow.rollOut; easing.type: Easing.InOutSine }
+                NumberAnimation { targets: [dayText, dateText]; property: "anchors.verticalCenterOffset"; to: -6; duration: topRow.rollOut; easing.type: Easing.InOutSine }
+            }
+            ScriptAction { script: topRow.later = !topRow.later }
+            PropertyAction { targets: [dayText, dateText]; property: "anchors.verticalCenterOffset"; value: 6 }
+            ParallelAnimation {
+                NumberAnimation { targets: [dayText, dateText]; property: "opacity"; to: 1; duration: topRow.rollIn; easing.type: Easing.OutSine }
+                NumberAnimation { targets: [dayText, dateText]; property: "anchors.verticalCenterOffset"; to: 0; duration: topRow.rollIn; easing.type: Easing.OutSine }
+            }
+        }
+        readonly property int gap: 10
+        readonly property real outer: Math.max(leftGroup.implicitWidth, rightGroup.implicitWidth)
+        readonly property bool sides: outer > 0
+        readonly property real digits: Math.max(hourLabel.implicitWidth, minLabel.implicitWidth)
+        readonly property var timeParts: (Settings.v.bar24h ? Qt.formatTime(clock.date, "HH:mm")
+                                                            : Qt.formatTime(clock.date, "h:mm AP")).split(":")
 
-        // Recording
-        Row {
-            visible: root.mode === "rec"
-            spacing: 7
-            anchors.verticalCenter: parent.verticalCenter
-            Rectangle {
-                width: 9; height: 9; radius: 5
-                color: "#ff4d4d"
-                anchors.verticalCenter: parent.verticalCenter
-                SequentialAnimation on opacity {
-                    running: root.mode === "rec"
-                    loops: Animation.Infinite
-                    NumberAnimation { to: 0.3; duration: 600 }
-                    NumberAnimation { to: 1; duration: 600 }
+        // Left: (art) · day, or the REC counter
+        Item {
+            visible: topRow.sides
+            width: topRow.outer
+            height: topRow.height
+            Row {
+                id: leftGroup
+                anchors.centerIn: parent
+                spacing: 8
+                Row {
+                    visible: root.mode === "rec"
+                    spacing: 7
+                    anchors.verticalCenter: parent.verticalCenter
+                    Rectangle {
+                        width: 9; height: 9; radius: 5
+                        color: "#ff4d4d"
+                        anchors.verticalCenter: parent.verticalCenter
+                        SequentialAnimation on opacity {
+                            running: root.mode === "rec"
+                            loops: Animation.Infinite
+                            NumberAnimation { to: 0.3; duration: 600 }
+                            NumberAnimation { to: 1; duration: 600 }
+                        }
+                    }
+                    Label { text: "REC " + Recorder.elapsed; color: "#ff8a8a"; font.pixelSize: 13; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
+                }
+                ClippingRectangle {
+                    visible: root.mode === "media"
+                    width: 20; height: 20; radius: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: root.accent
+                    Image {
+                        anchors.fill: parent
+                        source: root.player?.trackArtUrl ?? ""
+                        fillMode: Image.PreserveAspectCrop
+                        sourceSize: Qt.size(40, 40)
+                        asynchronous: true
+                    }
+                }
+                Item {
+                    visible: topRow.showDate
+                    width: topRow.dateBox
+                    height: dayText.implicitHeight
+                    anchors.verticalCenter: parent.verticalCenter
+                    Label {
+                        id: dayText
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: topRow.later ? numMetrics.text : dayMetrics.text
+                        color: root.inkDim
+                        font.pixelSize: 13
+                        font.weight: Font.Medium
+                        font.features: { "tnum": 1 }
+                    }
                 }
             }
-            Label { text: "REC " + Recorder.elapsed; color: "#ff8a8a"; font.pixelSize: 13; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
         }
-        // Album art (small)
-        ClippingRectangle {
-            visible: root.mode === "media"
-            width: 20; height: 20; radius: 6
-            anchors.verticalCenter: parent.verticalCenter
-            color: root.accent
-            Image {
-                anchors.fill: parent
-                source: root.player?.trackArtUrl ?? ""
-                fillMode: Image.PreserveAspectCrop
-                sourceSize: Qt.size(40, 40)
-                asynchronous: true
+        Item { visible: topRow.sides; width: topRow.gap; height: 1 }
+
+        // The time: hours | colon (the axis) | minutes
+        Item {
+            width: topRow.digits
+            height: topRow.height
+            Label {
+                id: hourLabel
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                text: topRow.timeParts[0] ?? ""
+                color: root.ink
+                font.family: Theme.clockFont
+                font.pixelSize: 15
+                font.weight: Font.Bold
+                font.features: { "tnum": 1 }
             }
         }
         Label {
-            visible: Settings.v.barDate && root.mode !== "rec"
-            text: Qt.formatDate(clock.date, "ddd d MMM")
-            color: root.inkDim
-            font.pixelSize: 13
-            font.weight: Font.Medium
             anchors.verticalCenter: parent.verticalCenter
-        }
-        Rectangle {
-            visible: Settings.v.barDate && root.mode !== "rec"
-            width: 3; height: 3; radius: 2
-            color: Qt.rgba(1, 1, 1, 0.4)
-            anchors.verticalCenter: parent.verticalCenter
-        }
-        Label {
-            text: Qt.formatTime(clock.date, Settings.v.bar24h ? "HH:mm" : "h:mm AP")
+            text: ":"
             color: root.ink
             font.family: Theme.clockFont
             font.pixelSize: 15
             font.weight: Font.Bold
-            font.features: { "tnum": 1 }
-            anchors.verticalCenter: parent.verticalCenter
         }
-        // Equalizer (decorative: moves while playing)
-        Row {
-            visible: root.mode === "media"
-            spacing: 2
-            height: 14
-            anchors.verticalCenter: parent.verticalCenter
-            Repeater {
-                model: [520, 380, 610, 450]
-                delegate: Rectangle {
-                    required property int modelData
-                    width: 3
-                    radius: 2
-                    color: root.accent
+        Item {
+            width: topRow.digits
+            height: topRow.height
+            Label {
+                id: minLabel
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                text: topRow.timeParts[1] ?? ""
+                color: root.ink
+                font.family: Theme.clockFont
+                font.pixelSize: 15
+                font.weight: Font.Bold
+                font.features: { "tnum": 1 }
+            }
+        }
+
+        // Right: date · (equalizer)
+        Item { visible: topRow.sides; width: topRow.gap; height: 1 }
+        Item {
+            visible: topRow.sides
+            width: topRow.outer
+            height: topRow.height
+            Row {
+                id: rightGroup
+                anchors.centerIn: parent
+                spacing: 8
+                Item {
+                    visible: topRow.showDate
+                    width: topRow.dateBox
+                    height: dateText.implicitHeight
                     anchors.verticalCenter: parent.verticalCenter
-                    height: 4
-                    SequentialAnimation on height {
-                        running: root.playing && root.mode === "media"
-                        loops: Animation.Infinite
-                        NumberAnimation { to: 14; duration: modelData; easing.type: Easing.InOutSine }
-                        NumberAnimation { to: 4; duration: modelData; easing.type: Easing.InOutSine }
+                    Label {
+                        id: dateText
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: topRow.later ? monMetrics.text : numMetrics.text
+                        color: root.inkDim
+                        font.pixelSize: 13
+                        font.weight: Font.Medium
+                        font.features: { "tnum": 1 }
+                    }
+                }
+                // Equalizer (decorative: moves while playing)
+                Row {
+                    visible: root.mode === "media"
+                    spacing: 2
+                    height: 14
+                    anchors.verticalCenter: parent.verticalCenter
+                    Repeater {
+                        model: [520, 380, 610, 450]
+                        delegate: Rectangle {
+                            required property int modelData
+                            width: 3
+                            radius: 2
+                            color: root.accent
+                            anchors.verticalCenter: parent.verticalCenter
+                            height: 4
+                            SequentialAnimation on height {
+                                running: root.playing && root.mode === "media"
+                                loops: Animation.Infinite
+                                NumberAnimation { to: 14; duration: modelData; easing.type: Easing.InOutSine }
+                                NumberAnimation { to: 4; duration: modelData; easing.type: Easing.InOutSine }
+                            }
+                        }
                     }
                 }
             }

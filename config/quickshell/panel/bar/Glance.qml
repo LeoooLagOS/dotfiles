@@ -3,31 +3,35 @@ import Quickshell.Widgets
 import "../common"
 import "../services"
 
-// The right side's twin of the window title (from the readings to the same
-// gap before the center as the title's, TopBar.qml). The island grown is its
-// bigger view, by the same rule: while something plays (Media.active), the
-// art, title and artist; otherwise the weather: icon, temperature, then the
-// sky, high / low, rain and the place, scrolling when they don't fit (bar/Marquee.qml).
-// `weatherOnly`: the weather even while music plays (the island grown shows the player).
-// A video call (services/Call.qml) comes first when the left twin is taken by
-// something urgent (else the call is there): the app and the meeting, and
-// buttons for the microphone and the camera (red while off).
-// Click: the Media or Weather tab (a call: its window) · middle click (music): play / pause.
+// The left twin's other face (TopBar.qml), in the window title's place. A
+// video call (services/Call.qml) comes first: the app and the meeting, and
+// buttons for the microphone and the camera (red while off). Then the player
+// (`music`, TopBar.qml: something plays while the right twin has a reminder):
+// the art, title and artist. Else, on an empty workspace, the whole weather:
+// icon, temperature, then the sky, high / low, rain and the place, scrolling
+// when they don't fit (bar/Marquee.qml). With a window (the call, the player)
+// the weather shrinks to the mini pill at the twin's inner edge (bar/MiniWeather.qml); the call or
+// the player then takes only its `natural` width when it fits, and the pill the rest. The island grown with the weather is its bigger
+// view (both twins hide then).
+// Click: the Weather tab (a call: its window; music: the Media tab) · middle click (music): play / pause.
 BarPill {
     id: root
     property int fixedWidth: 340
     property bool hide: false
-    property bool weatherOnly: false            // the weather even while music plays (the island shows the player)
+    property bool music: false                  // the player, its other twin taken by a reminder
     signal openTab(string name)
 
+    readonly property bool call: Call.active
+    readonly property bool track: music && !call
     readonly property var player: Media.player
-    // The call, when the left twin is busy with something urgent (else it's there)
-    readonly property bool call: Call.active && !Call.onLeft
-    readonly property bool music: Media.active && !weatherOnly && !call
-    readonly property bool shown: !hide && (call || music || Weather.ready)
+    readonly property bool shown: !hide && (call || track || Weather.ready)
     readonly property int rain: Math.max(0, ...(Weather.rainNext.length ? Weather.rainNext : [0]))
     function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
+    // As wide as its content (a call, the player): TopBar.qml gives it just this
+    // when it fits, and the mini weather beside it takes the rest
+    readonly property real natural: 2 * pad + icon.width + spacing + marquee.implicitWidth
+        + (callButtons.visible ? spacing + callButtons.width : 0)
     implicitWidth: fixedWidth
     opacity: shown ? 1 : 0
     Behavior on opacity { NumberAnimation { duration: 160 } }
@@ -35,22 +39,23 @@ BarPill {
     clickable: shown
     onClicked: b => {
         if (call) Call.show();
-        else if (b === Qt.MiddleButton && music) player.togglePlaying();
-        else root.openTab(music ? "Media" : "Weather");
+        else if (track && b === Qt.MiddleButton) player.togglePlaying();
+        else root.openTab(track ? "Media" : "Weather");
     }
 
     Item {
+        id: icon
         width: 18
         height: 18
         anchors.verticalCenter: parent.verticalCenter
         ClippingRectangle {
             anchors.fill: parent
-            visible: root.music
+            visible: root.track
             radius: 5
             color: BarState.accent
             Image {
                 anchors.fill: parent
-                source: root.music ? root.player?.trackArtUrl ?? "" : ""
+                source: root.track ? root.player?.trackArtUrl ?? "" : ""
                 fillMode: Image.PreserveAspectCrop
                 sourceSize: Qt.size(36, 36)
                 asynchronous: true
@@ -59,7 +64,7 @@ BarPill {
         Glyph {
             anchors.centerIn: parent
             optical: true
-            visible: !root.music
+            visible: !root.track
             text: root.call ? "\u{f0567}" : Weather.icon
             font.pixelSize: 15
             color: BarState.accent
@@ -67,25 +72,25 @@ BarPill {
     }
     Label {
         id: lead
-        visible: !root.music && !root.call
+        visible: !root.call && !root.track
         text: Math.round(Weather.temp) + "°"
         font.pixelSize: 13
         font.weight: Font.DemiBold
         anchors.verticalCenter: parent.verticalCenter
     }
     Marquee {
+        id: marquee
         textFormat: Text.StyledText
         text: root.call ? "<b>" + root.esc(Call.name) + "</b>" + (Call.detail ? "  ·  " + root.esc(Call.detail) : "")
-            : root.music
-            ? "<b>" + root.esc(root.player?.trackTitle) + "</b>"
-              + (root.player?.trackArtist ? "  ·  " + root.esc(root.player.trackArtist) : "")
+            : root.track ? "<b>" + root.esc(root.player?.trackTitle) + "</b>"
+                           + (root.player?.trackArtist ? "  ·  " + root.esc(root.player.trackArtist) : "")
             : "·  " + [root.esc(Weather.description),
                        "↑" + Math.round(Weather.high) + "° ↓" + Math.round(Weather.low) + "°",
                        root.rain > 0 ? "rain " + root.rain + "%" : "",
                        root.esc(Weather.place)].filter(s => s).join("  ·  ")
-        dim: !root.music && !root.call
+        dim: !root.call && !root.track
         // Its text (centered in the pill), up to the rest of the pill
-        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - 18 - root.spacing
+        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - icon.width - root.spacing
                            - (lead.visible ? lead.width + root.spacing : 0)
                            - (callButtons.visible ? callButtons.width + root.spacing : 0)))
         anchors.verticalCenter: parent.verticalCenter

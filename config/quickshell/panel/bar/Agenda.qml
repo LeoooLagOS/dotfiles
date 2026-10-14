@@ -1,26 +1,31 @@
 import QtQuick
 import Quickshell
+import Quickshell.Widgets
 import "../common"
 import "../services"
 
-// The left twin's other face (TopBar.qml). First, whatever is urgent
+// The right twin (TopBar.qml: from the readings to the same gap before the
+// center as the window title's). First, the reminder: whatever is urgent
 // (Events.soon: what's due within a few hours or overdue, an event about to
-// start; Settings → Weather & calendar → Reminders), over the window title,
-// tinted by its urgency. Then a video call (Call.onLeft): the app, the
-// meeting and its microphone / camera buttons (bar/CallButtons.qml; click: its
-// window). Else, on an empty workspace, the next event of the calendar
+// start; Settings → Weather & calendar → Reminders), tinted by its urgency.
+// Else the player while something plays (Media.active, still true 20 s after
+// a pause): the art, title and artist; `noPlayer` skips it while the island
+// grown shows the player. Else the next event of the calendar
 // (services/Events.qml, the next 7 days) going on or still to come: its title,
 // then when ("now · until 17:00", "in 20 min", "16:00 · in 2 h", "tomorrow
 // 09:00", "Fri 09:00", "today" for all day) and where; with none, the first
 // open to-do (services/Todos.qml); with neither, that the week is free.
-// Scrolls when it doesn't fit (bar/Marquee.qml). Click: the Calendar tab.
+// Scrolls when it doesn't fit (bar/Marquee.qml).
+// Click: the Calendar tab (music: the Media tab) · middle click (music): play / pause.
 BarPill {
     id: root
     property int fixedWidth: 340
     property bool hide: false
+    property bool noPlayer: false               // the island grown shows the player
     signal openTab(string name)
     readonly property var urgent: Events.soon
-    readonly property bool call: !urgent && Call.onLeft
+    readonly property var player: Media.player
+    readonly property bool music: !urgent && Media.active && !noPlayer
 
     readonly property date now: clock.date
     SystemClock { id: clock; precision: SystemClock.Minutes }
@@ -67,29 +72,46 @@ BarPill {
          : clickable && hovered ? Theme.bgHover : islands ? Theme.bg : "transparent"
     border.color: urgent ? Theme.withAlpha(urgent.color, 0.6) : Theme.border
     clickable: !hide
-    onClicked: root.call ? Call.show() : root.openTab("Calendar")
+    onClicked: b => {
+        if (music && b === Qt.MiddleButton) player.togglePlaying();
+        else root.openTab(music ? "Media" : "Calendar");
+    }
 
-    Glyph {
+    Item {
         id: icon
-        optical: true
-        text: root.urgent ? root.urgent.icon : root.call ? "\u{f0567}" : root.todo ? "" : ""
-        font.pixelSize: 14
-        color: root.urgent ? root.urgent.color : BarState.accent
+        width: 18
+        height: 18
         anchors.verticalCenter: parent.verticalCenter
+        ClippingRectangle {
+            anchors.fill: parent
+            visible: root.music
+            radius: 5
+            color: BarState.accent
+            Image {
+                anchors.fill: parent
+                source: root.music ? root.player?.trackArtUrl ?? "" : ""
+                fillMode: Image.PreserveAspectCrop
+                sourceSize: Qt.size(36, 36)
+                asynchronous: true
+            }
+        }
+        Glyph {
+            anchors.centerIn: parent
+            optical: true
+            visible: !root.music
+            text: root.urgent ? root.urgent.icon : root.todo ? "\uf0ae" : "\uf073"
+            font.pixelSize: 14
+            color: root.urgent ? root.urgent.color : BarState.accent
+        }
     }
     Marquee {
         textFormat: Text.StyledText
         text: root.urgent ? "<b>" + root.esc(root.urgent.text) + "</b>"
-            : root.call ? "<b>" + root.esc(Call.name) + "</b>" + (Call.detail ? "  ·  " + root.esc(Call.detail) : "")
+            : root.music ? "<b>" + root.esc(root.player?.trackTitle) + "</b>"
+                           + (root.player?.trackArtist ? "  ·  " + root.esc(root.player.trackArtist) : "")
             : root.line
-        dim: !root.urgent && !root.call && !root.event && !root.todo
-        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - icon.width - root.spacing
-                           - (callButtons.visible ? callButtons.width + root.spacing : 0)))
-        anchors.verticalCenter: parent.verticalCenter
-    }
-    CallButtons {
-        id: callButtons
-        visible: root.call
+        dim: !root.urgent && !root.music && !root.event && !root.todo
+        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - icon.width - root.spacing))
         anchors.verticalCenter: parent.verticalCenter
     }
 }
