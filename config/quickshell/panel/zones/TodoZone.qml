@@ -1,16 +1,18 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import "../common"
 import "../services"
 import "../common/When.js" as When
 
-// ZONE: To-do (Calendar tab) — Teams assignments to hand in (Events.deadlines,
-// done with their circle), then tasks and ideas (~/.config/lagos/todo.json),
-// each due date with the time left (red under a day, amber under three).
+// ZONE: To-do (Calendar tab) — Teams assignments and the task providers'
+// tasks to hand in (Events.deadlines, done with their circle), then tasks and
+// ideas (~/.config/lagos/todo.json), each due date with the time left (red under a day, amber under three).
 // Add with Enter; choose Task or Idea and an optional due date (Today /
 // Tomorrow / none). Click the circle to complete, click the text to edit,
-// × to delete. Overdue items show their date in red.
-// Keyboard: Tab to a row, Space completes, Enter edits, Delete removes.
+// × to delete. Overdue items show their date in red. An idea has a copy
+// button always at hand (wl-copy, then paste it anywhere).
+// Keyboard: Tab to a row, Space completes, Enter edits, Delete removes, Ctrl+C copies an idea.
 Zone {
     id: root
     title: "To-do"
@@ -121,16 +123,30 @@ Zone {
             }
         }
 
-        // Teams assignments to hand in (Events.deadlines), above the list
-        Column {
-            Layout.fillWidth: true
-            spacing: 4
-            visible: root.filter !== "idea" && teamsDue.length > 0
-            readonly property var teamsDue: Events.deadlines.filter(x => x.kind === "teams")
-            Label { text: "FROM TEAMS"; dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1 }
-            Repeater {
-                model: parent.teamsDue
-                delegate: DeadlineRow { required property var modelData; item: modelData; width: parent.width }
+        // What's to hand in from elsewhere (Events.deadlines): Teams assignments,
+        // then each task provider's (scripts/providers.py), above the list
+        Repeater {
+            model: {
+                if (root.filter === "idea") return [];
+                const groups = [], at = {};
+                for (const x of Events.deadlines) {
+                    if (x.kind === "todo") continue;
+                    const k = x.kind === "teams" ? "teams" : "p:" + x.source;
+                    if (!(k in at)) { at[k] = groups.length; groups.push({ name: x.kind === "teams" ? "Teams" : x.label, items: [] }); }
+                    groups[at[k]].items.push(x);
+                }
+                return groups;
+            }
+            delegate: Column {
+                id: group
+                required property var modelData
+                Layout.fillWidth: true
+                spacing: 4
+                Label { text: "FROM " + group.modelData.name.toUpperCase(); dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+                Repeater {
+                    model: group.modelData.items
+                    delegate: DeadlineRow { required property var modelData; item: modelData; width: group.width }
+                }
             }
         }
 
@@ -149,6 +165,13 @@ Zone {
                 required property var modelData
                 property bool editing: false
                 property bool picking: false              // the date picker open
+                property bool copied: false               // an idea just copied: ✓ for a moment
+                function copy() {
+                    Quickshell.execDetached(["wl-copy", "--", modelData.text]);
+                    copied = true;
+                    copiedTimer.restart();
+                }
+                Timer { id: copiedTimer; interval: 1200; onTriggered: row.copied = false }
                 width: ListView.view.width
                 implicitHeight: Math.max(34, content.implicitHeight + 12) + (picking ? picker.implicitHeight + 8 : 0)
                 radius: 8
@@ -159,6 +182,9 @@ Zone {
                 Keys.onSpacePressed: Todos.toggle(modelData.id)
                 Keys.onReturnPressed: { editing = true; editField.text = modelData.text; editField.focusInput(); }
                 Keys.onDeletePressed: Todos.remove(modelData.id)
+                Keys.onPressed: e => {
+                    if (e.key === Qt.Key_C && (e.modifiers & Qt.ControlModifier) && modelData.kind === "idea") { copy(); e.accepted = true; }
+                }
                 FocusRing {}
 
                 MouseArea { id: rowMouse; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
@@ -227,6 +253,13 @@ Zone {
                         input.onActiveFocusChanged: if (!editField.input.activeFocus && row.editing) { Todos.edit(row.modelData.id, text); row.editing = false; }
                     }
 
+                    // Copy an idea: one click, then paste it anywhere
+                    IconButton {
+                        visible: row.modelData.kind === "idea" && !row.editing
+                        icon: row.copied ? "\uf00c" : "\uf0c5"; iconSize: 10; implicitWidth: 22; implicitHeight: 22; border.width: 0
+                        iconColor: row.copied ? Theme.good : (rowMouse.containsMouse ? Theme.fg : Theme.fgDim)
+                        onClicked: row.copy()
+                    }
                     IconButton {
                         visible: (rowMouse.containsMouse || row.picking) && !row.editing
                         icon: ""; iconSize: 9; implicitWidth: 20; implicitHeight: 20; border.width: 0

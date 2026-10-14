@@ -9,6 +9,7 @@ Every script the desktop and shell rely on, tracked as discrete modules. `zsh/co
 | `ops/` | Maintenance tooling (below) |
 | [`build-paper/`](build-paper/README.md) | Markdown → PDF academic build system (`build-paper`) |
 | [`lagos-shot/`](lagos-shot/README.md) | Annotated screenshots for Obsidian (`lagos-shot`) |
+| `providers/` | Task providers for the Quickshell panel (below) |
 
 `build-paper` and `lagos-shot` are linked into `~/.local/bin` by `install.sh`.
 
@@ -42,6 +43,14 @@ Upstream ships helpers for other distros (`*NixOS*`, `*Ubuntu*`, `debian-*`); th
 | `sync-vault` | `vt`, `gerlog`, `dsalog`, `cards` | Commits and pushes one area of the notes vault at `$VAULT_DIR` (`--vtree` also regenerates the vault tree map) |
 | `kooldots-sync` | | Brings [KoolDots](https://github.com/LinuxBeginnings/Hyprland-Dots) updates into this repo as a 3-way merge from the commit in `.kooldots-base`, remapping upstream paths (`config/hypr/scripts` → `wm/`, and so on). `status`, `log`, `diff [path]`, `apply`; see [`config/hypr`](../config/hypr/README.md#upstream-updates) |
 | `repair-spotify` | `spotify` | Re-applies Spicetify; if that fails, kills the Spotify Flatpak, clears its cache and relaunches it |
+
+## providers/ — The panel's task providers
+
+Personal data sources for the panel's deadlines, kept here so the panel itself stays generic (the contract: [panel README, Calendar events](../config/quickshell/panel/README.md#calendar-events)). `install.sh` links each into `~/.config/lagos/providers/`.
+
+| Provider | What it gives the panel |
+|---|---|
+| `vault.py` | The notes vault (`~/Documents/my-cs-notes`): every open `- [ ] … [due:: YYYY-MM-DD]` task outside `82_Templates` (course as its place, a click opens the note in Obsidian, done checks the box in the note), and on a training day the quiet "Gym · <day>" task, which logs the session to `90_Logs/Health/Gym/Gym_Log_<year>.md`. Overrides in `~/.config/lagos/vault.json` (vault path, weekly routine, log folder) |
 
 ## Adding a script
 

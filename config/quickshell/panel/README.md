@@ -141,7 +141,7 @@ panel/
 │   ├── ProfileZone.qml      avatar, full name, user@host, distro, uptime (click → Controls)
 │   ├── CalendarZone.qml     month grid + selected day: to hand in, events not over (props: showDayEvents)
 │   ├── AgendaZone.qml       selected day + next 7 days, new-event form, refresh
-│   ├── TodoZone.qml         Teams assignments to hand in, tasks and ideas
+│   ├── TodoZone.qml         Teams / providers' tasks to hand in, tasks and ideas
 │   ├── SystemZone.qml       CPU, memory, temp, disk, battery (+ power profile in Controls)
 │   ├── MediaMiniZone.qml    compact player: big art, title, 5 buttons, progress
 │   ├── MediaZone.qml        full player
@@ -310,14 +310,28 @@ Sources:
    event (the island says so); without one, a to-do. Matches are logged to
    `~/.local/state/quickshell-panel/teams-notes.jsonl` to tune the patterns;
    state in `assignments.json` there; the token in `graph-token.json` (mode 600).
-   Handed in or a week past due: gone. **To hand in** (`Events.deadlines`,
-   `common/DeadlineRow.qml`): these and the open to-do tasks, soonest first,
-   with the exact time left (red under a day, amber under three); in the
-   Overview's day column (today: all of them; another day: what's due then)
-   and on top of the To-do zone. Their circle marks one done (`assignments.py
-   done UID` for a Teams one). Today's events that are over leave the day lists
-   (`Events.dayEvents`, by the real start, so last night's late event doesn't
-   linger); the one going on is marked "Now".
+   Handed in or a week past due: gone.
+5. **Task providers** (`scripts/providers.py`, run on every refresh): any
+   executable in `~/.config/lagos/providers/` (its file name is its name). The
+   panel knows nothing else about it; it answers `tasks` with JSON
+   `{"label": "Vault", "tasks": [{"id", "title", "due": "YYYY-MM-DD" |
+   "YYYY-MM-DDTHH:MM", "where", "remind": false (no reminders, not on the bar),
+   "open": url (clicking the title opens it)}]}`, and `done ID` / `undone ID`
+   with `{"ok": true}` (it writes it back where the task lives; the island
+   offers Undo). Calendar events don't need one: an `.ics` in
+   `~/.config/lagos/calendars/` is read like any local calendar. Example: the
+   dotfiles' `scripts/providers/vault.py` (an Obsidian vault's `[due:: ]` tasks
+   and the day's gym session).
+
+**To hand in** (`Events.deadlines`, `common/DeadlineRow.qml`): Teams
+assignments, the providers' tasks and the open to-do tasks, soonest first,
+with the exact time left (red under a day, amber under three); in the
+Overview's day column (today: all of them; another day: what's due then)
+and on top of the To-do zone, one group per source ("FROM TEAMS", "FROM
+VAULT"). Their circle marks one done (`assignments.py done UID` for a Teams
+one, `providers.py done NAME ID` for a provider's). Today's events that are over leave the day lists
+(`Events.dayEvents`, by the real start, so last night's late event doesn't
+linger); the one going on is marked "Now".
 
 **Importance and reminders.** Outlook events are treated as important (★) and
 get a **critical** notification 15 minutes before they start (critical =
@@ -348,7 +362,8 @@ place. The "New task…" field reads plain words like the quick capture box
 over it. Each due date shows the time left (red under a day, amber under
 three); click it (or "+ date") for `common/DuePicker.qml`: Today · Tomorrow ·
 the next weekdays · Next week · No date, typed ("vie 18:00"), and the repeat.
-Click the text to edit, the circle to complete, × to remove; completing and
+Click the text to edit, the circle to complete, × to remove; an idea has a
+copy button always at hand (`wl-copy`; Ctrl+C on the focused row too); completing and
 removing say so on the island with an **Undo** (click the island, 6 s).
 
 ## Capture, reminders and the day at a glance

@@ -57,6 +57,7 @@ readonly LINKS=(
   "nvim:$CONFIG_DIR/nvim"
   "scripts/build-paper/build_paper.py:$HOME/.local/bin/build-paper"
   "scripts/lagos-shot/lagos-shot.py:$HOME/.local/bin/lagos-shot"
+  "scripts/providers/vault.py:$CONFIG_DIR/lagos/providers/vault"
 )
 
 # Machine-specific files created from committed templates when missing.

@@ -1,11 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import "../services"
 
 // One thing to hand in (Events.deadlines): a circle to mark it done, its
 // title, and when it's due with the time left, red under a day, amber under
 // three ("Today 23:59 · in 2 h 58 min", "Overdue · Yesterday"). Teams ones
-// carry the Teams mark and their class.
+// carry the Teams mark and their class; a provider's task with a link opens
+// it from its title.
 // A to-do's date is set by clicking it (common/DuePicker.qml: quick days,
 // typed, repeat).
 //   DeadlineRow { item: Events.deadlines[0]; width: … }
@@ -56,6 +58,9 @@ Rectangle {
                     font.weight: Font.DemiBold
                     wrapMode: Text.Wrap
                     maximumLineCount: 2
+                    // A provider's task with a link (e.g. its note): click opens it
+                    MouseArea { anchors.fill: parent; enabled: !!row.item.open; cursorShape: Qt.PointingHandCursor
+                                onClicked: Quickshell.execDetached(["xdg-open", row.item.open]) }
                 }
             }
             Label {

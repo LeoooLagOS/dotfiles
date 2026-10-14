@@ -15,6 +15,8 @@ import "../common/When.js" as When
 //                 urgency; local events use the reminder chosen when created).
 //                 Already-sent reminders are remembered across restarts.
 //   - add / remove local events (panel.ics), refresh (forces an Outlook download)
+//   - deadlines:  Teams assignments, the task providers' tasks (scripts/providers.py)
+//                 and the to-dos, with their own reminders
 Singleton {
     id: root
     property int year: new Date().getFullYear()
@@ -96,7 +98,53 @@ Singleton {
         repeat: true
         triggeredOnStart: true
         // Teams' assignments first: assignSync reloads when it's done
-        onTriggered: { if (!assignSync.running) assignSync.running = true; }
+        onTriggered: { if (!assignSync.running) assignSync.running = true; root.reloadProviders(); }
+    }
+
+    // ---------------- Task providers (scripts/providers.py) ----------------
+    // Executables in ~/.config/lagos/providers/ that list tasks with a due
+    // date (e.g. a notes vault): they join the deadlines as kind "provider";
+    // done / undone go back to the provider, which writes it where it lives
+    property var providerTasks: []
+    property var providerErrors: []
+    readonly property string providers: Quickshell.shellDir + "/scripts/providers.py"
+    function reloadProviders() { if (!providerList.running) providerList.running = true; }
+    Process {
+        id: providerList
+        command: ["python3", "-I", root.providers, "list"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const d = JSON.parse(text);
+                    root.providerTasks = d.tasks;
+                    root.providerErrors = d.errors;
+                    for (const e of d.errors) console.warn("providers:", e);
+                } catch (e) { console.warn("providers:", e, text.slice(0, 200)); }
+            }
+        }
+    }
+    function providerDone(x) {
+        providerTasks = providerTasks.filter(t => !(t.source === x.source && t.id === x.id));
+        providerMark("done", x, () => BarState.say("", "Done: " + x.title, () => providerMark("undone", x, null)));
+    }
+    function providerMark(action, x, onOk) {
+        markComp.createObject(root, { onOk: onOk, command: ["python3", "-I", root.providers, action, x.source, x.id] }).running = true;
+    }
+    Component {
+        id: markComp
+        Process {
+            property var onOk
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    let r = {};
+                    try { r = JSON.parse(text); } catch (e) {}
+                    if (r.ok) { if (onOk) onOk(); }
+                    else BarState.say("", "Not saved: " + (r.error ?? "provider failed"));
+                    root.reloadProviders();
+                }
+            }
+            onExited: destroy()
+        }
     }
 
     // ---------------- Teams assignments (scripts/assignments.py) ----------------
@@ -153,10 +201,11 @@ Singleton {
     }
 
     // ---------------- Deadlines: what has to be handed in ----------------
-    // Teams assignments (the "Teams" calendar, scripts/assignments.py) and the
-    // open to-do tasks (services/Todos.qml), soonest first, overdue on top, the
-    // ones without a date last:
-    //   [{ kind: "teams" | "todo", uid / id, title, due: Date | null, dateOnly, where }]
+    // Teams assignments (the "Teams" calendar, scripts/assignments.py), the
+    // providers' tasks (above) and the open to-do tasks (services/Todos.qml),
+    // soonest first, overdue on top, the ones without a date last:
+    //   [{ kind: "teams" | "provider" | "todo", uid / id, title, due: Date | null, dateOnly, where,
+    //      provider: source, label, remind, open }]
     // dueText(d) / dueColor(d): "Today 23:59 · in 2 h 58 min" / red under a day, amber under three
     property date now: new Date()
     function isDeadline(e) { return e.calendar === "Teams"; }
@@ -186,6 +235,12 @@ Singleton {
         for (const e of upcoming)
             if (isDeadline(e)) out.push({ kind: "teams", uid: e.uid, title: e.title.replace(/^Entrega:\s*/, ""),
                                           due: new Date(e.startIso), dateOnly: false, where: e.location });
+        for (const t of providerTasks) {
+            const timed = t.due.length > 10;
+            out.push({ kind: "provider", source: t.source, label: t.label, id: t.id, title: t.title,
+                       due: t.due ? new Date(timed ? t.due : t.due + "T23:59") : null, dateOnly: !timed,
+                       where: t.where, remind: t.remind, open: t.open });
+        }
         for (const t of Todos.items)
             if (!t.done && t.kind !== "idea")
                 out.push({ kind: "todo", id: t.id, title: t.text, due: Todos.dueAt(t),
@@ -216,8 +271,12 @@ Singleton {
         const h = (x.due - now) / 3600000;
         return h < 24 ? Theme.bad : h < 72 ? Theme.warn : Theme.accent2;
     }
-    // Done: a to-do is checked; a Teams one leaves the calendar
-    function complete(x) { if (x.kind === "teams") teamsDone(x.uid); else Todos.toggle(x.id); }
+    // Done: a to-do is checked; a Teams one leaves the calendar; a provider's goes back to it
+    function complete(x) {
+        if (x.kind === "teams") teamsDone(x.uid);
+        else if (x.kind === "provider") providerDone(x);
+        else Todos.toggle(x.id);
+    }
 
     // ---------------- Local events: add / remove ----------------
     // spec: { title, date "YYYY-MM-DD", start "HH:MM", end "HH:MM", allDay, location, notes, reminder,
@@ -277,9 +336,15 @@ Singleton {
         onLoadFailed: { root.reminded = {}; root.remindedLoaded = true; }
     }
     function saveReminded(r) {
-        // Forget reminders older than 2 days so the file stays small
+        // Forget reminders older than 2 days so the file stays small, but not
+        // the ones of a deadline still listed (overdue: it'd be said again)
         const cutoff = Date.now() - 2 * 86400000;
-        for (const k of Object.keys(r)) if (new Date(k.split("|")[1]).getTime() < cutoff) delete r[k];
+        const live = new Set(deadlines.filter(x => x.due).map(x => deadlineKey(x)));
+        for (const k of Object.keys(r)) {
+            const p = k.split("|");
+            const of = k.startsWith("snooze|") ? p[1] + "|" + p[2] : p[0] + "|" + p[1];
+            if (new Date(p[k.startsWith("snooze|") ? 2 : 1]).getTime() < cutoff && !live.has(of)) delete r[k];
+        }
         reminded = r;
         Quickshell.execDetached(["mkdir", "-p", Quickshell.env("HOME") + "/.local/state/quickshell-panel"]);
         remindedFile.setText(JSON.stringify(r));
@@ -323,12 +388,15 @@ Singleton {
     // calendar → Reminders: 3 days, 1 day, 3 h, 1 h before by default; one
     // reached while off is said once), and once more when it's overdue. Each
     // stays until answered (a reminder) with Done · In 1 h · Tomorrow (9:00).
-    function deadlineKey(x) { return (x.kind === "teams" ? x.uid : "todo:" + x.id) + "|" + x.due.toISOString(); }
+    function deadlineKey(x) {
+        const id = x.kind === "teams" ? x.uid : x.kind === "provider" ? x.source + ":" + x.id : "todo:" + x.id;
+        return id + "|" + x.due.toISOString();
+    }
     function checkDeadlines(r) {
         let changed = false;
         const stages = (Settings.v.dueStages ?? []).slice().sort((a, b) => b - a);
         for (const x of deadlines) {
-            if (!x.due) continue;
+            if (!x.due || x.remind === false) continue;
             const k = deadlineKey(x), left = (x.due - now) / 60000;
             const snooze = r["snooze|" + k];
             if (snooze) {
@@ -352,7 +420,7 @@ Singleton {
         const title = (over ? "Overdue: " : "To hand in: ") + x.title;
         const body = dueText(x) + (x.where ? " · " + x.where : "");
         dueComp.createObject(root, { item: x, key: k, command: ["notify-send",
-            "-a", x.kind === "teams" ? "Teams assignments" : "To-do", "-i", "task-due",
+            "-a", x.kind === "teams" ? "Teams assignments" : x.kind === "provider" ? x.label : "To-do", "-i", "task-due",
             "-u", over || (x.due - now) <= 3600000 ? "critical" : "normal",
             "-c", "calendar.reminder",
             "-A", "done=Done", "-A", "hour=In 1 h", "-A", "tomorrow=Tomorrow",
@@ -464,12 +532,12 @@ Singleton {
     // ---------------- Coming up (the bar's left twin, bar/Agenda.qml) ----------------
     // The next event starting within Settings → Reminders → "Events on the
     // bar" minutes, or the most urgent deadline within "Deadlines on the bar"
-    // hours (overdue ones always): { icon, text, color }, or null
+    // hours (overdue ones always; not the quiet ones, remind: false): { icon, text, color }, or null
     readonly property var soon: {
         const evs = upcoming.filter(e => !isDeadline(e) && !e.allDay && startOf(e) > now
                                          && (startOf(e) - now) / 60000 <= Settings.v.soonEvent);
         const ev = evs.sort((a, b) => startOf(a) - startOf(b))[0];
-        const dl = deadlines.find(x => x.due && (x.due <= now || (x.due - now) / 3600000 <= Settings.v.soonDue));
+        const dl = deadlines.find(x => x.due && x.remind !== false && (x.due <= now || (x.due - now) / 3600000 <= Settings.v.soonDue));
         const evMin = ev ? (startOf(ev) - now) / 60000 : Infinity;
         const dlMin = dl ? (dl.due - now) / 60000 : Infinity;
         if (ev && evMin <= dlMin)
