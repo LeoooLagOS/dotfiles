@@ -12,6 +12,8 @@ RowLayout {
 
     readonly property var section: Settings.sections.find(s => s.id === PanelState.settingsSection) ?? Settings.sections[0]
     readonly property bool resettable: section.groups.some(g => g.rows.some(r => r.key))
+    // Info rows can change while the panel runs (lagos-lid.service, dotfiles commit…)
+    onSectionChanged: SystemSettings.refreshAbout()
 
     function fmt(row, v) {
         if (row.unit === "time") {

@@ -31,6 +31,7 @@ Singleton {
         appRules: ({}),                                           // appName → place | "off" | "mute"
         // Power & idle (system)
         dim: 300, warn: 540, lock: 600, screenOff: 630, suspend: 1200, mediaGuard: true,
+        lidBattery: "suspend", lidAc: "lock", lidDocked: "nothing",  // scripts/wm/LaptopLid.sh
         battery: [50, 20, 10, 5], loginProfile: "keep",
         // Weather & calendar
         weekStart: 0, calRefresh: 30, agendaView: "list",
@@ -219,7 +220,7 @@ Singleton {
             { title: "Started by Hyprland", rows: [
                 { label: "Your startup commands", help: "startup_commands in UserConfigs/user_startup.lua: off comments the line out, and Hyprland reloads its config. The panel's own line stays", type: "startupapps", kind: "hypr" } ] } ] },
         { id: "power", icon: "", label: "Power & idle", system: true,
-          lead: "Idle timeouts (hypridle), battery alerts and the power profile.", groups: [
+          lead: "Idle timeouts (hypridle), what closing the lid does, battery alerts and the power profile.", groups: [
             { title: "When idle", rows: [
                 { key: "dim", label: "Dim the screen after", type: "range", min: 60, max: 1800, step: 30, unit: "time", system: true },
                 { key: "warn", label: "“You are idle” notice after", type: "range", min: 60, max: 1800, step: 30, unit: "time", system: true },
@@ -227,6 +228,14 @@ Singleton {
                 { key: "screenOff", label: "Turn the screen off after", type: "range", min: 120, max: 3600, step: 30, unit: "time", system: true },
                 { key: "suspend", label: "Suspend after", type: "range", min: 300, max: 7200, step: 60, unit: "time", system: true },
                 { key: "mediaGuard", label: "Not while media is playing", help: "Skip lock, screen off and suspend", type: "switch", system: true } ] },
+            { title: "Closing the lid", rows: [
+                { key: "lidBattery", label: "On battery", type: "select", system: true,
+                  opts: [["suspend", "Suspend"], ["lock", "Lock and turn the screen off"], ["screenoff", "Only turn the screen off"]] },
+                { key: "lidAc", label: "Plugged in", type: "select", system: true,
+                  opts: [["suspend", "Suspend"], ["lock", "Lock and turn the screen off"], ["screenoff", "Only turn the screen off"]] },
+                { key: "lidDocked", label: "With an external monitor", help: "Unplugging the monitor with the lid closed does what's chosen above", type: "select", system: true,
+                  opts: [["nothing", "Keep working on the monitor"], ["lock", "Lock"], ["suspend", "Suspend"]] },
+                { label: "Handled by", help: "lagos-lid.service. Without it (or outside Hyprland) logind decides: suspend on battery, nothing when plugged in", type: "info", infoKey: "lidService" } ] },
             { title: "Battery", rows: [
                 { key: "battery", label: "Alert at", help: "10% and below show a big popup", type: "chips", opts: [50, 30, 20, 15, 10, 5], unit: "%", system: true },
                 { key: "loginProfile", label: "Power profile at login", type: "select",

@@ -1,0 +1,19 @@
+# Closing the laptop lid is handled by the session, as chosen in the Quickshell
+# panel (Settings → Power & idle → Closing the lid): scripts/wm/LaptopLid.sh.
+#
+# The handle-lid-switch inhibitor tells logind to leave the lid alone while
+# this runs. It's tied to the graphical session, so if Hyprland exits or
+# crashes logind takes over again (System/etc/systemd/logind.conf.d/10-lid.conf:
+# suspend on battery), and a closed laptop never stays awake in a bag.
+[Unit]
+Description=Laptop lid handled by the session (panel Settings → Power & idle)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/systemd-inhibit --what=handle-lid-switch --who=Hyprland --why="Closing the lid is handled by the session (panel Settings → Power & idle)" --mode=block %h/.config/hypr/scripts/LaptopLid.sh watch
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

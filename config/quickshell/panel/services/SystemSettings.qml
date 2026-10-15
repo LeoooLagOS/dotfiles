@@ -10,6 +10,7 @@ import "../common"
 //   hypridle   ~/.config/lagos/hypridle.conf (sourced by config/hypr/hypridle.conf),
 //              then hypridle is restarted
 //   battery    ~/.config/lagos/battery-alerts (read by scripts/wm/BatteryNotify.sh)
+//   lid        ~/.config/lagos/lid (read by scripts/wm/LaptopLid.sh on each lid close)
 //   profile    power profile at login (tuned-ppd / power-profiles-daemon)
 //   wallpaper  automatic rotation through Wallpapers.apply()
 //   blur       scripts/wm/PanelBlur.sh (state in ~/.config/lagos/panel-blur)
@@ -68,11 +69,15 @@ Singleton {
     }
     FileView { id: idleFile; path: root.dir + "/hypridle.conf"; atomicWrites: true; printErrors: false; preload: false }
     FileView { id: batteryFile; path: root.dir + "/battery-alerts"; atomicWrites: true; printErrors: false; preload: false }
+    FileView { id: lidFile; path: root.dir + "/lid"; atomicWrites: true; printErrors: false; preload: false }
+    readonly property var lidKeys: ["lidBattery", "lidAc", "lidDocked"]
 
     function writeFiles() {
         Quickshell.execDetached(["mkdir", "-p", dir]);
         idleFile.setText(hypridleText());
         batteryFile.setText(Settings.v.battery.slice().sort((a, b) => b - a).join(" ") + "\n");
+        lidFile.setText("# Written by the Quickshell panel (Settings → Power & idle). Edit it there.\n"
+            + "battery=" + Settings.v.lidBattery + "\nac=" + Settings.v.lidAc + "\ndocked=" + Settings.v.lidDocked + "\n");
     }
     // Restart hypridle through Hyprland, so it stays a child of the compositor.
     // hypridle ignores SIGTERM/SIGINT, hence the SIGKILL after a short wait.
@@ -89,7 +94,7 @@ Singleton {
         function onLoadedChanged() { if (Settings.loaded) root.startup(); }
         function onChanged(key) {
             if (root.idleKeys.includes(key)) { root.writeFiles(); restartIdle.restart(); }
-            else if (key === "battery") root.writeFiles();
+            else if (key === "battery" || root.lidKeys.includes(key)) root.writeFiles();
             else if (key === "rotate" || key === "rotateMin") rotation.restart();
             else if (key === "blur" && Settings.v.blur !== blurState.on)
                 Quickshell.execDetached([root.scripts + "/PanelBlur.sh", Settings.v.blur ? "on" : "off"]);
@@ -165,6 +170,7 @@ Singleton {
               --arg dotfiles "$(git -C ~/dotfiles log -1 --format='%h · %s' 2>/dev/null)" \\
               --arg weatherHome "$(cat ~/.config/lagos/weather-home 2>/dev/null || echo 'Automatic (IP)')" \\
               --arg calendars "Evolution webcal + $cals .ics file(s)" \\
+              --arg lidService "$(systemctl --user is-active --quiet lagos-lid.service && echo 'This session (lagos-lid.service)' || echo 'logind (lagos-lid.service is not running)')" \\
               '$ARGS.named'
         `]
         stdout: StdioCollector {

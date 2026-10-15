@@ -50,6 +50,7 @@ readonly LINKS=(
   "config/quickshell/qs-hyprview:$CONFIG_DIR/quickshell/qs-hyprview"
   "config/quickshell/panel:$CONFIG_DIR/quickshell/panel"
   "config/systemd/user/quickshell-panel.service:$CONFIG_DIR/systemd/user/quickshell-panel.service"
+  "config/systemd/user/lagos-lid.service:$CONFIG_DIR/systemd/user/lagos-lid.service"
   "config/pipewire/pipewire.conf.d/10-hires.conf:$CONFIG_DIR/pipewire/pipewire.conf.d/10-hires.conf"
   "config/mpd/mpd.conf:$CONFIG_DIR/mpd/mpd.conf"
   "config/beets/config.yaml:$CONFIG_DIR/beets/config.yaml"
@@ -375,8 +376,11 @@ step_links() {
     run systemctl --user mask swaync.service
     run systemctl --user enable quickshell-panel.service
     ok "notifications: quickshell-panel.service enabled, swaync.service masked"
+    # Closing the lid follows the panel's Settings → Power & idle
+    run systemctl --user enable lagos-lid.service
+    ok "lid: lagos-lid.service enabled"
   else
-    warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service"
+    warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service lagos-lid.service"
   fi
 }
 

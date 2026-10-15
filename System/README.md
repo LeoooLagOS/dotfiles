@@ -37,4 +37,4 @@ sudo systemctl kill -s HUP systemd-logind
 | File | Purpose |
 |---|---|
 | `udev/rules.d/90-usb-input-wakeup.rules` | Lets the USB keyboard/mouse wake from suspend and keeps them connected across resume |
-| `systemd/logind.conf.d/10-lid.conf` | Don't suspend on lid close while on AC (clamshell with external monitor) |
+| `systemd/logind.conf.d/10-lid.conf` | Don't suspend on lid close while on AC (clamshell with external monitor). Only a fallback: inside the session `lagos-lid.service` takes the lid over (panel Settings → Power & idle) |

@@ -647,6 +647,7 @@ the panel; `services/SystemSettings.qml` applies them:
 | Where menus open (rofi) | `scripts/wm/RofiPosition.sh bottom\|center\|toggle\|status`: writes `config/hypr/rofi/position.rasi` (imported last by the Lagos rofi theme) |
 | Colors from the wallpaper | `scripts/wm/WallustToggle.sh on\|off\|toggle\|status`: saves `~/.config/lagos/wallust`; when off, `WallustSwww.sh` updates the wallpaper links but skips wallust, so every caller (wallpaper picker, DarkLight, effects…) keeps the current palette; back on recolors from the current wallpaper |
 
+| Closing the lid (on battery · plugged in · with an external monitor) | writes `~/.config/lagos/lid`, read by `scripts/wm/LaptopLid.sh` each time the lid closes; it acts only while `lagos-lid.service` holds logind's lid inhibitor ("Handled by" shows it), otherwise logind decides |
 Blur and wallust can also be changed from a terminal or a keybind with those
 scripts; their state files are the source of truth and the Settings switches
 follow them. Opacity has a script too: `scripts/wm/PanelOpacity.sh 80 | +5 | -5 | status`
