@@ -56,7 +56,7 @@ fi
 
 if want mail; then
   echo "· email (Thunderbird)"
-  send -a "Thunderbird" -i thunderbird "leonardo.lagosl@alumno.buap.mx received 1 new message" "Avance del proyecto final from \"Edith Flores\""
+  send -a "Thunderbird" -i thunderbird "alumno@universidad.edu received 1 new message" "Avance del proyecto final from \"Edith Flores\""
   step
 fi
 

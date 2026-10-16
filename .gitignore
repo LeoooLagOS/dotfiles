@@ -40,3 +40,16 @@ config/hypr/UserConfigs/monitors.lua
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Personal data the panel and its scripts keep outside the repo (~/.config/lagos,
+# ~/.local/state/quickshell-panel, ~/.cache/quickshell-panel). Listed here too in
+# case a copy lands in the tree: calendars, Teams assignments, to-dos, settings,
+# tokens and logs never belong in this public repo.
+*.ics
+todo.json
+panel-settings.json
+assignments.json
+graph-token.json
+teams-assignments.json
+vault.json
+*.jsonl
