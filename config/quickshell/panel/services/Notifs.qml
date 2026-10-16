@@ -520,11 +520,14 @@ Singleton {
             }
             // Do Not Disturb lets through critical ones and calls (if allowed),
             // levels (feedback for a key you just pressed), security codes (you
-            // asked for them) and SWAYNC_BYPASS_DND
+            // asked for them), SWAYNC_BYPASS_DND, and finished downloads if allowed
+            // (category transfer.complete, scripts/wm/DownloadWatch.py)
             const pk = root.placeKind(n);
             const critical = pk === "critical";
+            const download = String(n.hints?.category ?? "").toLowerCase() === "transfer.complete";
             const bypass = pk === "level" || pk === "security" || n.hints?.["SWAYNC_BYPASS_DND"] === true
-                || (pk === "call" && Settings.v.callsThroughDnd);
+                || (pk === "call" && Settings.v.callsThroughDnd)
+                || (download && Settings.v.downloadsThroughDnd);
             const shown = root.placeOf(n) !== "off"
                 && (!root.dnd || bypass || (Settings.v.critical && critical));
             // Chat messages go to the bar's island instead of a popup (Settings →

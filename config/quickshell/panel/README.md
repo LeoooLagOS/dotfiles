@@ -543,7 +543,9 @@ The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
   **Per app** rules (Settings → Notifications → Per app, `appRules`): send an
   app to another place, "history only", or **mute** it (dropped, not even in
   the history). Not for critical notifications or calls. Do Not Disturb lets
-  calls through (switch), plus levels and security codes.
+  calls and finished downloads through (two switches; downloads are category
+  `transfer.complete`, sent by `scripts/wm/DownloadWatch.py`), plus levels and
+  security codes.
   Any type can be "Don't show (history only)". They last 3 s (low), 6 s
   (normal), 30 s (critical) or 1.8 s (levels); hovering pauses them.
   While the panel is open, the important ones (critical, calls, security codes,

@@ -1,0 +1,14 @@
+# A notification when a download finishes, from any app: browsers keep it
+# inside their own window, so scripts/wm/DownloadWatch.py watches ~/Downloads.
+[Unit]
+Description=Notify when a download finishes (watches ~/Downloads)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.config/hypr/scripts/DownloadWatch.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

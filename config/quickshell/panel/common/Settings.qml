@@ -27,7 +27,7 @@ Singleton {
         // Where popups appear, per type (services/Notifs.qml placeKind)
         posLevel: "top", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
         posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
-        maxPopups: 3, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, notifTheme: "panel",
+        maxPopups: 3, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, downloadsThroughDnd: true, notifTheme: "panel",
         appRules: ({}),                                           // appName → place | "off" | "mute"
         // Power & idle (system)
         dim: 300, warn: 540, lock: 600, screenOff: 630, suspend: 1200, mediaGuard: true,
@@ -197,7 +197,8 @@ Singleton {
                 { key: "groupMessages", label: "Group messages by conversation", help: "One card per chat (“Ana · 3 messages”); each one stays in the history", type: "switch" },
                 { key: "msgPicture", label: "Picture on messages", help: "The chat's photo, with the app's icon on its corner, or just the app's icon. Chats without a photo show the icon", type: "seg",
                   opts: [["photo", "Chat photo"], ["icon", "App icon"]] },
-                { key: "callsThroughDnd", label: "Calls ring through Do Not Disturb", type: "switch" } ] },
+                { key: "callsThroughDnd", label: "Calls ring through Do Not Disturb", type: "switch" },
+                { key: "downloadsThroughDnd", label: "Finished downloads show through Do Not Disturb", help: "You started them, so you're waiting for them (category transfer.complete)", type: "switch" } ] },
             { title: "Per app", rows: [
                 { key: "appRules", label: "Rules", help: "Send an app elsewhere, history only, or mute it. Apps show up here after their first notification", type: "apprules" } ] },
             { title: "Do Not Disturb", rows: [
