@@ -307,7 +307,13 @@ Sources:
    mails as Thunderbird announces them (`Notifs.arrive` → `Events.teamsNote` →
    `assignments.py note`): "New assignment: "…" Due Oct 15 at 11:59 PM",
    "Fecha de entrega mañana: "…"", "… is due Friday"… A note with a date is an
-   event (the island says so); without one, a to-do. Matches are logged to
+   event (the island says so); without one, a to-do. A grouped one with no title
+   ("2 new assignments in …", "Tienes 2 tareas nuevas …") becomes a to-do with
+   the whole line instead of being dropped. One the panel missed:
+   `assignments.py add TITLE DUE [--class C] [--important] [--notes TEXT]`
+   (DUE in local time, `2026-10-16T23:59`); `--important` writes Outlook's
+   High importance (`X-MICROSOFT-CDO-IMPORTANCE:2`), so the deadline gets a ★
+   in the To-do zone and its reminders are always critical. Matches are logged to
    `~/.local/state/quickshell-panel/teams-notes.jsonl` to tune the patterns;
    state in `assignments.json` there; the token in `graph-token.json` (mode 600).
    Handed in or a week past due: gone.

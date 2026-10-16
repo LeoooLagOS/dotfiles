@@ -8,6 +8,10 @@ Usage:
   assignments.py note     a Teams notification on stdin (JSON: {app, summary,
                           body, mail}): if it's about an assignment, keep it
                           (prints {"event": …} with a due date, else {"todo": …})
+  assignments.py add TITLE DUE [--class C] [--important] [--notes TEXT]
+                          one the panel missed, by hand (DUE: 2026-10-16T23:59,
+                          local time); --important marks it High importance (★,
+                          critical reminders)
   assignments.py done UID handed in: the event (uid from Teams.ics) leaves the calendar
   assignments.py undone UID  back (Undo)
   assignments.py status   whether it's signed in, and the last sync
@@ -245,6 +249,9 @@ def render(st):
                   f"DTSTART:{when}", f"DTEND:{when}",
                   fold("SUMMARY:" + esc("Entrega: " + it["title"])),
                   fold("LOCATION:" + esc(it.get("class", ""))) if it.get("class") else None,
+                  # High importance, the way Outlook marks it (scripts/events.py: important, high)
+                  "X-MICROSOFT-CDO-IMPORTANCE:2" if it.get("important") else None,
+                  "PRIORITY:1" if it.get("important") else None,
                   fold("DESCRIPTION:" + esc(notes)) if notes else None,
                   fold("URL:" + it["url"]) if it.get("url") else None,
                   "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Entrega",
@@ -262,10 +269,10 @@ def render(st):
 
 
 # ---------------- Notes: assignments from Teams' notifications ----------------
-TASK = re.compile(r"\b(assignment|tarea|asignaci[oó]n|entrega|deliverable)\b", re.I)
+TASK = re.compile(r"\b(assignments?|tareas?|asignaci[oó]n(es)?|entregas?|deliverables?)\b", re.I)
 # A notification that announces one, not a chat message that mentions homework
 ANNOUNCE = re.compile(r"(new assignment|assignment (is )?due|due (today|tomorrow|on|by)|\bdue\b.*\d|"
-                      r"(nueva|nuevo) (tarea|asignaci[oó]n)|tarea nueva|se (te )?(ha )?asign|"
+                      r"(nuevas?|nuevos?) (tareas?|asignaci[oó]n(es)?)|tareas? nuevas?|se (te )?(ha )?asign|"
                       r"fecha de entrega|vence|para entregar|entrega (hoy|mañana|el)|"
                       r"assigned (you|a new)|posted (a|an) (new )?assignment|public[oó] una tarea)", re.I)
 DUE = re.compile(r"\b(is due|due (today|tomorrow|on|by|this|next|mon|tue|wed|thu|fri|sat|sun)|vence (hoy|mañana|el)|"
@@ -358,8 +365,11 @@ def note():
     body = re.sub(r"<[^>]+>", " ", str(n.get("body") or "")).strip()
     # "Lab report is due Friday": what comes before "is due" / "vence"
     m = re.match(r"(.{3,100}?)\s+(?:is due|due|vence|se entrega)\b", body, re.I)
-    title = title_of(text) or (m.group(1).strip(" .:") if m else "") \
-        or re.sub(r"\s+", " ", str(n.get("summary") or "Tarea de Teams")).strip()[:100]
+    # No title to read ("2 new assignments in …", a grouped notification): the
+    # whole line, so it still becomes a to-do instead of getting lost
+    title = title_of(text) or (m.group(1) if m else "") \
+        or "Teams: " + re.sub(r"\s+", " ", body or str(n.get("summary") or "tarea nueva")).strip()[:100]
+    title = title.strip(" .·|:-–")
     due = due_of(text, now)
     NOTES_LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(NOTES_LOG, "a") as f:
@@ -391,6 +401,30 @@ def done(uid, handed_in=True):
     save_state(st)
 
 
+def add(args):
+    """A missed assignment by hand: kept like a note, under its own key."""
+    import argparse
+    ap = argparse.ArgumentParser(prog="assignments.py add")
+    ap.add_argument("title")
+    ap.add_argument("due", help="local date and time, e.g. 2026-10-16T23:59")
+    ap.add_argument("--class", dest="cls", default="")
+    ap.add_argument("--important", action="store_true")
+    ap.add_argument("--notes", default="")
+    a = ap.parse_args(args)
+    due = datetime.fromisoformat(a.due)
+    if due.tzinfo is None:
+        due = due.astimezone()
+    st = load_state()
+    key = re.sub(r"[^a-z0-9]+", "-", a.title.lower()).strip("-")[:60] or "tarea"
+    st["notes"] = [x for x in st.get("notes", []) if x["key"] != key] + [
+        {"key": key, "title": a.title, "due": due.astimezone(timezone.utc).isoformat(), "class": a.cls,
+         "notes": a.notes, "url": "", "important": a.important, "manual": True}]
+    st["hidden"] = [h for h in st.get("hidden", []) if h != "teams-note-" + key]
+    render(st)
+    save_state(st)
+    print(json.dumps({"event": a.title, "due": due.isoformat(), "uid": "teams-note-" + key}, ensure_ascii=False))
+
+
 def status():
     st = load_state()
     print(json.dumps({"signedIn": TOKEN.exists(), "synced": st.get("synced"),
@@ -412,6 +446,8 @@ def main():
         done(sys.argv[2], False)
     elif cmd == "note":
         note()
+    elif cmd == "add" and len(sys.argv) > 3:
+        add(sys.argv[2:])
     elif cmd == "status":
         status()
     else:

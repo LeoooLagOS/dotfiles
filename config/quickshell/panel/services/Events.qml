@@ -204,7 +204,7 @@ Singleton {
     // Teams assignments (the "Teams" calendar, scripts/assignments.py), the
     // providers' tasks (above) and the open to-do tasks (services/Todos.qml),
     // soonest first, overdue on top, the ones without a date last:
-    //   [{ kind: "teams" | "provider" | "todo", uid / id, title, due: Date | null, dateOnly, where,
+    //   [{ kind: "teams" | "provider" | "todo", uid / id, title, due: Date | null, dateOnly, where, important,
     //      provider: source, label, remind, open }]
     // dueText(d) / dueColor(d): "Today 23:59 · in 2 h 58 min" / red under a day, amber under three
     property date now: new Date()
@@ -234,7 +234,8 @@ Singleton {
         const out = [];
         for (const e of upcoming)
             if (isDeadline(e)) out.push({ kind: "teams", uid: e.uid, title: e.title.replace(/^Entrega:\s*/, ""),
-                                          due: new Date(e.startIso), dateOnly: false, where: e.location });
+                                          due: new Date(e.startIso), dateOnly: false, where: e.location,
+                                          important: !!e.important });
         for (const t of providerTasks) {
             const timed = t.due.length > 10;
             out.push({ kind: "provider", source: t.source, label: t.label, id: t.id, title: t.title,
@@ -417,11 +418,12 @@ Singleton {
     }
     function dueNotify(x, k) {
         const over = x.due <= now;
-        const title = (over ? "Overdue: " : "To hand in: ") + x.title;
+        // Important (High importance, `assignments.py add --important`): ★ and always critical
+        const title = (x.important ? "★ " : "") + (over ? "Overdue: " : "To hand in: ") + x.title;
         const body = dueText(x) + (x.where ? " · " + x.where : "");
         dueComp.createObject(root, { item: x, key: k, command: ["notify-send",
             "-a", x.kind === "teams" ? "Teams assignments" : x.kind === "provider" ? x.label : "To-do", "-i", "task-due",
-            "-u", over || (x.due - now) <= 3600000 ? "critical" : "normal",
+            "-u", x.important || over || (x.due - now) <= 3600000 ? "critical" : "normal",
             "-c", "calendar.reminder",
             "-A", "done=Done", "-A", "hour=In 1 h", "-A", "tomorrow=Tomorrow",
             title, body] }).running = true;

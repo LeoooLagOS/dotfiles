@@ -51,6 +51,7 @@ Rectangle {
                 Layout.fillWidth: true
                 spacing: 5
                 Glyph { visible: row.item.kind === "teams"; text: ""; font.pixelSize: 9; color: Theme.accent2 }
+                Glyph { visible: !!row.item.important; text: ""; font.pixelSize: 9; color: Theme.warn }   // ★ important
                 Label {
                     Layout.fillWidth: true
                     text: row.item.title
