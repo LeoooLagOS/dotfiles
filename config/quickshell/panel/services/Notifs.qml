@@ -17,7 +17,7 @@ Singleton {
     property var dndUntil: null
     property bool dndScheduled: false       // turned on by the quiet-hours schedule
     property var popups: []                 // notifications currently shown as popups
-    property var received: ({})             // notification id → Date received
+    property var received: ({})             // notification id → Date received (written in place on arrival)
 
     // Newest first: the live ones and the copies of replaced ones (archive)
     readonly property var list: {
@@ -492,10 +492,11 @@ Singleton {
         imageSupported: true
 
         onNotification: n => {
+            // Its time, written in place before it's tracked: the list built
+            // for it reads it already, and replacing the whole object would
+            // make every card and view that reads `received` evaluate again
+            root.received[n.id] = new Date();
             n.tracked = true;
-            const r = Object.assign({}, root.received);
-            r[n.id] = new Date();
-            root.received = r;
             root.watchContent(n);
             root.arrive(n);
         }

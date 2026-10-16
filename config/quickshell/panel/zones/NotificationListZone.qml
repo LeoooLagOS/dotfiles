@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import "../common"
 import "../services"
 
@@ -16,16 +17,19 @@ Zone {
 
     readonly property var shown: Notifs.select(filter, query, sort)
 
-    // Groups for "app" sort: [{ app, items }]
+    // Groups for "app" sort: { order: [app names], items: { app: [notifications] } }
+    // ("" is the one group of the other sorts). The Repeaters take them through
+    // ScriptModels, which keep the cards already there: a new notification adds
+    // one card instead of building the whole history again
     readonly property var groups: {
-        if (sort !== "app") return [{ app: "", items: shown }];
+        if (sort !== "app") return { order: [""], items: { "": shown } };
         const order = [], map = {};
         for (const n of shown) {
             const app = Notifs.appLabel(n);
             if (!map[app]) { map[app] = []; order.push(app); }
             map[app].push(n);
         }
-        return order.map(app => ({ app: app, items: map[app] }));
+        return { order: order, items: map };
     }
 
     // Clear the filter if its app no longer has notifications
@@ -184,39 +188,41 @@ Zone {
                     spacing: 14
 
                     Repeater {
-                        model: root.groups
+                        model: ScriptModel { values: root.groups.order }
                         delegate: Column {
                             id: group
-                            required property var modelData
+                            required property string modelData
+                            readonly property string app: modelData
+                            readonly property var items: root.groups.items[app] ?? []
                             width: groupsColumn.width
                             spacing: 6
 
                             // App header (only when grouping by app)
                             RowLayout {
                                 width: parent.width
-                                visible: group.modelData.app !== ""
+                                visible: group.app !== ""
                                 Label {
-                                    text: group.modelData.app.toUpperCase()
+                                    text: group.app.toUpperCase()
                                     dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1
                                 }
-                                Label { text: group.modelData.items.length; dim: true; font.pixelSize: 11; visible: group.modelData.items.length > 1 }
+                                Label { text: group.items.length; dim: true; font.pixelSize: 11; visible: group.items.length > 1 }
                                 Item { Layout.fillWidth: true }
                                 Label {
                                     text: "Clear"
                                     dim: !groupClear.containsMouse
                                     font.pixelSize: 11
                                     MouseArea { id: groupClear; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                                onClicked: group.modelData.items.slice().forEach(n => n.dismiss()) }
+                                                onClicked: group.items.slice().forEach(n => n.dismiss()) }
                                 }
                             }
 
                             Repeater {
-                                model: group.modelData.items
+                                model: ScriptModel { values: group.items }
                                 delegate: NotificationCard {
                                     required property var modelData
                                     notif: modelData
                                     width: group.width
-                                    showApp: group.modelData.app === ""
+                                    showApp: group.app === ""
                                 }
                             }
                         }

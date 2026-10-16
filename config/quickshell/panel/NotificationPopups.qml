@@ -68,7 +68,8 @@ Scope {
 
                         Repeater {
                             // Newest nearest the edge
-                            model: win.atTop ? win.items.slice().reverse() : win.items
+                            // (a ScriptModel keeps the cards already shown, and their timers)
+                            model: ScriptModel { values: win.atTop ? win.items.slice().reverse() : win.items }
                             delegate: NotificationCard {
                                 id: popupCard
                                 required property var modelData
