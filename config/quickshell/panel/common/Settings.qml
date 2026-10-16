@@ -25,7 +25,7 @@ Singleton {
         // Notifications
         dndSched: false, dndWindow: "23:00-07:00", critical: true, popupSecs: 6, history: 100,
         // Where popups appear, per type (services/Notifs.qml placeKind)
-        posLevel: "top", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
+        posLevel: "top", posBrightness: "island", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
         posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
         maxPopups: 3, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, downloadsThroughDnd: true, notifTheme: "panel",
         appRules: ({}),                                           // appName → place | "off" | "mute"
@@ -103,9 +103,11 @@ Singleton {
             "rofi-Beats", "rofi-Beats-menu"] }
     ]
 
-    // Places a notification popup can appear (NotificationPopups.qml)
+    // Places a notification popup can appear (NotificationPopups.qml), or the
+    // bar's island (bar/Island.qml: levels and progress as a bar, the rest like
+    // a message; top center while the island isn't on the bar)
     readonly property var notifPlaces: [["top", "Top center"], ["top-left", "Top left"], ["top-right", "Top right"], ["bottom-right", "Bottom right"],
-                                        ["bottom", "Bottom center"], ["off", "Don't show (history only)"]]
+                                        ["bottom", "Bottom center"], ["island", "Island (bar)"], ["off", "Don't show (history only)"]]
 
     // ---------------- Schema ----------------
     // Row types: switch · seg (opts [value, label]) · select (opts [value, label]) ·
@@ -182,10 +184,11 @@ Singleton {
                   opts: [["panel", "Same as the panel"], ["system", "Same as the system"], ["dark", "Dark"], ["light", "Light"], ["inverted", "Inverted"]] },
                 { label: "Try them", help: "A test notification of each kind, to see the look and where it appears. Demo: all of them one after another, for a video (scripts/wm/NotifDemo.sh)", type: "notiftests" } ] },
             { title: "Where popups appear", rows: [
-                { key: "posCall", label: "Calls", help: "Incoming calls ring until answered or declined", type: "select", opts: notifPlaces.filter(o => o[0] !== "off") },
-                { key: "posSecurity", label: "Security codes", help: "2FA / login codes (with a Copy button), sign-in alerts, password prompts", type: "select", opts: notifPlaces },
+                { key: "posCall", label: "Calls", help: "Incoming calls ring until answered or declined", type: "select", opts: notifPlaces.filter(o => o[0] !== "off" && o[0] !== "island") },
+                { key: "posSecurity", label: "Security codes", help: "2FA / login codes (with a Copy button), sign-in alerts, password prompts", type: "select", opts: notifPlaces.filter(o => o[0] !== "island") },
                 { key: "posReminder", label: "Reminders", help: "Calendar events: they stay until dismissed", type: "select", opts: notifPlaces },
-                { key: "posLevel", label: "Volume & brightness", help: "Level bars: volume, mic, brightness", type: "select", opts: notifPlaces },
+                { key: "posLevel", label: "Volume", help: "Level bars: volume and mic", type: "select", opts: notifPlaces },
+                { key: "posBrightness", label: "Brightness", help: "The screen's and the keyboard's level bars", type: "select", opts: notifPlaces },
                 { key: "posSystem", label: "System", help: "Battery, network, devices, screenshots, recordings, scripts", type: "select", opts: notifPlaces },
                 { key: "posMessage", label: "Messages", help: "WhatsApp, Telegram, Teams, Discord, email…", type: "select", opts: notifPlaces },
                 { key: "posMedia", label: "Now playing", help: "Track changes from Spotify and other players", type: "select", opts: notifPlaces },

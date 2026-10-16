@@ -18,6 +18,8 @@ import "../services"
 //              temperatures, rain in the next hours); a click on it: the Weather tab
 //   rec        screen recording (services/Recorder.qml): red dot and elapsed
 //              time; a click stops it
+//   level      volume, brightness, progress… placed on the island (BarState.level):
+//              icon · title · bar · percentage, the bar sliding from the last value
 //   flash      a short message (BarState.say: Do Not Disturb, caffeine, volume),
 //              with an Undo when it has one (click the island)
 //   message    a chat message (BarState.message, instead of a popup): the
@@ -39,7 +41,9 @@ Rectangle {
     // its width, and the twins' room, don't change when music starts or stops
     property bool playerShown: false
     readonly property var msg: BarState.message
-    readonly property string mode: BarState.flash ? "flash"
+    readonly property var lvl: BarState.level
+    readonly property string mode: lvl ? "level"
+        : BarState.flash ? "flash"
         : msg ? (expandWanted ? "messageOpen" : "message")
         : Recorder.recording ? "rec"
         : expandWanted && music ? "expanded"
@@ -53,7 +57,7 @@ Rectangle {
 
     readonly property int expandedH: 196
     readonly property bool grown: mode === "expanded" || mode === "weather"
-    width: grown ? 520 : isMessage ? 480 : (mode === "flash" ? flashRow.implicitWidth : topRow.implicitWidth) + 34
+    width: grown ? 520 : isMessage ? 480 : (mode === "flash" ? flashRow.implicitWidth : mode === "level" ? levelRow.implicitWidth : topRow.implicitWidth) + 34
     height: grown ? expandedH : mode === "messageOpen" ? pillH + msgBody.implicitHeight + 58 : pillH
     radius: grown || mode === "messageOpen" ? 24 : pillH / 2
     color: Theme.mix(Theme.panel.base, "#000000", Theme.light ? 0.85 : 0.55)
@@ -113,7 +117,7 @@ Rectangle {
     // while recording, the REC counter takes the day's side
     Row {
         id: topRow
-        visible: root.mode !== "flash" && !root.isMessage
+        visible: root.mode !== "flash" && root.mode !== "level" && !root.isMessage
         anchors.horizontalCenter: parent.horizontalCenter
         y: 0
         height: root.pillH
@@ -305,6 +309,55 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    // ---------------- Level: icon · title · bar · percentage ----------------
+    Row {
+        id: levelRow
+        visible: root.mode === "level"
+        anchors.centerIn: parent
+        spacing: 10
+        readonly property real value: root.lvl ? Notifs.progressOf(root.lvl) : 0
+        readonly property string glyph: { value; return root.lvl ? Notifs.levelGlyph(root.lvl) : ""; }
+        // Slides from the last value to the new one
+        property real shown: value
+        Behavior on shown { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+        Glyph {
+            visible: levelRow.glyph !== ""
+            optical: true; text: levelRow.glyph; color: root.accent; font.pixelSize: 14
+            anchors.verticalCenter: parent.verticalCenter
+        }
+        Image {
+            visible: levelRow.glyph === ""
+            width: 16; height: 16; sourceSize: Qt.size(32, 32)
+            source: levelRow.glyph === "" && root.lvl ? Notifs.appIconOf(root.lvl) : ""
+            anchors.verticalCenter: parent.verticalCenter
+        }
+        // The name only when the icon doesn't say it (a download's file, not "Brightness")
+        Label {
+            visible: levelRow.glyph === ""
+            text: root.lvl ? Notifs.titleOf(root.lvl) : ""
+            color: root.ink; font.pixelSize: 13; font.weight: Font.DemiBold
+            elide: Text.ElideRight; width: Math.min(implicitWidth, 180)
+            anchors.verticalCenter: parent.verticalCenter
+        }
+        Rectangle {
+            width: 120; height: 6; radius: 3
+            color: Qt.rgba(1, 1, 1, 0.14)
+            anchors.verticalCenter: parent.verticalCenter
+            Rectangle {
+                width: parent.width * Math.max(0, Math.min(1, levelRow.shown / 100))
+                height: parent.height; radius: parent.radius
+                color: levelRow.value > 100 ? Theme.warn : root.accent
+            }
+        }
+        Label {
+            text: Math.round(levelRow.value) + "%"
+            color: levelRow.value > 100 ? Theme.warn : root.ink
+            font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 }
+            width: 34; horizontalAlignment: Text.AlignRight
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 

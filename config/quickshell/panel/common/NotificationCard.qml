@@ -123,15 +123,8 @@ Rectangle {
 
     // ---------------- Level: icon · title · bar · percentage ----------------
     // Icon from the sync tag / summary (speaker by level, mic, sun, keyboard),
-    // else the notification's own icon
-    readonly property string levelGlyph: {
-        const what = (Notifs.syncTag(notif) + " " + (notif?.summary ?? "")).toLowerCase();
-        const off = level === 0 || /mute/i.test(notif?.body ?? "");
-        if (/mic/.test(what)) return off ? "\uf131" : "\uf130";
-        if (/bright|screen|backlight|kbd|keyboard/.test(what)) return /kbd|keyboard/.test(what) ? "\uf11c" : "\uf185";
-        if (/vol|audio|sound/.test(what)) return off ? "\u{f0581}" : level < 34 ? "\u{f057f}" : level < 67 ? "\u{f0580}" : "\u{f057e}";
-        return "";
-    }
+    // else the notification's own icon (Notifs.levelGlyph, shared with the island)
+    readonly property string levelGlyph: { level; return Notifs.levelGlyph(notif); }
     RowLayout {
         id: levelRow
         visible: card.isLevel

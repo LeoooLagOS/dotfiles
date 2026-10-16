@@ -103,6 +103,32 @@ Singleton {
         if (n && Comms.canReply(n)) Comms.startReply(n);
     }
 
+    // ---------------- Levels on the island ----------------
+    // Volume, brightness, progress… placed on the island (Settings → Notifications
+    // → Where popups appear; Notifs.placeOf): icon · title · bar · percentage.
+    // `level` is the notification (or the panel's own level object, Notifs.showLevel);
+    // a new one with the same tag replaces it and its bar slides from the old value
+    // (bar/Island.qml).
+    // Progress stays while it runs; levels go after the popup's time.
+    readonly property bool islandOn: enabled && shown("island")
+    property var level: null
+    function showLevel(n) {
+        const old = level;
+        level = n;
+        // Closed by its app (a finished download): off the island
+        if (!n.local && old !== n) n.closed.connect(() => { if (root.level === n) root.level = null; });
+        levelTimer.interval = Notifs.placeKind(n) === "progress" ? 8000 : Notifs.timeoutFor(n);
+        levelTimer.restart();
+        // A real notification that was a level (not the panel's own): it isn't kept
+        if (old && old !== n && !old.local && Notifs.syncTag(old)) Qt.callLater(() => { try { old.expire(); } catch (e) {} });
+    }
+    function clearLevel() {
+        const n = level;
+        level = null;
+        if (n && !n.local && (n.transient || Notifs.syncTag(n))) { try { n.expire(); } catch (e) {} }
+    }
+    Timer { id: levelTimer; onTriggered: root.clearLevel() }
+
     // A short message on the island ({ icon, text, undo }), gone after a moment.
     // With `undo` (a function) it stays 6 s and clicking the island runs it
     property var flash: null

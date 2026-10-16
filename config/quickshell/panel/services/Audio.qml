@@ -33,6 +33,38 @@ Singleton {
         if (s.includes("mic")) return "";
         return node?.isSink ? "" : "";
     }
+    // ---------------- Volume keys ----------------
+    // Hyprland sends them to the panel (shell.qml, GlobalShortcut): the volume
+    // is set on the PipeWire node right here and the level shown by the panel
+    // (Notifs.showLevel), with no script or notification in between.
+    // As Volume.sh did: ±delta %, up to 150 (boost); a step while muted unmutes.
+    function stepVolume(delta) {
+        const a = sink?.audio;
+        if (!a) return;
+        if (a.muted) a.muted = false;
+        else {
+            a.volume = Math.max(0, Math.min(150, Math.round(a.volume * 100) + delta)) / 100;
+            Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/Sounds.sh", "--volume"]);
+        }
+        showVolume();
+    }
+    function toggleMute() {
+        const a = sink?.audio;
+        if (!a) return;
+        a.muted = !a.muted;
+        showVolume();
+    }
+    function toggleMic() {
+        const a = source?.audio;
+        if (!a) return;
+        a.muted = !a.muted;
+        Notifs.showLevel("mic_notif", "Microphone", a.muted ? 0 : Math.round(a.volume * 100), a.muted ? "Muted" : "");
+    }
+    function showVolume() {
+        const a = sink?.audio;
+        Notifs.showLevel("volume_notif", "Volume", a.muted ? 0 : Math.round(a.volume * 100), a.muted ? "Muted" : "");
+    }
+
     function useSink(node) { Pipewire.preferredDefaultAudioSink = node; }
     function useSource(node) { Pipewire.preferredDefaultAudioSource = node; }
 }

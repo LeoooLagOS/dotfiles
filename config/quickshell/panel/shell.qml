@@ -8,6 +8,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import "./common"
 import "./services"
 
@@ -21,6 +22,18 @@ ShellRoot {
     CommsDock {}
     ReplyBox {}
     QuickAdd {}
+
+    // Brightness and volume keys, straight from Hyprland (bind → hl.dsp.global):
+    // no script and no notification in between, so the bar follows the key at once
+    GlobalShortcut { name: "brightnessUp"; description: "Brightness up"; onPressed: Brightness.step(10) }
+    GlobalShortcut { name: "brightnessDown"; description: "Brightness down"; onPressed: Brightness.step(-10) }
+    // Volume keys the same way (services/Audio.qml)
+    GlobalShortcut { name: "volumeUp"; description: "Volume up"; onPressed: Audio.stepVolume(5) }
+    GlobalShortcut { name: "volumeDown"; description: "Volume down"; onPressed: Audio.stepVolume(-5) }
+    GlobalShortcut { name: "volumeUpFine"; description: "Volume up 1%"; onPressed: Audio.stepVolume(1) }
+    GlobalShortcut { name: "volumeDownFine"; description: "Volume down 1%"; onPressed: Audio.stepVolume(-1) }
+    GlobalShortcut { name: "volumeMute"; description: "Mute output"; onPressed: Audio.toggleMute() }
+    GlobalShortcut { name: "micMute"; description: "Mute microphone"; onPressed: Audio.toggleMic() }
 
     IpcHandler {
         target: "panel"

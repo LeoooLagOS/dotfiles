@@ -373,8 +373,12 @@ Singleton {
         const k = placeKind(n);
         if (k === "critical") return "top";
         const rule = ruleOf(n);
-        if (rule && rule !== "mute" && k !== "call") return rule;
-        return Settings.v["pos" + k[0].toUpperCase() + k.slice(1)] ?? "top";
+        let place = rule && rule !== "mute" && k !== "call" ? rule
+            : k === "level" && /bright|backlight/i.test(syncTag(n) + " " + (n?.summary ?? "")) ? Settings.v.posBrightness
+            : Settings.v["pos" + k[0].toUpperCase() + k.slice(1)];
+        // The island only while the bar shows it; calls and security codes need their card's buttons
+        if (place === "island" && (!BarState.islandOn || k === "call" || k === "security")) place = "top";
+        return place ?? "top";
     }
 
     // --- Messages grouped by conversation ---
@@ -408,6 +412,51 @@ Singleton {
     function progressOf(n) {
         const v = n?.hints?.value;
         return v === undefined || v === null || v === "" ? -1 : Number(v);
+    }
+
+    // A level the panel shows itself (brightness keys, services/Brightness.qml):
+    // no notification and no D-Bus round trip, just a card object in the
+    // popups (shaped like the history's copies), so the bar shows on the same
+    // frame as the key press. It takes the place of the one with its tag.
+    property int localSeq: 0
+    function showLevel(tag, title, value, body) {
+        const o = { id: "l" + (++localSeq), local: true, appName: title, appIcon: "", desktopEntry: "",
+                    summary: title, body: body ?? "", image: "", urgency: NotificationUrgency.Low,
+                    hints: { "x-canonical-private-synchronous": tag, value: value },
+                    actions: [], transient: true, tracked: true, hasInlineReply: false, inlineReplyPlaceholder: "" };
+        o.dismiss = () => { root.popups = root.popups.filter(p => p !== o); };
+        o.expire = o.dismiss;
+        const place = placeOf(o);
+        if (place === "off") return;
+        if (place === "island") {
+            const old = popups.find(p => syncTag(p) === tag);    // its popup, if it was one before
+            if (old) removePopup(old);
+            BarState.showLevel(o);
+            return;
+        }
+        const i = popups.findIndex(p => syncTag(p) === tag);
+        const next = popups.slice();
+        if (i >= 0) {
+            const old = popups[i];
+            const m = {};                                  // its bar animates from the old level
+            m[o.id] = progressOf(old);
+            levelFrom = m;
+            next[i] = o;
+            if (!old.local) Qt.callLater(() => old.expire());
+        } else next.push(o);
+        popups = next;
+    }
+
+    // A level's icon (card and island): from the sync tag / summary (speaker by
+    // level, mic, sun, keyboard); "" = use the notification's own icon
+    function levelGlyph(n) {
+        const what = (syncTag(n) + " " + (n?.summary ?? "")).toLowerCase();
+        const level = progressOf(n);
+        const off = level === 0 || /mute/i.test(n?.body ?? "");
+        if (/mic/.test(what)) return off ? "\uf131" : "\uf130";
+        if (/bright|screen|backlight|kbd|keyboard/.test(what)) return /kbd|keyboard/.test(what) ? "\uf11c" : "\uf185";
+        if (/vol|audio|sound/.test(what)) return off ? "\u{f0581}" : level < 34 ? "\u{f057f}" : level < 67 ? "\u{f0580}" : "\u{f057e}";
+        return "";
     }
 
     function removePopup(n) {
@@ -537,6 +586,20 @@ Singleton {
                 BarState.showMessage(n);
                 return;
             }
+            // Placed on the island (Settings → Notifications → Where popups appear):
+            // levels and progress as a bar, the rest like a message. A tagged one
+            // takes the place of the earlier ones with its tag, as popups do
+            if (shown && root.placeOf(n) === "island") {
+                const tag = root.syncTag(n);
+                if (tag) {
+                    const old = root.list.filter(o => o !== n && root.syncTag(o) === tag);
+                    root.popups = root.popups.filter(p => !old.includes(p));
+                    Qt.callLater(() => { for (const o of old) o.expire(); });
+                }
+                if (pk === "level" || pk === "progress") BarState.showLevel(n);
+                else BarState.showMessage(n);
+                return;
+            }
             // Same tag as an earlier one: take its place (popup slot included)
             const tag = root.syncTag(n);
             if (tag) {
@@ -595,7 +658,7 @@ Singleton {
     // the history limit (Settings → Notifications)
     onListChanged: {
         if (list.length > Settings.v.history) for (const n of list.slice(Settings.v.history)) n.dismiss();
-        const alive = popups.filter(p => list.includes(p));
+        const alive = popups.filter(p => p.local || list.includes(p));
         if (alive.length !== popups.length) popups = alive;
     }
 

@@ -140,6 +140,33 @@ bind("SUPER ALT", "minus", exec_cmd(scripts .. "PanelOpacity.sh -5"), { descript
 bind("SUPER ALT", "equal", exec_cmd(scripts .. "PanelOpacity.sh +5"), { description = "panel more opaque", repeating = true })
 bind("SUPER ALT", "W", exec_cmd(scripts .. "WallustToggle.sh toggle"), { description = "colors from the wallpaper (wallust) on/off" })
 bind("SUPER ALT", "I", exec_cmd("qs -c panel ipc call panel caffeine"), { description = "caffeine: keep the screen awake on/off" })
+
+-- Brightness: the panel changes it and draws the level itself (panel shell.qml,
+-- GlobalShortcut quickshell:brightnessUp/Down), with no script or notification
+-- in between, so the bar follows the key at once. Brightness.sh still works.
+for _, k in ipairs({
+  { "", "xf86MonBrightnessUp", "brightnessUp", "increase monitor brightness" },
+  { "", "xf86MonBrightnessDown", "brightnessDown", "decrease monitor brightness" },
+  { "CTRL ALT", "equal", "brightnessUp", "increase brightness" },
+  { "CTRL ALT", "minus", "brightnessDown", "decrease brightness" },
+  { "CTRL ALT", "KP_Add", "brightnessUp", "increase brightness (numpad)" },
+  { "CTRL ALT", "KP_Subtract", "brightnessDown", "decrease brightness (numpad)" },
+}) do
+  unbind(k[1], k[2])
+  bind(k[1], k[2], hl.dsp.global("quickshell:" .. k[3]), { description = k[4], locked = true, repeating = true })
+end
+-- Volume the same way (panel services/Audio.qml: PipeWire directly). Volume.sh still works.
+for _, k in ipairs({
+  { "", "xf86audioraisevolume", "volumeUp", "volume up", true },
+  { "", "xf86audiolowervolume", "volumeDown", "volume down", true },
+  { "ALT", "xf86audioraisevolume", "volumeUpFine", "volume up 1%", true },
+  { "ALT", "xf86audiolowervolume", "volumeDownFine", "volume down 1%", true },
+  { "", "xf86audiomute", "volumeMute", "mute / unmute the output", false },
+  { "", "xf86AudioMicMute", "micMute", "mute / unmute the microphone", false },
+}) do
+  unbind(k[1], k[2])
+  bind(k[1], k[2], hl.dsp.global("quickshell:" .. k[3]), { description = k[4], locked = true, repeating = k[5] })
+end
 -- The top bar is the panel's (TopBar.qml), not waybar: SUPER CTRL ALT B hides
 -- or shows it (scripts/wm/BarSwitch.sh switches back to waybar for good)
 unbind("SUPER CTRL ALT", "B")
