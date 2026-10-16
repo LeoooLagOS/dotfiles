@@ -5,21 +5,34 @@
 #   NotifDemo.sh -w 0       no countdown
 #   NotifDemo.sh -p 2.5     seconds between notifications (default 3)
 #   NotifDemo.sh -k KIND…   only these: message group mail call reminder code
-#                           volume brightness progress media system critical
+#                           volume brightness progress download media system critical
+#   NotifDemo.sh -x NAME -y NAME   the two people in them (default: the panel's
+#                           Settings → Demos, else "Persona X" and "Persona Y")
 # They're marked x-lagos-test: the panel never offers to reply to them and a
 # click opens nothing; they stay in the history like real ones (Clear all
-# removes them). People: Edith Flores, Octavio Paz.
+# removes them). The panel runs it too (Settings → Demos: one kind, or all).
 
 set -u
 pause=3
 wait=5
 kinds=()
+# The two people: the panel's Settings → Demos, overridden by -x / -y
+settings="${XDG_CONFIG_HOME:-$HOME/.config}/lagos/panel-settings.json"
+read_name() {
+  python3 -c 'import json,sys
+try: print(json.load(open(sys.argv[1])).get(sys.argv[2]) or "")
+except Exception: print("")' "$settings" "$1" 2>/dev/null
+}
+X=$(read_name demoPersonX); X=${X:-Persona X}
+Y=$(read_name demoPersonY); Y=${Y:-Persona Y}
 while [ $# -gt 0 ]; do
   case $1 in
     -p) pause=$2; shift 2 ;;
     -w) wait=$2; shift 2 ;;
+    -x) X=$2; shift 2 ;;
+    -y) Y=$2; shift 2 ;;
     -k) shift; while [ $# -gt 0 ] && [[ $1 != -* ]]; do kinds+=("$1"); shift; done ;;
-    -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
@@ -40,35 +53,35 @@ fi
 
 if want message; then
   echo "· message (WhatsApp)"
-  send -a "WhatsApp Web" -h string:category:im.received "Edith Flores" "¿Ya viste el video que te mandé? 😄" -A default=Open
+  send -a "WhatsApp Web" -h string:category:im.received "$X" "¿Ya viste el video que te mandé? 😄" -A default=Open
   step
 fi
 
 if want group; then
   echo "· messages from one chat, grouped (Teams)"
-  send -a "Teams" -i $TEAMS -h string:category:im.received "Octavio Paz" "Hola, ¿tienes un momento?" -A default=Open
+  send -a "Teams" -i $TEAMS -h string:category:im.received "$Y" "Hola, ¿tienes un momento?" -A default=Open
   sleep 1.2
-  send -a "Teams" -i $TEAMS -h string:category:im.received "Octavio Paz" "Quería revisar contigo la presentación de mañana" -A default=Open
+  send -a "Teams" -i $TEAMS -h string:category:im.received "$Y" "Quería revisar contigo la presentación de mañana" -A default=Open
   sleep 1.2
-  send -a "Teams" -i $TEAMS -h string:category:im.received "Octavio Paz" "Te dejé comentarios en las diapositivas 4 y 7" -A default=Open
+  send -a "Teams" -i $TEAMS -h string:category:im.received "$Y" "Te dejé comentarios en las diapositivas 4 y 7" -A default=Open
   step
 fi
 
 if want mail; then
   echo "· email (Thunderbird)"
-  send -a "Thunderbird" -i thunderbird "alumno@universidad.edu received 1 new message" "Avance del proyecto final from \"Edith Flores\""
+  send -a "Thunderbird" -i thunderbird "alumno@universidad.edu received 1 new message" "Avance del proyecto final from \"$X\""
   step
 fi
 
 if want call; then
   echo "· incoming call (Teams)"
-  send -a "Teams" -i $TEAMS -h string:category:call.incoming "Incoming call" "Edith Flores is calling you" -A answer=Answer -A decline=Decline
+  send -a "Teams" -i $TEAMS -h string:category:call.incoming "Incoming call" "$X is calling you" -A answer=Answer -A decline=Decline
   step; step
 fi
 
 if want reminder; then
   echo "· calendar reminder"
-  send -a "Calendar" -i x-office-calendar -h string:category:calendar "Reunión con Octavio Paz · in 10 minutes" "16:00 – 17:00 · Sala de juntas"
+  send -a "Calendar" -i x-office-calendar -h string:category:calendar "Reunión con $Y · in 10 minutes" "16:00 – 17:00 · Sala de juntas"
   step
 fi
 
@@ -111,6 +124,14 @@ if want progress; then
   step
 fi
 
+if want download; then
+  echo "· download finished (scripts/wm/DownloadWatch.py)"
+  send -a Downloads -i x-office-document -h string:category:transfer.complete \
+    -A default=Open -A open=Open -A "folder=Show in folder" "Download complete" "presentacion.pdf
+24.0 MB"
+  step
+fi
+
 if want media; then
   echo "· now playing"
   send -a "Spotify" -i com.spotify.Client -h string:category:x-gnome.music "La puerta de al lado" "Los Rodríguez · Palabras más, palabras menos"
@@ -119,7 +140,7 @@ fi
 
 if want system; then
   echo "· system"
-  send -a "NetworkManager" -i network-wireless "Connected" "INFINITUM Wi-Fi"
+  send -a "NetworkManager" -i network-wireless "Connected" "Home Wi-Fi"
   step
 fi
 

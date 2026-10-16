@@ -74,6 +74,24 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: 0
 
+        // text: saved when Enter is pressed or it loses focus; empty = the default
+        TextField {
+            id: textCtl
+            visible: root.type === "text"
+            Layout.preferredWidth: 200
+            placeholder: root.row.placeholder ?? ""
+            text: root.type === "text" ? String(root.value ?? "") : ""
+            onAccepted: input.focus = false
+            Connections {
+                target: textCtl.input
+                function onEditingFinished() {
+                    if (root.type !== "text") return;
+                    const v = textCtl.text.trim() || Settings.defaults[root.row.key];
+                    if (v !== root.value) Settings.set(root.row.key, v);
+                    textCtl.text = Qt.binding(() => String(root.value ?? ""));
+                }
+            }
+        }
         Switch {
             visible: root.type === "switch"
             checked: !!root.value
@@ -381,9 +399,9 @@ Item {
             }
         }
         Chip {
-            text: "All"
+            text: "All at once"
             icon: "\uf0f3"
-            onClicked: { for (const t of Notifs.tests) Notifs.sendTest(t.id); }
+            onClicked: Notifs.sendAllTests()
         }
         // For a video: one after another, paced (scripts/wm/NotifDemo.sh)
         Chip {

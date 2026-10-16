@@ -29,6 +29,8 @@ Singleton {
         posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
         maxPopups: 3, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, downloadsThroughDnd: true, notifTheme: "panel",
         appRules: ({}),                                           // appName → place | "off" | "mute"
+        // Demos: the two people in the test notifications (scripts/wm/NotifDemo.sh)
+        demoPersonX: "Persona X", demoPersonY: "Persona Y",
         // Power & idle (system)
         dim: 300, warn: 540, lock: 600, screenOff: 630, suspend: 1200, mediaGuard: true,
         lidBattery: "suspend", lidAc: "lock", lidDocked: "nothing",  // scripts/wm/LaptopLid.sh
@@ -182,7 +184,7 @@ Singleton {
             { title: "Look", rows: [
                 { key: "notifTheme", label: "Colors", help: "Of the popups. Critical ones keep their dark look", type: "select",
                   opts: [["panel", "Same as the panel"], ["system", "Same as the system"], ["dark", "Dark"], ["light", "Light"], ["inverted", "Inverted"]] },
-                { label: "Try them", help: "A test notification of each kind, to see the look and where it appears. Demo: all of them one after another, for a video (scripts/wm/NotifDemo.sh)", type: "notiftests" } ] },
+                { label: "Try them", help: "Test notifications of every kind: Settings → Demos", type: "info", value: "Demos" } ] },
             { title: "Where popups appear", rows: [
                 { key: "posCall", label: "Calls", help: "Incoming calls ring until answered or declined", type: "select", opts: notifPlaces.filter(o => o[0] !== "off" && o[0] !== "island") },
                 { key: "posSecurity", label: "Security codes", help: "2FA / login codes (with a Copy button), sign-in alerts, password prompts", type: "select", opts: notifPlaces.filter(o => o[0] !== "island") },
@@ -283,6 +285,12 @@ Singleton {
                 { label: "Night light", type: "keys", value: ["SUPER", "N"] },
                 { label: "Choose a wallpaper", type: "keys", value: ["SUPER", "W"] },
                 { label: "All shortcuts (searchable)", type: "keys", value: ["SUPER", "H"] } ] } ] },
+        { id: "demos", icon: "\uf0c3", label: "Demos", lead: "Test notifications, to see how each kind looks and where it appears, or to record a video of the panel. They're marked as tests: no quick reply, and a click opens nothing.", groups: [
+            { title: "People in them", rows: [
+                { key: "demoPersonX", label: "Persona X", help: "Who sends the message and the mail, and who calls", type: "text", placeholder: "Persona X" },
+                { key: "demoPersonY", label: "Persona Y", help: "The group chat and the meeting reminder", type: "text", placeholder: "Persona Y" } ] },
+            { title: "Notifications", rows: [
+                { label: "Try them", help: "One kind, all at once, or the demo: every kind one after another, paced for a video after a 3 s countdown. From a terminal: scripts/wm/NotifDemo.sh (-k kinds, -x / -y names)", type: "notiftests" } ] } ] },
         { id: "about", icon: "", label: "About", lead: "This computer and this setup.", groups: [
             { title: "Device", rows: [
                 { label: "Model", type: "info", infoKey: "model" },

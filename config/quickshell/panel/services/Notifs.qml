@@ -466,30 +466,26 @@ Singleton {
     }
     function dismiss(n) { n.dismiss(); }
 
-    // --- Test notifications (Settings → Notifications → Try them) ---
-    // Marked x-lagos-test: no quick reply, and a click opens nothing
+    // --- Test notifications (Settings → Demos) ---
+    // scripts/wm/NotifDemo.sh is the one list: a kind alone, all at once, or all
+    // paced for a video. Marked x-lagos-test: no quick reply, a click opens nothing.
+    // The two people's names come from Settings → Demos
     readonly property var tests: [
-        { id: "message", label: "Message", args: ["-a", "Teams", "-h", "string:category:im.received", "Octavio Paz", "¿Puedes revisar la presentación antes de la clase?", "-A", "default=Open"] },
-        { id: "call", label: "Call", args: ["-a", "Teams", "-h", "string:category:call.incoming", "Incoming call", "Edith Flores is calling you", "-A", "answer=Answer", "-A", "decline=Decline"] },
-        { id: "reminder", label: "Reminder", args: ["-a", "Calendar", "-h", "string:category:calendar", "Reunión con Octavio Paz · in 10 minutes", "16:00 – 17:00 · Sala de juntas"] },
-        { id: "security", label: "Security code", args: ["-a", "Microsoft account", "Your security code", "Use 482913 to sign in. It expires in 10 minutes."] },
-        { id: "level", label: "Volume", args: ["-a", "Volume", "-h", "string:x-canonical-private-synchronous:volume", "-h", "int:value:65", "Volume"] },
-        { id: "progress", label: "Progress", args: ["-a", "Downloads", "-h", "int:value:40", "Downloading fedora.iso", "1.2 GB of 3.0 GB"] },
-        { id: "media", label: "Now playing", args: ["-a", "Spotify", "-h", "string:category:x-gnome.music", "La puerta de al lado", "Los Rodríguez"] },
-        { id: "system", label: "System", args: ["-a", "NetworkManager", "-i", "network-wireless", "Connected", "INFINITUM Wi-Fi"] },
-        { id: "critical", label: "Critical", args: ["-u", "critical", "-a", "Battery", "-i", "battery-caution", "Battery low", "5% left: plug in the charger"] }
+        { id: "message", label: "Message" }, { id: "group", label: "Group chat" }, { id: "mail", label: "Mail" },
+        { id: "call", label: "Call" }, { id: "reminder", label: "Reminder" }, { id: "code", label: "Security code" },
+        { id: "volume", label: "Volume" }, { id: "brightness", label: "Brightness" }, { id: "progress", label: "Progress" },
+        { id: "download", label: "Download" }, { id: "media", label: "Now playing" }, { id: "system", label: "System" },
+        { id: "critical", label: "Critical" }
     ]
     function isTest(n) { return n?.hints?.["x-lagos-test"] === true; }
-    function sendTest(id) {
-        const t = tests.find(x => x.id === id);
-        if (!t) return;
-        // With actions notify-send waits for an answer: in the background, at most a minute
-        Quickshell.execDetached(["timeout", "60", "notify-send", "-h", "boolean:x-lagos-test:true"].concat(t.args));
+    function demo(args) {
+        Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/NotifDemo.sh",
+            "-x", Settings.v.demoPersonX || "Persona X", "-y", Settings.v.demoPersonY || "Persona Y"].concat(args));
     }
-    // Every kind in a row, paced for a video (scripts/wm/NotifDemo.sh), after a 3 s countdown
-    function runDemo() {
-        Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/NotifDemo.sh", "-w", "3"]);
-    }
+    function sendTest(id) { demo(["-w", "0", "-p", "0", "-k", id]); }
+    function sendAllTests() { demo(["-w", "0", "-p", "0"]); }
+    // Every kind in a row, paced for a video, after a 3 s countdown
+    function runDemo() { demo(["-w", "3"]); }
     function clearAll() { for (const n of list.slice()) n.dismiss(); }
     function toggleDnd() { setDnd(!dnd, null); }
     // until: Date or null (until turned off)
