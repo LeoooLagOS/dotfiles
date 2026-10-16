@@ -647,13 +647,13 @@ the panel; `services/SystemSettings.qml` applies them:
 |---|---|
 | Idle timeouts, "not while media is playing" | writes `~/.config/lagos/hypridle.conf` (variables `source`d by `config/hypr/hypridle.conf`, which keeps the defaults) and restarts hypridle |
 | Battery alert levels | writes `~/.config/lagos/battery-alerts`, read by `scripts/wm/BatteryNotify.sh` every 30 s |
+| Closing the lid (on battery · plugged in · with an external monitor) | writes `~/.config/lagos/lid`, read by `scripts/wm/LaptopLid.sh` each time the lid closes; it acts only while `lagos-lid.service` holds logind's lid inhibitor ("Handled by" shows it), otherwise logind decides |
 | Power profile at login | set once per boot when the panel starts |
 | Wallpaper rotation | a timer picks a random wallpaper and applies it like the Wallpapers tab |
 | Blur | `scripts/wm/PanelBlur.sh on\|off\|toggle\|status`: saves `~/.config/lagos/panel-blur` (read by `UserConfigs/user_layer_rules.lua` when Hyprland loads) and replaces the two panel layer rules live with `hyprctl eval` |
 | Where menus open (rofi) | `scripts/wm/RofiPosition.sh bottom\|center\|toggle\|status`: writes `config/hypr/rofi/position.rasi` (imported last by the Lagos rofi theme) |
 | Colors from the wallpaper | `scripts/wm/WallustToggle.sh on\|off\|toggle\|status`: saves `~/.config/lagos/wallust`; when off, `WallustSwww.sh` updates the wallpaper links but skips wallust, so every caller (wallpaper picker, DarkLight, effects…) keeps the current palette; back on recolors from the current wallpaper |
 
-| Closing the lid (on battery · plugged in · with an external monitor) | writes `~/.config/lagos/lid`, read by `scripts/wm/LaptopLid.sh` each time the lid closes; it acts only while `lagos-lid.service` holds logind's lid inhibitor ("Handled by" shows it), otherwise logind decides |
 Blur and wallust can also be changed from a terminal or a keybind with those
 scripts; their state files are the source of truth and the Settings switches
 follow them. Opacity has a script too: `scripts/wm/PanelOpacity.sh 80 | +5 | -5 | status`
