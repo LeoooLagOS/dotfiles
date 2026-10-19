@@ -130,21 +130,24 @@ def main():
 
     result = build_command(args.file, args.type, args.csl, args.verbose)
 
-    if result:
-        command, output_name = result
-        print(f"🏗️  Building '{args.file}' using {args.type} template...")
+    if result is None:
+        sys.exit(1)
 
-        try:
-            # Execute Pandoc subprocess
-            subprocess.run(command, check=True)
-            print(f"✅ Success! Generated: {output_name}")
+    command, output_name = result
+    print(f"🏗️  Building '{args.file}' using {args.type} template...")
 
-            # Automatic preview using xdg-open for Fedora
-            subprocess.run(["xdg-open", output_name])
-        except subprocess.CalledProcessError:
-            print(
-                "❌ Error: Pandoc failed to compile. Check LaTeX syntax or use -v for more info."
-            )
+    try:
+        # Execute Pandoc subprocess
+        subprocess.run(command, check=True)
+        print(f"✅ Success! Generated: {output_name}")
+
+        # Automatic preview using xdg-open for Fedora
+        subprocess.run(["xdg-open", output_name])
+    except subprocess.CalledProcessError:
+        print(
+            "❌ Error: Pandoc failed to compile. Check LaTeX syntax or use -v for more info."
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":
