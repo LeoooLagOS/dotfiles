@@ -1,0 +1,47 @@
+# lag-os prompt uses terminal color palette and shows first three directories, "...", and
+# the last three (/usr/lib/x/.../d1/d2/d3, ~/Documents/x/.../d1/d2/d3). The home
+# directory counts as one directory, "~". "..." only appears when it hides at
+# least two directories; shorter paths are printed whole.
+add_newline = false
+format = "$hostname${custom.path}$git_branch$git_state$git_status\n$character"
+
+[character]
+error_symbol = "[❯](red)"
+success_symbol = "[❯](green)"
+vimcmd_symbol = "[❮](cyan)"
+
+[custom.path]
+when = true
+shell = ["bash", "--noprofile", "--norc"]
+command = """
+p=$PWD lead=/
+case $p in "$HOME" | "$HOME"/*) p="~${p#"$HOME"}" lead= ;; esac
+p=${p#/}
+[ -z "$p" ] && { echo /; exit; }
+IFS=/ read -ra d <<< "$p"
+n=${#d[@]}
+if (( n > 7 )); then
+    echo "$lead${d[0]}/${d[1]}/${d[2]}/.../${d[n-3]}/${d[n-2]}/${d[n-1]}"
+else
+    echo "$lead$p"
+fi
+"""
+format = "[$output]($style) "
+style = "blue"
+
+[git_branch]
+format = "on [$symbol$branch]($style) "
+style = "yellow"
+symbol = " "
+
+[git_state]
+format = "[$state( $progress_current/$progress_total)]($style) "
+style = "purple"
+
+[git_status]
+format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](bright-purple)($ahead_behind$stashed)]($style)"
+conflicted = "[󰀦](bold red)"
+deleted = "✘"
+renamed = ""
+stashed = "≡"
+style = "bright-green"
