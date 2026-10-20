@@ -8,7 +8,6 @@ A [LazyVim](https://www.lazyvim.org/)-based Neovim setup, linked to `~/.config/n
 | [`lua/`](lua/README.md) | Options, keymaps, autocommands and plugin specs |
 | `lazyvim.json` | Enabled LazyVim extras |
 | `lazy-lock.json` | Pinned plugin versions; commit it after `:Lazy update` |
-| `colors/dms.lua` | `dms` colorscheme for DankMaterialShell; needs the `AvengeMedia/base46` plugin and errors out without it |
 
 ## Enabled extras
 
