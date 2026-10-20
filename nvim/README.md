@@ -11,7 +11,7 @@ A [LazyVim](https://www.lazyvim.org/)-based Neovim setup, linked to `~/.config/n
 
 ## Enabled extras
 
-`lazyvim.json` turns on the fzf picker plus language support for Angular, Astro, C/C++ (clangd), CMake, Docker, .NET, Git, Go, Java, JSON, Kotlin, PHP, Python, R, Rust, SQL, Tailwind, Terraform, TOML, TypeScript and YAML. Manage them with `:LazyExtras`.
+`lazyvim.json` turns on the fzf picker plus language support for C/C++ (clangd), CMake, Docker, Git, Go, Java, JSON, Python, SQL, TypeScript, TOML and YAML. Manage them with `:LazyExtras`.
 
 ## Usage
 
