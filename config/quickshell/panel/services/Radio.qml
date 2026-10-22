@@ -81,7 +81,7 @@ Singleton {
         stdout: StdioCollector { id: searchOut }
         onExited: code => {
             root.searching = false;
-            if (code !== 0) { root.searchError = "The station directory didn't answer. Check the connection and try again."; return; }
+            if (code !== 0) { root.searchError = Tr.t("The station directory didn't answer. Check the connection and try again."); return; }
             try {
                 root.results = JSON.parse(searchOut.text).map(r => ({
                     name: r.name.trim(),
@@ -90,7 +90,7 @@ Singleton {
                               .filter(x => x && x.trim()).join(" · "),
                     logo: r.favicon || ""
                 })).filter(r => r.url);
-            } catch (e) { root.results = []; root.searchError = "Couldn't read the results."; }
+            } catch (e) { root.results = []; root.searchError = Tr.t("Couldn't read the results."); }
         }
     }
 
@@ -124,7 +124,7 @@ Singleton {
     function finishRecording() {
         if (!recording) return;
         recording = false;
-        Quickshell.execDetached(["notify-send", "-a", "Radio", "-i", "audio-x-generic", "Radio recording saved",
+        Quickshell.execDetached(["notify-send", "-a", "Radio", "-i", "audio-x-generic", Tr.t("Radio recording saved"),
                                  recordFile.replace(Quickshell.env("HOME"), "~")]);
     }
 

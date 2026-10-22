@@ -5,7 +5,7 @@ import "../../services"
 
 // DETAIL: game mode (scripts/wm/GameMode.sh)
 Zone {
-    title: "Game mode"
+    title: Tr.t("Game mode")
     icon: ""
     closable: true
     ColumnLayout {
@@ -13,7 +13,7 @@ Zone {
         spacing: 8
         RowLayout {
             Layout.fillWidth: true
-            Label { text: "Game mode"; font.pixelSize: 13; Layout.fillWidth: true }
+            Label { text: Tr.t("Game mode"); font.pixelSize: 13; Layout.fillWidth: true }
             Switch { checked: Toggles.game; enabled: !Toggles.gameBusy; onToggled: Toggles.toggleGame() }
         }
         Label {
@@ -21,7 +21,7 @@ Zone {
             wrapMode: Text.Wrap
             dim: true
             font.pixelSize: 11
-            text: "Turns off animations, blur, shadows, gaps and rounded corners in Hyprland for the best frame rate. Turning it off reloads Hyprland and your wallpaper colors."
+            text: Tr.t("Turns off animations, blur, shadows, gaps and rounded corners in Hyprland for the best frame rate. Turning it off reloads Hyprland and your wallpaper colors.")
         }
     }
 }

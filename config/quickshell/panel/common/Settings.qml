@@ -18,6 +18,7 @@ Singleton {
 
     readonly property var defaults: ({
         // Appearance (the theme is also set from Controls → Dark mode)
+        language: "system",                                      // common/Tr.qml
         alertMark: "auto", alertShape: "pill",                   // how warnings stand out (Theme.markOf)
         mode: "system", inverted: false, themeScope: "both", themeLaunchers: ["all"], opacity: 72, blur: true, animations: true, rofiPosition: "bottom",
         // Panel
@@ -119,6 +120,9 @@ Singleton {
     // Any row: `visibleIf: v => …` (v = Settings.v) shows it only when true.
     readonly property var sections: [
         { id: "appearance", icon: "", label: "Appearance", lead: "How the panel and the Rofi menus look. Changes apply right away.", groups: [
+            { title: "Language", rows: [
+                { key: "language", label: "Language", help: "Of the bar, the panel and their menus. System: the language chosen when installing", type: "seg",
+                  opts: [["system", "System"], ["en", "English"], ["es", "Español"]] } ] },
             { title: "Panel & launchers", rows: [
                 { key: "mode", label: "Mode", help: "Only the panel and Rofi: apps and browsers keep the system theme", type: "seg",
                   opts: [["system", "Follow system"], ["dark", "Dark"], ["light", "Light"]] },

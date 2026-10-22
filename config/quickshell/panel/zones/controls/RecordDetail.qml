@@ -6,7 +6,7 @@ import "../../services"
 // DETAIL: screen recording (services/Recorder.qml) — what, with which audio,
 // start / stop, and the recordings folder
 Zone {
-    title: "Screen recording"
+    title: Tr.t("Screen recording")
     icon: "\u{f044a}"
     closable: true
     Component.onCompleted: Recorder.checkInstalled()
@@ -21,7 +21,7 @@ Zone {
             Layout.fillWidth: true
             wrapMode: Text.Wrap
             font.pixelSize: 12
-            text: "Needs gpu-screen-recorder: sudo dnf install gpu-screen-recorder (Terra repo)."
+            text: Tr.t("Needs gpu-screen-recorder: sudo dnf install gpu-screen-recorder (Terra repo).")
         }
 
         RowLayout {
@@ -32,7 +32,7 @@ Zone {
                 Layout.fillWidth: true
                 enabled: !Recorder.recording
                 value: Settings.v.recTarget
-                options: [{ value: "screen", label: "Screen", icon: "\u{f0379}" }, { value: "region", label: "Region", icon: "\uf125" }]
+                options: [{ value: "screen", label: Tr.t("Screen"), icon: "\u{f0379}" }, { value: "region", label: Tr.t("Region"), icon: "\uf125" }]
                 onSelected: v => Settings.set("recTarget", v)
             }
             Segmented {
@@ -47,8 +47,8 @@ Zone {
             Layout.fillWidth: true
             enabled: !Recorder.recording
             value: Settings.v.recAudio
-            options: [{ value: "none", label: "No audio", icon: "\u{f0581}" }, { value: "system", label: "System", icon: "" },
-                      { value: "both", label: "System + mic", icon: "" }]
+            options: [{ value: "none", label: Tr.t("No audio"), icon: "\u{f0581}" }, { value: "system", label: Tr.t("System"), icon: "" },
+                      { value: "both", label: Tr.t("System + mic"), icon: "" }]
             onSelected: v => Settings.set("recAudio", v)
         }
         Label {
@@ -57,22 +57,22 @@ Zone {
             dim: true
             font.pixelSize: 11
             visible: text !== ""
-            text: Recorder.error ? "Last try failed: " + Recorder.error
-                : Recorder.recording ? "Recording · " + Recorder.elapsed + ". SUPER ALT Print or the tile stops it."
-                : Recorder.lastFile ? "Saved " + Recorder.lastFile.split("/").pop()
-                : Recorder.installed ? "The panel closes when it starts. SUPER ALT Print starts / stops." : ""
+            text: Recorder.error ? Tr.t("Last try failed: %1", Recorder.error)
+                : Recorder.recording ? Tr.t("Recording · %1. SUPER ALT Print or the tile stops it.", Recorder.elapsed)
+                : Recorder.lastFile ? Tr.t("Saved %1", Recorder.lastFile.split("/").pop())
+                : Recorder.installed ? Tr.t("The panel closes when it starts. SUPER ALT Print starts / stops.") : ""
         }
         RowLayout {
             spacing: 6
             Chip {
                 visible: Recorder.installed
-                text: Recorder.recording ? "Stop" : "Start recording"
+                text: Recorder.recording ? Tr.t("Stop") : Tr.t("Start recording")
                 icon: Recorder.recording ? "" : ""
                 filled: Recorder.recording
                 tint: Theme.bad
                 onClicked: Recorder.toggle()
             }
-            Chip { text: "Recordings"; icon: ""; onClicked: Recorder.openFolder() }
+            Chip { text: Tr.t("Recordings"); icon: ""; onClicked: Recorder.openFolder() }
         }
     }
 }

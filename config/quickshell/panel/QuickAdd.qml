@@ -57,7 +57,7 @@ Scope {
                     Label {
                         visible: Capture.source !== ""
                         Layout.fillWidth: true
-                        text: "From " + Capture.source
+                        text: Tr.t("From %1", Capture.source)
                         dim: true
                         font.pixelSize: 11
                         elide: Text.ElideRight
@@ -83,7 +83,7 @@ Scope {
                             Label {
                                 anchors.verticalCenter: parent.verticalCenter
                                 visible: !input.text
-                                text: "Add anything… “entregar reporte viernes 18:00”, “clase mañana de 10 a 12 @ CCO3 310”"
+                                text: Tr.t("Add anything… “entregar reporte viernes 18:00”, “clase mañana de 10 a 12 @ CCO3 310”")
                                 dim: true
                                 font.pixelSize: 15
                                 elide: Text.ElideRight
@@ -131,7 +131,7 @@ Scope {
 
                     Label {
                         Layout.fillWidth: true
-                        text: "Enter save  ·  Tab task ↔ event  ·  Esc close"
+                        text: Tr.t("Enter save  ·  Tab task ↔ event  ·  Esc close")
                         dim: true
                         font.pixelSize: 10
                         horizontalAlignment: Text.AlignRight

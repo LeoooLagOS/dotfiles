@@ -8,7 +8,7 @@ import "../services"
 // (drawn by Panel.qml over the zones below).
 Zone {
     id: root
-    title: "Notifications"
+    title: Tr.t("Notifications")
     icon: "\uf0f3"
     badge: Notifs.count > 0 ? String(Notifs.count) : ""
 
@@ -60,7 +60,7 @@ Zone {
         Glyph { text: Notifs.dnd ? "\uf1f6" : "\uf0f3"; color: Theme.fgDim; font.pixelSize: 16 }
         Label {
             Layout.fillWidth: true
-            text: Notifs.dnd ? "Do not disturb is on" : "You're all caught up"
+            text: Notifs.dnd ? Tr.t("Do not disturb is on") : Tr.t("You're all caught up")
             dim: true
         }
     }

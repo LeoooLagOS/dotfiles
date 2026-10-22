@@ -133,7 +133,7 @@ Item {
                         Label {
                             visible: parent.height >= 16
                             anchors.centerIn: parent
-                            text: "Free " + root.span(modelData[1] - modelData[0])
+                            text: Tr.t("Free %1", root.span(modelData[1] - modelData[0]))
                             color: Theme.withAlpha(Theme.good, 0.85)
                             font.pixelSize: 9
                             font.weight: Font.DemiBold

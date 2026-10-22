@@ -153,7 +153,7 @@ PanelWindow {
         Label {
             anchors.centerIn: parent
             visible: !root.d
-            text: "Reading the system…"
+            text: Tr.t("Reading the system…")
             dim: true
         }
 
@@ -173,13 +173,13 @@ PanelWindow {
                 ColumnLayout {
                     spacing: 0
                     Layout.fillWidth: true
-                    Label { text: "System monitor"; font.pixelSize: 14; font.weight: Font.DemiBold }
+                    Label { text: Tr.t("System monitor"); font.pixelSize: 14; font.weight: Font.DemiBold }
                     Label {
                         Layout.fillWidth: true
                         dim: true
                         font.pixelSize: 11
-                        text: root.d ? "up " + root.dur(root.d.uptime) + "  ·  load " + root.d.load.map(l => l.toFixed(2)).join("  ")
-                                       + "  ·  " + root.d.nprocs + " processes" : ""
+                        text: root.d ? Tr.t("up %1", root.dur(root.d.uptime)) + "  ·  " + Tr.t("load %1", root.d.load.map(l => l.toFixed(2)).join("  "))
+                                       + "  ·  " + Tr.t("%1 processes", root.d.nprocs) : ""
                     }
                 }
                 IconButton {
@@ -230,7 +230,7 @@ PanelWindow {
                         Label {
                             dim: true
                             font.pixelSize: 11
-                            text: root.d ? root.d.physCores + " cores · " + root.d.cores.length + " threads · " + root.busy + " busy" : ""
+                            text: root.d ? Tr.t("%1 cores · %2 threads · %3 busy", root.d.physCores, root.d.cores.length, root.busy) : ""
                         }
                     }
                 }
@@ -251,7 +251,7 @@ PanelWindow {
                         x: 12; y: 11
                         width: parent.width - 24
                         spacing: 8
-                        Head { text: "NETWORK" }
+                        Head { text: Tr.t("NETWORK") }
                         Item { Layout.fillWidth: true }
                         Label { text: root.d ? "↓ " + root.rate(root.d.net.rx) : ""; color: BarState.accent; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
                         Label { text: root.d ? "↑ " + root.rate(root.d.net.tx) : ""; color: Theme.accent2; font.pixelSize: 11; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
@@ -289,7 +289,7 @@ PanelWindow {
                         spacing: 6
                         RowLayout {
                             Layout.fillWidth: true
-                            Head { text: "MEMORY" }
+                            Head { text: Tr.t("MEMORY") }
                             Item { Layout.fillWidth: true }
                             Label { text: memBar.m ? root.size(memBar.m.used) + " / " + root.size(memBar.m.total) : ""; font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 } }
                         }
@@ -310,15 +310,15 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 12
-                            Label { text: "● used"; color: BarState.accent; font.pixelSize: 10 }
-                            Label { text: "● cache " + (memBar.m ? root.size(memBar.m.cache) : ""); color: Theme.accent2; font.pixelSize: 10 }
+                            Label { text: Tr.t("● used"); color: BarState.accent; font.pixelSize: 10 }
+                            Label { text: Tr.t("● cache %1", memBar.m ? root.size(memBar.m.cache) : ""); color: Theme.accent2; font.pixelSize: 10 }
                             Item { Layout.fillWidth: true }
-                            Label { text: "swap " + (memBar.m ? root.size(memBar.m.swapUsed) + " / " + root.size(memBar.m.swapTotal) : ""); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                            Label { text: Tr.t("swap") + " " + (memBar.m ? root.size(memBar.m.swapUsed) + " / " + root.size(memBar.m.swapTotal) : ""); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
                         }
                         Rectangle { Layout.fillWidth: true; Layout.topMargin: 4; Layout.bottomMargin: 4; height: 1; color: Theme.border }
                         RowLayout {
                             Layout.fillWidth: true
-                            Head { text: "STORAGE" }
+                            Head { text: Tr.t("STORAGE") }
                             Item { Layout.fillWidth: true }
                             Label { text: root.d ? "↓ " + root.rate(root.d.io.read) + "  ↑ " + root.rate(root.d.io.write) : ""; dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
                         }
@@ -346,14 +346,14 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             Layout.rightMargin: 16
-                            Head { text: "THREADS" }
+                            Head { text: Tr.t("THREADS") }
                             Label {
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignRight
                                 dim: true
                                 font.pixelSize: 10
                                 font.features: { "tnum": 1 }
-                                text: root.d ? (Math.min(...root.d.freqs) / 1000).toFixed(1) + "–" + (Math.max(...root.d.freqs) / 1000).toFixed(1) + " GHz now" : ""
+                                text: root.d ? (Math.min(...root.d.freqs) / 1000).toFixed(1) + "–" + (Math.max(...root.d.freqs) / 1000).toFixed(1) + " " + Tr.t("GHz now") : ""
                             }
                         }
                         GridLayout {
@@ -407,9 +407,9 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             Layout.rightMargin: 16
-                            Head { text: "INTERFACES" }
+                            Head { text: Tr.t("INTERFACES") }
                             Item { Layout.fillWidth: true }
-                            Label { text: "peak ↓ " + root.rate(Math.max(0, ...root.rxHist)); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
+                            Label { text: Tr.t("peak") + " ↓ " + root.rate(Math.max(0, ...root.rxHist)); dim: true; font.pixelSize: 10; font.features: { "tnum": 1 } }
                         }
                         Item {
                             Layout.fillWidth: true
@@ -429,7 +429,7 @@ PanelWindow {
                                     spacing: 6
                                     Glyph { text: nic.wifi ? "\u{f0928}" : "\u{f0200}"; font.pixelSize: 11; color: nic.up ? BarState.accent : Theme.fgDim }
                                     Label { text: nic.name; font.pixelSize: 11; font.weight: Font.DemiBold; font.family: "JetBrains Mono" }
-                                    Label { text: nic.ip || (nic.up ? "no IPv4" : "down"); dim: true; font.pixelSize: 10; font.family: "JetBrains Mono"; Layout.fillWidth: true }
+                                    Label { text: nic.ip || (nic.up ? Tr.t("no IPv4") : Tr.t("down")); dim: true; font.pixelSize: 10; font.family: "JetBrains Mono"; Layout.fillWidth: true }
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
@@ -438,7 +438,7 @@ PanelWindow {
                                     Label { text: "↓ " + root.rate(nic.rx); color: BarState.accent; font.pixelSize: 10; font.features: { "tnum": 1 } }
                                     Label { text: "↑ " + root.rate(nic.tx); color: Theme.accent2; font.pixelSize: 10; font.features: { "tnum": 1 } }
                                     Item { Layout.fillWidth: true }
-                                    Label { text: "total ↓ " + root.size(nic.rxTotal) + "  ↑ " + root.size(nic.txTotal); dim: true; font.pixelSize: 9; font.features: { "tnum": 1 } }
+                                    Label { text: Tr.t("total") + " ↓ " + root.size(nic.rxTotal) + "  ↑ " + root.size(nic.txTotal); dim: true; font.pixelSize: 9; font.features: { "tnum": 1 } }
                                 }
                             }
                         }
@@ -457,17 +457,17 @@ PanelWindow {
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
-                        Head { text: "PROCESSES" }
+                        Head { text: Tr.t("PROCESSES") }
                         Item { Layout.fillWidth: true }
                         TextField {
                             Layout.preferredWidth: 170
                             implicitHeight: 26
                             icon: ""
-                            placeholder: "Filter"
+                            placeholder: Tr.t("Filter")
                             onTextChanged: root.filter = text
                         }
                         Segmented {
-                            options: [{ value: "cpu", label: "CPU" }, { value: "mem", label: "Memory" }, { value: "name", label: "Name" }]
+                            options: [{ value: "cpu", label: "CPU" }, { value: "mem", label: Tr.t("Memory") }, { value: "name", label: Tr.t("Name") }]
                             value: root.sortKey
                             onSelected: v => root.sortKey = v
                         }
@@ -478,8 +478,8 @@ PanelWindow {
                         Layout.rightMargin: 8
                         spacing: 10
                         Head { text: "PID"; Layout.preferredWidth: 50; Layout.maximumWidth: 50 }
-                        Head { text: "NAME"; Layout.fillWidth: true; Layout.preferredWidth: 80 }
-                        Head { text: "MEMORY"; Layout.preferredWidth: 70; Layout.maximumWidth: 70; horizontalAlignment: Text.AlignRight }
+                        Head { text: Tr.t("NAME"); Layout.fillWidth: true; Layout.preferredWidth: 80 }
+                        Head { text: Tr.t("MEMORY"); Layout.preferredWidth: 70; Layout.maximumWidth: 70; horizontalAlignment: Text.AlignRight }
                         Head { text: "CPU"; Layout.preferredWidth: 84; Layout.maximumWidth: 84; horizontalAlignment: Text.AlignRight }
                         Item { Layout.preferredWidth: 40; Layout.maximumWidth: 40 }
                     }
@@ -525,7 +525,7 @@ PanelWindow {
                                     Label { text: prow.modelData.cpu.toFixed(1) + "%"; font.pixelSize: 11; font.features: { "tnum": 1 }; Layout.preferredWidth: 38; horizontalAlignment: Text.AlignRight
                                             color: prow.modelData.cpu >= 25 ? root.tint(prow.modelData.cpu, 25, 60) : Theme.fg }
                                 }
-                                // End it: × once, then "End?" (Shift: kill -9)
+                                // End it: × once, then Tr.t("End?") (Shift: kill -9)
                                 Rectangle {
                                     readonly property bool confirming: root.confirmPid === prow.modelData.pid
                                     Layout.preferredWidth: 40
@@ -536,7 +536,7 @@ PanelWindow {
                                     opacity: rowHover.hovered || confirming ? 1 : 0
                                     enabled: opacity > 0
                                     color: confirming ? Theme.bad : endMouse.containsMouse ? Theme.withAlpha(Theme.bad, 0.2) : "transparent"
-                                    Label { anchors.centerIn: parent; text: parent.confirming ? "End?" : "×"; font.pixelSize: parent.confirming ? 10 : 14
+                                    Label { anchors.centerIn: parent; text: parent.confirming ? Tr.t("End?") : "×"; font.pixelSize: parent.confirming ? 10 : 14
                                             font.weight: Font.DemiBold; color: parent.confirming ? Theme.onColor(Theme.bad) : Theme.bad }
                                     MouseArea {
                                         id: endMouse

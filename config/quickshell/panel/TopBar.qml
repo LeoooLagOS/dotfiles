@@ -364,7 +364,7 @@ Scope {
                             onClicked: b => {
                                 if (b === Qt.RightButton) {
                                     Notifs.toggleDnd();
-                                    BarState.say(Notifs.dnd ? "" : "", Notifs.dnd ? "Do Not Disturb on" : "Do Not Disturb off");
+                                    BarState.say(Notifs.dnd ? "" : "", Notifs.dnd ? Tr.t("Do Not Disturb on") : Tr.t("Do Not Disturb off"));
                                 } else win.openTab("Notifications");
                             }
                             Glyph { optical: true; visible: !bell.counting; text: Notifs.dnd ? "" : ""; font.pixelSize: 14; color: Notifs.dnd || bell.unread ? BarState.accent : Theme.fg }
@@ -390,7 +390,7 @@ Scope {
                         active: Toggles.caffeine
                         onClicked: {
                             Toggles.setCaffeine(!Toggles.caffeine, 0);
-                            BarState.say(Toggles.caffeine ? "" : "\u{f06ca}", Toggles.caffeine ? "Screen stays awake" : "Idle as usual");
+                            BarState.say(Toggles.caffeine ? "" : "\u{f06ca}", Toggles.caffeine ? Tr.t("Screen stays awake") : Tr.t("Idle as usual"));
                         }
                         Glyph { optical: true; text: Toggles.caffeine ? "" : "\u{f06ca}"; font.pixelSize: 14; color: Toggles.caffeine ? BarState.accent : Theme.fgDim }
                     }
@@ -418,32 +418,32 @@ Scope {
                                 visible: win.zone("cpu"); tipHost: tip
                                 compact: details.compactReadings
                                 icon: ""; text: SystemStats.cpu + "%"; level: win.lvl(SystemStats.cpu, 80, 95)
-                                tip: ({ title: "CPU", rows: [["Usage", SystemStats.cpu + " %"], ["Temperature", SystemStats.temp + " °C"]],
-                                        hist: SystemStats.cpuHist, hint: "Last minute · click: system monitor" })
+                                tip: ({ title: "CPU", rows: [[Tr.t("Usage"), SystemStats.cpu + " %"], [Tr.t("Temperature"), SystemStats.temp + " °C"]],
+                                        hist: SystemStats.cpuHist, hint: Tr.t("Last minute · click: system monitor") })
                             }
                             StatItem {
                                 id: ramItem
                                 visible: win.zone("ram"); tipHost: tip
                                 compact: details.compactReadings
                                 icon: "\uefc5"; text: SystemStats.memPct + "%"; level: win.lvl(SystemStats.memPct, 80, 92)
-                                tip: ({ title: "Memory", rows: [["In use", SystemStats.gb(SystemStats.memUsed) + " / " + SystemStats.gb(SystemStats.memTotal) + " GiB"]],
-                                        hist: SystemStats.memHist, hint: "Last minute · click: system monitor" })
+                                tip: ({ title: Tr.t("Memory"), rows: [[Tr.t("In use"), SystemStats.gb(SystemStats.memUsed) + " / " + SystemStats.gb(SystemStats.memTotal) + " GiB"]],
+                                        hist: SystemStats.memHist, hint: Tr.t("Last minute · click: system monitor") })
                             }
                             StatItem {
                                 id: diskItem
                                 visible: win.zone("disk"); tipHost: tip
                                 compact: details.compactReadings
                                 icon: "\uf0a0"; text: SystemStats.diskPct + "%"; level: win.lvl(SystemStats.diskPct, 90, 97)
-                                tip: ({ title: "Disk ( / )", rows: [["Used", SystemStats.gb(SystemStats.diskUsed) + " / " + SystemStats.gb(SystemStats.diskTotal) + " GiB"],
-                                                                    ["Free", SystemStats.gb(SystemStats.diskTotal - SystemStats.diskUsed) + " GiB"]] })
+                                tip: ({ title: Tr.t("Disk ( / )"), rows: [[Tr.t("Used"), SystemStats.gb(SystemStats.diskUsed) + " / " + SystemStats.gb(SystemStats.diskTotal) + " GiB"],
+                                                                    [Tr.t("Free"), SystemStats.gb(SystemStats.diskTotal - SystemStats.diskUsed) + " GiB"]] })
                             }
                             StatItem {
                                 id: tempItem
                                 visible: win.zone("temp"); tipHost: tip
                                 compact: details.compactReadings
                                 icon: ""; text: SystemStats.temp + "°"; level: win.lvl(SystemStats.temp, 80, 90)
-                                tip: ({ title: "CPU temperature", rows: [["Package", SystemStats.temp + " °C"]], hist: SystemStats.tempHist, min: 30, max: 100,
-                                        hint: "Last minute · click: system monitor" })
+                                tip: ({ title: Tr.t("CPU temperature"), rows: [[Tr.t("Package"), SystemStats.temp + " °C"]], hist: SystemStats.tempHist, min: 30, max: 100,
+                                        hint: Tr.t("Last minute · click: system monitor") })
                             }
                         }
 
@@ -459,7 +459,7 @@ Scope {
                             readonly property bool hasBat: !!bat && bat.isLaptopBattery
                             readonly property int pct: !bat ? 0 : Math.round(bat.percentage > 1 ? bat.percentage : bat.percentage * 100)
                             readonly property bool charging: bat?.state === UPowerDeviceState.Charging || bat?.state === UPowerDeviceState.FullyCharged
-                            function dur(s) { const h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60); return h ? h + " h " + m + " min" : m + " min"; }
+                            function dur(s) { const h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60); return h ? Tr.t("%1 h %2 min", h, m) : Tr.t("%1 min", m); }
                             visible: ["wifi", "bluetooth", "battery"].some(id => win.zone(id))
                             clickable: true
                             active: BarState.popupOn === win.screen.name
@@ -472,8 +472,8 @@ Scope {
                                 icon: !Networking.wifiEnabled ? "\u{f092d}" : !conn.wifiNet ? "\u{f092f}"
                                     : ["\u{f091f}", "\u{f0922}", "\u{f0925}", "\u{f0928}"][Math.min(3, Math.floor(conn.signal * 4))]
                                 iconSize: 14
-                                tip: ({ title: "Wi-Fi", rows: !Networking.wifiEnabled ? [["State", "Off"]] : conn.wifiNet
-                                        ? [["Network", conn.wifiNet.name], ["Signal", Math.round(conn.signal * 100) + " %"]] : [["State", "Not connected"]] })
+                                tip: ({ title: "Wi-Fi", rows: !Networking.wifiEnabled ? [[Tr.t("State"), Tr.t("Off")]] : conn.wifiNet
+                                        ? [[Tr.t("Network"), conn.wifiNet.name], [Tr.t("Signal"), Math.round(conn.signal * 100) + " %"]] : [[Tr.t("State"), Tr.t("Not connected")]] })
                             }
                             StatItem {
                                 id: btItem
@@ -482,9 +482,9 @@ Scope {
                                 icon: !conn.bt?.enabled ? "\u{f00b2}" : conn.btOn.length ? "\u{f00b1}" : ""
                                 text: conn.btOn.length > 0 ? String(conn.btOn.length) : ""
                                 iconSize: 13
-                                tip: ({ title: "Bluetooth", rows: !conn.bt?.enabled ? [["State", "Off"]]
-                                        : conn.btOn.length ? conn.btOn.map(d => [d.name, d.batteryAvailable ? Math.round(d.battery * 100) + " %" : "connected"])
-                                        : [["State", "No devices connected"]] })
+                                tip: ({ title: "Bluetooth", rows: !conn.bt?.enabled ? [[Tr.t("State"), Tr.t("Off")]]
+                                        : conn.btOn.length ? conn.btOn.map(d => [d.name, d.batteryAvailable ? Math.round(d.battery * 100) + " %" : Tr.t("connected")])
+                                        : [[Tr.t("State"), Tr.t("No devices connected")]] })
                             }
                             StatItem {
                                 id: batItem
@@ -494,12 +494,12 @@ Scope {
                                 iconSize: 14
                                 text: conn.pct + "%"
                                 level: conn.charging ? "" : conn.pct <= 10 ? "bad" : conn.pct <= 20 ? "warn" : ""
-                                tip: ({ title: "Battery", rows: [["Charge", conn.pct + " %"],
-                                        conn.bat?.state === UPowerDeviceState.FullyCharged ? ["State", "Full"]
-                                        : conn.bat?.state === UPowerDeviceState.Charging ? ["Full in", conn.dur(conn.bat.timeToFull)]
-                                        : ["Left", conn.bat?.timeToEmpty > 0 ? conn.dur(conn.bat.timeToEmpty) : "…"],
-                                        ["Profile", PowerProfiles.profile === PowerProfile.PowerSaver ? "Power saver"
-                                                  : PowerProfiles.profile === PowerProfile.Performance ? "Performance" : "Balanced"]] })
+                                tip: ({ title: Tr.t("Battery"), rows: [[Tr.t("Charge"), conn.pct + " %"],
+                                        conn.bat?.state === UPowerDeviceState.FullyCharged ? [Tr.t("State"), Tr.t("Full")]
+                                        : conn.bat?.state === UPowerDeviceState.Charging ? [Tr.t("Full in"), conn.dur(conn.bat.timeToFull)]
+                                        : [Tr.t("Left"), conn.bat?.timeToEmpty > 0 ? conn.dur(conn.bat.timeToEmpty) : "…"],
+                                        [Tr.t("Profile"), PowerProfiles.profile === PowerProfile.PowerSaver ? Tr.t("Power saver")
+                                                  : PowerProfiles.profile === PowerProfile.Performance ? Tr.t("Performance") : Tr.t("Balanced")]] })
                             }
                         }
 

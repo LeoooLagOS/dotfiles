@@ -46,7 +46,7 @@ RowLayout {
                     x: 8
                     spacing: 8
                     Glyph { text: ""; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
-                    Label { text: "Settings"; font.pixelSize: 14; font.weight: Font.Bold }
+                    Label { text: Tr.t("Settings"); font.pixelSize: 14; font.weight: Font.Bold }
                 }
                 MouseArea { id: backMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                             onClicked: PanelState.controlsView = "controls" }
@@ -72,7 +72,7 @@ RowLayout {
                         x: 10
                         spacing: 9
                         Glyph { text: navItem.modelData.icon; font.pixelSize: 12; width: 16; color: navItem.current ? Theme.tabIcon : Theme.fgDim; anchors.verticalCenter: parent.verticalCenter }
-                        Label { text: navItem.modelData.label; font.pixelSize: 12; font.weight: navItem.current ? Font.DemiBold : Font.Normal
+                        Label { text: Tr.t(navItem.modelData.label); font.pixelSize: 12; font.weight: navItem.current ? Font.DemiBold : Font.Normal
                                 color: navItem.current ? Theme.tabFg : Theme.fgDim; anchors.verticalCenter: parent.verticalCenter }
                     }
                     MouseArea { id: navMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -105,7 +105,7 @@ RowLayout {
 
                 RowLayout {
                     spacing: 10
-                    Label { text: root.section.label; font.pixelSize: 17; font.weight: Font.Bold }
+                    Label { text: Tr.t(root.section.label); font.pixelSize: 17; font.weight: Font.Bold }
                     Rectangle {
                         visible: !!root.section.system
                         implicitHeight: 18
@@ -113,10 +113,10 @@ RowLayout {
                         radius: 9
                         color: "transparent"
                         border.color: Theme.border
-                        Label { id: sysBadge; anchors.centerIn: parent; text: "APPLIES TO THE SYSTEM"; dim: true; font.pixelSize: 9; font.weight: Font.DemiBold; font.letterSpacing: 0.6 }
+                        Label { id: sysBadge; anchors.centerIn: parent; text: Tr.t("APPLIES TO THE SYSTEM"); dim: true; font.pixelSize: 9; font.weight: Font.DemiBold; font.letterSpacing: 0.6 }
                     }
                 }
-                Label { text: root.section.lead; dim: true; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap; Layout.topMargin: -6 }
+                Label { text: Tr.t(root.section.lead); dim: true; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap; Layout.topMargin: -6 }
 
                 Repeater {
                     model: root.section.groups
@@ -137,7 +137,7 @@ RowLayout {
                             width: parent.width
                             spacing: 0
                             Label {
-                                text: group.modelData.title.toUpperCase()
+                                text: Tr.t(group.modelData.title).toUpperCase()
                                 dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1
                                 Layout.leftMargin: 12; Layout.topMargin: 9; Layout.bottomMargin: 2
                             }
@@ -159,7 +159,7 @@ RowLayout {
 
                 Chip {
                     visible: root.resettable
-                    text: "Reset " + root.section.label + " to defaults"
+                    text: Tr.t("Reset %1 to defaults", Tr.t(root.section.label))
                     icon: ""
                     onClicked: Settings.reset(root.section.id)
                 }
@@ -197,13 +197,13 @@ RowLayout {
             id: toastRow
             anchors.centerIn: parent
             spacing: 12
-            Label { text: "Saved"; color: Theme.bgAlt; font.pixelSize: 12 }
+            Label { text: Tr.t("Saved"); color: Theme.bgAlt; font.pixelSize: 12 }
             Rectangle {
                 implicitHeight: 24
                 implicitWidth: undoLabel.implicitWidth + 20
                 radius: 12
                 color: Theme.bgAlt
-                Label { id: undoLabel; anchors.centerIn: parent; text: "Undo"; font.pixelSize: 12; font.weight: Font.Bold }
+                Label { id: undoLabel; anchors.centerIn: parent; text: Tr.t("Undo"); font.pixelSize: 12; font.weight: Font.Bold }
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor

@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import "../common"
 import Quickshell.Io
 
 // Screen brightness through brightnessctl. value is 0..1; read at start and
@@ -21,7 +22,7 @@ Singleton {
     function step(delta) {
         const pct = Math.max(5, Math.min(100, Math.round(root.value * 100) + delta));
         set(pct / 100);
-        Notifs.showLevel("brightness_notif", "Brightness", pct);
+        Notifs.showLevel("brightness_notif", Tr.t("Brightness"), pct);
     }
     Component.onCompleted: proc.running = true
 

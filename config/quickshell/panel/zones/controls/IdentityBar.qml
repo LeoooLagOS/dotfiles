@@ -56,9 +56,9 @@ Zone {
                 clip: true
                 Label { text: Profile.user + "@" + Profile.host + "  ·"; dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
                 Glyph { text: Profile.distroLogo; font.pixelSize: 11; color: Theme.accent; anchors.verticalCenter: parent.verticalCenter }
-                Label { text: (Profile.distroName ? Profile.distroName + " on " : "on ") + Profile.wm + "  ·"; dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                Label { text: (Profile.distroName ? Tr.t("%1 on %2", Profile.distroName, Profile.wm) : Tr.t("on %1", Profile.wm)) + "  ·"; dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
                 Glyph { text: ""; font.pixelSize: 10; color: Theme.fgDim; anchors.verticalCenter: parent.verticalCenter }
-                Label { text: "up " + SystemStats.uptime; dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                Label { text: Tr.t("up %1", SystemStats.uptime); dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
             }
         }
 
@@ -98,7 +98,7 @@ Zone {
                 x: 10
                 spacing: 6
                 Glyph { text: Notifs.dnd ? "\uf1f6" : "\uf0f3"; font.pixelSize: 12; color: Notifs.dnd ? Theme.accent : Theme.fgDim; anchors.verticalCenter: parent.verticalCenter }
-                Label { text: Notifs.dnd ? "DND · " + Notifs.dndStatus : "DND"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                Label { text: Notifs.dnd ? Tr.t("DND") + " · " + Notifs.dndStatus : Tr.t("DND"); font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
             }
             // › detail
             Rectangle {
@@ -141,7 +141,7 @@ Zone {
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Label {
-                    text: SystemStats.battery + "%" + (SystemStats.batteryStatus === "Charging" ? " · charging" : root.onAC ? " · AC" : "")
+                    text: SystemStats.battery + "%" + (SystemStats.batteryStatus === "Charging" ? " · " + Tr.t("charging") : root.onAC ? " · AC" : "")
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                     anchors.verticalCenter: parent.verticalCenter

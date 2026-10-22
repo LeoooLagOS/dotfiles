@@ -12,6 +12,7 @@ expr="${1:?usage: CalcPlot.sh EXPRESSION [XMIN XMAX]}"
 xmin="${2:--10}"
 xmax="${3:-10}"
 steps=600
+. "$(dirname "$(readlink -f "$0")")/lagos_i18n.sh"
 
 colors="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/wallust/colors-waybar.css"
 color() { sed -n "s/^ *@define-color $1 \(#[0-9A-Fa-f]\{6\}\).*/\1/p" "$colors" 2>/dev/null | head -1; }
@@ -26,7 +27,7 @@ trap 'rm -f "$data"' EXIT
 # qalc returns "[y1  y2  …]"; one x per value, complex/undefined → NaN (a gap)
 values="$(qalc -t "genvector($expr, $xmin, $xmax, $steps, x)" 2>/dev/null | tr -d '[]')"
 if [[ -z "${values// /}" ]]; then
-  notify-send -a Calculator "Can't plot" "y = $expr"
+  notify-send -a Calculator "$(t "Can't plot")" "y = $expr"
   exit 1
 fi
 awk -v a="$xmin" -v b="$xmax" -v n="$steps" '{

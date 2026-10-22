@@ -103,10 +103,10 @@ Singleton {
         const t = n ? received[n.id] : null;
         if (!t) return "";
         const s = Math.floor((clock.date - t) / 1000);
-        if (s < 60) return "now";
+        if (s < 60) return Tr.t("now");
         if (s < 3600) return Math.floor(s / 60) + "m";
         if (s < 86400) return Math.floor(s / 3600) + "h";
-        return Qt.formatDate(t, "MMM d");
+        return Tr.date(t, "MMM d");
     }
 
     // --- Classify / search / sort (Notifications tab) ---
@@ -511,10 +511,10 @@ Singleton {
         else return setDnd(true, null);
         setDnd(true, d);
     }
-    readonly property string dndStatus: !dnd ? "Off"
-        : dndScheduled ? "Quiet hours"
-        : dndUntil ? "Until " + Qt.formatTime(dndUntil, "HH:mm") + (dndUntil.getDate() !== clock.date.getDate() ? " tomorrow" : "")
-        : "Until turned off"
+    readonly property string dndStatus: !dnd ? Tr.t("Off")
+        : dndScheduled ? Tr.t("Quiet hours")
+        : dndUntil ? Tr.t(dndUntil.getDate() !== clock.date.getDate() ? "Until %1 tomorrow" : "Until %1", Qt.formatTime(dndUntil, "HH:mm"))
+        : Tr.t("Until turned off")
 
     // Every minute: end a timed DND, and follow the quiet-hours schedule
     function inQuietHours(now) {

@@ -32,7 +32,7 @@ Zone {
         height: root.inner
         spacing: 10
         Glyph { text: "\uf001"; color: Theme.fgDim; font.pixelSize: 18 }
-        Label { text: "Nothing playing"; dim: true; Layout.fillWidth: true }
+        Label { text: Tr.t("Nothing playing"); dim: true; Layout.fillWidth: true }
     }
 
     RowLayout {
@@ -72,7 +72,7 @@ Zone {
                     spacing: 0
                     Label {
                         Layout.fillWidth: true
-                        text: (root.player?.trackTitle || "Unknown title")
+                        text: (root.player?.trackTitle || Tr.t("Unknown title"))
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                     }

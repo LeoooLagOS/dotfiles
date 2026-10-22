@@ -8,7 +8,7 @@ import "../../services"
 // config; nwg-displays or a monitor profile keeps a layout.
 Zone {
     id: root
-    title: "Displays"
+    title: Tr.t("Displays")
     icon: "\u{f0379}"
     closable: true
     Component.onCompleted: Displays.refresh()
@@ -45,7 +45,7 @@ Zone {
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 0
-                            Label { text: card.m.name + (card.m.focused && !card.m.disabled ? "  ·  focused" : ""); font.pixelSize: 13; font.weight: Font.DemiBold }
+                            Label { text: card.m.name + (card.m.focused && !card.m.disabled ? "  ·  " + Tr.t("focused") : ""); font.pixelSize: 13; font.weight: Font.DemiBold }
                             Label { text: card.m.description; dim: true; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }
                         }
                         Switch {
@@ -85,12 +85,12 @@ Zone {
             dim: true
             font.pixelSize: 11
             text: Displays.error ? "Hyprland: " + Displays.error
-                : "Changes apply now and last until Hyprland reloads. To keep a layout, use nwg-displays or a monitor profile."
+                : Tr.t("Changes apply now and last until Hyprland reloads. To keep a layout, use nwg-displays or a monitor profile.")
         }
         RowLayout {
             spacing: 6
             Chip { text: "nwg-displays"; icon: ""; onClicked: Displays.openNwgDisplays() }
-            Chip { text: "Monitor profiles"; icon: "\u{f0379}"; onClicked: Displays.openProfiles() }
+            Chip { text: Tr.t("Monitor profiles"); icon: "\u{f0379}"; onClicked: Displays.openProfiles() }
         }
     }
 }

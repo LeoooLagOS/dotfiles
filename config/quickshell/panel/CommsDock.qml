@@ -112,10 +112,10 @@ Scope {
                     spacing: 2
                     Repeater {
                         model: !win.menuApp ? []
-                             : !win.menuApp.running ? [{ id: "open", label: "Open", icon: "\uf04b" }]
-                             : (win.menuApp.web ? [{ id: "reload", label: "Reload", icon: "\uf021" }] : []).concat([
-                                   { id: "restart", label: "Restart", icon: "\uf2f9" },
-                                   { id: "quit", label: "Quit", icon: "\uf011" }])
+                             : !win.menuApp.running ? [{ id: "open", label: Tr.t("Open"), icon: "\uf04b" }]
+                             : (win.menuApp.web ? [{ id: "reload", label: Tr.t("Reload"), icon: "\uf021" }] : []).concat([
+                                   { id: "restart", label: Tr.t("Restart"), icon: "\uf2f9" },
+                                   { id: "quit", label: Tr.t("Quit"), icon: "\uf011" }])
                         delegate: Rectangle {
                             required property var modelData
                             width: menuCol.width
@@ -254,11 +254,11 @@ Scope {
                                     anchors.centerIn: parent
                                     font.pixelSize: 12
                                     // With the keyboard: its number, and what Enter does
-                                    text: cell.modelData.restarting ? "Restarting " + cell.modelData.name + "…"
+                                    text: cell.modelData.restarting ? Tr.t("Restarting %1…", cell.modelData.name)
                                         : win.keys ? (cell.index + 1) + "  ·  " + cell.modelData.name
-                                                     + (cell.modelData.web ? "  ·  R reload" : "") + "  ·  ⇧R restart"
-                                        : cell.shown ? "Hide " + cell.modelData.name + "  ·  Super Y"
-                                        : cell.modelData.running ? cell.modelData.name : "Open " + cell.modelData.name
+                                                     + (cell.modelData.web ? "  ·  " + Tr.t("R reload") : "") + "  ·  " + Tr.t("⇧R restart")
+                                        : cell.shown ? Tr.t("Hide %1", cell.modelData.name) + "  ·  Super Y"
+                                        : cell.modelData.running ? cell.modelData.name : Tr.t("Open %1", cell.modelData.name)
                                 }
                             }
 

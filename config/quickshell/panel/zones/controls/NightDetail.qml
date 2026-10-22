@@ -5,7 +5,7 @@ import "../../services"
 
 // DETAIL: night light (hyprsunset) — color temperature
 Zone {
-    title: "Night light"
+    title: Tr.t("Night light")
     icon: ""
     closable: true
     ColumnLayout {
@@ -13,10 +13,10 @@ Zone {
         spacing: 8
         RowLayout {
             Layout.fillWidth: true
-            Label { text: "Night light"; font.pixelSize: 13; Layout.fillWidth: true }
+            Label { text: Tr.t("Night light"); font.pixelSize: 13; Layout.fillWidth: true }
             Switch { checked: Toggles.night; onToggled: Toggles.toggleNight() }
         }
-        Label { text: "COLOR TEMPERATURE"; dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+        Label { text: Tr.t("COLOR TEMPERATURE"); dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1 }
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
@@ -35,7 +35,7 @@ Zone {
             wrapMode: Text.Wrap
             dim: true
             font.pixelSize: 11
-            text: "Lower is warmer. Also toggled with SUPER N."
+            text: Tr.t("Lower is warmer. Also toggled with SUPER N.")
         }
     }
 }

@@ -38,5 +38,5 @@ Singleton {
         return icons.other;
     }
 
-    function describe(code) { return status[code] ?? "Unknown"; }
+    function describe(code) { return Tr.t(status[code] ?? "Unknown"); }
 }

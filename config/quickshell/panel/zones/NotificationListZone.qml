@@ -49,7 +49,7 @@ Zone {
             Row {
                 spacing: 8
                 Glyph { text: "\uf0f3"; font.pixelSize: 13; color: Theme.fgDim; anchors.verticalCenter: parent.verticalCenter }
-                Label { text: "NOTIFICATIONS"; dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1
+                Label { text: Tr.t("NOTIFICATIONS"); dim: true; font.pixelSize: 11; font.weight: Font.DemiBold; font.letterSpacing: 1
                         anchors.verticalCenter: parent.verticalCenter }
                 Rectangle {
                     visible: Notifs.count > 0
@@ -63,15 +63,15 @@ Zone {
             // Classify
             Dropdown {
                 icon: "\uf0b0"
-                prefix: "Show: "
+                prefix: Tr.t("Show: ")
                 value: root.filter
                 options: [
-                    { label: "All", value: "all" },
-                    { label: "Critical", value: "critical" },
-                    { label: "Messages", value: "message" },
-                    { label: "System", value: "system" },
-                    { label: "Other apps", value: "app" }
-                ].concat(Notifs.apps.map(a => ({ label: "App · " + a, value: "app:" + a })))
+                    { label: Tr.t("All"), value: "all" },
+                    { label: Tr.t("Critical"), value: "critical" },
+                    { label: Tr.t("Messages"), value: "message" },
+                    { label: Tr.t("System"), value: "system" },
+                    { label: Tr.t("Other apps"), value: "app" }
+                ].concat(Notifs.apps.map(a => ({ label: Tr.t("App · %1", a), value: "app:" + a })))
                 onSelected: v => root.filter = v
             }
 
@@ -105,7 +105,7 @@ Zone {
                         Label {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: !search.text && !search.activeFocus
-                            text: "Search notifications…"
+                            text: Tr.t("Search notifications…")
                             dim: true
                             font.pixelSize: 12
                         }
@@ -121,13 +121,13 @@ Zone {
             // Sort
             Dropdown {
                 icon: "\uf0dc"
-                prefix: "Sort: "
+                prefix: Tr.t("Sort: ")
                 value: root.sort
                 options: [
-                    { label: "Newest", value: "newest" },
-                    { label: "Oldest", value: "oldest" },
-                    { label: "App", value: "app" },
-                    { label: "Urgency", value: "urgency" }
+                    { label: Tr.t("Newest"), value: "newest" },
+                    { label: Tr.t("Oldest"), value: "oldest" },
+                    { label: Tr.t("App"), value: "app" },
+                    { label: Tr.t("Urgency"), value: "urgency" }
                 ]
                 onSelected: v => root.sort = v
             }
@@ -135,7 +135,7 @@ Zone {
             // Do not disturb
             Chip {
                 icon: Notifs.dnd ? "\uf1f6" : "\uf0f3"
-                text: "Do not disturb"
+                text: Tr.t("Do not disturb")
                 active: Notifs.dnd
                 onClicked: Notifs.toggleDnd()
             }
@@ -143,7 +143,7 @@ Zone {
             // Clear all (only what is shown when a filter/search is active)
             Chip {
                 visible: root.shown.length > 0
-                text: root.filter === "all" && root.query === "" ? "Clear all" : "Clear shown"
+                text: root.filter === "all" && root.query === "" ? Tr.t("Clear all") : Tr.t("Clear shown")
                 onClicked: Notifs.dismissAll(root.shown)
             }
         }
@@ -161,13 +161,13 @@ Zone {
                 Glyph { anchors.horizontalCenter: parent.horizontalCenter; text: Notifs.dnd ? "\uf1f6" : "\uf0f3"; font.pixelSize: 40; color: Theme.fgDim }
                 Label {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: Notifs.count === 0 ? "No notifications" : "Nothing matches"
+                    text: Notifs.count === 0 ? Tr.t("No notifications") : Tr.t("Nothing matches")
                     dim: true; font.pixelSize: 15
                 }
                 Label {
                     anchors.horizontalCenter: parent.horizontalCenter
                     visible: Notifs.dnd && Notifs.count === 0
-                    text: "Do not disturb is on — popups are muted"
+                    text: Tr.t("Do not disturb is on — popups are muted")
                     dim: true; font.pixelSize: 12
                 }
             }
@@ -208,7 +208,7 @@ Zone {
                                 Label { text: group.items.length; dim: true; font.pixelSize: 11; visible: group.items.length > 1 }
                                 Item { Layout.fillWidth: true }
                                 Label {
-                                    text: "Clear"
+                                    text: Tr.t("Clear")
                                     dim: !groupClear.containsMouse
                                     font.pixelSize: 11
                                     MouseArea { id: groupClear; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor

@@ -46,9 +46,9 @@ Item {
         anchors.fill: parent
         spacing: 10
 
-        Label { text: "New event"; font.pixelSize: 15; font.weight: Font.DemiBold }
+        Label { text: Tr.t("New event"); font.pixelSize: 15; font.weight: Font.DemiBold }
 
-        TextField { id: title; Layout.fillWidth: true; placeholder: "Title"; icon: ""; onAccepted: root.save() }
+        TextField { id: title; Layout.fillWidth: true; placeholder: Tr.t("Title"); icon: ""; onAccepted: root.save() }
 
         // Date + quick picks
         RowLayout {
@@ -56,7 +56,7 @@ Item {
             spacing: 6
             TextField { id: date; Layout.fillWidth: true; placeholder: "YYYY-MM-DD"; icon: ""; invalid: date.text !== "" && !root.dateOk }
             Repeater {
-                model: [{ label: "Today", days: 0 }, { label: "Tomorrow", days: 1 }]
+                model: [{ label: Tr.t("Today"), days: 0 }, { label: Tr.t("Tomorrow"), days: 1 }]
                 delegate: Chip {
                     required property var modelData
                     implicitHeight: 30
@@ -76,15 +76,15 @@ Item {
                 implicitHeight: 30
                 radius: 10
                 icon: root.allDay ? "\uf14a" : "\uf096"
-                text: "All day"
+                text: Tr.t("All day")
                 active: root.allDay
                 onClicked: root.allDay = !root.allDay
             }
-            TextField { id: start; Layout.fillWidth: true; visible: !root.allDay; placeholder: "Start 09:00"; icon: ""; invalid: !root.startOk }
-            TextField { id: end; Layout.fillWidth: true; visible: !root.allDay; placeholder: "End"; invalid: !root.endOk }
+            TextField { id: start; Layout.fillWidth: true; visible: !root.allDay; placeholder: Tr.t("Start 09:00"); icon: ""; invalid: !root.startOk }
+            TextField { id: end; Layout.fillWidth: true; visible: !root.allDay; placeholder: Tr.t("End"); invalid: !root.endOk }
         }
 
-        TextField { id: location; Layout.fillWidth: true; placeholder: "Location (optional)"; icon: ""; onAccepted: root.save() }
+        TextField { id: location; Layout.fillWidth: true; placeholder: Tr.t("Location (optional)"); icon: ""; onAccepted: root.save() }
 
         // Reminder
         RowLayout {
@@ -92,15 +92,15 @@ Item {
             visible: !root.allDay
             spacing: 8
             z: 2
-            Label { text: "Remind me"; dim: true; font.pixelSize: 11 }
+            Label { text: Tr.t("Remind me"); dim: true; font.pixelSize: 11 }
             Dropdown {
                 icon: ""
                 value: root.reminder
                 listWidth: 140
                 options: [
-                    { label: "No reminder", value: 0 }, { label: "5 min before", value: 5 },
-                    { label: "10 min before", value: 10 }, { label: "15 min before", value: 15 },
-                    { label: "30 min before", value: 30 }, { label: "1 hour before", value: 60 }
+                    { label: Tr.t("No reminder"), value: 0 }, { label: Tr.t("5 min before"), value: 5 },
+                    { label: Tr.t("10 min before"), value: 10 }, { label: Tr.t("15 min before"), value: 15 },
+                    { label: Tr.t("30 min before"), value: 30 }, { label: Tr.t("1 hour before"), value: 60 }
                 ]
                 onSelected: v => root.reminder = v
             }
@@ -126,7 +126,7 @@ Item {
             filled: true
             bold: true
             enabled: root.valid
-            text: "Save event"
+            text: Tr.t("Save event")
             onClicked: root.save()
         }
     }

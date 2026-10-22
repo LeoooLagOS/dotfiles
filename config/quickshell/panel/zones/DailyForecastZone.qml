@@ -7,13 +7,13 @@ import "../services"
 // the day's low–high range against the whole week's range.
 Zone {
     id: root
-    title: "7-day forecast"
+    title: Tr.t("7-day forecast")
     icon: "\uf073"
 
     readonly property real weekMin: Math.min(...Forecast.daily.map(d => d.min))
     readonly property real weekMax: Math.max(...Forecast.daily.map(d => d.max))
 
-    Label { visible: Forecast.daily.length === 0; text: Forecast.error || "Loading forecast…"; dim: true }
+    Label { visible: Forecast.daily.length === 0; text: Forecast.error || Tr.t("Loading forecast…"); dim: true }
 
     ColumnLayout {
         visible: Forecast.daily.length > 0
@@ -33,7 +33,7 @@ Zone {
 
                 Label {
                     Layout.preferredWidth: 56
-                    text: index === 0 ? "Today" : Qt.formatDate(new Date(modelData.date + "T12:00"), "ddd")
+                    text: index === 0 ? Tr.t("Today") : Tr.cap(Tr.date(new Date(modelData.date + "T12:00"), "ddd"))
                     color: index === 0 ? Theme.accent : Theme.fg
                     font.weight: index === 0 ? Font.DemiBold : Font.Normal
                     font.pixelSize: 13

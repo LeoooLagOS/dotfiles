@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../common"
 import "../common/When.js" as When
 
 // To-do list: tasks and ideas, stored as JSON in ~/.config/lagos/todo.json
@@ -44,12 +45,12 @@ Singleton {
         if (!it.done && it.repeat) {
             const next = When.nextDate(it.due, it.repeat);
             update(list => list.map(i => i.id === id ? Object.assign({}, i, { due: next }) : i));
-            BarState.say("\uf01e", "Done · next " + When.dayWord(next).toLowerCase(), () => root.restore(before));
+            BarState.say("\uf01e", Tr.t("Done · next %1", When.dayWord(next, null, Tr).toLowerCase()), () => root.restore(before));
             return;
         }
         update(list => list.map(i => i.id === id
             ? Object.assign({}, i, { done: !i.done, doneAt: !i.done ? new Date().toISOString() : "" }) : i));
-        if (!it.done) BarState.say("\uf00c", "Done: " + it.text, () => root.restore(before));
+        if (!it.done) BarState.say("\uf00c", Tr.t("Done: %1", it.text), () => root.restore(before));
     }
     function setRepeat(id, repeat) {
         update(list => list.map(i => i.id === id ? Object.assign({}, i, { repeat: repeat || "",
@@ -67,7 +68,7 @@ Singleton {
     function remove(id) {
         const before = items, it = items.find(i => i.id === id);
         update(list => list.filter(i => i.id !== id));
-        if (it) BarState.say("\uf1f8", "Removed: " + it.text, () => root.restore(before));
+        if (it) BarState.say("\uf1f8", Tr.t("Removed: %1", it.text), () => root.restore(before));
     }
     function clearDone() { update(list => list.filter(i => !i.done)); }
 

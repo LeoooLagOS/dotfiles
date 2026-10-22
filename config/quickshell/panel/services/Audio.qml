@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Pipewire
+import "../common"
 
 // Default output / input (PipeWire), the devices to choose from, and short
 // names for them ("Jabra EVOLVE 20" instead of "Jabra EVOLVE 20 MS Analog Stereo").
@@ -18,8 +19,8 @@ Singleton {
     PwObjectTracker { objects: [root.sink, root.source] }
 
     function name(node) {
-        if (!node) return "None";
-        let s = node.nickname || node.description || node.name || "Unknown";
+        if (!node) return Tr.t("None");
+        let s = node.nickname || node.description || node.name || Tr.t("Unknown");
         s = s.replace(/ (Analog|Digital) (Stereo|Mono|Surround.*)$/, "")
              .replace(/ \((Stereo|Mono)\)$/, "")
              .replace(/^.*High Definition Audio Controller /, "")
@@ -58,11 +59,11 @@ Singleton {
         const a = source?.audio;
         if (!a) return;
         a.muted = !a.muted;
-        Notifs.showLevel("mic_notif", "Microphone", a.muted ? 0 : Math.round(a.volume * 100), a.muted ? "Muted" : "");
+        Notifs.showLevel("mic_notif", Tr.t("Microphone"), a.muted ? 0 : Math.round(a.volume * 100), a.muted ? Tr.t("Muted") : "");
     }
     function showVolume() {
         const a = sink?.audio;
-        Notifs.showLevel("volume_notif", "Volume", a.muted ? 0 : Math.round(a.volume * 100), a.muted ? "Muted" : "");
+        Notifs.showLevel("volume_notif", Tr.t("Volume"), a.muted ? 0 : Math.round(a.volume * 100), a.muted ? Tr.t("Muted") : "");
     }
 
     function useSink(node) { Pipewire.preferredDefaultAudioSink = node; }

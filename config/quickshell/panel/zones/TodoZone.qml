@@ -15,7 +15,7 @@ import "../common/When.js" as When
 // Keyboard: Tab to a row, Space completes, Enter edits, Delete removes, Ctrl+C copies an idea.
 Zone {
     id: root
-    title: "To-do"
+    title: Tr.t("To-do")
     icon: ""
     badge: Todos.openCount > 0 ? String(Todos.openCount) : ""
 
@@ -45,7 +45,7 @@ Zone {
             visible: Todos.doneCount > 0
             implicitHeight: 24
             fontSize: 10
-            text: "Clear done (" + Todos.doneCount + ")"
+            text: Tr.t("Clear done (%1)", Todos.doneCount)
             onClicked: Todos.clearDone()
         }
     ]
@@ -60,7 +60,7 @@ Zone {
             Layout.fillWidth: true
             spacing: 4
             Repeater {
-                model: [{ label: "All", value: "all" }, { label: "Tasks", value: "task" }, { label: "Ideas", value: "idea" }]
+                model: [{ label: Tr.t("All"), value: "all" }, { label: Tr.t("Tasks"), value: "task" }, { label: Tr.t("Ideas"), value: "idea" }]
                 delegate: Chip {
                     required property var modelData
                     Layout.fillWidth: true
@@ -81,7 +81,7 @@ Zone {
                 id: input
                 Layout.fillWidth: true
                 Layout.minimumWidth: 0
-                placeholder: root.newKind === "idea" ? "New idea…" : "New task…"
+                placeholder: root.newKind === "idea" ? Tr.t("New idea…") : Tr.t("New task…")
                 icon: root.newKind === "idea" ? "\uf0eb" : "\uf067"
                 onAccepted: root.addCurrent()
             }
@@ -92,7 +92,7 @@ Zone {
         Label {
             visible: !!root.parsed && (root.parsed.date !== "" || root.parsed.repeat !== "")
             Layout.fillWidth: true
-            text: root.parsed ? When.describe(root.parsed).slice(1).map(c => c.text).join("  ·  ") + "  →  “" + root.parsed.title + "”" : ""
+            text: root.parsed ? When.describe(root.parsed, null, Tr).slice(1).map(c => c.text).join("  ·  ") + "  →  “" + root.parsed.title + "”" : ""
             color: Theme.accent2
             font.pixelSize: 10
             elide: Text.ElideRight
@@ -102,10 +102,10 @@ Zone {
             spacing: 4
             Repeater {
                 model: [
-                    { label: "Task", group: "kind", value: "task", icon: "\uf0ae" },
-                    { label: "Idea", group: "kind", value: "idea", icon: "\uf0eb" },
-                    { label: "Today", group: "due", value: "today", icon: "\uf073" },
-                    { label: "Tomorrow", group: "due", value: "tomorrow", icon: "" }
+                    { label: Tr.t("Task"), group: "kind", value: "task", icon: "\uf0ae" },
+                    { label: Tr.t("Idea"), group: "kind", value: "idea", icon: "\uf0eb" },
+                    { label: Tr.t("Today"), group: "due", value: "today", icon: "\uf073" },
+                    { label: Tr.t("Tomorrow"), group: "due", value: "tomorrow", icon: "" }
                 ]
                 delegate: Chip {
                     required property var modelData
@@ -142,7 +142,7 @@ Zone {
                 required property var modelData
                 Layout.fillWidth: true
                 spacing: 4
-                Label { text: "FROM " + group.modelData.name.toUpperCase(); dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+                Label { text: Tr.t("FROM %1", group.modelData.name).toUpperCase(); dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1 }
                 Repeater {
                     model: group.modelData.items
                     delegate: DeadlineRow { required property var modelData; item: modelData; width: group.width }
@@ -230,14 +230,14 @@ Zone {
                             visible: row.modelData.kind === "idea" || row.modelData.due !== "" || (!row.modelData.done && rowMouse.containsMouse)
                             Label {
                                 visible: row.modelData.kind === "idea"
-                                text: "• Idea"
+                                text: Tr.t("• Idea")
                                 color: Theme.accent2
                                 font.pixelSize: 9
                             }
                             Label {
                                 visible: row.modelData.kind !== "idea" && (row.modelData.due !== "" || !row.modelData.done)
                                 readonly property var asDeadline: ({ due: Todos.dueAt(row.modelData), dateOnly: !row.modelData.time })
-                                text: row.modelData.due ? "⏰ " + Events.dueText(asDeadline) + (row.modelData.repeat ? "  \uf01e" : "") : "+ date"
+                                text: row.modelData.due ? "⏰ " + Events.dueText(asDeadline) + (row.modelData.repeat ? "  \uf01e" : "") : Tr.t("+ date")
                                 color: row.modelData.done || !row.modelData.due ? Theme.fgDim : Events.dueColor(asDeadline)
                                 font.pixelSize: 9
                                 MouseArea { anchors.fill: parent; anchors.margins: -3; enabled: !row.modelData.done
@@ -283,7 +283,7 @@ Zone {
             Label {
                 anchors.centerIn: parent
                 visible: list.count === 0
-                text: root.filter === "idea" ? "No ideas yet" : root.filter === "task" ? "No tasks" : "Nothing to do"
+                text: root.filter === "idea" ? Tr.t("No ideas yet") : root.filter === "task" ? Tr.t("No tasks") : Tr.t("Nothing to do")
                 dim: true
                 font.pixelSize: 12
             }

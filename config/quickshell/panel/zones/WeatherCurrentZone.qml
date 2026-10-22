@@ -7,10 +7,10 @@ import "../services"
 // feels-like, sunrise/sunset beside them, and six detail tiles:
 // High/Low, Humidity, Wind, Pressure, Rain chance, Visibility.
 Zone {
-    title: Weather.place || "Weather"
+    title: Weather.place || Tr.t("Weather")
     icon: "\uf041"
 
-    Label { visible: !Weather.ready; text: "Loading weather…"; dim: true }
+    Label { visible: !Weather.ready; text: Tr.t("Loading weather…"); dim: true }
 
     ColumnLayout {
         visible: Weather.ready
@@ -27,7 +27,7 @@ Zone {
                 Layout.fillWidth: true
                 spacing: 1
                 Label { text: Weather.description; font.pixelSize: 14; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                Label { text: "Feels like " + Math.round(Weather.feelsLike) + "°C"; dim: true; font.pixelSize: 12; Layout.fillWidth: true }
+                Label { text: Tr.t("Feels like %1", Math.round(Weather.feelsLike) + "°C"); dim: true; font.pixelSize: 12; Layout.fillWidth: true }
             }
             // Sunrise / sunset
             GridLayout {
@@ -50,12 +50,12 @@ Zone {
 
             Repeater {
                 model: [
-                    { icon: "\uf2c9", label: "High / Low", value: Math.round(Weather.high) + "° / " + Math.round(Weather.low) + "°" },
-                    { icon: "\uf043", label: "Humidity", value: Weather.humidity + "%" },
-                    { icon: "\u{f059d}", label: "Wind", value: Math.round(Weather.wind) + " km/h " + Weather.windCompass },
-                    { icon: "\uf0c3", label: "Pressure", value: Math.round(Weather.pressure) + " hPa" },
-                    { icon: "\uf0e9", label: "Rain chance", value: (Forecast.daily[0]?.rain ?? 0) + "%", color: Theme.rain },
-                    { icon: "\uf06e", label: "Visibility", value: Weather.visibility.toFixed(1) + " km" }
+                    { icon: "\uf2c9", label: Tr.t("High / Low"), value: Math.round(Weather.high) + "° / " + Math.round(Weather.low) + "°" },
+                    { icon: "\uf043", label: Tr.t("Humidity"), value: Weather.humidity + "%" },
+                    { icon: "\u{f059d}", label: Tr.t("Wind"), value: Math.round(Weather.wind) + " km/h " + Weather.windCompass },
+                    { icon: "\uf0c3", label: Tr.t("Pressure"), value: Math.round(Weather.pressure) + " hPa" },
+                    { icon: "\uf0e9", label: Tr.t("Rain chance"), value: (Forecast.daily[0]?.rain ?? 0) + "%", color: Theme.rain },
+                    { icon: "\uf06e", label: Tr.t("Visibility"), value: Weather.visibility.toFixed(1) + " km" }
                 ]
                 delegate: Rectangle {
                     required property var modelData

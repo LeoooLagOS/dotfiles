@@ -5,7 +5,7 @@ import "../../services"
 
 // DETAIL: airplane mode
 Zone {
-    title: "Airplane mode"
+    title: Tr.t("Airplane mode")
     icon: ""
     closable: true
     ColumnLayout {
@@ -13,7 +13,7 @@ Zone {
         spacing: 8
         RowLayout {
             Layout.fillWidth: true
-            Label { text: "Airplane mode"; font.pixelSize: 13; Layout.fillWidth: true }
+            Label { text: Tr.t("Airplane mode"); font.pixelSize: 13; Layout.fillWidth: true }
             Switch { checked: Toggles.airplane; onToggled: Toggles.toggleAirplane() }
         }
         Label {
@@ -21,7 +21,7 @@ Zone {
             wrapMode: Text.Wrap
             dim: true
             font.pixelSize: 11
-            text: "Turns off Wi-Fi and Bluetooth together. Turning it off brings back the ones that were on before."
+            text: Tr.t("Turns off Wi-Fi and Bluetooth together. Turning it off brings back the ones that were on before.")
         }
     }
 }

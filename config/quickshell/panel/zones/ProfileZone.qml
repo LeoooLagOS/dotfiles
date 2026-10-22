@@ -72,14 +72,14 @@ Zone {
             Row {
                 spacing: 6
                 Glyph { text: Profile.distroLogo; font.pixelSize: 12; color: Theme.accent; anchors.verticalCenter: parent.verticalCenter }
-                Label { text: "on " + Profile.wm; dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                Label { text: Tr.t("on %1", Profile.wm); dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
             }
 
             // Uptime
             Row {
                 spacing: 6
                 Glyph { text: "\uf017"; font.pixelSize: 10; color: Theme.fgDim; anchors.verticalCenter: parent.verticalCenter }
-                Label { text: "up " + SystemStats.uptime; dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
+                Label { text: Tr.t("up %1", SystemStats.uptime); dim: true; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
             }
         }
     }

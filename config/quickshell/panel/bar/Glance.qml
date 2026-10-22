@@ -86,7 +86,7 @@ BarPill {
                            + (root.player?.trackArtist ? "  ·  " + root.esc(root.player.trackArtist) : "")
             : "·  " + [root.esc(Weather.description),
                        "↑" + Math.round(Weather.high) + "° ↓" + Math.round(Weather.low) + "°",
-                       root.rain > 0 ? "rain " + root.rain + "%" : "",
+                       root.rain > 0 ? Tr.t("rain %1", root.rain + "%") : "",
                        root.esc(Weather.place)].filter(s => s).join("  ·  ")
         dim: !root.call && !root.track
         // Its text (centered in the pill), up to the rest of the pill

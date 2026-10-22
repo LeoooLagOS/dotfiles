@@ -97,7 +97,7 @@ Item {
                     QuickTile {
                         Layout.fillWidth: true
                         icon: ""
-                        label: "Caffeine"
+                        label: Tr.t("Caffeine")
                         status: Toggles.caffeineStatus
                         active: Toggles.caffeine
                         selected: PanelState.controlsPopover === "caffeine"
@@ -110,8 +110,8 @@ Item {
                         id: popoverAnchor        // top-left of the popover area
                         Layout.fillWidth: true
                         icon: ""
-                        label: "Airplane mode"
-                        status: Toggles.airplane ? "Wi-Fi and Bluetooth off" : "Off"
+                        label: Tr.t("Airplane mode")
+                        status: Toggles.airplane ? Tr.t("Wi-Fi and Bluetooth off") : Tr.t("Off")
                         active: Toggles.airplane
                         selected: PanelState.controlsDetail === "airplane"
                         onToggled: Toggles.toggleAirplane()
@@ -123,7 +123,7 @@ Item {
                         label: "Wi-Fi"
                         // "VPN · " first: long network names get cut at the end
                         status: (Vpn.active ? "VPN · " : "")
-                                + (!Networking.wifiEnabled ? "Off" : root.wifiNetwork ? root.wifiNetwork.name : "Not connected")
+                                + (!Networking.wifiEnabled ? Tr.t("Off") : root.wifiNetwork ? root.wifiNetwork.name : Tr.t("Not connected"))
                         active: Networking.wifiEnabled
                         selected: PanelState.controlsDetail === "wifi"
                         onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
@@ -132,8 +132,8 @@ Item {
                     QuickTile {
                         Layout.fillWidth: true
                         icon: ""
-                        label: "Night light"
-                        status: Toggles.night ? Settings.v.nightTemp + " K" : "Off"
+                        label: Tr.t("Night light")
+                        status: Toggles.night ? Settings.v.nightTemp + " K" : Tr.t("Off")
                         active: Toggles.night
                         selected: PanelState.controlsPopover === "night"
                         onToggled: Toggles.toggleNight()
@@ -142,8 +142,8 @@ Item {
                     QuickTile {
                         Layout.fillWidth: true
                         icon: ""
-                        label: "Game mode"
-                        status: Toggles.gameBusy ? "Switching…" : Toggles.game ? "No animations or blur" : "Off"
+                        label: Tr.t("Game mode")
+                        status: Toggles.gameBusy ? Tr.t("Switching…") : Toggles.game ? Tr.t("No animations or blur") : Tr.t("Off")
                         active: Toggles.game
                         selected: PanelState.controlsDetail === "game"
                         onToggled: if (!Toggles.gameBusy) Toggles.toggleGame()
@@ -153,10 +153,10 @@ Item {
                         Layout.fillWidth: true
                         icon: ""
                         label: "Bluetooth"
-                        status: !root.btAdapter?.enabled ? "Off"
+                        status: !root.btAdapter?.enabled ? Tr.t("Off")
                               : root.btConnected.length === 1 ? root.btConnected[0].name
-                              : root.btConnected.length > 1 ? root.btConnected.length + " devices"
-                              : "No devices connected"
+                              : root.btConnected.length > 1 ? Tr.t("%1 devices", root.btConnected.length)
+                              : Tr.t("No devices connected")
                         active: root.btAdapter?.enabled ?? false
                         selected: PanelState.controlsDetail === "bt"
                         onToggled: root.toggleBluetooth()
@@ -165,10 +165,10 @@ Item {
                     QuickTile {
                         Layout.fillWidth: true
                         icon: Recorder.recording ? "\uf04d" : "\u{f044a}"
-                        label: Recorder.recording ? "Recording" : "Screen record"
-                        status: !Recorder.installed ? "Not installed"
-                              : Recorder.recording ? "\u25cf " + Recorder.elapsed + " · click to stop"
-                              : Settings.v.recTarget === "region" ? "Region" : "Whole screen"
+                        label: Recorder.recording ? Tr.t("Recording") : Tr.t("Screen record")
+                        status: !Recorder.installed ? Tr.t("Not installed")
+                              : Recorder.recording ? "\u25cf " + Tr.t("%1 · click to stop", Recorder.elapsed)
+                              : Settings.v.recTarget === "region" ? Tr.t("Region") : Tr.t("Whole screen")
                         active: Recorder.recording
                         selected: PanelState.controlsPopover === "rec"
                         onToggled: Recorder.installed ? Recorder.toggle() : root.showPopover("rec")
@@ -177,7 +177,7 @@ Item {
                     QuickTile {
                         Layout.fillWidth: true
                         icon: "\u{f0379}"
-                        label: Displays.enabled.length > 1 ? Displays.enabled.length + " displays" : "Display"
+                        label: Displays.enabled.length > 1 ? Tr.t("%1 displays", Displays.enabled.length) : Tr.t("Display")
                         status: Displays.primary ? Displays.primary.width + "×" + Displays.primary.height + " · "
                                                    + Math.round(Displays.primary.refresh) + " Hz"
                                                    + (Displays.primary.scale !== 1 ? " · " + Displays.primary.scale + "×" : "")
@@ -190,9 +190,9 @@ Item {
                     QuickTile {
                         Layout.fillWidth: true
                         icon: Theme.chosenLight ? "" : ""
-                        label: Theme.chosenLight ? "Light mode" : "Dark mode"
-                        status: ({ panel: "Panel", both: "Panel & launchers", launchers: "Launchers" })[Theme.scope]
-                                + (Theme.chosenInverted ? " · inverted" : "")
+                        label: Theme.chosenLight ? Tr.t("Light mode") : Tr.t("Dark mode")
+                        status: ({ panel: Tr.t("Panel"), both: Tr.t("Panel & launchers"), launchers: Tr.t("Launchers") })[Theme.scope]
+                                + (Theme.chosenInverted ? " · " + Tr.t("inverted") : "")
                         active: !Theme.chosenLight
                         selected: PanelState.controlsDetail === "dark"
                         hasSettings: true

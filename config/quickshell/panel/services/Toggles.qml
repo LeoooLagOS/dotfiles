@@ -55,8 +55,8 @@ Singleton {
         repeat: true
         onTriggered: if (new Date() >= root.caffeineUntil) root.setCaffeine(false, 0)
     }
-    readonly property string caffeineStatus: !caffeine ? "Off"
-        : caffeineUntil ? "Until " + Qt.formatTime(caffeineUntil, "HH:mm") : "Until turned off"
+    readonly property string caffeineStatus: !caffeine ? Tr.t("Off")
+        : caffeineUntil ? Tr.t("Until %1", Qt.formatTime(caffeineUntil, "HH:mm")) : Tr.t("Until turned off")
 
     // ---------------- Airplane mode ----------------
     property bool wifiBlocked: false

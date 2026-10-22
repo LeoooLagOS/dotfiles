@@ -169,7 +169,7 @@ Singleton {
               --arg versions "$(hyprctl version 2>/dev/null | awk 'NR==1{print $2}') · $(qs --version 2>/dev/null | awk '{print $2}')" \\
               --arg dotfiles "$(git -C ~/dotfiles log -1 --format='%h · %s' 2>/dev/null)" \\
               --arg weatherHome "$(cat ~/.config/lagos/weather-home 2>/dev/null || echo 'Automatic (IP)')" \\
-              --arg calendars "Evolution webcal + $cals .ics file(s)" \\
+              --arg cals "$cals" \\
               --arg lidService "$(systemctl --user is-active --quiet lagos-lid.service && echo 'This session (lagos-lid.service)' || echo 'logind (lagos-lid.service is not running)')" \\
               '$ARGS.named'
         `]
@@ -180,6 +180,9 @@ Singleton {
     // Wallpaper info comes from the Wallpapers service
     readonly property var info: Object.assign({}, about, {
         wallpaperDir: Config.wallpaperDir.replace("$HOME", "~"),
-        wallpaper: Wallpapers.current ? Wallpapers.current.split("/").pop() : "—"
+        wallpaper: Wallpapers.current ? Wallpapers.current.split("/").pop() : "—",
+        calendars: about.cals === undefined ? "…" : Tr.t("Evolution webcal + %1 .ics file(s)", about.cals),
+        weatherHome: about.weatherHome === undefined ? "…" : Tr.t(about.weatherHome),
+        lidService: about.lidService === undefined ? "…" : Tr.t(about.lidService)
     })
 }

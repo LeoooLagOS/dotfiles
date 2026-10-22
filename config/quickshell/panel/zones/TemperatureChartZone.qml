@@ -9,7 +9,7 @@ import "../services"
 // sunset markers, and rain chance + hour labels along the bottom.
 Zone {
     id: root
-    title: "Next 24 hours"
+    title: Tr.t("Next 24 hours")
     icon: "\uf201"
 
     readonly property var hours: Forecast.hourly
@@ -35,7 +35,7 @@ Zone {
         return out;
     }
 
-    Label { visible: root.n === 0; text: Forecast.error || "Loading forecast…"; dim: true }
+    Label { visible: root.n === 0; text: Forecast.error || Tr.t("Loading forecast…"); dim: true }
 
     Item {
         id: chartArea
@@ -193,7 +193,7 @@ Zone {
                     }
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: index === 0 ? "Now" : modelData.time
+                        text: index === 0 ? Tr.t("Now") : modelData.time
                         dim: index !== 0
                         font.pixelSize: 10
                         font.weight: index === 0 ? Font.DemiBold : Font.Normal

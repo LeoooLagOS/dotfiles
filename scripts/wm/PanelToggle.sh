@@ -6,6 +6,7 @@
 # Starts the panel daemon first if it isn't running.
 
 set -euo pipefail
+. "$(dirname "$(readlink -f "$0")")/lagos_i18n.sh"
 
 call() {
   if [ -n "${1:-}" ]; then
@@ -27,5 +28,5 @@ for _ in $(seq 1 20); do
   fi
 done
 
-notify-send -u low "Panel" "Quickshell panel failed to start (journalctl --user -u quickshell-panel)" 2>/dev/null || true
+notify-send -u low "$(t "Panel")" "$(t "The panel failed to start") (journalctl --user -u quickshell-panel)" 2>/dev/null || true
 exit 1

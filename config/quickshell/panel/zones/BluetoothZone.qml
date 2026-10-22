@@ -38,12 +38,12 @@ Zone {
         ToggleTile {
             Layout.fillWidth: true
             icon: "\uf293"
-            label: root.adapter?.enabled ? "On" : "Off"
-            status: !root.adapter ? "No adapter found"
-                    : !root.adapter.enabled ? "Bluetooth is off"
-                    : root.connected.length === 1 ? "Connected to " + root.connected[0].name
-                    : root.connected.length > 1 ? root.connected.length + " devices connected"
-                    : "No devices connected"
+            label: root.adapter?.enabled ? Tr.t("On") : Tr.t("Off")
+            status: !root.adapter ? Tr.t("No adapter found")
+                    : !root.adapter.enabled ? Tr.t("Bluetooth is off")
+                    : root.connected.length === 1 ? Tr.t("Connected to %1", root.connected[0].name)
+                    : root.connected.length > 1 ? Tr.t("%1 devices connected", root.connected.length)
+                    : Tr.t("No devices connected")
             active: root.adapter?.enabled ?? false
             onToggled: if (root.adapter) root.adapter.enabled = !root.adapter.enabled
             onSettingsClicked: { PanelState.open = false; Quickshell.execDetached(["blueman-manager"]); }
@@ -87,7 +87,7 @@ Zone {
                         Label { Layout.fillWidth: true; text: item.modelData.name; font.pixelSize: 13; font.weight: item.modelData.connected ? Font.DemiBold : Font.Normal }
                         Label {
                             Layout.fillWidth: true
-                            text: item.modelData.connected ? "Connected" : "Paired"
+                            text: item.modelData.connected ? Tr.t("Connected") : Tr.t("Paired")
                             dim: true
                             font.pixelSize: 11
                         }
@@ -112,7 +112,7 @@ Zone {
             Label {
                 anchors.centerIn: parent
                 visible: parent.count === 0
-                text: "No paired devices"
+                text: Tr.t("No paired devices")
                 dim: true
             }
         }

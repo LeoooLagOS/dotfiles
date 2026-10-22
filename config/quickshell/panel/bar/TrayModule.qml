@@ -55,7 +55,7 @@ BarPill {
             const e = by[id] ?? (by[id] = { id: id, entry: root.entryFor(id), windows: [], hidden: false, where: [] });
             e.windows.push(t);
             if (ws.startsWith("special:")) e.hidden = true;
-            const w = ws.startsWith("special:comms-") ? "comms dock" : ws.startsWith("special:") ? "hidden" : ws;
+            const w = ws.startsWith("special:comms-") ? Tr.t("comms dock") : ws.startsWith("special:") ? Tr.t("hidden") : ws;
             if (w && !e.where.includes(w)) e.where.push(w);
         }
         return Object.values(by).sort((a, b) => (a.entry?.name ?? a.id).localeCompare(b.entry?.name ?? b.id));
@@ -145,10 +145,10 @@ BarPill {
             x: 10
             y: 10
             width: parent.width - 20
-            options: [{ value: "tray", label: "Tray " + root.items.length },
-                      { value: "apps", label: "Apps " + (root.apps.length + root.headless.length) },
-                      { value: "startup", label: "Startup " + Startup.running.length },
-                      { value: "services", label: "Services " + root.userServices.length }]
+            options: [{ value: "tray", label: Tr.t("Tray %1", root.items.length) },
+                      { value: "apps", label: Tr.t("Apps %1", root.apps.length + root.headless.length) },
+                      { value: "startup", label: Tr.t("Startup %1", Startup.running.length) },
+                      { value: "services", label: Tr.t("Services %1", root.userServices.length) }]
             value: root.view
             onSelected: v => root.view = v
         }
@@ -170,7 +170,7 @@ BarPill {
                 spacing: 2
 
                 // ---------------- Tray ----------------
-                Label { visible: root.view === "tray" && !root.items.length; text: "No tray icons"; dim: true; font.pixelSize: 12; Layout.margins: 8 }
+                Label { visible: root.view === "tray" && !root.items.length; text: Tr.t("No tray icons"); dim: true; font.pixelSize: 12; Layout.margins: 8 }
                 Repeater {
                     model: root.view === "tray" ? root.items : []
                     delegate: Row_ {
@@ -194,16 +194,16 @@ BarPill {
                 }
 
                 // ---------------- Apps ----------------
-                Section { visible: root.view === "apps"; text: "WITH A WINDOW" }
+                Section { visible: root.view === "apps"; text: Tr.t("WITH A WINDOW") }
                 Repeater {
                     model: root.view === "apps" ? root.apps : []
                     delegate: Row_ {
                         required property var modelData
                         icon: root.iconFor(modelData.entry, modelData.id)
                         title: modelData.entry?.name ?? modelData.id
-                        subtitle: (modelData.windows.length > 1 ? modelData.windows.length + " windows · " : "")
-                                  + "workspace " + modelData.where.join(", ")
-                        badge: modelData.hidden ? "hidden" : ""
+                        subtitle: (modelData.windows.length > 1 ? Tr.t("%1 windows · ", modelData.windows.length) : "")
+                                  + Tr.t("workspace %1", modelData.where.join(", "))
+                        badge: modelData.hidden ? Tr.t("hidden") : ""
                         actionIcon: ""
                         confirming: root.confirm === "app:" + modelData.id
                         onClicked: { root.dispatch(`hl.dsp.focus({ window = "address:${modelData.windows[0].address}" })`); root.open = false; }
@@ -212,7 +212,7 @@ BarPill {
                         })
                     }
                 }
-                Section { visible: root.view === "apps" && root.headless.length > 0; text: "RUNNING WITHOUT A WINDOW" }
+                Section { visible: root.view === "apps" && root.headless.length > 0; text: Tr.t("RUNNING WITHOUT A WINDOW") }
                 Repeater {
                     model: root.view === "apps" ? root.headless : []
                     delegate: Row_ {
@@ -230,7 +230,7 @@ BarPill {
                 // ---------------- Startup ----------------
                 Section {
                     visible: root.view === "startup"
-                    text: "AT LOGIN · " + Startup.running.length + " running" + (Startup.memory > 0 ? " · " + Startup.size(Startup.memory) : "")
+                    text: Tr.t("AT LOGIN · %1 running", Startup.running.length) + (Startup.memory > 0 ? " · " + Startup.size(Startup.memory) : "")
                 }
                 Repeater {
                     model: root.view === "startup" ? Startup.apps.filter(a => a.kind === "xdg" || a.enabled) : []
@@ -264,7 +264,7 @@ BarPill {
                 }
 
                 // ---------------- Services ----------------
-                Section { visible: root.view === "services"; text: "YOURS · systemd --user" }
+                Section { visible: root.view === "services"; text: Tr.t("YOURS") + " · systemd --user" }
                 Repeater {
                     model: root.view === "services" ? root.userServices : []
                     delegate: Row_ {
@@ -279,7 +279,7 @@ BarPill {
                         onAction2: { Quickshell.execDetached(["systemctl", "--user", "restart", modelData.unit]); refreshSoon.restart(); }
                     }
                 }
-                Section { visible: root.view === "services"; text: "SYSTEM · read only" }
+                Section { visible: root.view === "services"; text: Tr.t("SYSTEM · read only") }
                 Repeater {
                     model: root.view === "services" ? root.systemServices : []
                     delegate: Row_ {
@@ -307,7 +307,7 @@ BarPill {
                 anchors.centerIn: parent
                 spacing: 8
                 Glyph { text: ""; font.pixelSize: 12; color: BarState.accent; anchors.verticalCenter: parent.verticalCenter }
-                Label { text: "Processes and resources: system monitor"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
+                Label { text: Tr.t("Processes and resources: system monitor"); font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
             }
             MouseArea {
                 id: footMouse
@@ -403,7 +403,7 @@ BarPill {
                     opacity: rowMouse.containsMouse || actMouse.containsMouse || asking ? 1 : 0
                     color: asking ? Theme.bad : actMouse.containsMouse ? Theme.withAlpha(primary ? Theme.bad : Theme.fg, 0.16) : "transparent"
                     Glyph { anchors.centerIn: parent; visible: !parent.asking; text: modelData; font.pixelSize: 10; color: parent.primary ? Theme.bad : Theme.fg }
-                    Label { id: askLabel; anchors.centerIn: parent; visible: parent.asking; text: "Sure?"; font.pixelSize: 11; font.weight: Font.DemiBold; color: Theme.onColor(Theme.bad) }
+                    Label { id: askLabel; anchors.centerIn: parent; visible: parent.asking; text: Tr.t("Sure?"); font.pixelSize: 11; font.weight: Font.DemiBold; color: Theme.onColor(Theme.bad) }
                     MouseArea {
                         id: actMouse
                         anchors.fill: parent

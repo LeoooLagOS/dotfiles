@@ -45,15 +45,15 @@ Zone {
         const hours = Forecast.hourly, days = Forecast.daily, out = [];
 
         const wet = hours.slice(0, 6).find(h => h.rain >= 50);
-        const rain = wet ? { icon: "\uf0e9", color: Theme.rain, text: (wet === hours[0] ? "Rain now" : "Rain around " + wet.time) + " · " + wet.rain + "%" } : null;
+        const rain = wet ? { icon: "\uf0e9", color: Theme.rain, text: (wet === hours[0] ? Tr.t("Rain now") : Tr.t("Rain around %1", wet.time)) + " · " + wet.rain + "%" } : null;
 
         if (Weather.ready)
-            out.push({ icon: "\uf2c9", text: "Feels " + Math.round(Weather.feelsLike) + "° · " + Weather.humidity + "% humidity" });
+            out.push({ icon: "\uf2c9", text: Tr.t("Feels %1° · %2% humidity", Math.round(Weather.feelsLike), Weather.humidity) });
         if (days.length > 0) {
             const toRise = minutesUntil(days[0].sunrise), toSet = minutesUntil(days[0].sunset);
-            if (toRise > 0) out.push({ icon: "\u{f059c}", text: "Sunrise in " + span(toRise) });
-            else if (toSet > 0) out.push({ icon: "\u{f059b}", text: "Sunset in " + span(toSet) });
-            else if (days.length > 1) out.push({ icon: "\u{f059c}", text: "Sunrise in " + span(toRise + 1440) });
+            if (toRise > 0) out.push({ icon: "\u{f059c}", text: Tr.t("Sunrise in %1", span(toRise)) });
+            else if (toSet > 0) out.push({ icon: "\u{f059b}", text: Tr.t("Sunset in %1", span(toSet)) });
+            else if (days.length > 1) out.push({ icon: "\u{f059c}", text: Tr.t("Sunrise in %1", span(toRise + 1440)) });
         }
         if (!rain) return out;
         // rain, a, rain, b, …
@@ -92,7 +92,7 @@ Zone {
             Layout.minimumWidth: 0
             spacing: 6
 
-            Label { visible: !Weather.ready; text: "Loading weather…"; dim: true }
+            Label { visible: !Weather.ready; text: Tr.t("Loading weather…"); dim: true }
 
             // Icon · temperature · conditions + low/high
             RowLayout {

@@ -17,11 +17,11 @@ ColumnLayout {
 
     function dayKey(n) { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + n); return When.parse("hoy", d).date; }
     readonly property var days: {
-        const out = [{ label: "Today", due: dayKey(0) }, { label: "Tomorrow", due: dayKey(1) }];
-        for (let n = 2; n <= 5; n++) out.push({ label: When.dayWord(dayKey(n)).slice(0, 3), due: dayKey(n) });
+        const out = [{ label: Tr.t("Today"), due: dayKey(0) }, { label: Tr.t("Tomorrow"), due: dayKey(1) }];
+        for (let n = 2; n <= 5; n++) out.push({ label: Tr.date(new Date(dayKey(n) + "T12:00"), "ddd"), due: dayKey(n) });
         const mon = ((8 - new Date().getDay()) % 7) || 7;
-        out.push({ label: "Next week", due: dayKey(mon) });
-        out.push({ label: "No date", due: "" });
+        out.push({ label: Tr.t("Next week"), due: dayKey(mon) });
+        out.push({ label: Tr.t("No date"), due: "" });
         return out;
     }
 
@@ -45,7 +45,7 @@ ColumnLayout {
         Layout.fillWidth: true
         implicitHeight: 26
         icon: ""
-        placeholder: "Or type it: “vie 18:00”, “15 oct”, “mañana 9am”"
+        placeholder: Tr.t("Or type it: “vie 18:00”, “15 oct”, “mañana 9am”")
         readonly property var parsed: text.trim() ? When.parse(text + " #task") : null
         invalid: !!parsed && !parsed.date
         onAccepted: if (parsed?.date) { root.picked(parsed.date, parsed.start); text = ""; }
@@ -54,7 +54,7 @@ ColumnLayout {
         Layout.fillWidth: true
         spacing: 4
         Repeater {
-            model: [["", "Once"], ["daily", "Daily"], ["weekdays", "Weekdays"], ["weekly", "Weekly"], ["monthly", "Monthly"]]
+            model: [["", Tr.t("Once")], ["daily", Tr.t("Daily")], ["weekdays", Tr.t("Weekdays")], ["weekly", Tr.t("Weekly")], ["monthly", Tr.t("Monthly")]]
             delegate: Chip {
                 required property var modelData
                 implicitHeight: 22

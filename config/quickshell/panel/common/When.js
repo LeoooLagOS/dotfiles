@@ -198,29 +198,34 @@ function parse(text, now) {
 
 const REPEAT_LABEL = { daily: "Every day", weekdays: "Weekdays", weekly: "Every week", monthly: "Every month" };
 
+// The words below are English unless `tr` translates them: the panel passes
+// its Tr singleton (common/Tr.qml: t(text), date(d, format)); this library
+// can't see it on its own
+const EN = { t: s => s, date: (d, f) => Qt.formatDate(d, f) };
+
 // Words for a date key: "Today", "Tomorrow", "Friday", "Fri 16 Oct"
-function dayWord(dateKey, now) {
+function dayWord(dateKey, now, tr) {
+    tr = tr || EN;
     now = now || new Date();
     const d = new Date(dateKey + "T12:00");
     const diff = Math.round((d - addDays(now, 0)) / 86400000);
-    if (diff === 0) return "Today";
-    if (diff === 1) return "Tomorrow";
-    if (diff === -1) return "Yesterday";
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    if (diff > 1 && diff < 7) return days[d.getDay()];
-    return days[d.getDay()].slice(0, 3) + " " + d.getDate() + " " + months[d.getMonth()];
+    if (diff === 0) return tr.t("Today");
+    if (diff === 1) return tr.t("Tomorrow");
+    if (diff === -1) return tr.t("Yesterday");
+    if (diff > 1 && diff < 7) return tr.date(d, "dddd");
+    return tr.date(d, "ddd d MMM");
 }
 
 // The chips the capture box shows: [{ icon, text }]
-function describe(r, now) {
+function describe(r, now, tr) {
+    tr = tr || EN;
     const out = [];
-    out.push(r.kind === "event" ? { icon: "", text: "Event" } : { icon: "", text: "Task" });
-    if (r.date) out.push({ icon: "", text: dayWord(r.date, now) });
-    else if (r.kind === "task") out.push({ icon: "", text: "No date" });
+    out.push(r.kind === "event" ? { icon: "", text: tr.t("Event") } : { icon: "", text: tr.t("Task") });
+    if (r.date) out.push({ icon: "", text: dayWord(r.date, now, tr) });
+    else if (r.kind === "task") out.push({ icon: "", text: tr.t("No date") });
     if (r.start) out.push({ icon: "", text: r.start + (r.end ? " – " + r.end : "") });
-    else if (r.allDay) out.push({ icon: "", text: "All day" });
-    if (r.repeat) out.push({ icon: "", text: REPEAT_LABEL[r.repeat] });
+    else if (r.allDay) out.push({ icon: "", text: tr.t("All day") });
+    if (r.repeat) out.push({ icon: "", text: tr.t(REPEAT_LABEL[r.repeat]) });
     if (r.place) out.push({ icon: "\u{f034e}", text: r.place });
     return out;
 }

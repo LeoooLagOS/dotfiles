@@ -35,7 +35,7 @@ Zone {
                 model: ["*"].concat(Wallpapers.folders)
                 delegate: Chip {
                     required property string modelData
-                    text: modelData === "*" ? "All" : modelData === "" ? "Main" : modelData.split("/").pop()
+                    text: modelData === "*" ? Tr.t("All") : modelData === "" ? Tr.t("Main") : modelData.split("/").pop()
                     active: root.folder === modelData
                     onClicked: root.folder = modelData
                 }
@@ -44,9 +44,9 @@ Zone {
             Item { Layout.fillWidth: true }
 
             Label {
-                text: Wallpapers.applying !== "" ? "Applying…"
-                      : Wallpapers.pending > 0 ? "Making thumbnails… (" + Wallpapers.pending + ")"
-                      : root.shown.length + " wallpapers"
+                text: Wallpapers.applying !== "" ? Tr.t("Applying…")
+                      : Wallpapers.pending > 0 ? Tr.t("Making thumbnails… (%1)", Wallpapers.pending)
+                      : Tr.t("%1 wallpapers", root.shown.length)
                 dim: true
                 font.pixelSize: 12
             }

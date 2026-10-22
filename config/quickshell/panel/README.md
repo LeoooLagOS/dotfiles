@@ -676,6 +676,29 @@ are read live by `Theme`, `Config`, `PanelState` and `Notifs`.
 `Settings.sections`, and read `Settings.v.<key>` where it matters (a system one
 also goes in `SystemSettings`).
 
+## Language
+
+The panel speaks the system's language (`LANG`, the one chosen when
+installing), or the one picked in Settings → Appearance → Language (System ·
+English · Español). The code is written in English; `common/Tr.qml` looks each
+text up in `i18n/<lang>.json` (English text → translation), and a missing one
+stays English.
+
+- **Text:** `Tr.t("Clear all")`, with arguments `Tr.t("Due %1: %2", when, what)`,
+  plurals `Tr.n(count, "%1 message", "%1 messages")`. Never glue words around
+  a value (`"in " + n + " min"`): the order changes between languages.
+- **Dates:** `Tr.date(d, "ddd d MMM")` (`Qt.formatDate` is always English),
+  `Tr.cap()` for a first capital (Spanish names are lowercase).
+- **Data shown elsewhere** (the Settings schema, tab names, test kinds) stays
+  English in the data and is translated where it's drawn (`SettingRow`,
+  `SettingsView`, `Panel.qml`), so values and ids never change.
+- **`common/When.js`** can't see singletons: `dayWord` / `describe` take `Tr`
+  as their last argument. Capture keeps understanding both languages.
+- **Scripts** (`scripts/wm/lagos_i18n.sh`, `lagos_i18n.py`) read the same
+  setting and dictionary: `t "Battery at %1" "$cap"`.
+- **A new language:** copy `i18n/es.json`, translate the values, add it to
+  `Tr.languages` and to the Language row in `Settings.sections`.
+
 ## Data sources
 
 | Zone | Source |

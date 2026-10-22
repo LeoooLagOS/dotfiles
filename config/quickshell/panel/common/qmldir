@@ -24,3 +24,4 @@ ColorPalette 1.0 ColorPalette.qml
 DeadlineRow 1.0 DeadlineRow.qml
 DuePicker 1.0 DuePicker.qml
 DayTimeline 1.0 DayTimeline.qml
+singleton Tr 1.0 Tr.qml

@@ -38,10 +38,10 @@ Singleton {
 
     // Modules shown, per zone, in this order (Settings → Bar → Modules)
     readonly property var allModules: ({
-        left: [["logo", "Logo"], ["workspaces", "Workspaces"], ["window", "Window / weather"]],
-        center: [["bell", "Notifications"], ["island", "Island"], ["caffeine", "Caffeine"]],
-        right: [["tray", "Tray"], ["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", "Temperature"],
-                ["wifi", "Wi-Fi"], ["bluetooth", "Bluetooth"], ["battery", "Battery"], ["power", "Power"]]
+        left: [["logo", Tr.t("Logo")], ["workspaces", Tr.t("Workspaces")], ["window", Tr.t("Window / weather")]],
+        center: [["bell", Tr.t("Notifications")], ["island", Tr.t("Island")], ["caffeine", Tr.t("Caffeine")]],
+        right: [["tray", Tr.t("Tray")], ["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", Tr.t("Temperature")],
+                ["wifi", "Wi-Fi"], ["bluetooth", "Bluetooth"], ["battery", Tr.t("Battery")], ["power", Tr.t("Power")]]
     })
     function shown(id) {
         for (const z of ["barLeft", "barCenter", "barRight"]) if ([].concat(Settings.v[z] ?? []).includes(id)) return true;
@@ -140,7 +140,7 @@ Singleton {
     function undoFlash() {
         const f = flash;
         flash = null;
-        if (f?.undo) { f.undo(); say("\uf0e2", "Undone"); }
+        if (f?.undo) { f.undo(); say("\uf0e2", Tr.t("Undone")); }
     }
     Timer { id: flashTimer; interval: 1800; onTriggered: root.flash = null }
 }

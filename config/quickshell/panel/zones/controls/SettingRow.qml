@@ -21,7 +21,7 @@ Item {
     // for every option, so picking it clears the rest and emptying the list
     // brings it back
     readonly property var chipOpts: type === "chips"
-        ? row.opts.map(o => typeof o === "object" ? { value: o[0], label: o[1] } : { value: o, label: o + (row.unit ?? "") }) : []
+        ? row.opts.map(o => typeof o === "object" ? { value: o[0], label: Tr.t(o[1]) } : { value: o, label: o + (row.unit ?? "") }) : []
     function toggleChip(v) {
         const all = row.all, cur = [].concat(value).filter(x => x !== all);
         let next = v === all ? [all]
@@ -53,7 +53,7 @@ Item {
         spacing: 1
         RowLayout {
             spacing: 7
-            Label { text: root.row.label ?? ""; font.pixelSize: 13; font.weight: Font.Medium }
+            Label { text: Tr.t(root.row.label ?? ""); font.pixelSize: 13; font.weight: Font.Medium }
             Rectangle {
                 visible: !!root.row.system
                 implicitHeight: 15
@@ -61,10 +61,10 @@ Item {
                 radius: 8
                 color: "transparent"
                 border.color: Theme.warn
-                Label { id: sysLabel; anchors.centerIn: parent; text: "SYSTEM"; color: Theme.warn; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { id: sysLabel; anchors.centerIn: parent; text: Tr.t("SYSTEM"); color: Theme.warn; font.pixelSize: 9; font.weight: Font.DemiBold }
             }
             }
-        Label { visible: !!root.row.help; text: root.row.help ?? ""; dim: true; font.pixelSize: 11; Layout.fillWidth: true; wrapMode: Text.Wrap }
+        Label { visible: !!root.row.help; text: Tr.t(root.row.help ?? ""); dim: true; font.pixelSize: 11; Layout.fillWidth: true; wrapMode: Text.Wrap }
     }
 
     RowLayout {
@@ -79,7 +79,7 @@ Item {
             id: textCtl
             visible: root.type === "text"
             Layout.preferredWidth: 200
-            placeholder: root.row.placeholder ?? ""
+            placeholder: Tr.t(root.row.placeholder ?? "")
             text: root.type === "text" ? String(root.value ?? "") : ""
             onAccepted: input.focus = false
             Connections {
@@ -100,13 +100,13 @@ Item {
         Segmented {
             visible: root.type === "seg"
             Layout.preferredWidth: Math.max(230, implicitWidth)
-            options: root.type === "seg" ? root.row.opts.map(o => ({ value: o[0], label: o[1] })) : []
+            options: root.type === "seg" ? root.row.opts.map(o => ({ value: o[0], label: Tr.t(o[1]) })) : []
             value: root.value
             onSelected: v => Settings.set(root.row.key, v)
         }
         Dropdown {
             visible: root.type === "select"
-            options: root.type === "select" ? root.row.opts.map(o => ({ value: o[0], label: o[1] })) : []
+            options: root.type === "select" ? root.row.opts.map(o => ({ value: o[0], label: Tr.t(o[1]) })) : []
             value: root.value
             listWidth: 190
             onSelected: v => Settings.set(root.row.key, v)
@@ -162,7 +162,7 @@ Item {
             visible: root.type === "swatches"
             spacing: 5
             Chip {
-                text: "Auto"
+                text: Tr.t("Auto")
                 active: root.value === "auto"
                 implicitHeight: 24
                 onClicked: Settings.set(root.row.key, "auto")
@@ -201,7 +201,7 @@ Item {
         }
         Label {
             visible: root.type === "info"
-            text: root.type === "info" ? (root.row.infoKey ? (SystemSettings.info[root.row.infoKey] ?? "…") : String(root.row.value ?? "")) : ""
+            text: root.type === "info" ? (root.row.infoKey ? (SystemSettings.info[root.row.infoKey] ?? "…") : Tr.t(String(root.row.value ?? ""))) : ""
             dim: true
             font.pixelSize: root.row.mono ? 11 : 12
             font.family: root.row.mono ? "JetBrains Mono" : Theme.font
@@ -212,8 +212,8 @@ Item {
 
     // ---------------- apprules: one line per app ----------------
     // Apps with a rule plus the ones in the history; a rule back to Default is removed
-    readonly property var ruleOpts: [["default", "Default"]].concat(Settings.notifPlaces, [["mute", "Mute (not even history)"]])
-                                    .map(o => ({ value: o[0], label: o[1] }))
+    readonly property var ruleOpts: [["default", Tr.t("Default")]].concat(Settings.notifPlaces, [["mute", Tr.t("Mute (not even history)")]])
+                                    .map(o => ({ value: o[0], label: Tr.t(o[1]) }))
     readonly property var ruleApps: stacked
         ? [...new Set(Object.keys(Settings.v.appRules ?? {}).concat(Notifs.apps))].sort((a, b) => a.localeCompare(b)) : []
     function setRule(app, v) {
@@ -233,7 +233,7 @@ Item {
         spacing: 4
         Label {
             visible: root.ruleApps.length === 0
-            text: "No apps yet."
+            text: Tr.t("No apps yet.")
             dim: true
             font.pixelSize: 12
         }
@@ -283,7 +283,7 @@ Item {
         };
         for (const ref of Comms.suggested) add(ref, Comms.entryOf(ref));
         for (const c of Comms.clients) add(DesktopEntries.heuristicLookup(c.class)?.id ?? "", DesktopEntries.heuristicLookup(c.class));
-        return [{ value: "", label: out.length ? "Add an app…" : "Nothing else to add", id: "" }].concat(out);
+        return [{ value: "", label: out.length ? Tr.t("Add an app…") : Tr.t("Nothing else to add"), id: "" }].concat(out);
     }
     function moveComms(i, d) {
         const a = commsRefs.slice(), j = i + d;
@@ -303,7 +303,7 @@ Item {
         spacing: 4
         Label {
             visible: root.commsRefs.length === 0
-            text: "No apps: SUPER Y does nothing."
+            text: Tr.t("No apps: SUPER Y does nothing.")
             dim: true
             font.pixelSize: 12
         }
@@ -338,8 +338,8 @@ Item {
                         elide: Text.ElideRight
                     }
                     Label {
-                        text: !commsLine.entry ? "Not installed" : commsLine.app?.restarting ? "Restarting…"
-                            : commsLine.app?.running ? "Running · ↻ restarts it if it hangs" : "Not running · opens when you pick it"
+                        text: !commsLine.entry ? Tr.t("Not installed") : commsLine.app?.restarting ? Tr.t("Restarting…")
+                            : commsLine.app?.running ? Tr.t("Running · ↻ restarts it if it hangs") : Tr.t("Not running · opens when you pick it")
                         dim: true
                         font.pixelSize: 10
                     }
@@ -394,18 +394,18 @@ Item {
             model: root.type === "notiftests" ? Notifs.tests : []
             delegate: Chip {
                 required property var modelData
-                text: modelData.label
+                text: Tr.t(modelData.label)
                 onClicked: Notifs.sendTest(modelData.id)
             }
         }
         Chip {
-            text: "All at once"
+            text: Tr.t("All at once")
             icon: "\uf0f3"
             onClicked: Notifs.sendAllTests()
         }
         // For a video: one after another, paced (scripts/wm/NotifDemo.sh)
         Chip {
-            text: "Demo (3 s)"
+            text: Tr.t("Demo (3 s)")
             icon: "\uf03d"
             filled: true
             onClicked: Notifs.runDemo()
@@ -427,14 +427,14 @@ Item {
         spacing: 2
         Label {
             visible: root.row.kind === "xdg" && Startup.running.length > 0
-            text: Startup.running.length + " running now · " + Startup.size(Startup.memory)
+            text: Tr.t("%1 running now · %2", Startup.running.length, Startup.size(Startup.memory))
             dim: true
             font.pixelSize: 11
             bottomPadding: 4
         }
         Label {
             visible: root.startupApps.length === 0
-            text: Startup.apps.length ? "Nothing here." : "Reading…"
+            text: Startup.apps.length ? Tr.t("Nothing here.") : Tr.t("Reading…")
             dim: true
             font.pixelSize: 12
         }
@@ -478,7 +478,7 @@ Item {
                     }
                     Label {
                         width: parent.width
-                        text: startLine.modelData.locked ? "Starts this panel" : Startup.stateText(startLine.modelData)
+                        text: startLine.modelData.locked ? Tr.t("Starts this panel") : Startup.stateText(startLine.modelData)
                         color: startLine.modelData.state === "failed" ? Theme.bad : Theme.fgDim
                         font.pixelSize: 10
                         elide: Text.ElideRight

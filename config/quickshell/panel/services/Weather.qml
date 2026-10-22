@@ -10,7 +10,8 @@ Singleton {
     id: root
     property bool ready: false
     property string icon: ""         // Nerd Font glyph from Weather.py
-    property string description: ""
+    property string descKey: ""                 // English (Weather.py, WeatherIcons.status)
+    readonly property string description: Tr.t(descKey)
     property string place: ""
     property real temp: 0
     property real feelsLike: 0
@@ -26,10 +27,10 @@ Singleton {
     // US EPA AQI, from scripts/forecast.py (waybar's Weather.py only has the European index)
     readonly property int aqi: Forecast.usAqi
 
-    readonly property string windCompass: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(windDir / 45) % 8]
-    readonly property string aqiLabel: aqi < 0 ? "" : aqi <= 50 ? "Good" : aqi <= 100 ? "Moderate"
+    readonly property string windCompass: Tr.t(["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(windDir / 45) % 8])
+    readonly property string aqiLabel: aqi < 0 ? "" : Tr.t(aqi <= 50 ? "Good" : aqi <= 100 ? "Moderate"
                                      : aqi <= 150 ? "Unhealthy for sensitive groups" : aqi <= 200 ? "Unhealthy"
-                                     : aqi <= 300 ? "Very unhealthy" : "Hazardous"
+                                     : aqi <= 300 ? "Very unhealthy" : "Hazardous")
 
     Process {
         id: proc
@@ -39,7 +40,7 @@ Singleton {
                 try {
                     const d = JSON.parse(text);
                     root.icon = d.text.trim().split(/\s+/)[0];
-                    root.description = d.alt;
+                    root.descKey = d.alt;
                 } catch (e) { console.warn("weather:", e); }
                 cache.reload();
             }
@@ -66,7 +67,7 @@ Singleton {
                 root.precipitation = c.precipitation ?? 0;
                 // Icon/description straight from the cache, so they show before Weather.py returns
                 root.icon = WeatherIcons.icon(c.weather_code, c.is_day !== 0);
-                root.description = WeatherIcons.describe(c.weather_code);
+                root.descKey = WeatherIcons.status[c.weather_code] ?? "Unknown";
                 root.high = f.daily.temperature_2m_max[0];
                 root.low = f.daily.temperature_2m_min[0];
                 // Next 6 hours of rain probability, starting at the current hour

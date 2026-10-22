@@ -42,27 +42,31 @@ BarPill {
     }
     readonly property var todo: event ? null : Todos.sorted("all").find(i => !i.done) ?? null
     function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-    // "today" · "tomorrow" · "Fri"
-    function dayName(date) {
+    // 0 today, 1 tomorrow…
+    function daysTo(date) {
         const d = at(date, "12:00"), t = new Date(now);
         t.setHours(12, 0, 0, 0);
-        const days = Math.round((d - t) / 86400000);
-        return days <= 0 ? "today" : days === 1 ? "tomorrow" : Qt.formatDate(d, "ddd");
+        return Math.round((d - t) / 86400000);
+    }
+    // "today" · "tomorrow" · "Fri"
+    function dayName(date) {
+        const days = daysTo(date);
+        return days <= 0 ? Tr.t("today") : days === 1 ? Tr.t("tomorrow") : Tr.date(at(date, "12:00"), "ddd");
     }
     function whenOf(e) {
         if (e.allDay) return dayName(e.date);
         const start = at(e.date, e.start);
-        if (start <= now) return e.end ? "now · until " + e.end : "now";
+        if (start <= now) return e.end ? Tr.t("now · until %1", e.end) : Tr.t("now");
         const mins = Math.round((start - now) / 60000);
-        if (mins < 60) return "in " + mins + " min";
+        if (mins < 60) return Tr.t("in %1 min", mins);
         const day = dayName(e.date);
-        if (day === "today") return e.start + " · in " + Math.round(mins / 60) + " h";
+        if (daysTo(e.date) <= 0) return e.start + " · " + Tr.t("in %1 h", Math.round(mins / 60));
         return day + " " + e.start;
     }
     readonly property string line: event
         ? "<b>" + esc(event.title) + "</b>  ·  " + esc(whenOf(event)) + (event.location ? "  ·  " + esc(event.location) : "")
-        : todo ? "<b>" + esc(todo.text) + "</b>" + (Todos.isOverdue(todo) ? "  ·  overdue" : todo.due ? "  ·  due " + esc(dayName(todo.due)) : "")
-        : "Nothing on the calendar this week"
+        : todo ? "<b>" + esc(todo.text) + "</b>" + (Todos.isOverdue(todo) ? "  ·  " + Tr.t("overdue") : todo.due ? "  ·  " + Tr.t("due %1", esc(dayName(todo.due))) : "")
+        : Tr.t("Nothing on the calendar this week")
 
     implicitWidth: fixedWidth
     opacity: hide ? 0 : 1

@@ -8,7 +8,7 @@ import "../services"
 // Click an icon to mute; click the output device to choose another one.
 Zone {
     id: root
-    title: "Sound & display"
+    title: Tr.t("Sound & display")
     icon: ""
 
     // Asks the Controls tab to show a detail ("output", "mic")
@@ -20,9 +20,9 @@ Zone {
 
         Repeater {
             model: [
-                { label: "Output", node: "sink" },
-                { label: "Microphone", node: "source" },
-                { label: "Brightness", node: "" }
+                { label: Tr.t("Output"), node: "sink" },
+                { label: Tr.t("Microphone"), node: "source" },
+                { label: Tr.t("Brightness"), node: "" }
             ]
             delegate: ColumnLayout {
                 id: row
@@ -53,7 +53,7 @@ Zone {
                             x: 6
                             spacing: 4
                             Label {
-                                text: row.node ? Audio.name(row.node) : "Built-in display"
+                                text: row.node ? Audio.name(row.node) : Tr.t("Built-in display")
                                 font.pixelSize: 11
                                 font.weight: Font.Medium
                                 width: Math.min(implicitWidth, 200)
@@ -70,7 +70,7 @@ Zone {
                         }
                     }
                     Item { Layout.fillWidth: true }
-                    Label { text: row.muted ? "Muted" : Math.round(row.level * 100) + "%"; font.pixelSize: 12; font.weight: Font.DemiBold }
+                    Label { text: row.muted ? Tr.t("Muted") : Math.round(row.level * 100) + "%"; font.pixelSize: 12; font.weight: Font.DemiBold }
                 }
                 SliderRow {
                     Layout.fillWidth: true

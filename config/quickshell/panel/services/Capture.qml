@@ -23,7 +23,7 @@ Singleton {
     property string kind: ""                  // "" (as understood) | "task" | "event"
     property date now: new Date()
     readonly property var result: When.parse(text + (kind ? (kind === "event" ? " #event" : " #task") : ""), now)
-    readonly property var chips: text.trim() ? When.describe(result, now) : []
+    readonly property var chips: text.trim() ? When.describe(result, now, Tr) : []
 
     signal opened()
     function open(prefill, from) {
@@ -41,14 +41,14 @@ Singleton {
     function save() {
         const r = result;
         if (!r.title) return;
-        const when = (r.date ? When.dayWord(r.date, now).toLowerCase() : "") + (r.start ? " " + r.start : "");
+        const when = (r.date ? When.dayWord(r.date, now, Tr).toLowerCase() : "") + (r.start ? " " + r.start : "");
         if (r.kind === "event") {
             Events.add({ title: r.title, date: r.date, start: r.start, end: r.end, allDay: r.allDay,
                          location: r.place, notes: source, reminder: r.allDay ? 0 : 10, repeat: r.repeat }, true);
         } else {
             const before = Todos.items;
             Todos.add(r.title, "task", r.date, r.start, r.repeat, r.place);
-            BarState.say("", "Added: " + r.title + (when ? " · " + when : ""), () => Todos.restore(before));
+            BarState.say("", Tr.t("Added: %1", r.title) + (when ? " · " + when : ""), () => Todos.restore(before));
         }
         shown = false;
     }

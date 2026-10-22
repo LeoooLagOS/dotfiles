@@ -8,7 +8,7 @@ import "../services"
 Zone {
     id: root
 
-    Label { visible: Forecast.hourly.length === 0; text: Forecast.error || "Loading forecast…"; dim: true }
+    Label { visible: Forecast.hourly.length === 0; text: Forecast.error || Tr.t("Loading forecast…"); dim: true }
 
     ListView {
         id: list
@@ -36,7 +36,7 @@ Zone {
             Column {
                 anchors.centerIn: parent
                 spacing: 4
-                Label { anchors.horizontalCenter: parent.horizontalCenter; text: index === 0 ? "Now" : modelData.time
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: index === 0 ? Tr.t("Now") : modelData.time
                         dim: index !== 0; font.pixelSize: 10; font.weight: Font.DemiBold }
                 Glyph { anchors.horizontalCenter: parent.horizontalCenter; text: WeatherIcons.icon(modelData.code, modelData.isDay); font.pixelSize: 18 }
                 Label { anchors.horizontalCenter: parent.horizontalCenter; text: Math.round(modelData.temp) + "°"; font.pixelSize: 14; font.weight: Font.DemiBold }

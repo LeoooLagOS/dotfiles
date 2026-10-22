@@ -10,6 +10,7 @@ BAT=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -n1)
 [ -z "$BAT" ] && exit 0
 
 INTERVAL=30
+. "$(dirname "$(readlink -f "$0")")/lagos_i18n.sh"
 ALERTS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/lagos/battery-alerts"
 fired=""   # thresholds already notified this discharge cycle, e.g. " 50 20 "
 
@@ -24,7 +25,7 @@ time_left() {
     local mins=$(( e * 60 / p ))
     printf '%dh %02dmin\n' $((mins / 60)) $((mins % 60))
   else
-    echo "unknown"
+    t "unknown"; echo
   fi
 }
 
@@ -33,9 +34,9 @@ big_alert() {
   # Apple-style dark card, matching swaync's .notification.critical
   local red='#ff453a' fg='#f2f2f2' dim='#9a9aa0' bg='#1e1e20' alt='#3a3a3c'
   # Summary is styled as the small red "CRITICAL" header in swaync; body holds the title
-  notify-send -u critical -i battery-empty -a "Battery" "⚠ CRITICAL" \
-    "<span size='large' weight='bold'>Battery ${pct}%</span>
-Plug in the charger now"
+  notify-send -u critical -i battery-empty -a "Battery" "⚠ $(t "CRITICAL")" \
+    "<span size='large' weight='bold'>$(t "Battery %1" "${pct}%")</span>
+$(t "Plug in the charger now")"
   pkill -f "yad --title=BatteryAlert" 2>/dev/null
 
   # Same look as swaync's critical notifications (see ~/.config/swaync/style.css)
@@ -53,11 +54,11 @@ Plug in the charger now"
   yad --title=BatteryAlert --class=BatteryAlert --center --on-top --undecorated \
       --width=520 --borders=0 --button="OK:0" --buttons-layout=center --timeout=30 \
       --text-align=center --css="$css" \
-      --text="<span size='11pt' weight='bold' foreground='$red'>⚠ CRITICAL</span>
-<span size='26pt' weight='bold' foreground='$fg'>Battery ${pct}%</span>
+      --text="<span size='11pt' weight='bold' foreground='$red'>⚠ $(t "CRITICAL")</span>
+<span size='26pt' weight='bold' foreground='$fg'>$(t "Battery %1" "${pct}%")</span>
 
-<span size='12pt' foreground='$dim'>Time remaining: $(time_left)
-Plug in the charger now!</span>" &
+<span size='12pt' foreground='$dim'>$(t "Time remaining: %1" "$(time_left)")
+$(t "Plug in the charger now!")</span>" &
 }
 
 while true; do
@@ -76,9 +77,9 @@ while true; do
         if [ "$th" -le 10 ]; then
           big_alert "$cap"
         elif [ "$th" -le 25 ]; then
-          notify-send -u normal -i battery-low  -a "Battery" "Battery low: ${cap}%" "Time remaining: $(time_left)"
+          notify-send -u normal -i battery-low  -a "Battery" "$(t "Battery low: %1" "${cap}%")" "$(t "Time remaining: %1" "$(time_left)")"
         else
-          notify-send -u normal -i battery-good -a "Battery" "Battery at ${cap}%" "Time remaining: $(time_left)"
+          notify-send -u normal -i battery-good -a "Battery" "$(t "Battery at %1" "${cap}%")" "$(t "Time remaining: %1" "$(time_left)")"
         fi
         break
       fi

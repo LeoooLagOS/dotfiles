@@ -125,7 +125,7 @@ Singleton {
     }
     function providerDone(x) {
         providerTasks = providerTasks.filter(t => !(t.source === x.source && t.id === x.id));
-        providerMark("done", x, () => BarState.say("", "Done: " + x.title, () => providerMark("undone", x, null)));
+        providerMark("done", x, () => BarState.say("", Tr.t("Done: %1", x.title), () => providerMark("undone", x, null)));
     }
     function providerMark(action, x, onOk) {
         markComp.createObject(root, { onOk: onOk, command: ["python3", "-I", root.providers, action, x.source, x.id] }).running = true;
@@ -139,7 +139,7 @@ Singleton {
                     let r = {};
                     try { r = JSON.parse(text); } catch (e) {}
                     if (r.ok) { if (onOk) onOk(); }
-                    else BarState.say("", "Not saved: " + (r.error ?? "provider failed"));
+                    else BarState.say("", Tr.t("Not saved: %1", r.error ?? Tr.t("provider failed")));
                     root.reloadProviders();
                 }
             }
@@ -166,7 +166,7 @@ Singleton {
         Quickshell.execDetached(["python3", "-I", root.assignments, "done", uid]);
         upcoming = upcoming.filter(x => x.uid !== uid);
         reloadSoon.restart();
-        BarState.say("\uf00c", "Handed in: " + (e?.title ?? "").replace(/^Entrega:\s*/, ""), () => {
+        BarState.say("\uf00c", Tr.t("Handed in: %1", (e?.title ?? "").replace(/^Entrega:\s*/, "")), () => {
             undoProc.command = ["python3", "-I", root.assignments, "undone", uid];
             undoProc.running = true;
         });
@@ -188,9 +188,9 @@ Singleton {
                     try { r = JSON.parse(text); } catch (e) {}
                     if (r.todo) {
                         if (!Todos.items.some(i => !i.done && i.text === r.todo)) Todos.add(r.todo, "task", "");
-                        BarState.say("\uf0ae", "To-do from Teams: " + r.todo);
+                        BarState.say("\uf0ae", Tr.t("To-do from Teams: %1", r.todo));
                     } else if (r.event) {
-                        BarState.say("\uf073", "Due " + Qt.formatDateTime(new Date(r.due), "ddd d MMM HH:mm") + ": " + r.event);
+                        BarState.say("\uf073", Tr.t("Due %1: %2", Tr.date(new Date(r.due), "ddd d MMM HH:mm"), r.event));
                         if (!monthProc.running) root.reload(false);
                         root.reloadUpcoming(false);
                     }
@@ -254,18 +254,18 @@ Singleton {
         const t = new Date(now); t.setHours(0, 0, 0, 0);
         const x = new Date(d); x.setHours(0, 0, 0, 0);
         const diff = Math.round((x - t) / 86400000);
-        return diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : diff === -1 ? "Yesterday"
-             : diff > 0 && diff < 7 ? Qt.formatDate(d, "dddd") : Qt.formatDate(d, "ddd d MMM");
+        return diff === 0 ? Tr.t("Today") : diff === 1 ? Tr.t("Tomorrow") : diff === -1 ? Tr.t("Yesterday")
+             : diff > 0 && diff < 7 ? Tr.date(d, "dddd") : Tr.date(d, "ddd d MMM");
     }
     function dueText(x) {
-        if (!x.due) return "No date";
+        if (!x.due) return Tr.t("No date");
         const when = dayWord(x.due) + (x.dateOnly ? "" : " " + Qt.formatTime(x.due, "HH:mm"));
         const min = Math.round((x.due - now) / 60000);
-        if (min < 0) return "Overdue · " + when;
+        if (min < 0) return Tr.t("Overdue · %1", when);
         const left = min < 60 ? min + " min"
                    : min < 1440 ? Math.floor(min / 60) + " h" + (min % 60 ? " " + (min % 60) + " min" : "")
-                   : Math.round(min / 1440) + " days";
-        return when + " · in " + left;
+                   : Tr.t("%1 days", Math.round(min / 1440));
+        return Tr.t("%1 · in %2", when, left);
     }
     function dueColor(x) {
         if (!x.due) return Theme.fgDim;
@@ -285,7 +285,7 @@ Singleton {
     // announce: say it on the island, with an Undo
     function add(spec, announce) {
         lastError = "";
-        editProc.onSaved = announce ? (d => BarState.say("\uf073", "Added: " + spec.title + " · " + When.dayWord(spec.date).toLowerCase()
+        editProc.onSaved = announce ? (d => BarState.say("\uf073", Tr.t("Added: %1", spec.title) + " · " + When.dayWord(spec.date, null, Tr).toLowerCase()
                                                           + (spec.allDay ? "" : " " + spec.start),
                                                           () => root.remove(d.uid, true))) : null;
         run(editProc, ["add"], JSON.stringify(spec));
@@ -294,7 +294,7 @@ Singleton {
     function remove(uid, quiet) {
         lastError = "";
         const e = upcoming.concat(...Object.values(byDate)).find(x => x.uid === uid);
-        editProc.onSaved = quiet || !e ? null : (() => BarState.say("\uf1f8", "Removed: " + e.title, () => root.add({
+        editProc.onSaved = quiet || !e ? null : (() => BarState.say("\uf1f8", Tr.t("Removed: %1", e.title), () => root.add({
             title: e.title, date: e.date, start: e.start, end: e.end, allDay: e.allDay,
             location: e.location, notes: e.notes, reminder: e.reminder }, false)));
         run(editProc, ["delete", uid]);
@@ -310,7 +310,7 @@ Singleton {
             onStreamFinished: {
                 try {
                     const d = JSON.parse(text);
-                    if (!d.ok) root.lastError = d.error ?? "Could not save the event";
+                    if (!d.ok) root.lastError = d.error ?? Tr.t("Could not save the event");
                     else if (editProc.onSaved) editProc.onSaved(d);
                     editProc.onSaved = null;
                 } catch (e) { root.lastError = String(e); }
@@ -374,9 +374,9 @@ Singleton {
     }
 
     function notify(e, mins) {
-        const when = mins <= 1 ? "now" : mins < 120 ? "in " + mins + " min" : "in " + Math.round(mins / 60) + " h";
+        const when = mins <= 1 ? Tr.t("now") : mins < 120 ? Tr.t("in %1 min", mins) : Tr.t("in %1 h", Math.round(mins / 60));
         const body = e.start + (e.end ? " – " + e.end : "") + (e.location ? " · " + e.location : "")
-                   + (e.high ? "\nHigh importance" : "");
+                   + (e.high ? "\n" + Tr.t("High importance") : "");
         Quickshell.execDetached(["notify-send",
             "-a", "Calendar", "-i", "x-office-calendar",
             "-u", e.important ? "critical" : "normal",
@@ -419,13 +419,13 @@ Singleton {
     function dueNotify(x, k) {
         const over = x.due <= now;
         // Important (High importance, `assignments.py add --important`): ★ and always critical
-        const title = (x.important ? "★ " : "") + (over ? "Overdue: " : "To hand in: ") + x.title;
+        const title = (x.important ? "★ " : "") + Tr.t(over ? "Overdue: %1" : "To hand in: %1", x.title);
         const body = dueText(x) + (x.where ? " · " + x.where : "");
         dueComp.createObject(root, { item: x, key: k, command: ["notify-send",
             "-a", x.kind === "teams" ? "Teams assignments" : x.kind === "provider" ? x.label : "To-do", "-i", "task-due",
             "-u", x.important || over || (x.due - now) <= 3600000 ? "critical" : "normal",
             "-c", "calendar.reminder",
-            "-A", "done=Done", "-A", "hour=In 1 h", "-A", "tomorrow=Tomorrow",
+            "-A", "done=" + Tr.t("Done"), "-A", "hour=" + Tr.t("In 1 h"), "-A", "tomorrow=" + Tr.t("Tomorrow"),
             title, body] }).running = true;
     }
     Component {
@@ -444,7 +444,7 @@ Singleton {
                         const r = Object.assign({}, root.reminded);
                         r["snooze|" + key] = t.getTime();
                         root.saveReminded(r);
-                        BarState.say("\uf1f6", "Again " + (a === "hour" ? "in 1 h" : "tomorrow 9:00") + ": " + item.title);
+                        BarState.say("\uf1f6", Tr.t(a === "hour" ? "Again in 1 h: %1" : "Again tomorrow 9:00: %1", item.title));
                     }
                 }
             }
@@ -483,9 +483,9 @@ Singleton {
                     && new Date(e.startIso).getTime() > root.lastAlive && new Date(e.startIso) <= new Date());
                 if (!missed.length) return;
                 const lines = missed.slice(0, 6).map(e => root.dayWord(new Date(e.startIso)) + " " + e.start + "  " + e.title);
-                if (missed.length > 6) lines.push("…and " + (missed.length - 6) + " more");
+                if (missed.length > 6) lines.push(Tr.t("…and %1 more", missed.length - 6));
                 Quickshell.execDetached(["notify-send", "-a", "Calendar", "-i", "x-office-calendar", "-c", "calendar.reminder",
-                    "While you were away · " + missed.length + (missed.length === 1 ? " event" : " events"), lines.join("\n")]);
+                    Tr.n(missed.length, "While you were away · %1 event", "While you were away · %1 events"), lines.join("\n")]);
             }
         }
     }
@@ -513,14 +513,14 @@ Singleton {
         const overdue = deadlines.filter(x => x.due && x.due < now);
         const open = deadlines.filter(x => x.kind === "todo" && (!x.due || key(x.due) > key(now)));
         const lines = [];
-        if (timed.length) lines.push(timed.length + (timed.length === 1 ? " event" : " events") + " · first " + timed[0].start + " " + timed[0].title);
+        if (timed.length) lines.push(Tr.n(timed.length, "%1 event · first %2", "%1 events · first %2", timed[0].start + " " + timed[0].title));
         for (const e of evs.filter(e => e.allDay)) lines.push(e.title);
-        if (overdue.length) lines.push("Overdue: " + overdue.map(x => x.title).join(", "));
-        for (const x of dueToday.filter(x => x.due >= now)) lines.push("Due " + (x.dateOnly ? "today" : Qt.formatTime(x.due, "HH:mm")) + " · " + x.title);
-        if (open.length) lines.push(open.length + (open.length === 1 ? " other to-do" : " other to-dos"));
-        if (!lines.length) lines.push("Nothing planned");
+        if (overdue.length) lines.push(Tr.t("Overdue: %1", overdue.map(x => x.title).join(", ")));
+        for (const x of dueToday.filter(x => x.due >= now)) lines.push(Tr.t("Due %1 · %2", x.dateOnly ? Tr.t("today") : Qt.formatTime(x.due, "HH:mm"), x.title));
+        if (open.length) lines.push(Tr.n(open.length, "%1 other to-do", "%1 other to-dos"));
+        if (!lines.length) lines.push(Tr.t("Nothing planned"));
         briefProc.command = ["notify-send", "-a", "Calendar", "-i", "x-office-calendar", "-c", "calendar.reminder",
-                             "-A", "open=Open", "Today · " + Qt.formatDate(now, "dddd d MMMM"), lines.join("\n")];
+                             "-A", "open=" + Tr.t("Open"), Tr.t("Today · %1", Tr.date(now, "dddd d MMMM")), lines.join("\n")];
         briefProc.running = true;
         return true;
     }
@@ -544,10 +544,10 @@ Singleton {
         const dlMin = dl ? (dl.due - now) / 60000 : Infinity;
         if (ev && evMin <= dlMin)
             return { icon: "\uf073", color: Theme.accent2,
-                     text: ev.title + " · " + (evMin < 1 ? "now" : "in " + Math.round(evMin) + " min") + (ev.location ? " · " + ev.location : "") };
+                     text: ev.title + " · " + (evMin < 1 ? Tr.t("now") : Tr.t("in %1 min", Math.round(evMin))) + (ev.location ? " · " + ev.location : "") };
         if (dl)
             return { icon: "\uf0ae", color: dueColor(dl),
-                     text: dl.title + " · " + (dlMin <= 0 ? "overdue" : dlMin < 60 ? Math.round(dlMin) + " min"
+                     text: dl.title + " · " + (dlMin <= 0 ? Tr.t("overdue") : dlMin < 60 ? Math.round(dlMin) + " min"
                                                 : Math.floor(dlMin / 60) + " h" + (dlMin % 60 >= 1 ? " " + Math.round(dlMin % 60) + " min" : "")) };
         return null;
     }

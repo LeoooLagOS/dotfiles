@@ -95,7 +95,7 @@ Scope {
                             Layout.fillWidth: true
                             spacing: 0
                             Label { pal: win.pal; text: (win.s?.app ?? "").toUpperCase(); dim: true; font.pixelSize: 9; font.weight: Font.DemiBold; font.letterSpacing: 1 }
-                            Label { pal: win.pal; Layout.fillWidth: true; text: "Reply to " + (win.s?.who ?? ""); font.pixelSize: 14; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                            Label { pal: win.pal; Layout.fillWidth: true; text: Tr.t("Reply to %1", win.s?.who ?? ""); font.pixelSize: 14; font.weight: Font.DemiBold; elide: Text.ElideRight }
                         }
                         IconButton {
                             pal: win.pal
@@ -113,7 +113,7 @@ Scope {
                             pal: win.pal
                             Layout.fillWidth: true
                             enabled: Comms.sessionState === "" || Comms.sessionState === "failed"
-                            placeholder: "Message"
+                            placeholder: Tr.t("Message")
                             onAccepted: Comms.sendReply(text)
                             Keys.onEscapePressed: Comms.cancelReply()
                         }
@@ -135,10 +135,10 @@ Scope {
                         color: Comms.sessionState === "failed" ? win.pal.bad : Comms.sessionState === "sent" ? win.pal.good : win.pal.fgDim
                         font.pixelSize: 11
                         wrapMode: Text.Wrap
-                        text: Comms.sessionState === "sending" ? "Sending…"
-                            : Comms.sessionState === "sent" ? "  Sent"
-                            : Comms.sessionState === "failed" ? "Couldn't send it: open the app to answer (Super Y)"
-                            : "Enter to send · Esc to cancel"
+                        text: Comms.sessionState === "sending" ? Tr.t("Sending…")
+                            : Comms.sessionState === "sent" ? "  " + Tr.t("Sent")
+                            : Comms.sessionState === "failed" ? Tr.t("Couldn't send it: open the app to answer (Super Y)")
+                            : Tr.t("Enter to send · Esc to cancel")
                     }
                 }
             }

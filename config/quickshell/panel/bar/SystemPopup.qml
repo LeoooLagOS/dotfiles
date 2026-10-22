@@ -96,7 +96,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     spacing: 0
                     Label { text: Profile.fullName; font.pixelSize: 14; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                    Label { text: "up " + SystemStats.uptime + (root.hasBattery ? "  ·  " + root.batPct + "%" + (root.bat.state === UPowerDeviceState.Charging ? " charging" : "") : ""); dim: true; font.pixelSize: 11; Layout.fillWidth: true }
+                    Label { text: Tr.t("up %1", SystemStats.uptime) + (root.hasBattery ? "  ·  " + root.batPct + "%" + (root.bat.state === UPowerDeviceState.Charging ? " " + Tr.t("charging") : "") : ""); dim: true; font.pixelSize: 11; Layout.fillWidth: true }
                 }
                 IconButton { icon: ""; iconSize: 12; implicitWidth: 34; implicitHeight: 30; onClicked: root.run(Config.lockCmd) }
                 IconButton { icon: ""; iconSize: 12; implicitWidth: 34; implicitHeight: 30; iconColor: Theme.bad; onClicked: root.run(Config.powerCmd) }
@@ -117,8 +117,8 @@ PanelWindow {
                         readonly property var modelData: [
                             { icon: "", label: "CPU", v: SystemStats.cpu, text: SystemStats.cpu + "%", warn: 80, bad: 95 },
                             { icon: "\uefc5", label: "RAM", v: SystemStats.memPct, text: SystemStats.memPct + "%", warn: 80, bad: 92 },
-                            { icon: "\uf0a0", label: "Disk", v: SystemStats.diskPct, text: SystemStats.diskPct + "%", warn: 90, bad: 97 },
-                            { icon: "", label: "Temp", v: SystemStats.temp, text: SystemStats.temp + "°C", warn: 80, bad: 90 }
+                            { icon: "\uf0a0", label: Tr.t("Disk"), v: SystemStats.diskPct, text: SystemStats.diskPct + "%", warn: 90, bad: 97 },
+                            { icon: "", label: Tr.t("Temp"), v: SystemStats.temp, text: SystemStats.temp + "°C", warn: 80, bad: 90 }
                         ][index]
                         readonly property color tint: modelData.v >= modelData.bad ? Theme.bad : modelData.v >= modelData.warn ? Theme.warn : BarState.accent
                         Layout.fillWidth: true
@@ -193,7 +193,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     icon: Networking.wifiEnabled ? "\u{f0928}" : "\u{f092d}"
                     label: "Wi-Fi"
-                    status: !Networking.wifiEnabled ? "Off" : root.wifiNetwork ? root.wifiNetwork.name : "Not connected"
+                    status: !Networking.wifiEnabled ? Tr.t("Off") : root.wifiNetwork ? root.wifiNetwork.name : Tr.t("Not connected")
                     active: Networking.wifiEnabled
                     onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
                     onDetailRequested: root.controls("wifi")
@@ -202,9 +202,9 @@ PanelWindow {
                     Layout.fillWidth: true
                     icon: ""
                     label: "Bluetooth"
-                    status: !root.btAdapter?.enabled ? "Off"
+                    status: !root.btAdapter?.enabled ? Tr.t("Off")
                           : root.btConnected.length === 1 ? root.btConnected[0].name
-                          : root.btConnected.length > 1 ? root.btConnected.length + " devices" : "No devices"
+                          : root.btConnected.length > 1 ? Tr.t("%1 devices", root.btConnected.length) : Tr.t("No devices")
                     active: root.btAdapter?.enabled ?? false
                     onToggled: {
                         if (root.btAdapter?.enabled) root.btAdapter.enabled = false;
@@ -215,8 +215,8 @@ PanelWindow {
                 QuickTile {
                     Layout.fillWidth: true
                     icon: Audio.sink?.audio?.muted ? "" : ""
-                    label: Audio.name(Audio.sink) || "Output"
-                    status: Audio.sink?.audio?.muted ? "Muted" : Math.round((Audio.sink?.audio?.volume ?? 0) * 100) + "%"
+                    label: Audio.name(Audio.sink) || Tr.t("Output")
+                    status: Audio.sink?.audio?.muted ? Tr.t("Muted") : Math.round((Audio.sink?.audio?.volume ?? 0) * 100) + "%"
                     active: !(Audio.sink?.audio?.muted ?? true)
                     onToggled: if (Audio.sink?.audio) Audio.sink.audio.muted = !Audio.sink.audio.muted
                     onDetailRequested: root.controls("output")
@@ -224,8 +224,8 @@ PanelWindow {
                 QuickTile {
                     Layout.fillWidth: true
                     icon: Audio.source?.audio?.muted ? "" : ""
-                    label: Audio.name(Audio.source) || "Microphone"
-                    status: Audio.source?.audio?.muted ? "Muted" : Math.round((Audio.source?.audio?.volume ?? 0) * 100) + "%"
+                    label: Audio.name(Audio.source) || Tr.t("Microphone")
+                    status: Audio.source?.audio?.muted ? Tr.t("Muted") : Math.round((Audio.source?.audio?.volume ?? 0) * 100) + "%"
                     active: !(Audio.source?.audio?.muted ?? true)
                     onToggled: if (Audio.source?.audio) Audio.source.audio.muted = !Audio.source.audio.muted
                     onDetailRequested: root.controls("mic")
@@ -233,8 +233,8 @@ PanelWindow {
                 QuickTile {
                     Layout.fillWidth: true
                     icon: ""
-                    label: "Night light"
-                    status: Toggles.night ? Settings.v.nightTemp + " K" : "Off"
+                    label: Tr.t("Night light")
+                    status: Toggles.night ? Settings.v.nightTemp + " K" : Tr.t("Off")
                     active: Toggles.night
                     onToggled: Toggles.toggleNight()
                     onDetailRequested: root.controls("", "night")
@@ -242,8 +242,8 @@ PanelWindow {
                 QuickTile {
                     Layout.fillWidth: true
                     icon: Theme.chosenLight ? "" : ""
-                    label: Theme.chosenLight ? "Light mode" : "Dark mode"
-                    status: Theme.chosenInverted ? "Inverted" : "Normal"
+                    label: Theme.chosenLight ? Tr.t("Light mode") : Tr.t("Dark mode")
+                    status: Theme.chosenInverted ? Tr.t("Inverted") : Tr.t("Normal")
                     active: !Theme.chosenLight
                     onToggled: Theme.toggleLight()
                     onDetailRequested: root.controls("dark")

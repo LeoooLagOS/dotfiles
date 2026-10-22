@@ -29,23 +29,23 @@ Zone {
     readonly property var qualityChips: !library || !Library.active ? [] : [
         { t: lib.quality, on: false },
     ].concat(lib.hires ? [{ t: "Hi-Res", on: true }] : [],
-             lib.cardRate ? [lib.bitperfect ? { t: "Bit-perfect", on: true }
-                                           : { t: "Resampled " + (lib.rate / 1000) + " → " + (lib.cardRate / 1000) + " kHz", on: false }] : [])
+             lib.cardRate ? [lib.bitperfect ? { t: Tr.t("Bit-perfect"), on: true }
+                                           : { t: Tr.t("Resampled %1 → %2 kHz", lib.rate / 1000, lib.cardRate / 1000), on: false }] : [])
     readonly property var station: Radio.current
     readonly property var sinkAudio: Media.sink?.audio ?? null
 
     // What this view plays, as PipeWire streams: its own volume in the popover
     readonly property var appStreams: Media.streamsFor(radio ? ["mpv"] : library ? ["mpd"] : Media.playerKeys(player))
     readonly property var appAudio: appStreams[0]?.audio ?? null
-    readonly property string appName: radio ? "Radio" : library ? "Library" : (player?.identity ?? "App")
+    readonly property string appName: radio ? Tr.t("Radio") : library ? Tr.t("Library") : (player?.identity ?? "App")
     function setAppVolume(v) { for (const n of appStreams) if (n.audio) n.audio.volume = v; }
     function setAppMuted(m) { for (const n of appStreams) if (n.audio) n.audio.muted = m; }
 
     // Lyrics (services/Lyrics.qml): fetched while shown; the position read 5×/s
     readonly property bool lyrics: Settings.v.mediaLyrics && !radio && (library ? Library.active : !!player)
-    readonly property string titleText: radio ? (station?.name ?? "No stations")
-        : library ? (Library.active ? (lib.title ?? "") : "Choose an album")
-        : (player?.trackTitle || "Unknown title")
+    readonly property string titleText: radio ? (station?.name ?? Tr.t("No stations"))
+        : library ? (Library.active ? (lib.title ?? "") : Tr.t("Choose an album"))
+        : (player?.trackTitle || Tr.t("Unknown title"))
     readonly property string artistText: library ? (Library.active ? (lib.artist ?? "") : "") : (player?.trackArtist ?? "")
     readonly property string albumText: library ? (Library.active ? (lib.album ?? "") : "") : (player?.trackAlbum ?? "")
     Binding { target: Lyrics; property: "wanted"; value: root.visualize && root.lyrics }
@@ -133,8 +133,8 @@ Zone {
             anchors.centerIn: parent
             spacing: 10
             Glyph { anchors.horizontalCenter: parent.horizontalCenter; text: "\uf001"; font.pixelSize: 48; color: Theme.fgDim }
-            Label { anchors.horizontalCenter: parent.horizontalCenter; text: "Nothing playing"; dim: true; font.pixelSize: 15 }
-            Label { anchors.horizontalCenter: parent.horizontalCenter; text: "Play something in Spotify, Firefox, mpv…"; dim: true; font.pixelSize: 12 }
+            Label { anchors.horizontalCenter: parent.horizontalCenter; text: Tr.t("Nothing playing"); dim: true; font.pixelSize: 15 }
+            Label { anchors.horizontalCenter: parent.horizontalCenter; text: Tr.t("Play something in Spotify, Firefox, mpv…"); dim: true; font.pixelSize: 12 }
         }
     }
 
@@ -265,9 +265,9 @@ Zone {
                     y: Math.max(0, sideButtons.y + sideButtons.height / 2 - height / 2)
                     spacing: 4
                     Label {
-                        text: root.radio ? (Radio.loading ? "RADIO · CONNECTING…" : Radio.recording ? "RADIO · LIVE · ● REC " + Radio.recordElapsed
-                                            : Radio.active ? "RADIO · LIVE" : "RADIO")
-                            : root.library ? "LIBRARY · " + (Library.playing ? "PLAYING" : Library.active ? "PAUSED" : Library.albums.length + " ALBUMS")
+                        text: root.radio ? (Radio.loading ? Tr.t("RADIO · CONNECTING…") : Radio.recording ? Tr.t("RADIO · LIVE") + " · ● REC " + Radio.recordElapsed
+                                            : Radio.active ? Tr.t("RADIO · LIVE") : Tr.t("RADIO"))
+                            : root.library ? Tr.t("LIBRARY") + " · " + (Library.playing ? Tr.t("PLAYING") : Library.active ? Tr.t("PAUSED") : Tr.t("%1 ALBUMS", Library.albums.length))
                                          : (root.player?.identity ?? "")
                         dim: true
                         font.pixelSize: 11
@@ -285,7 +285,7 @@ Zone {
                         Layout.fillWidth: true
                     }
                     // Radio: what's on air (the stream's title), then frequency / city
-                    Label { text: root.radio ? Radio.onAir : root.library ? (Library.active ? (root.lib.artist ?? "") : "Browse your albums with the search button") : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }
+                    Label { text: root.radio ? Radio.onAir : root.library ? (Library.active ? (root.lib.artist ?? "") : Tr.t("Browse your albums with the search button")) : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }
                     Label { text: root.radio ? (root.station?.subtitle ?? "") : root.library ? (Library.active ? (root.lib.album ?? "") : "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
                 }
 
@@ -308,10 +308,10 @@ Zone {
                         visible: Lyrics.status !== "found"
                         dim: true
                         font.pixelSize: 14
-                        text: Lyrics.status === "loading" ? "Looking for the lyrics…"
+                        text: Lyrics.status === "loading" ? Tr.t("Looking for the lyrics…")
                             : Lyrics.status === "instrumental" ? "\u266A  Instrumental"
-                            : Lyrics.status === "offline" ? "Couldn't reach LRCLIB, the lyrics site. Try again later."
-                            : Lyrics.status === "none" ? "No lyrics found for this song" : ""
+                            : Lyrics.status === "offline" ? Tr.t("Couldn't reach LRCLIB, the lyrics site. Try again later.")
+                            : Lyrics.status === "none" ? Tr.t("No lyrics found for this song") : ""
                     }
 
                     ListView {
@@ -442,7 +442,7 @@ Zone {
                     }
                 }
 
-                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? "LIVE" : root.library ? Media.fmt(root.lib.duration) : Media.fmt(root.player?.length)
+                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Tr.t("LIVE") : root.library ? Media.fmt(root.lib.duration) : Media.fmt(root.player?.length)
                         color: root.radio && Radio.active ? Theme.accent : Theme.fgDim
                         font.pixelSize: 11; font.weight: root.radio ? Font.DemiBold : Font.Normal; font.features: { "tnum": 1 } }
             }
@@ -461,7 +461,7 @@ Zone {
             Glyph { anchors.horizontalCenter: parent.horizontalCenter; text: "\u{f0025}"; font.pixelSize: 48; color: Theme.fgDim }
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: Library.problem === "mpd" ? "The music library needs MPD" : Library.problem ? "The music library isn't answering" : "Connecting to the library…"
+                text: Library.problem === "mpd" ? Tr.t("The music library needs MPD") : Library.problem ? Tr.t("The music library isn't answering") : Tr.t("Connecting to the library…")
                 font.pixelSize: 15
                 font.weight: Font.DemiBold
             }
@@ -472,7 +472,7 @@ Zone {
                 dim: true
                 font.pixelSize: 12
                 text: Library.problem === "mpd"
-                    ? "MPD plays ~/Music in full quality. Install it and start it once:\nsudo dnf install mpd mpc  ·  systemctl --user enable --now mpd"
+                    ? Tr.t("MPD plays ~/Music in full quality. Install it and start it once:") + "\nsudo dnf install mpd mpc  ·  systemctl --user enable --now mpd"
                     : Library.problem
             }
         }
@@ -510,7 +510,7 @@ Zone {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                TextField { id: libField; Layout.fillWidth: true; icon: "\uf002"; placeholder: "Album or artist" }
+                TextField { id: libField; Layout.fillWidth: true; icon: "\uf002"; placeholder: Tr.t("Album or artist") }
                 IconButton {
                     icon: "\uf021"                 // rescan ~/Music
                     iconSize: 12; implicitWidth: 34; implicitHeight: 30
@@ -519,8 +519,8 @@ Zone {
                 }
             }
             Label {
-                text: Library.loadingAlbums ? "READING ~/Music…"
-                    : libPane.shown.length + (libPane.shown.length === 1 ? " ALBUM" : " ALBUMS")
+                text: Library.loadingAlbums ? Tr.t("READING ~/Music…")
+                    : Tr.n(libPane.shown.length, "%1 ALBUM", "%1 ALBUMS")
                       + (Library.albums.filter(a => a.hires).length ? " · " + Library.albums.filter(a => a.hires).length + " HI-RES" : "")
                 dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1
             }
@@ -569,7 +569,7 @@ Zone {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
                     visible: parent.count === 0 && !Library.loadingAlbums
-                    text: libPane.q ? "No albums match" : "No albums yet. Put them in ~/Music as Artist/Album (Year)/, or import with: beet import <folder>"
+                    text: libPane.q ? Tr.t("No albums match") : Tr.t("No albums yet. Put them in ~/Music as Artist/Album (Year)/, or import with: beet import <folder>")
                     dim: true
                     font.pixelSize: 12
                 }
@@ -599,10 +599,10 @@ Zone {
                     spacing: 1
                     Label { text: albumView.a.album ?? ""; font.pixelSize: 15; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
                     Label { text: (albumView.a.artist ?? "") + (albumView.a.year ? " · " + albumView.a.year : ""); dim: true; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
-                    Label { text: (albumView.a.quality ?? "") + " · " + albumView.a.tracks.length + " tracks"; dim: true; font.pixelSize: 11 }
+                    Label { text: (albumView.a.quality ?? "") + " · " + Tr.t("%1 tracks", albumView.a.tracks.length); dim: true; font.pixelSize: 11 }
                 }
-                Chip { text: "Play"; icon: "\uf04b"; filled: true; onClicked: { Library.play(root.openAlbum, 0); root.searching = false; } }
-                Chip { text: "Queue"; icon: "\uf067"; onClicked: Library.queue(root.openAlbum) }
+                Chip { text: Tr.t("Play"); icon: "\uf04b"; filled: true; onClicked: { Library.play(root.openAlbum, 0); root.searching = false; } }
+                Chip { text: Tr.t("Queue"); icon: "\uf067"; onClicked: Library.queue(root.openAlbum) }
             }
             ListView {
                 Layout.fillWidth: true
@@ -676,11 +676,11 @@ Zone {
                     id: searchField
                     Layout.fillWidth: true
                     icon: "\uf002"
-                    placeholder: "Station name or frequency, e.g. 96.9"
+                    placeholder: Tr.t("Station name or frequency, e.g. 96.9")
                     onAccepted: Radio.search(text, root.mexicoOnly)
                 }
                 Chip {
-                    text: "Mexico only"
+                    text: Tr.t("Mexico only")
                     implicitHeight: 30
                     active: root.mexicoOnly
                     onClicked: { root.mexicoOnly = !root.mexicoOnly; if (searchPane.querying) Radio.search(searchField.text, root.mexicoOnly); }
@@ -688,9 +688,9 @@ Zone {
             }
 
             Label {
-                text: !searchPane.querying ? "YOUR STATIONS"
-                    : Radio.searching ? "SEARCHING…"
-                    : Radio.searchError ? "" : Radio.results.length + (Radio.results.length === 1 ? " STATION" : " STATIONS")
+                text: !searchPane.querying ? Tr.t("YOUR STATIONS")
+                    : Radio.searching ? Tr.t("SEARCHING…")
+                    : Radio.searchError ? "" : Tr.n(Radio.results.length, "%1 STATION", "%1 STATIONS")
                 visible: text !== ""
                 dim: true
                 font.pixelSize: 10
@@ -763,7 +763,7 @@ Zone {
                 Label {
                     anchors.centerIn: parent
                     visible: parent.count === 0 && !Radio.searching && !Radio.searchError
-                    text: searchPane.querying ? "No stations found" : "No stations yet: search to add some"
+                    text: searchPane.querying ? Tr.t("No stations found") : Tr.t("No stations yet: search to add some")
                     dim: true
                     font.pixelSize: 12
                 }
@@ -812,7 +812,7 @@ Zone {
 
         Label {
             Layout.alignment: Qt.AlignHCenter
-            text: col.muted ? "Mute" : Math.round(col.volume * 100) + "%"
+            text: col.muted ? Tr.t("Mute") : Math.round(col.volume * 100) + "%"
             font.pixelSize: 12
             font.weight: Font.DemiBold
         }
@@ -921,7 +921,7 @@ Zone {
             Rectangle { visible: !!root.appAudio; Layout.fillHeight: true; Layout.topMargin: 6; Layout.bottomMargin: 6; implicitWidth: 1; color: Theme.border }
             VolumeColumn {
                 id: systemVolume
-                caption: "System"
+                caption: Tr.t("System")
                 volume: root.sinkAudio?.volume ?? 0
                 muted: root.sinkAudio?.muted ?? false
                 onSetVolume: v => { if (root.sinkAudio) root.sinkAudio.volume = v; }
@@ -956,7 +956,7 @@ Zone {
             anchors.margins: 10
             spacing: 4
 
-            Label { text: "OUTPUT"; dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1; Layout.leftMargin: 6 }
+            Label { text: Tr.t("OUTPUT"); dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1; Layout.leftMargin: 6 }
 
             Repeater {
                 id: outputRepeater

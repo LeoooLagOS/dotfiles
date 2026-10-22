@@ -293,7 +293,7 @@ Rectangle {
                         radius: 9
                         color: groupMouse.containsMouse ? Qt.lighter(card.pal.accent, 1.15) : card.pal.accent
                         Label { pal: card.pal; id: groupLabel; anchors.centerIn: parent
-                                text: card.grouped + (card.isMail ? " new" : " messages") + (card.canExpand ? (card.expanded ? "  \u25b4" : "  \u25be") : "")
+                                text: Tr.t(card.isMail ? "%1 new" : "%1 messages", card.grouped) + (card.canExpand ? (card.expanded ? "  \u25b4" : "  \u25be") : "")
                                 color: card.pal.accentText; font.pixelSize: 10; font.weight: Font.DemiBold }
                         MouseArea { id: groupMouse; anchors.fill: parent; enabled: card.canExpand
                                     hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -354,7 +354,7 @@ Rectangle {
                 }
                 Label { pal: card.pal
                     visible: !card.expanded && card.olderMessages.length > 3
-                    text: "+" + (card.olderMessages.length - 3) + " earlier"
+                    text: Tr.t("+%1 earlier", card.olderMessages.length - 3)
                     dim: true
                     font.pixelSize: 11
                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: card.expanded = true }
@@ -403,7 +403,7 @@ Rectangle {
                         anchors.centerIn: parent
                         spacing: 8
                         Glyph { pal: card.pal; text: "\uf112"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
-                        Label { pal: card.pal; text: "Reply"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                        Label { pal: card.pal; text: Tr.t("Reply"); font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
                     }
                     MouseArea {
                         id: replyMouse
@@ -425,7 +425,7 @@ Rectangle {
                         anchors.centerIn: parent
                         spacing: 7
                         Glyph { pal: card.pal; text: "\uf271"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
-                        Label { pal: card.pal; text: "Add"; font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+                        Label { pal: card.pal; text: Tr.t("Add"); font.pixelSize: 12; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
                     }
                     MouseArea {
                         id: addMouse
@@ -453,7 +453,7 @@ Rectangle {
                     spacing: 8
                     Glyph { pal: card.pal; text: card.copied ? "\uf00c" : "\uf0c5"; font.pixelSize: 11; color: card.critical ? card.critFg : card.pal.fg; anchors.verticalCenter: parent.verticalCenter }
                     Label { pal: card.pal;
-                        text: card.copied ? "Copied" : "Copy code  " + card.code
+                        text: card.copied ? Tr.t("Copied") : Tr.t("Copy code") + "  " + card.code
                         color: card.critical ? card.critFg : card.pal.fg
                         font.pixelSize: 12
                         font.weight: Font.DemiBold

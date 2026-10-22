@@ -15,6 +15,8 @@ gi.require_version("Gtk", "3.0")
 gi.require_version("GtkLayerShell", "0.1")
 from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, GtkLayerShell  # noqa: E402
 
+from lagos_i18n import t  # noqa: E402
+
 HOLD_MS = 500
 DRAIN_FACTOR = 3  # releasing empties the tile this many times faster
 TILE_W, TILE_H, ICON_SIZE = 200, 260, 72
@@ -26,11 +28,11 @@ COLORS = os.path.join(CONFIG, "waybar", "wallust", "colors-waybar.css")
 
 # (key, label, icon, command, needs hold)
 ACTIONS = [
-    ("l", "Lock", "lock-2", f"{SCRIPTS}/LockScreen.sh", False),
-    ("o", "Logout", "logout-box-r", f"{SCRIPTS}/Logout.sh", True),
-    ("p", "Shutdown", "shut-down", "systemctl poweroff", True),
-    ("r", "Reboot", "restart", "systemctl reboot", True),
-    ("s", "Suspend", "hotel-bed", f"{SCRIPTS}/LockScreen.sh; sleep 1; systemctl suspend", True),
+    ("l", t("Lock"), "lock-2", f"{SCRIPTS}/LockScreen.sh", False),
+    ("o", t("Log out"), "logout-box-r", f"{SCRIPTS}/Logout.sh", True),
+    ("p", t("Shut down"), "shut-down", "systemctl poweroff", True),
+    ("r", t("Restart"), "restart", "systemctl reboot", True),
+    ("s", t("Suspend"), "hotel-bed", f"{SCRIPTS}/LockScreen.sh; sleep 1; systemctl suspend", True),
 ]
 
 

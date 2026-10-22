@@ -39,7 +39,7 @@ Zone {
     Binding { target: NetInfo; property: "listing"; value: root.tabVisible && root.view === "networks" }
 
     titleActions: [
-        Chip { text: "Networks"; fontSize: 10; implicitHeight: 22; active: root.view === "networks" || (root.view === "details" && root.backView === "networks"); onClicked: root.view = "networks" },
+        Chip { text: Tr.t("Networks"); fontSize: 10; implicitHeight: 22; active: root.view === "networks" || (root.view === "details" && root.backView === "networks"); onClicked: root.view = "networks" },
         Chip {
             text: "VPN"; fontSize: 10; implicitHeight: 22
             icon: Vpn.active ? "\uf023" : ""
@@ -69,10 +69,10 @@ Zone {
         ToggleTile {
             Layout.fillWidth: true
             icon: Networking.wifiEnabled ? "\uf1eb" : "\u{f05aa}"
-            label: Networking.wifiEnabled ? "On" : "Off"
-            status: !Networking.wifiHardwareEnabled ? "Blocked by hardware switch"
-                    : root.connected ? "Connected to " + root.connected.name
-                    : Networking.wifiEnabled ? "Not connected" : "Wi-Fi is off"
+            label: Networking.wifiEnabled ? Tr.t("On") : Tr.t("Off")
+            status: !Networking.wifiHardwareEnabled ? Tr.t("Blocked by hardware switch")
+                    : root.connected ? Tr.t("Connected to %1", root.connected.name)
+                    : Networking.wifiEnabled ? Tr.t("Not connected") : Tr.t("Wi-Fi is off")
             active: Networking.wifiEnabled && Networking.wifiHardwareEnabled
             onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
             // ›: the connected network's details, or the connection editor
@@ -117,8 +117,8 @@ Zone {
                     elide: Text.ElideRight
                 }
                 Label {
-                    text: wiredRow.w?.connected ? "Connected" : wiredRow.unplugged ? "Cable unplugged"
-                        : /connecting/.test(wiredRow.w?.state ?? "") ? "Connecting…" : "Click to connect"
+                    text: wiredRow.w?.connected ? Tr.t("Connected") : wiredRow.unplugged ? Tr.t("Cable unplugged")
+                        : /connecting/.test(wiredRow.w?.state ?? "") ? Tr.t("Connecting…") : Tr.t("Click to connect")
                     dim: true
                     font.pixelSize: 11
                 }
@@ -182,7 +182,7 @@ Zone {
                         font.weight: item.modelData.connected ? Font.DemiBold : Font.Normal
                     }
                     Label {
-                        text: item.modelData.stateChanging ? "…" : item.modelData.connected ? "Connected" : item.modelData.known ? "Saved" : ""
+                        text: item.modelData.stateChanging ? "…" : item.modelData.connected ? Tr.t("Connected") : item.modelData.known ? Tr.t("Saved") : ""
                         dim: true
                         font.pixelSize: 11
                     }
@@ -206,7 +206,7 @@ Zone {
             Label {
                 anchors.centerIn: parent
                 visible: parent.count === 0
-                text: "Scanning…"
+                text: Tr.t("Scanning…")
                 dim: true
             }
         }
@@ -258,10 +258,10 @@ Zone {
                     Label { text: details.i.name || (details.kind === "ethernet" ? "Ethernet" : "…"); font.pixelSize: 14; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
                     Label {
                         text: details.kind === "wifi"
-                              ? "Connected" + (details.i.band ? " · " + details.i.band : "") + (details.i.channel ? " · channel " + details.i.channel : "")
+                              ? Tr.t("Connected") + (details.i.band ? " · " + details.i.band : "") + (details.i.channel ? " · " + Tr.t("channel %1", details.i.channel) : "")
                             : details.kind === "ethernet"
-                              ? (details.i.connected ? "Connected" : "Disconnected") + (details.i.speed ? " · " + details.i.speed : "") + " · Ethernet"
-                            : (details.i.active ? "Connected" : "Disconnected") + " · " + (details.i.type ?? "VPN")
+                              ? (details.i.connected ? Tr.t("Connected") : Tr.t("Disconnected")) + (details.i.speed ? " · " + details.i.speed : "") + " · Ethernet"
+                            : (details.i.active ? Tr.t("Connected") : Tr.t("Disconnected")) + " · " + (details.i.type ?? "VPN")
                         dim: true; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true
                     }
                 }
@@ -278,7 +278,7 @@ Zone {
             visible: details.kind === "wifi"
             Layout.fillWidth: true
             icon: "\uf1eb"
-            label: "Signal"
+            label: Tr.t("Signal")
             value: (details.i.signal ?? 0) + "%"
             ratio: (details.i.signal ?? 0) / 100
             barColor: Theme.lowLevel((details.i.signal ?? 0) / 100, 0.45, 0.25)
@@ -292,17 +292,17 @@ Zone {
             rowSpacing: 7
             Repeater {
                 model: (details.kind === "wifi" ? [
-                    ["Speed", details.i.rate ?? ""],
-                    ["Security", details.i.security || "Open"]
+                    [Tr.t("Speed"), details.i.rate ?? ""],
+                    [Tr.t("Security"), details.i.security || Tr.t("Open")]
                 ] : details.kind === "ethernet" ? [
-                    ["Speed", details.i.speed ?? ""],
-                    ["Interface", details.i.device ?? ""]
+                    [Tr.t("Speed"), details.i.speed ?? ""],
+                    [Tr.t("Interface"), details.i.device ?? ""]
                 ] : [
-                    ["Server", details.i.server ?? ""],
-                    ["Interface", details.i.device ?? ""]
+                    [Tr.t("Server"), details.i.server ?? ""],
+                    [Tr.t("Interface"), details.i.device ?? ""]
                 ]).concat([
                     ["IPv4", details.i.ip4 ?? ""],
-                    ["Gateway", details.i.gateway ?? ""],
+                    [Tr.t("Gateway"), details.i.gateway ?? ""],
                     ["DNS", (details.i.dns ?? []).join(", ")],
                     ["IPv6", (details.i.ip6 ?? [])[0] ?? ""],
                     ["MAC", details.kind === "vpn" ? "" : details.i.mac ?? ""]
@@ -332,7 +332,7 @@ Zone {
 
         RowLayout {
             Layout.fillWidth: true
-            Label { text: "Connect automatically"; font.pixelSize: 13; Layout.fillWidth: true }
+            Label { text: Tr.t("Connect automatically"); font.pixelSize: 13; Layout.fillWidth: true }
             Switch { checked: details.i.autoconnect ?? false; onToggled: NetInfo.setAutoconnect(!(details.i.autoconnect ?? false)) }
         }
 
@@ -350,12 +350,12 @@ Zone {
             spacing: 6
             Chip {
                 visible: details.kind === "wifi" || !!(details.i.active || details.i.connected)
-                text: "Disconnect"; icon: "\uf127"
+                text: Tr.t("Disconnect"); icon: "\uf127"
                 onClicked: { NetInfo.disconnect(); root.view = root.backView; }
             }
             Chip {
                 visible: details.kind !== "ethernet"
-                text: root.forgetArmed ? "Forget it? Click again" : "Forget"
+                text: root.forgetArmed ? Tr.t("Forget it? Click again") : Tr.t("Forget")
                 icon: "\uf1f8"
                 filled: root.forgetArmed
                 tint: Theme.bad
@@ -365,7 +365,7 @@ Zone {
                     root.view = root.backView;
                 }
             }
-            Chip { text: "Advanced"; icon: "\uf013"; onClicked: NetInfo.edit() }
+            Chip { text: Tr.t("Advanced"); icon: "\uf013"; onClicked: NetInfo.edit() }
         }
     }
 
@@ -379,10 +379,10 @@ Zone {
         ToggleTile {
             Layout.fillWidth: true
             icon: Vpn.active ? "\uf023" : "\uf09c"
-            label: Vpn.active ? Vpn.active.name : "VPN off"
-            status: Vpn.busy ? "Switching…"
-                  : Vpn.active ? Vpn.active.type + " · traffic goes through the VPN"
-                  : Vpn.connections.length ? "Pick a connection below" : "No VPN saved"
+            label: Vpn.active ? Vpn.active.name : Tr.t("VPN off")
+            status: Vpn.busy ? Tr.t("Switching…")
+                  : Vpn.active ? Tr.t("%1 · traffic goes through the VPN", Vpn.active.type)
+                  : Vpn.connections.length ? Tr.t("Pick a connection below") : Tr.t("No VPN saved")
             active: !!Vpn.active
             // On: turn the active one off; off: the first saved one on
             onToggled: { const c = Vpn.active ?? Vpn.connections[0]; if (c && !Vpn.busy) Vpn.toggle(c); }
@@ -429,7 +429,7 @@ Zone {
                         elide: Text.ElideRight
                     }
                     Label {
-                        text: Vpn.busy === vpnItem.modelData.uuid ? "…" : vpnItem.modelData.active ? "Connected" : vpnItem.modelData.type
+                        text: Vpn.busy === vpnItem.modelData.uuid ? "…" : vpnItem.modelData.active ? Tr.t("Connected") : vpnItem.modelData.type
                         dim: true
                         font.pixelSize: 11
                     }
@@ -454,11 +454,11 @@ Zone {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
                     dim: true
-                    text: "No VPN connections saved in NetworkManager."
+                    text: Tr.t("No VPN connections saved in NetworkManager.")
                 }
                 Chip {
                     Layout.alignment: Qt.AlignHCenter
-                    text: "Add or import a VPN"
+                    text: Tr.t("Add or import a VPN")
                     icon: "\uf067"
                     onClicked: { PanelState.open = false; Vpn.add(); }
                 }

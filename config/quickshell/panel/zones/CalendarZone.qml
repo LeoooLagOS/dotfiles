@@ -77,7 +77,7 @@ Zone {
                 Layout.fillWidth: true
                 Label {
                     Layout.fillWidth: true
-                    text: Qt.formatDate(new Date(root.year, root.month, 1), "MMMM yyyy")
+                    text: Tr.cap(Tr.date(new Date(root.year, root.month, 1), "MMMM yyyy"))
                     font.pixelSize: 16
                     font.weight: Font.DemiBold
                     MouseArea {
@@ -131,7 +131,7 @@ Zone {
                         width: grid.cellWidth
                         height: 18
                         horizontalAlignment: Text.AlignHCenter
-                        text: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][(index + Config.firstWeekday) % 7]
+                        text: Tr.cap(Tr.locale.dayName((index + Config.firstWeekday) % 7, Locale.ShortFormat).slice(0, 2))
                         dim: true
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
@@ -229,14 +229,14 @@ Zone {
                                                             - new Date(root.today).setHours(0, 0, 0, 0)) / 86400000)
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
-                    text: diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : diff === -1 ? "Yesterday" : "Events"
+                    text: diff === 0 ? Tr.t("Today") : diff === 1 ? Tr.t("Tomorrow") : diff === -1 ? Tr.t("Yesterday") : Tr.t("Events")
                     font.pixelSize: 16
                     font.weight: Font.DemiBold
                 }
                 Label {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
-                    text: Qt.formatDate(root.selected, "ddd").toUpperCase() + " · " + Qt.formatDate(root.selected, "MMM d")
+                    text: Tr.date(root.selected, "ddd").toUpperCase() + " · " + Tr.cap(Tr.date(root.selected, Tr.t("MMM d")))
                     dim: true
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
@@ -261,7 +261,7 @@ Zone {
 
                     Label {
                         visible: dayList.due.length > 0
-                        text: "TO HAND IN · " + dayList.due.length
+                        text: Tr.t("TO HAND IN · %1", dayList.due.length)
                         dim: true
                         font.pixelSize: 10
                         font.weight: Font.DemiBold
@@ -274,7 +274,7 @@ Zone {
                     Label {
                         visible: dayList.due.length > 0 && dayList.events.length > 0
                         topPadding: 4
-                        text: "EVENTS"
+                        text: Tr.t("EVENTS")
                         dim: true
                         font.pixelSize: 10
                         font.weight: Font.DemiBold
@@ -328,12 +328,12 @@ Zone {
                                         implicitHeight: 16
                                         radius: 8
                                         color: Theme.accent2
-                                        Label { id: nowText; anchors.centerIn: parent; text: "Now"; font.pixelSize: 9; font.weight: Font.Bold; color: Theme.accent2Text }
+                                        Label { id: nowText; anchors.centerIn: parent; text: Tr.t("Now"); font.pixelSize: 9; font.weight: Font.Bold; color: Theme.accent2Text }
                                     }
                                 }
                                 Label {
                                     Layout.fillWidth: true
-                                    text: (modelData.allDay ? "All day" : modelData.start + " – " + modelData.end)
+                                    text: (modelData.allDay ? Tr.t("All day") : modelData.start + " – " + modelData.end)
                                           + (modelData.location ? "  ·  " + modelData.location : "")
                                     dim: true
                                     font.pixelSize: 11
@@ -348,7 +348,7 @@ Zone {
                     x: (dayList.width - width) / 2
                     y: (dayList.height - height) / 2
                     visible: dayList.due.length === 0 && dayList.events.length === 0
-                    text: Events.loading ? "Loading…" : root.sameDay(root.selected, Events.now) ? "Nothing left today" : "No events"
+                    text: Events.loading ? Tr.t("Loading…") : root.sameDay(root.selected, Events.now) ? Tr.t("Nothing left today") : Tr.t("No events")
                     dim: true
                     font.pixelSize: 12
                 }

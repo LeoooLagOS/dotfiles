@@ -20,6 +20,8 @@ import time
 from pathlib import Path
 from urllib.parse import quote
 
+from lagos_i18n import t
+
 PARTIAL = (".crdownload", ".part", ".tmp", ".download", ".partial")
 REPEAT_WINDOW = 5  # seconds: one notification per file in this window
 
@@ -81,8 +83,8 @@ def notify(path: Path) -> None:
     answer = subprocess.run([
         "notify-send", "-a", "Downloads", "-i", icon_for(path),
         "-h", "string:category:transfer.complete",
-        "-A", "default=Open", "-A", "open=Open", "-A", "folder=Show in folder",
-        "Download complete", f"{path.name}\n{size}",
+        "-A", f"default={t('Open')}", "-A", f"open={t('Open')}", "-A", f"folder={t('Show in folder')}",
+        t("Download complete"), f"{path.name}\n{size}",
     ], capture_output=True, text=True).stdout.strip()
     if answer in ("default", "open"):
         subprocess.Popen(["xdg-open", str(path)])

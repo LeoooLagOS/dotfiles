@@ -104,7 +104,7 @@ Rectangle {
             const a = Media.sink?.audio;
             if (!a) return;
             a.volume = Math.max(0, Math.min(1, a.volume + (w.angleDelta.y > 0 ? 0.05 : -0.05)));
-            BarState.say(a.volume === 0 ? "" : "", "Volume " + Math.round(a.volume * 100) + "%");
+            BarState.say(a.volume === 0 ? "" : "", Tr.t("Volume %1", Math.round(a.volume * 100) + "%"));
         }
     }
 
@@ -130,9 +130,9 @@ Rectangle {
         readonly property int rollIn: 600
         // Both boxes as wide as the widest of the three texts: the pill never changes size
         readonly property real dateBox: Math.ceil(Math.max(dayMetrics.advanceWidth, numMetrics.advanceWidth, monMetrics.advanceWidth))
-        TextMetrics { id: dayMetrics; font: dateText.font; text: Qt.formatDate(clock.date, "ddd") }
+        TextMetrics { id: dayMetrics; font: dateText.font; text: Tr.cap(Tr.date(clock.date, "ddd")) }
         TextMetrics { id: numMetrics; font: dateText.font; text: Qt.formatDate(clock.date, "d") }
-        TextMetrics { id: monMetrics; font: dateText.font; text: Qt.formatDate(clock.date, "MMM") }
+        TextMetrics { id: monMetrics; font: dateText.font; text: Tr.cap(Tr.date(clock.date, "MMM")) }
         Timer {
             interval: topRow.rollEvery
             repeat: true
@@ -378,7 +378,7 @@ Rectangle {
             radius: 10
             color: root.accent
             anchors.verticalCenter: parent.verticalCenter
-            Label { id: undoText; anchors.centerIn: parent; text: "Undo"; color: Theme.onColor(root.accent); font.pixelSize: 11; font.weight: Font.Bold }
+            Label { id: undoText; anchors.centerIn: parent; text: Tr.t("Undo"); color: Theme.onColor(root.accent); font.pixelSize: 11; font.weight: Font.Bold }
         }
     }
 
@@ -477,8 +477,8 @@ Rectangle {
             spacing: 8
             Repeater {
                 model: [
-                    { label: "Reply", icon: "\uf112", ok: !!BarState.messageNotif() && Comms.canReply(BarState.messageNotif()), run: () => BarState.replyMessage() },
-                    { label: "Open", icon: "\uf35d", ok: true, run: () => BarState.openMessage() }
+                    { label: Tr.t("Reply"), icon: "\uf112", ok: !!BarState.messageNotif() && Comms.canReply(BarState.messageNotif()), run: () => BarState.replyMessage() },
+                    { label: Tr.t("Open"), icon: "\uf35d", ok: true, run: () => BarState.openMessage() }
                 ]
                 delegate: Rectangle {
                     required property var modelData
@@ -539,7 +539,7 @@ Rectangle {
                 Label { id: sky; text: Weather.description; color: root.ink; font.pixelSize: 15; font.weight: Font.DemiBold }
             }
             Label {
-                text: [Weather.place, "feels like " + Math.round(Weather.feelsLike) + "°"].filter(s => s).join(" · ")
+                text: [Weather.place, Tr.t("feels like %1", Math.round(Weather.feelsLike) + "°")].filter(s => s).join(" · ")
                 color: root.inkDim
                 font.pixelSize: 12
                 Layout.fillWidth: true
@@ -585,7 +585,7 @@ Rectangle {
                                 id: hour
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.bottom: parent.bottom
-                                text: index === 0 ? "Now" : Qt.formatTime(new Date(clock.date.getTime() + index * 3600000), Settings.v.bar24h ? "HH" : "h AP")
+                                text: index === 0 ? Tr.t("Now") : Qt.formatTime(new Date(clock.date.getTime() + index * 3600000), Settings.v.bar24h ? "HH" : "h AP")
                                 color: root.inkDim
                                 font.pixelSize: 10
                             }

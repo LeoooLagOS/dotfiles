@@ -5,7 +5,7 @@ import "../../services"
 
 // DETAIL: sound output device
 Zone {
-    title: "Sound output"
+    title: Tr.t("Sound output")
     icon: ""
     closable: true
     DeviceList {

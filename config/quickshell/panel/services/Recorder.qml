@@ -73,10 +73,10 @@ Singleton {
             if (code === 0) {
                 root.lastFile = root.file;
                 Quickshell.execDetached(["notify-send", "-a", "Screen recording", "-i", "video-x-generic",
-                                         "Recording saved", root.file.replace(Quickshell.env("HOME"), "~")]);
+                                         Tr.t("Recording saved"), root.file.replace(Quickshell.env("HOME"), "~")]);
             } else {
-                root.error = err.text.trim().split("\n").pop() || "gpu-screen-recorder didn't write the file";
-                Quickshell.execDetached(["notify-send", "-a", "Screen recording", "Recording failed", root.error]);
+                root.error = err.text.trim().split("\n").pop() || Tr.t("gpu-screen-recorder didn't write the file");
+                Quickshell.execDetached(["notify-send", "-a", "Screen recording", Tr.t("Recording failed"), root.error]);
             }
         }
     }

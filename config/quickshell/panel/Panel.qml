@@ -178,7 +178,7 @@ Scope {
                                         color: tabButton.current ? Theme.tabIcon : Theme.fgDim
                                     }
                                     Label {
-                                        text: tabButton.modelData.name
+                                        text: Tr.t(tabButton.modelData.name)
                                         font.pixelSize: 13
                                         font.weight: tabButton.current ? Font.DemiBold : Font.Normal
                                         color: tabButton.current ? Theme.tabFg : Theme.fgDim
@@ -246,7 +246,7 @@ Scope {
                         y: a.y
                         width: a.width
                         height: card.y + card.height - Config.spacing - y
-                        title: "Notifications"
+                        title: Tr.t("Notifications")
                         icon: "\uf0f3"
                         badge: Notifs.count > 0 ? String(Notifs.count) : ""
 

@@ -8,11 +8,11 @@ import "../services"
 // created in the panel can be deleted (×). Header: refresh (forces an Outlook
 // download), List ↔ Timeline (common/DayTimeline.qml: the selected day by the
 // hour, free gaps and what's due) and "+ New event", which opens the form below the header.
-// Keyboard: Tab to "New event", Enter; in the form Tab between fields, Enter
+// Keyboard: Tab to Tr.t("New event"), Enter; in the form Tab between fields, Enter
 // on a field saves, Esc closes the form.
 Zone {
     id: root
-    title: "Agenda"
+    title: Tr.t("Agenda")
     icon: ""
 
     property bool creating: false
@@ -23,7 +23,7 @@ Zone {
         const t = new Date(); t.setHours(0, 0, 0, 0);
         const x = new Date(d); x.setHours(0, 0, 0, 0);
         const diff = Math.round((x - t) / 86400000);
-        return diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : diff === -1 ? "Yesterday" : Qt.formatDate(d, "dddd");
+        return diff === 0 ? Tr.t("Today") : diff === 1 ? Tr.t("Tomorrow") : diff === -1 ? Tr.t("Yesterday") : Tr.cap(Tr.date(d, "dddd"));
     }
 
     // Next 7 days, grouped by date, without the selected day (shown above)
@@ -52,7 +52,7 @@ Zone {
         Chip {
             implicitHeight: 26
             icon: root.creating ? "\uf00d" : "\uf067"
-            text: root.creating ? "Cancel" : "New event"
+            text: root.creating ? Tr.t("Cancel") : Tr.t("New event")
             active: root.creating
             onClicked: root.creating = !root.creating
         }
@@ -101,11 +101,11 @@ Zone {
                         Label { text: root.dayTitle(Events.selected); font.pixelSize: 15; font.weight: Font.DemiBold }
                         Label {
                             anchors.baseline: parent.children[0].baseline
-                            text: Qt.formatDate(Events.selected, "ddd").toUpperCase() + " · " + Qt.formatDate(Events.selected, "MMM d")
+                            text: Tr.date(Events.selected, "ddd").toUpperCase() + " · " + Tr.cap(Tr.date(Events.selected, Tr.t("MMM d")))
                             dim: true; font.pixelSize: 11; font.weight: Font.DemiBold
                         }
                     }
-                    Label { visible: parent.dayEvents.length === 0; text: Events.loading ? "Loading…" : "No events"; dim: true; font.pixelSize: 12 }
+                    Label { visible: parent.dayEvents.length === 0; text: Events.loading ? Tr.t("Loading…") : Tr.t("No events"); dim: true; font.pixelSize: 12 }
                     Repeater {
                         model: parent.dayEvents
                         delegate: EventCard { required property var modelData; event: modelData; width: lists.width }
@@ -118,7 +118,7 @@ Zone {
                     spacing: 6
                     visible: root.upcomingGroups.length > 0
 
-                    Label { text: "NEXT 7 DAYS"; dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1 }
+                    Label { text: Tr.t("NEXT 7 DAYS"); dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1 }
 
                     Repeater {
                         model: root.upcomingGroups
@@ -128,7 +128,7 @@ Zone {
                             spacing: 4
                             Label {
                                 readonly property date d: new Date(modelData.date + "T12:00")
-                                text: root.dayTitle(d) + "  ·  " + Qt.formatDate(d, "MMM d")
+                                text: root.dayTitle(d) + "  ·  " + Tr.cap(Tr.date(d, Tr.t("MMM d")))
                                 font.pixelSize: 11
                                 font.weight: Font.DemiBold
                                 color: Theme.accentSoft
@@ -169,7 +169,7 @@ Zone {
             }
             Label {
                 Layout.fillWidth: true
-                text: (card.event.allDay ? "All day" : card.event.start + " – " + card.event.end)
+                text: (card.event.allDay ? Tr.t("All day") : card.event.start + " – " + card.event.end)
                       + (card.event.location ? "  ·  " + card.event.location : "")
                       + "  ·  " + (card.event.source === "outlook" ? "Outlook" : card.event.calendar)
                       + (card.event.reminder > 0 ? "  ·  ⏰ " + card.event.reminder + "m" : "")

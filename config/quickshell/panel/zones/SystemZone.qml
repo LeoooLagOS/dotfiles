@@ -14,7 +14,7 @@ import "../services"
 // are updated in place instead of recreated on every poll.
 Zone {
     id: root
-    title: "System"
+    title: Tr.t("System")
     accentHeader: true
     icon: "\uf2db"
 
@@ -48,7 +48,7 @@ Zone {
         StatRow {
             Layout.fillWidth: true
             iconColor: Theme.accent
-            icon: "\uf2db"; label: "Memory"
+            icon: "\uf2db"; label: Tr.t("Memory")
             value: SystemStats.gb(SystemStats.memUsed) + " / " + SystemStats.gb(SystemStats.memTotal) + " GB"
             ratio: SystemStats.memUsed / SystemStats.memTotal
             barColor: Theme.level(ratio, 0.75, 0.9)
@@ -56,7 +56,7 @@ Zone {
         StatRow {
             Layout.fillWidth: true
             iconColor: Theme.accent
-            icon: "\uf2c9"; label: "Temp"
+            icon: "\uf2c9"; label: Tr.t("Temp")
             value: SystemStats.temp + "°C"
             ratio: SystemStats.temp / 100
             barColor: Theme.level(ratio, 0.8, 0.9)          // 80 °C / 90 °C
@@ -64,7 +64,7 @@ Zone {
         StatRow {
             Layout.fillWidth: true
             iconColor: Theme.accent
-            icon: "\uf0a0"; label: "Disk"
+            icon: "\uf0a0"; label: Tr.t("Disk")
             value: Math.round(SystemStats.diskUsed / 1e9) + " / " + Math.round(SystemStats.diskTotal / 1e9) + " GB"
             ratio: SystemStats.diskUsed / SystemStats.diskTotal
             barColor: Theme.level(ratio, 0.8, 0.9)
@@ -72,8 +72,8 @@ Zone {
         StatRow {
             Layout.fillWidth: true
             iconColor: Theme.accent
-            icon: root.charging ? "\uf0e7" : "\uf240"; label: "Battery"
-            value: SystemStats.battery + "%" + (root.charging ? " · charging" : "")
+            icon: root.charging ? "\uf0e7" : "\uf240"; label: Tr.t("Battery")
+            value: SystemStats.battery + "%" + (root.charging ? " · " + Tr.t("charging") : "")
             ratio: SystemStats.battery / 100
             barColor: root.charging ? Theme.good : Theme.lowLevel(ratio, 0.3, 0.15)
         }
@@ -81,7 +81,7 @@ Zone {
         // Power profile (tuned-ppd / power-profiles-daemon)
         Label {
             visible: root.controls
-            text: "POWER PROFILE"
+            text: Tr.t("POWER PROFILE")
             dim: true
             font.pixelSize: 11
             font.weight: Font.DemiBold
@@ -93,9 +93,9 @@ Zone {
             Layout.fillWidth: true
             value: PowerProfiles.profile
             options: [
-                { value: PowerProfile.PowerSaver, label: "Saver", icon: "\uf06c" },
-                { value: PowerProfile.Balanced, label: "Balanced", icon: "\uf24e" }
-            ].concat(PowerProfiles.hasPerformanceProfile ? [{ value: PowerProfile.Performance, label: "Performance", icon: "\uf0e7" }] : [])
+                { value: PowerProfile.PowerSaver, label: Tr.t("Saver"), icon: "\uf06c" },
+                { value: PowerProfile.Balanced, label: Tr.t("Balanced"), icon: "\uf24e" }
+            ].concat(PowerProfiles.hasPerformanceProfile ? [{ value: PowerProfile.Performance, label: Tr.t("Performance"), icon: "\uf0e7" }] : [])
             onSelected: v => PowerProfiles.profile = v
         }
         Label {
@@ -103,9 +103,9 @@ Zone {
             Layout.fillWidth: true
             dim: true
             font.pixelSize: 11
-            text: PowerProfiles.profile === PowerProfile.PowerSaver ? "Longest battery, slower"
-                : PowerProfiles.profile === PowerProfile.Performance ? "Fastest, more heat and fan noise"
-                : "Default for daily use"
+            text: PowerProfiles.profile === PowerProfile.PowerSaver ? Tr.t("Longest battery, slower")
+                : PowerProfiles.profile === PowerProfile.Performance ? Tr.t("Fastest, more heat and fan noise")
+                : Tr.t("Default for daily use")
         }
     }
 }

@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
+import "../common"
 
 // What starts at login (scripts/startup.py): XDG autostart entries (uwsm runs
 // them as app-<id>@autostart.service) and the commands of Hyprland's
@@ -86,12 +87,12 @@ Singleton {
         return b >= 1073741824 ? (b / 1073741824).toFixed(1) + " GB" : Math.max(1, Math.round(b / 1048576)) + " MB";
     }
     function stateText(a) {
-        const s = a.state === "running" ? "Running" + (a.memory > 0 ? " · " + size(a.memory) : "")
-                : a.state === "exited" ? "Ran at login and finished"
-                : a.state === "failed" ? "Failed at login"
-                : a.state === "skipped" ? "Skipped (not for this desktop)"
-                : "Not running";
-        return a.enabled ? s : "Off at login · " + s.charAt(0).toLowerCase() + s.slice(1);
+        const s = a.state === "running" ? Tr.t("Running") + (a.memory > 0 ? " · " + size(a.memory) : "")
+                : a.state === "exited" ? Tr.t("Ran at login and finished")
+                : a.state === "failed" ? Tr.t("Failed at login")
+                : a.state === "skipped" ? Tr.t("Skipped (not for this desktop)")
+                : Tr.t("Not running");
+        return a.enabled ? s : Tr.t("Off at login · %1", s.charAt(0).toLowerCase() + s.slice(1));
     }
 
     Process {

@@ -3,10 +3,11 @@
 
 # Destination path for the avatar
 DEST_PATH="$HOME/.config/hypr/avatar.jpg"
+. "$(dirname "$(readlink -f "$0")")/lagos_i18n.sh"
 
 # If an argument is provided (e.g., from Thunar), use it. Otherwise, open a GUI file picker (Zenity)
 if [ -z "$1" ]; then
-  IMAGE=$(zenity --file-selection --title="Select your profile picture" --file-filter="Images | *.png *.jpg *.jpeg")
+  IMAGE=$(zenity --file-selection --title="$(t "Select your profile picture")" --file-filter="$(t "Images") | *.png *.jpg *.jpeg")
 else
   IMAGE="$1"
 fi
@@ -20,4 +21,4 @@ fi
 cp "$IMAGE" "$DEST_PATH"
 
 # Send a system notification
-notify-send -u low -a "Hyprlock" -i "$DEST_PATH" "Avatar Updated" "Your new profile picture is set."
+notify-send -u low -a "Hyprlock" -i "$DEST_PATH" "$(t "Profile picture updated")" "$(t "Your new profile picture is set.")"
