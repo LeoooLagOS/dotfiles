@@ -31,9 +31,9 @@ entries=(
   "Power…|system-shutdown|$S/Wlogout.sh"
 )
 
-# Under the logo: the bar's height (Settings → Bar) + its top gap + a little air
-h=$(qs -c panel ipc call panel getSetting barHeight 2>/dev/null); h=${h:-36}
-y=$((h + 14))
+# Under the logo: rofi already starts below the space the bar reserves, so the
+# offset is only the air between them (the same 6 px gaps_out as tiled windows)
+y=6
 
 choice=$(
   for e in "${entries[@]}"; do
