@@ -21,6 +21,7 @@ Singleton {
 
     // Newest first: the live ones and the copies of replaced ones (archive)
     readonly property var list: {
+        if (clearing) return [];
         const live = server.trackedNotifications.values.slice().reverse();
         if (!archive.length) return live;
         const t = n => received[n.id]?.getTime() ?? 0;
@@ -33,6 +34,9 @@ Singleton {
     // earlier message would vanish and the new one wouldn't pop up. Instead the
     // earlier text stays in the history as a plain copy (no actions), and the
     // new one arrives like a new notification.
+    // While many are dismissed at once (Clear all), the list stays empty instead
+    // of being rebuilt, with every view that reads it, after each one
+    property bool clearing: false
     property var archive: []                // copies, any order (list sorts them)
     property int archiveSeq: 0
     property var lastContent: ({})          // id → { summary, body, image } as last seen
@@ -244,9 +248,14 @@ Singleton {
         const t = x => received[x.id]?.getTime() ?? 0;
         return list.filter(o => o === n || sameConversation(o, n)).sort((a, b) => t(b) - t(a));
     }
-    function dismissThread(n) { for (const o of threadOf(n).slice()) o.dismiss(); }
+    function dismissThread(n) { dismissAll(threadOf(n)); }
     // Some may be gone already (the app closed the one clicked)
-    function dismissAll(ns) { for (const o of ns) { try { o?.dismiss(); } catch (e) {} } }
+    function dismissAll(ns) {
+        const all = ns.slice();
+        clearing = true;
+        for (const o of all) { try { o?.dismiss(); } catch (e) {} }
+        clearing = false;
+    }
     // Every message of n's chat (grouped or not), n included; [n] for the rest
     // (mail too: its "conversation" is the whole account)
     function chatOf(n) {
@@ -486,7 +495,7 @@ Singleton {
     function sendAllTests() { demo(["-w", "0", "-p", "0"]); }
     // Every kind in a row, paced for a video, after a 3 s countdown
     function runDemo() { demo(["-w", "3"]); }
-    function clearAll() { for (const n of list.slice()) n.dismiss(); }
+    function clearAll() { dismissAll(list); }
     function toggleDnd() { setDnd(!dnd, null); }
     // until: Date or null (until turned off)
     function setDnd(on, until) {
@@ -653,6 +662,7 @@ Singleton {
     // Drop closed notifications from the popup list, and the oldest ones beyond
     // the history limit (Settings → Notifications)
     onListChanged: {
+        if (clearing) return;
         if (list.length > Settings.v.history) for (const n of list.slice(Settings.v.history)) n.dismiss();
         const alive = popups.filter(p => p.local || list.includes(p));
         if (alive.length !== popups.length) popups = alive;

@@ -144,7 +144,7 @@ Zone {
             Chip {
                 visible: root.shown.length > 0
                 text: root.filter === "all" && root.query === "" ? "Clear all" : "Clear shown"
-                onClicked: root.shown.slice().forEach(n => n.dismiss())
+                onClicked: Notifs.dismissAll(root.shown)
             }
         }
 
