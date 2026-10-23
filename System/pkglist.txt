@@ -384,6 +384,7 @@ mozilla-openh264
 mpage
 mpc
 mpd
+mpdris2
 mpv
 mpv-mpris
 mt7xxx-firmware

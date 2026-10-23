@@ -54,6 +54,7 @@ readonly LINKS=(
   "config/systemd/user/lagos-downloads.service:$CONFIG_DIR/systemd/user/lagos-downloads.service"
   "config/pipewire/pipewire.conf.d/10-hires.conf:$CONFIG_DIR/pipewire/pipewire.conf.d/10-hires.conf"
   "config/mpd/mpd.conf:$CONFIG_DIR/mpd/mpd.conf"
+  "config/mpDris2/mpDris2.conf:$CONFIG_DIR/mpDris2/mpDris2.conf"
   "config/beets/config.yaml:$CONFIG_DIR/beets/config.yaml"
   "config/dbus-1/services/org.freedesktop.Notifications.service:$HOME/.local/share/dbus-1/services/org.freedesktop.Notifications.service"
   "nvim:$CONFIG_DIR/nvim"
@@ -383,8 +384,11 @@ step_links() {
     # A notification when a download finishes (browsers keep it in their window)
     run systemctl --user enable lagos-downloads.service
     ok "downloads: lagos-downloads.service enabled"
+    # MPD as an MPRIS player: the library's music shows in the island and Overview
+    run systemctl --user enable mpDris2.service
+    ok "music: mpDris2.service enabled"
   else
-    warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service lagos-lid.service lagos-downloads.service"
+    warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service lagos-lid.service lagos-downloads.service mpDris2.service"
   fi
 }
 
