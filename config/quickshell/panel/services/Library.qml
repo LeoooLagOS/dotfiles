@@ -15,6 +15,10 @@ import "../common"
 //                         cardRate (the sound card's real rate), bitperfect…
 //   play(album, track) · queue(album) · toggle() · next() · prev() · seek(s)
 //   setRandom(on) · setRepeat(on) · rescan()
+//   verify(album)         is each track really lossless? → verdicts[file]
+//                         { verdict: ok|fake|lossy|upsampled|padded|error, cutoff (kHz) }
+//   spectrum(file)        a track's spectrogram, in the image viewer
+//   openImage(path)       a cover or booklet page, in the image viewer
 // Status is read every second while `watching` (the Library view is on screen).
 Singleton {
     id: root
@@ -42,6 +46,36 @@ Singleton {
     function setRepeat(on) { run(["repeat", on ? "1" : "0"]); }
     function rescan() { run(["update"]); albumsSoon.restart(); }
     function loadAlbums() { if (!albumsProc.running) { loadingAlbums = true; albumsProc.running = true; } }
+    function spectrum(file) { Quickshell.execDetached(["python3", script, "spectrum", file]); }
+    function openImage(path) { Quickshell.execDetached(["xdg-open", path]); }
+
+    // ---------------- Verify ----------------
+    // Decodes a piece of every track (scripts/library.py verify): the first
+    // time takes ~a second per track, then the results are cached.
+    property var verdicts: ({})                // file → { verdict, cutoff, codec, rate, bits }
+    property string verifying: ""              // "artist\nalbum" being checked
+    property string verifyError: ""            // "numpy" = not installed
+    function verify(album) {
+        if (verifyProc.running) return;
+        verifying = album.artist + "\n" + album.album;
+        verifyError = "";
+        verifyProc.command = ["python3", script, "verify", album.artist, album.album];
+        verifyProc.running = true;
+    }
+    Process {
+        id: verifyProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.verifying = "";
+                let d;
+                try { d = JSON.parse(text); } catch (e) { root.verifyError = "failed"; return; }
+                if (d.error) { root.verifyError = d.error; return; }
+                const v = Object.assign({}, root.verdicts);
+                for (const t of d) v[t.file] = t;
+                root.verdicts = v;
+            }
+        }
+    }
 
     Process {
         id: statusProc

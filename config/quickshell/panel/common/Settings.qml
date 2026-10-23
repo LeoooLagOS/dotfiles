@@ -46,6 +46,7 @@ Singleton {
         recTarget: "screen", recAudio: "system", recFps: 60,     // screen recording (services/Recorder.qml)
         mediaMode: "player", radioStation: "Radio BUAP",         // Media tab: player / radio / library view (services/Radio.qml)
         mediaLyrics: false,                                      // Media tab: lyrics instead of the big title (services/Lyrics.qml)
+        libraryView: "grid", librarySort: "recent",              // Media → Library albums: grid / list; recent / added / alpha / artist / year
         // Top bar (TopBar.qml, bar/, services/BarState.qml)
         barEnabled: true, barStyle: "islands", barHeight: 36, barAccent: "auto",
         barLeft: ["logo", "tray", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],

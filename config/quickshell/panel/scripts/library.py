@@ -2,10 +2,18 @@
 """Music library for the panel (Media → Library view, services/Library.qml).
 
 Talks to MPD over its socket (~/.local/state/mpd/socket, config/mpd/mpd.conf)
-and prints JSON. No dependencies besides ffmpeg (embedded covers).
+and prints JSON. Needs ffmpeg (embedded covers, verify); verify also numpy.
 
   library.py albums                 every album: artist, title, year, cover,
-                                    format ("FLAC 24/96"), tracks (with files)
+                                    format ("FLAC 24/96"), tracks (with files),
+                                    artwork (the folder's images: booklet, back…),
+                                    added (ISO date), played (epoch, 0 = never)
+  library.py verify ARTIST ALBUM    is each track really lossless? per track:
+                                    ok · fake (an MP3/AAC in a .flac) · lossy
+                                    (transcoded from one) · upsampled (a CD
+                                    passed off as Hi-Res) · padded (16 bits in 24)
+  library.py spectrum FILE          a spectrogram of FILE, opened in the image
+                                    viewer (to judge a doubtful track by eye)
   library.py status                 what's playing, MPD's output format, the
                                     sound card's real rate and bit-perfect
   library.py play ARTIST ALBUM [N]  replace the queue with the album, play track N
@@ -25,6 +33,7 @@ import os
 import socket
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 HOME = Path.home()
@@ -33,7 +42,12 @@ MUSIC = HOME / "Music"
 CACHE = HOME / ".cache/quickshell-panel"
 COVERS = CACHE / "covers"
 ALBUMS_CACHE = CACHE / "library.json"
+CACHE_FORMAT = 3                     # bump when an album gains a field: rebuilds the cache
+VERIFY_CACHE = CACHE / "verify.json"
+PLAYED = HOME / ".local/state/quickshell-panel/library-played.json"   # album → last played (state, not cache)
+SPECTRA = CACHE / "spectra"
 COVER_NAMES = ["cover", "folder", "front", "Cover", "Folder", "Front", "album", "Album"]
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 
 # ---------------------------------------------------------------- MPD protocol
@@ -141,12 +155,13 @@ def albums(mpd):
     # MPD's last update time and song count: a list read mid-update (auto_update
     # while files arrive) has the same time but fewer songs
     st = dict(mpd.cmd("stats"))
-    db = f'{st.get("db_update", "")}:{st.get("songs", "")}'
+    db = f'{st.get("db_update", "")}:{st.get("songs", "")}:{CACHE_FORMAT}'
     if ALBUMS_CACHE.is_file():
         try:
             cached = json.loads(ALBUMS_CACHE.read_text())
             if cached.get("db_update") == db:
-                return cached["albums"]
+                # Images aren't in MPD's database: read them each time (cheap)
+                return with_extras(cached["albums"])
         except Exception:
             pass
     groups = {}
@@ -170,11 +185,15 @@ def albums(mpd):
             "album": album,
             "year": (songs[0].get("Date") or songs[0].get("OriginalDate") or "")[:4],
             "cover": cover_for(songs[0]["file"]),
+            # Sort keys: "Calamaro, Andrés" for by-artist; when it reached the library
+            "artistSort": songs[0].get("AlbumArtistSort") or songs[0].get("ArtistSort") or artist,
+            "added": max(s.get("Added") or s.get("Last-Modified") or "" for s in songs),
             "quality": q["label"],
             "hires": q["hires"],
             "tracks": [{
                 "title": s.get("Title") or Path(s["file"]).stem,
                 "track": str(s.get("Track", "")).split("/")[0],
+                "disc": str(s.get("Disc", "")).split("/")[0],
                 "artist": s.get("Artist", ""),
                 "duration": float(s.get("duration") or s.get("Time") or 0),
                 "file": s["file"],
@@ -183,7 +202,174 @@ def albums(mpd):
     out.sort(key=lambda a: (a["artist"].lower(), a["year"], a["album"].lower()))
     CACHE.mkdir(parents=True, exist_ok=True)
     ALBUMS_CACHE.write_text(json.dumps({"db_update": db, "albums": out}))
+    return with_extras(out)
+
+
+def with_extras(albums):
+    """What isn't in MPD's database, so not in its cache: the folder's images,
+    and when each album was last played from the panel (for "Recents")."""
+    try:
+        played = json.loads(PLAYED.read_text())
+    except Exception:
+        played = {}
+    for a in albums:
+        a["artwork"] = artwork_for(a)
+        a["played"] = played.get(a["artist"] + "\n" + a["album"], 0)
+    return albums
+
+
+def remember_played(artist, album):
+    try:
+        played = json.loads(PLAYED.read_text())
+    except Exception:
+        played = {}
+    played[artist + "\n" + album] = int(time.time())
+    PLAYED.parent.mkdir(parents=True, exist_ok=True)
+    PLAYED.write_text(json.dumps(played))
+
+
+def album_dir(album):
+    """The folder holding all of an album's tracks (CD1/, CD2/… share a parent)."""
+    dirs = {str(Path(t["file"]).parent) for t in album["tracks"]}
+    return MUSIC / os.path.commonpath(sorted(dirs)) if dirs else None
+
+
+def artwork_for(album):
+    """Every image in the album's folder and its subfolders (Artwork/, Scans/…):
+    the cover first, then by name."""
+    folder = album_dir(album)
+    if not folder or folder == MUSIC or not folder.is_dir():
+        return []
+    images = [p for p in folder.rglob("*")
+              if p.suffix.lower() in IMAGE_EXTS and not p.name.startswith(".")]
+    images.sort(key=lambda p: (str(p) != album.get("cover"), str(p.relative_to(folder)).lower()))
+    return [str(p) for p in images]
+
+
+# ---------------------------------------------------------------- verify
+# A ".flac" proves nothing: anyone can rename an MP3, or decode one and save it
+# as FLAC. What the file holds tells:
+#   - the real codec (ffprobe), whatever the extension says;
+#   - the spectrum: MP3/AAC encoders throw away the highs above a fixed
+#     frequency (16 kHz at 128k, ~19.5 at 256k), a cliff tens of dB deep.
+#     A CD's own filter cuts at 20-22 kHz, so only cliffs below 19.5 kHz count
+#     (a 320k MP3 cuts at ~20 and can't be told apart: the spectrogram helps);
+#   - Hi-Res: a CD resampled to 96 kHz still stops at ~22 kHz;
+#   - 24 bits: a 16-bit recording padded with zeros keeps its low 8 bits at 0.
+
+LOSSLESS_CODECS = {"flac", "alac", "wavpack", "ape", "tta", "mlp", "truehd"}
+CLIFF_DB = 25          # how deep a drop must be to be an encoder's cut, not the music
+
+
+def probe(path):
+    out = subprocess.run(["ffprobe", "-v", "quiet", "-of", "json", "-show_format", "-show_streams",
+                          "-select_streams", "a:0", str(path)], capture_output=True, text=True).stdout
+    d = json.loads(out or "{}")
+    s = (d.get("streams") or [{}])[0]
+    return {
+        "container": d.get("format", {}).get("format_name", ""),
+        "codec": s.get("codec_name", ""),
+        "rate": int(s.get("sample_rate") or 0),
+        "bits": int(s.get("bits_per_raw_sample") or s.get("bits_per_sample") or 0),
+        "duration": float(d.get("format", {}).get("duration") or 0),
+    }
+
+
+def decode(path, start, seconds, fmt, mono=True):
+    """PCM from the middle of the track, as raw bytes. Mono averages the
+    channels: fine for the spectrum, not for counting bits (it invents some)."""
+    return subprocess.run(["ffmpeg", "-v", "quiet", "-ss", str(start), "-t", str(seconds), "-i", str(path)]
+                          + (["-ac", "1"] if mono else []) + ["-f", fmt, "-"],
+                          capture_output=True, timeout=60).stdout
+
+
+def cliff(np, pcm, rate):
+    """The steepest drop in the averaged spectrum above 11 kHz: (Hz, dB)."""
+    x = np.frombuffer(pcm, dtype=np.float32)
+    n = 8192
+    frames = len(x) // n
+    if frames < 4:
+        return 0, 0
+    window = np.hanning(n)
+    power = np.zeros(n // 2 + 1)
+    for i in range(frames):
+        power += np.abs(np.fft.rfft(x[i * n:(i + 1) * n] * window)) ** 2
+    db = 10 * np.log10(power / frames + 1e-20)
+    hz = rate / n                                      # width of one bin
+    smooth = np.convolve(db, np.ones(int(250 / hz)) / int(250 / hz), mode="same")
+    step = int(600 / hz)                               # compare 600 Hz below with 600 Hz above
+    lo, hi = int(11000 / hz), len(db) - int(1000 / hz)
+    drops = smooth[lo - step:hi - step] - smooth[lo + step:hi + step]
+    i = int(np.argmax(drops))
+    return (lo + i) * hz, float(drops[i])
+
+
+def padded_bits(np, path, start):
+    """True if a 24-bit file only holds 16 bits (the low 8 always zero)."""
+    x = np.frombuffer(decode(path, start, 10, "s32le", mono=False), dtype=np.int32)
+    # s32 puts 24-bit samples in the top 24 bits: their bits 8-15 are the low 8
+    return len(x) > 0 and not np.any(np.bitwise_and(x, 0xFF00))
+
+
+def check(np, path):
+    p = probe(path)
+    res = {"codec": p["codec"], "rate": p["rate"], "bits": p["bits"], "cutoff": 0}
+    if not p["codec"].startswith("pcm_") and p["codec"] not in LOSSLESS_CODECS:   # pcm_* = WAV / AIFF
+        return {**res, "verdict": "fake" if p["codec"] else "error"}
+    start = max(0, min(30, p["duration"] / 3))
+    hz, drop = cliff(np, decode(path, start, 30, "f32le"), p["rate"])
+    res["cutoff"] = round(hz / 1000, 1)
+    if drop >= CLIFF_DB and hz < 19500:
+        return {**res, "verdict": "lossy"}
+    if drop >= CLIFF_DB and p["rate"] > 48000 and hz < 24500:
+        return {**res, "verdict": "upsampled"}
+    if p["bits"] > 16 and padded_bits(np, path, start):
+        return {**res, "verdict": "padded"}
+    return {**res, "verdict": "ok"}
+
+
+def verify(mpd, artist, album):
+    try:
+        import numpy as np
+    except ImportError:
+        return {"error": "numpy"}
+    try:
+        cache = json.loads(VERIFY_CACHE.read_text())
+    except Exception:
+        cache = {}
+    out = []
+    for f in album_files(mpd, artist, album):
+        path = MUSIC / f
+        try:
+            st = path.stat()
+        except OSError:
+            continue
+        key = f"{f}:{st.st_size}:{int(st.st_mtime)}"       # a re-tagged or replaced file is checked again
+        if key not in cache:
+            try:
+                cache[key] = check(np, path)
+            except Exception:
+                cache[key] = {"verdict": "error"}
+        out.append({"file": f, **cache[key]})
+    CACHE.mkdir(parents=True, exist_ok=True)
+    VERIFY_CACHE.write_text(json.dumps(cache))
     return out
+
+
+def spectrum(f):
+    """Spectrogram PNG of a track (time → frequency, brightness = energy), opened
+    in the image viewer: a lossy file shows a flat ceiling where the highs end."""
+    path = MUSIC / f
+    SPECTRA.mkdir(parents=True, exist_ok=True)
+    out = SPECTRA / (hashlib.sha1(str(path).encode()).hexdigest()[:16] + ".png")
+    if not out.is_file():
+        subprocess.run(["ffmpeg", "-v", "quiet", "-y", "-i", str(path), "-lavfi",
+                        "showspectrumpic=s=1600x800:legend=1:scale=log:fscale=lin", str(out)],
+                       timeout=120, check=False)
+    if out.is_file():
+        subprocess.Popen(["xdg-open", str(out)], start_new_session=True,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return str(out) if out.is_file() else ""
 
 
 def card_output():
@@ -259,12 +445,17 @@ def main():
             print(json.dumps(albums(mpd)))
         elif what == "status":
             print(json.dumps(status(mpd)))
+        elif what == "verify":
+            print(json.dumps(verify(mpd, args[0], args[1])))
+        elif what == "spectrum":
+            print(json.dumps({"image": spectrum(args[0])}))
         elif what in ("play", "queue"):
             files = album_files(mpd, args[0], args[1])
             cmds = ([("clear",)] if what == "play" else []) + [("add", f) for f in files]
             if what == "play":
                 cmds.append(("play", int(args[2]) if len(args) > 2 else 0))
             mpd.batch(cmds)
+            remember_played(args[0], args[1])
         elif what == "toggle":
             st = dict(mpd.cmd("status")).get("state")
             mpd.cmd("pause", "1") if st == "play" else mpd.cmd("play")

@@ -151,7 +151,8 @@ Zone {
             radius: Theme.zoneRadius
             color: Theme.bgHover
 
-            Glyph { anchors.centerIn: parent; text: root.radio ? "\u{f0439}" : root.library ? "\u{f0025}" : "\uf001"; font.pixelSize: 64; color: Theme.fgDim; visible: art.status !== Image.Ready }
+            Glyph { anchors.centerIn: parent; text: root.radio ? "\u{f0439}" : root.library ? "\u{f0025}" : "\uf001"; font.pixelSize: 64; color: Theme.fgDim
+                    visible: art.status !== Image.Ready && !root.preview }
             Image {
                 id: art
                 anchors.fill: parent
@@ -161,6 +162,93 @@ Zone {
                 fillMode: Image.PreserveAspectCrop
                 sourceSize: Qt.size(600, 600)
                 asynchronous: true
+                opacity: root.preview ? 0 : 1
+                Behavior on opacity { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+            }
+
+            // Booklet page (root.preview): two images take turns, the next page
+            // loads in the hidden one and fades in over the other
+            Item {
+                id: pages
+                anchors.fill: parent
+                property bool flip: false
+                readonly property string src: root.preview
+                onSrcChanged: if (src) { (flip ? pageB : pageA).source = "file://" + src; flip = !flip; }
+                Rectangle {
+                    anchors.fill: parent
+                    color: Theme.bgAlt                 // behind pages that aren't square
+                    opacity: root.preview ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+                }
+                Image {
+                    id: pageA
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize: Qt.size(900, 900)
+                    asynchronous: true
+                    opacity: root.preview && pages.flip && status === Image.Ready ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+                }
+                Image {
+                    id: pageB
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize: Qt.size(900, 900)
+                    asynchronous: true
+                    opacity: root.preview && !pages.flip && status === Image.Ready ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+                }
+            }
+
+            // Over a page: \u2039 \u203a through the booklet (on hover), the page number,
+            // \u2922 full size in the image viewer, \u21ba back to what's playing
+            HoverHandler { id: artHover }
+            Item {
+                anchors.fill: parent
+                opacity: root.preview ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+
+                Repeater {
+                    model: [{ step: -1, icon: "\uf053" }, { step: 1, icon: "\uf054" }]
+                    delegate: Rectangle {
+                        required property var modelData
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: modelData.step < 0 ? 10 : parent.width - width - 10
+                        width: 34; height: 34; radius: 17
+                        color: Theme.withAlpha(Theme.bg, arrowMouse.containsMouse ? 0.9 : 0.7)
+                        border.color: Theme.border
+                        readonly property bool can: modelData.step < 0 ? root.previewIndex > 0 : root.previewIndex < root.previewPages.length - 1
+                        opacity: artHover.hovered && can ? 1 : 0
+                        visible: opacity > 0
+                        Behavior on opacity { NumberAnimation { duration: 180 } }
+                        Glyph { anchors.centerIn: parent; text: parent.modelData.icon; font.pixelSize: 12; color: Theme.fg }
+                        MouseArea { id: arrowMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.showPage(root.previewIndex + parent.modelData.step) }
+                    }
+                }
+                Rectangle {
+                    visible: root.previewPages.length > 1 && root.previewIndex >= 0
+                    anchors.left: parent.left; anchors.bottom: parent.bottom; anchors.margins: 10
+                    implicitWidth: pageNo.implicitWidth + 16; implicitHeight: 26; radius: 13
+                    color: Theme.withAlpha(Theme.bg, 0.75)
+                    Label { id: pageNo; anchors.centerIn: parent; font.pixelSize: 11; font.features: { "tnum": 1 }
+                            text: (root.previewIndex + 1) + " / " + root.previewPages.length }
+                }
+                Rectangle {
+                    anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 10
+                    implicitWidth: pageButtons.implicitWidth + 8; implicitHeight: pageButtons.implicitHeight + 8; radius: Theme.buttonRadius + 4
+                    color: Theme.withAlpha(Theme.bg, 0.75)
+                    Row {
+                        id: pageButtons
+                        anchors.centerIn: parent
+                        spacing: 4
+                        IconButton { icon: "\uf065"; iconSize: 12; implicitWidth: 32; implicitHeight: 28   // full size
+                                     onClicked: { Library.openImage(root.preview); PanelState.open = false; } }
+                        IconButton { icon: "\uf0e2"; iconSize: 12; implicitWidth: 32; implicitHeight: 28   // back to the playing art
+                                     onClicked: root.preview = "" }
+                    }
+                }
             }
         }
 
@@ -479,18 +567,49 @@ Zone {
     }
 
     // ---------------- Library: browse albums ----------------
-    // Over the right column, like the radio search: album covers (filter by
-    // album or artist); an album opens its tracks — Play, Queue, or a track.
+    // Over the right column, like the radio search: albums as a grid of covers
+    // or a list (Settings.v.libraryView), sorted like Spotify's library
+    // (Settings.v.librarySort), filtered by album or artist; an album opens its
+    // tracks — Play, Queue, a track, or find one by name.
     property var openAlbum: null
     onSearchingChanged: if (!searching) openAlbum = null
+    // The open album's booklet, shown in the big art (root.preview): its pages
+    // are the images of its folder (scripts/library.py artwork)
+    property string preview: ""
+    readonly property var previewPages: openAlbum?.artwork ?? []
+    readonly property int previewIndex: previewPages.indexOf(preview)
+    function showPage(i) { if (i >= 0 && i < previewPages.length) preview = previewPages[i]; }
+    onOpenAlbumChanged: preview = ""
+    // Search text without case or accents: "dia" finds "Día"
+    function fold(s) { return String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+    readonly property var sorts: [
+        { value: "recent", label: Tr.t("Recents") },
+        { value: "added", label: Tr.t("Recently added") },
+        { value: "alpha", label: Tr.t("Alphabetical") },
+        { value: "artist", label: Tr.t("Artist") },
+        { value: "year", label: Tr.t("Year") },
+    ]
+    function sortAlbums(list, by) {
+        const text = (x, y) => fold(x).localeCompare(fold(y));
+        const newer = (x, y) => (y.added ?? "").localeCompare(x.added ?? "");
+        const a = list.slice();
+        if (by === "recent") a.sort((x, y) => (y.played ?? 0) - (x.played ?? 0) || newer(x, y));   // never played: newest first
+        else if (by === "added") a.sort(newer);
+        else if (by === "alpha") a.sort((x, y) => text(x.album, y.album));
+        else if (by === "artist") a.sort((x, y) => text(x.artistSort ?? x.artist, y.artistSort ?? y.artist) || (x.year ?? "").localeCompare(y.year ?? ""));
+        else if (by === "year") a.sort((x, y) => (y.year ?? "").localeCompare(x.year ?? "") || text(x.album, y.album));
+        return a;
+    }
     Rectangle {
         id: libPane
         parent: root
         z: 8
         visible: root.library && root.searching
         readonly property real side: root.height - 2 * Theme.zonePadding
-        readonly property string q: libField.text.trim().toLowerCase()
-        readonly property var shown: q ? Library.albums.filter(a => (a.album + " " + a.artist).toLowerCase().includes(q)) : Library.albums
+        readonly property string q: root.fold(libField.text.trim())
+        readonly property var shown: root.sortAlbums(q ? Library.albums.filter(a => root.fold(a.album + " " + a.artist).includes(q)) : Library.albums,
+                                                     Settings.v.librarySort)
+        readonly property bool grid: Settings.v.libraryView !== "list"
         x: Theme.zonePadding + side + 24
         y: Theme.zonePadding + 38
         width: root.width - x - Theme.zonePadding
@@ -518,57 +637,134 @@ Zone {
                     onClicked: Library.rescan()
                 }
             }
-            Label {
-                text: Library.loadingAlbums ? Tr.t("READING ~/Music…")
-                    : Tr.n(libPane.shown.length, "%1 ALBUM", "%1 ALBUMS")
-                      + (Library.albums.filter(a => a.hires).length ? " · " + Library.albums.filter(a => a.hires).length + " HI-RES" : "")
-                dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1
+            // Count · sort · grid / list
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                z: 2                                   // the sort list opens over the albums
+                Label {
+                    Layout.fillWidth: true
+                    text: Library.loadingAlbums ? Tr.t("READING ~/Music…")
+                        : Tr.n(libPane.shown.length, "%1 ALBUM", "%1 ALBUMS")
+                          + (Library.albums.filter(a => a.hires).length ? " · " + Library.albums.filter(a => a.hires).length + " HI-RES" : "")
+                    dim: true; font.pixelSize: 10; font.weight: Font.DemiBold; font.letterSpacing: 1
+                }
+                Dropdown {
+                    icon: "\uf0dc"
+                    options: root.sorts
+                    value: Settings.v.librarySort
+                    listWidth: 170
+                    onSelected: v => Settings.set("librarySort", v)
+                }
+                IconButton {
+                    icon: libPane.grid ? "\uf03a" : "\uf00a"     // shows the view it switches to
+                    iconSize: 12; implicitWidth: 30; implicitHeight: 28
+                    onClicked: Settings.set("libraryView", libPane.grid ? "list" : "grid")
+                }
             }
-            GridView {
-                id: albumGrid
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-                readonly property int cols: Math.max(2, Math.floor(width / 130))
-                cellWidth: width / cols
-                cellHeight: cellWidth + 44
-                model: libPane.shown
-                delegate: Item {
-                    id: cell
-                    required property var modelData
-                    width: albumGrid.cellWidth
-                    height: albumGrid.cellHeight
-                    Column {
-                        anchors.fill: parent
-                        anchors.margins: 5
-                        spacing: 4
-                        ClippingRectangle {
-                            width: parent.width; height: parent.width; radius: 10
-                            color: Theme.bgHover
-                            Glyph { anchors.centerIn: parent; text: "\u{f0025}"; font.pixelSize: 26; color: Theme.fgDim; visible: cover.status !== Image.Ready }
-                            Image { id: cover; anchors.fill: parent; source: cell.modelData.cover ? "file://" + cell.modelData.cover : ""
-                                    sourceSize: Qt.size(260, 260); fillMode: Image.PreserveAspectCrop; asynchronous: true }
-                            // Hi-Res badge
-                            Rectangle {
-                                visible: cell.modelData.hires
-                                anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 6
-                                implicitWidth: hr.implicitWidth + 10; implicitHeight: 16; radius: 8
-                                color: Theme.accent
-                                Label { id: hr; anchors.centerIn: parent; text: "HI-RES"; color: Theme.accentText; font.pixelSize: 8; font.weight: Font.Bold; font.letterSpacing: 0.5 }
+                GridView {
+                    id: albumGrid
+                    anchors.fill: parent
+                    visible: libPane.grid
+                    opacity: visible ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    readonly property int cols: Math.max(2, Math.floor(width / 130))
+                    cellWidth: width / cols
+                    cellHeight: cellWidth + 44
+                    model: libPane.shown
+                    delegate: Item {
+                        id: cell
+                        required property var modelData
+                        width: albumGrid.cellWidth
+                        height: albumGrid.cellHeight
+                        Column {
+                            anchors.fill: parent
+                            anchors.margins: 5
+                            spacing: 4
+                            ClippingRectangle {
+                                width: parent.width; height: parent.width; radius: 10
+                                color: Theme.bgHover
+                                Glyph { anchors.centerIn: parent; text: "\u{f0025}"; font.pixelSize: 26; color: Theme.fgDim; visible: cover.status !== Image.Ready }
+                                Image { id: cover; anchors.fill: parent; source: cell.modelData.cover ? "file://" + cell.modelData.cover : ""
+                                        sourceSize: Qt.size(260, 260); fillMode: Image.PreserveAspectCrop; asynchronous: true }
+                                // Hi-Res badge
+                                Rectangle {
+                                    visible: cell.modelData.hires
+                                    anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 6
+                                    implicitWidth: hr.implicitWidth + 10; implicitHeight: 16; radius: 8
+                                    color: Theme.accent
+                                    Label { id: hr; anchors.centerIn: parent; text: "HI-RES"; color: Theme.accentText; font.pixelSize: 8; font.weight: Font.Bold; font.letterSpacing: 0.5 }
+                                }
                             }
+                            Label { width: parent.width; text: cell.modelData.album; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                            Label { width: parent.width; text: cell.modelData.artist + (cell.modelData.year ? " · " + cell.modelData.year : ""); dim: true; font.pixelSize: 11; elide: Text.ElideRight }
                         }
-                        Label { width: parent.width; text: cell.modelData.album; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideRight }
-                        Label { width: parent.width; text: cell.modelData.artist + (cell.modelData.year ? " · " + cell.modelData.year : ""); dim: true; font.pixelSize: 11; elide: Text.ElideRight }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.openAlbum = cell.modelData }
                     }
-                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.openAlbum = cell.modelData }
+                }
+                // List: small cover, album, artist · year · format
+                ListView {
+                    id: albumList
+                    anchors.fill: parent
+                    visible: !libPane.grid
+                    opacity: visible ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
+                    clip: true
+                    spacing: 2
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: libPane.shown
+                    delegate: Rectangle {
+                        id: albumRow
+                        required property var modelData
+                        readonly property bool playing: Library.active && Library.now.album === modelData.album
+                                                        && (Library.now.albumArtist ?? "") === modelData.artist
+                        width: ListView.view.width
+                        height: 56
+                        radius: 8
+                        color: rowHover.containsMouse ? Theme.bgHover : "transparent"
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 6
+                            anchors.rightMargin: 10
+                            spacing: 10
+                            ClippingRectangle {
+                                implicitWidth: 46; implicitHeight: 46; radius: 6
+                                color: Theme.bgHover
+                                Glyph { anchors.centerIn: parent; text: "\u{f0025}"; font.pixelSize: 16; color: Theme.fgDim; visible: rowCover.status !== Image.Ready }
+                                Image { id: rowCover; anchors.fill: parent; source: albumRow.modelData.cover ? "file://" + albumRow.modelData.cover : ""
+                                        sourceSize: Qt.size(92, 92); fillMode: Image.PreserveAspectCrop; asynchronous: true }
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 1
+                                Label { Layout.fillWidth: true; text: albumRow.modelData.album; font.pixelSize: 13; font.weight: Font.DemiBold
+                                        color: albumRow.playing ? Theme.accent : Theme.fg; elide: Text.ElideRight }
+                                Label { Layout.fillWidth: true; dim: true; font.pixelSize: 11; elide: Text.ElideRight
+                                        text: [albumRow.modelData.artist, albumRow.modelData.year, Tr.t("%1 tracks", albumRow.modelData.tracks.length)].filter(x => x).join(" · ") }
+                            }
+                            Rectangle {
+                                visible: albumRow.modelData.hires
+                                implicitWidth: rowHr.implicitWidth + 10; implicitHeight: 16; radius: 8
+                                color: Theme.accent
+                                Label { id: rowHr; anchors.centerIn: parent; text: "HI-RES"; color: Theme.accentText; font.pixelSize: 8; font.weight: Font.Bold; font.letterSpacing: 0.5 }
+                            }
+                            Label { text: albumRow.modelData.quality ?? ""; dim: true; font.pixelSize: 10 }
+                        }
+                        MouseArea { id: rowHover; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.openAlbum = albumRow.modelData }
+                    }
                 }
                 Label {
                     anchors.centerIn: parent
                     width: parent.width - 40
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
-                    visible: parent.count === 0 && !Library.loadingAlbums
+                    visible: libPane.shown.length === 0 && !Library.loadingAlbums
                     text: libPane.q ? Tr.t("No albums match") : Tr.t("No albums yet. Put them in ~/Music as Artist/Album (Year)/, or import with: beet import <folder>")
                     dim: true
                     font.pixelSize: 12
@@ -576,7 +772,7 @@ Zone {
             }
         }
 
-        // An album: header with Play / Queue, then its tracks
+        // An album: header with Play / Queue, its booklet, the quality check, then its tracks
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 12
@@ -584,6 +780,31 @@ Zone {
             id: albumView
             visible: !!root.openAlbum
             readonly property var a: root.openAlbum ?? ({ tracks: [] })
+            // The tracks shown: all, or those matching the search (title, number or "3-07")
+            readonly property string tq: root.fold(trackField.text.trim())
+            readonly property var rows: a.tracks.map((t, i) => Object.assign({ index: i }, t))
+                .filter(t => !tq || root.fold(t.title).includes(tq) || String(t.track) === tq
+                             || t.disc + "-" + String(t.track).padStart(2, "0") === tq)
+            // Box sets restart the numbers on each disc: show "3-07"
+            readonly property bool discs: a.tracks.some(t => t.disc && t.disc !== "1")
+            // Quality check: the tracks' verdicts, once checked (services/Library.qml)
+            readonly property var checked: a.tracks.map(t => Library.verdicts[t.file]).filter(v => !!v)
+            readonly property int problems: checked.filter(v => v.verdict !== "ok").length
+            readonly property bool checking: Library.verifying === (a.artist + "\n" + a.album)
+            readonly property string summary: {
+                if (checking) return Tr.t("Listening to every track… the first time takes a while");
+                if (Library.verifyError === "numpy") return Tr.t("The check needs numpy: sudo dnf install python3-numpy");
+                if (checked.length < a.tracks.length) return Tr.t("Is it really lossless? Checks each track's codec and spectrum");
+                if (!problems) return Tr.n(checked.length, "Really lossless", "All %1 tracks are really lossless");
+                const c = {};
+                for (const v of checked) c[v.verdict] = (c[v.verdict] ?? 0) + 1;
+                return [c.fake ? Tr.t("%1 MP3/AAC renamed", c.fake) : "",
+                        c.lossy ? Tr.t("%1 transcoded from MP3/AAC", c.lossy) : "",
+                        c.upsampled ? Tr.t("%1 fake Hi-Res (a resampled CD)", c.upsampled) : "",
+                        c.padded ? Tr.t("%1 fake 24-bit (16 bits padded)", c.padded) : "",
+                        c.error ? Tr.t("%1 unreadable", c.error) : ""].filter(x => x).join(" · ")
+                       + " — " + Tr.t("click a mark to see its spectrogram");
+            }
 
             RowLayout {
                 Layout.fillWidth: true
@@ -593,6 +814,8 @@ Zone {
                     implicitWidth: 56; implicitHeight: 56; radius: 8; color: Theme.bgHover
                     Image { anchors.fill: parent; source: albumView.a.cover ? "file://" + albumView.a.cover : ""
                             sourceSize: Qt.size(112, 112); fillMode: Image.PreserveAspectCrop; asynchronous: true }
+                    MouseArea { anchors.fill: parent; enabled: !!albumView.a.cover; cursorShape: Qt.PointingHandCursor
+                                onClicked: root.preview = root.preview === albumView.a.cover ? "" : albumView.a.cover }
                 }
                 ColumnLayout {
                     Layout.fillWidth: true
@@ -604,31 +827,98 @@ Zone {
                 Chip { text: Tr.t("Play"); icon: "\uf04b"; filled: true; onClicked: { Library.play(root.openAlbum, 0); root.searching = false; } }
                 Chip { text: Tr.t("Queue"); icon: "\uf067"; onClicked: Library.queue(root.openAlbum) }
             }
+            // Booklet: every image in the album's folder (Artwork/, Scans/…); a
+            // click shows it in the big art (again: back to what's playing)
+            ListView {
+                id: booklet
+                Layout.fillWidth: true
+                Layout.preferredHeight: 64
+                visible: (albumView.a.artwork ?? []).length > 1
+                orientation: ListView.Horizontal
+                spacing: 6
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                model: albumView.a.artwork ?? []
+                // Paging with ‹ › in the big art keeps the page shown in view
+                Connections {
+                    target: root
+                    function onPreviewIndexChanged() { if (root.previewIndex >= 0) booklet.positionViewAtIndex(root.previewIndex, ListView.Contain); }
+                }
+                delegate: ClippingRectangle {
+                    id: page
+                    required property string modelData
+                    readonly property bool shown: root.preview === modelData
+                    width: 64; height: 64; radius: 6
+                    color: Theme.bgHover
+                    border.width: shown ? 2 : 0
+                    border.color: Theme.accent
+                    Image { anchors.fill: parent; anchors.margins: page.border.width; source: "file://" + page.modelData
+                            sourceSize: Qt.size(128, 128); fillMode: Image.PreserveAspectCrop; asynchronous: true
+                            opacity: root.preview && !page.shown ? 0.6 : 1
+                            Behavior on opacity { NumberAnimation { duration: 200 } } }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                onClicked: root.preview = page.shown ? "" : page.modelData }
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                Chip { text: Tr.t("Check quality"); icon: "\uf058"; active: albumView.checking
+                       enabled: !Library.verifying; onClicked: Library.verify(root.openAlbum) }
+                Label { text: albumView.summary; Layout.fillWidth: true; font.pixelSize: 11; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight
+                        dim: !albumView.problems; color: albumView.problems ? Theme.warn : Theme.fgDim }
+            }
+            // Find a track by name or number (long albums: 99 tracks in a box set)
+            TextField {
+                id: trackField
+                Layout.fillWidth: true
+                visible: albumView.a.tracks.length > 12
+                icon: "\uf002"
+                placeholder: Tr.t("Find a track")
+                onAccepted: if (albumView.rows.length) { Library.play(root.openAlbum, albumView.rows[0].index); root.searching = false; }
+                Connections { target: root; function onOpenAlbumChanged() { trackField.text = ""; } }
+            }
             ListView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
                 spacing: 2
                 boundsBehavior: Flickable.StopAtBounds
-                model: albumView.a.tracks
+                model: albumView.rows
                 delegate: Rectangle {
                     id: trackRow
                     required property var modelData
-                    required property int index
+                    readonly property int index: modelData.index      // place in the album, not in the filtered list
                     readonly property bool current: Library.active && Library.now.title === modelData.title && Library.now.album === root.openAlbum?.album
+                    readonly property var check: Library.verdicts[modelData.file] ?? null
+                    readonly property color checkColor: !check ? Theme.fgDim : check.verdict === "ok" ? Theme.good
+                                                      : check.verdict === "fake" || check.verdict === "lossy" ? Theme.bad : Theme.warn
                     width: ListView.view.width
                     height: 36
                     radius: 8
                     color: current ? Theme.withAlpha(Theme.accent, 0.14) : trackMouse.containsMouse ? Theme.bgHover : "transparent"
                     RowLayout {
+                        z: 1                       // the check mark's click above the row's
                         anchors.fill: parent
                         anchors.leftMargin: 10
                         anchors.rightMargin: 10
                         spacing: 10
-                        Label { text: trackRow.current && Library.playing ? "\u25b6" : (trackRow.modelData.track || trackRow.index + 1); color: trackRow.current ? Theme.accent : Theme.fgDim
-                                font.pixelSize: 12; font.features: { "tnum": 1 }; Layout.preferredWidth: 22; horizontalAlignment: Text.AlignRight }
+                        Label { text: trackRow.current && Library.playing ? "\u25b6" : (albumView.discs ? trackRow.modelData.disc + "-" + String(trackRow.modelData.track).padStart(2, "0")
+                                                                                                     : (trackRow.modelData.track || trackRow.index + 1)); color: trackRow.current ? Theme.accent : Theme.fgDim
+                                font.pixelSize: 12; font.features: { "tnum": 1 }; Layout.preferredWidth: albumView.discs ? 34 : 22; horizontalAlignment: Text.AlignRight }
                         Label { text: trackRow.modelData.title; font.pixelSize: 13; font.weight: trackRow.current ? Font.DemiBold : Font.Normal; elide: Text.ElideRight; Layout.fillWidth: true }
                         Label { text: Media.fmt(trackRow.modelData.duration); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
+                        // Quality check: where the highs end, when that gave it away
+                        Label { visible: !!trackRow.check && (trackRow.check.verdict === "lossy" || trackRow.check.verdict === "upsampled")
+                                text: (trackRow.check?.cutoff ?? "") + " kHz"; color: trackRow.checkColor; font.pixelSize: 10 }
+                        Glyph {
+                            visible: !!trackRow.check
+                            text: trackRow.check?.verdict === "ok" ? "\uf00c" : trackRow.check?.verdict === "fake" ? "\uf05e" : "\uf071"
+                            color: trackRow.checkColor
+                            font.pixelSize: 11
+                            MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
+                                        onClicked: Library.spectrum(trackRow.modelData.file) }
+                        }
                     }
                     MouseArea { id: trackMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                 onClicked: Library.play(root.openAlbum, trackRow.index) }
