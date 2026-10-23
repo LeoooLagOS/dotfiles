@@ -249,6 +249,9 @@ Singleton {
         return list.filter(o => o === n || sameConversation(o, n)).sort((a, b) => t(b) - t(a));
     }
     function dismissThread(n) { dismissAll(threadOf(n)); }
+    // Cards as a view shows them, each with the rest of its chat (a grouped
+    // chat shows only its newest message)
+    function dismissCards(ns) { dismissAll(ns.reduce((all, n) => all.concat(threadOf(n)), [])); }
     // Some may be gone already (the app closed the one clicked)
     function dismissAll(ns) {
         const all = ns.slice();

@@ -144,7 +144,7 @@ Zone {
             Chip {
                 visible: root.shown.length > 0
                 text: root.filter === "all" && root.query === "" ? Tr.t("Clear all") : Tr.t("Clear shown")
-                onClicked: Notifs.dismissAll(root.shown)
+                onClicked: Notifs.dismissCards(root.shown)
             }
         }
 
@@ -212,7 +212,7 @@ Zone {
                                     dim: !groupClear.containsMouse
                                     font.pixelSize: 11
                                     MouseArea { id: groupClear; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                                onClicked: group.items.slice().forEach(n => n.dismiss()) }
+                                                onClicked: Notifs.dismissCards(group.items) }
                                 }
                             }
 
