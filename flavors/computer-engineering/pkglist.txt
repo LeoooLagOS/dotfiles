@@ -1,0 +1,21 @@
+# Networks: emulated topologies (GNS3 runs Cisco IOS images on dynamips,
+# links through ubridge), captures, serial consoles, TFTP for router configs
+dynamips
+gns3-gui
+gns3-server
+minicom
+picocom
+tftp
+tftp-server
+ubridge
+wireshark
+# Network management: monitoring and SNMP
+nagios
+nagios-plugins
+net-snmp-gui
+net-snmp-utils
+# Hardware: digital waveforms, flashing microcontrollers (DFU)
+dfu-util
+gtkwave
+# Numerical computing (MATLAB's free counterpart; MATLAB is in manual.txt)
+octave

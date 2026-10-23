@@ -29,6 +29,19 @@ pw-metadata -n settings 0 clock.force-rate 0       # back to following the music
 
 (A panel toggle for this, "listening / producing", is the plan: the profile becomes a mode you switch, not a choice at install time.)
 
+## The engineering family
+Each engineering needs different software, so each discipline is its own flavor. Only the one in use is built; the others are planned with software checked to exist in Fedora or Flathub (2026-10-23), to be built when someone who uses it can test it.
+
+| Id | Name (ES) | For | Software |
+| :-- | :-- | :-- | :-- |
+| `computer-engineering` | Computer Engineering (Ingeniería en Computación) | Networks and hardware labs | GNS3 (dynamips, ubridge), Wireshark, minicom / picocom, TFTP, Nagios, SNMP, GTKWave, dfu-util, Octave; by hand: MATLAB, Cisco Packet Tracer |
+| *planned* `electronic-engineering` | Electronics (Electrónica) | Circuits, PCBs, embedded | KiCad, ngspice, Qucs-S, PulseView / sigrok, Arduino IDE, PlatformIO, Icarus Verilog, GHDL, Yosys |
+| *planned* `civil-engineering` | Civil (Civil) | Plans, maps, structures | QGIS, LibreCAD, FreeCAD |
+| *planned* `industrial-engineering` | Industrial (Industrial) | Statistics, quality, processes | R, JASP, PSPP, Octave, LibreOffice Calc |
+| *planned* `mechanical-engineering` | Mechanical (Mecánica) | Parts, assemblies, 3D printing | FreeCAD, OpenSCAD |
+
+Programming toolchains (compilers, databases, containers) aren't engineering-specific: they belong to a future **Development** flavor that any of these can be combined with. FreeCAD and OpenSCAD stay in the base until a Civil or Mechanical flavor exists.
+
 ## What a flavor contains
 
 ```
@@ -38,6 +51,7 @@ flavors/<id>/
 ├── flatpaks.txt      Flathub app ids         (same format as System/flatpaks.txt)
 ├── groups.txt        groups the user joins   (e.g. realtime; needs sudo)
 ├── permissions.txt   Flatpak overrides: "<app id> <override option>" per line
+├── manual.txt        apps it can't install: "<name> | <command or path> | <where to get it>"
 ├── config/           files linked into ~/.config at the same path, one by one
 └── app-settings/     settings merged into ~/.config/<same path>: only missing keys
 ```
@@ -50,6 +64,7 @@ Every file is optional. Lists allow `#` comments and blank lines.
 | `config/` | `links` | File by file: a flavor adds `pipewire.conf.d/10-hires.conf`, it doesn't take `pipewire.conf.d/` over. Existing files are backed up, like every link |
 | `groups.txt` | `flavors` | `usermod -aG` only for groups you aren't in; effective at the next login |
 | `permissions.txt` | `flavors` | Each one is **asked first** (`--yes` grants them), and skipped if the app already has it |
+| `manual.txt` | `flavors` | Licensed apps or ones behind an account (MATLAB, Packet Tracer): only checked; a missing one is a warning saying where to get it |
 | `app-settings/` | `flavors` | `ini-fill.py`: copies only the keys your file lacks. Your own settings always win, and re-running changes nothing |
 
 ## Trust: why flavors are data, not scripts

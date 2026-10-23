@@ -105,7 +105,6 @@ default-fonts-other-sans
 default-fonts-other-serif
 deltarpm
 desktop-backgrounds-gnome
-dfu-util
 dgop
 dhcp-client
 diffstat
@@ -122,7 +121,6 @@ doxygen
 dracut-config-rescue
 dracut-live
 dracut-network
-dynamips
 e2fsprogs
 ed
 efibootmgr
@@ -197,8 +195,6 @@ gnome-text-editor
 gnome-user-docs
 gnome-user-share
 gnome-weather
-gns3-gui
-gns3-server
 gnupg2
 gnuplot
 gobject-introspection-devel
@@ -231,7 +227,6 @@ gstreamer1-plugins-ugly
 gstreamer1-plugins-ugly-free
 gtk-layer-shell-devel
 gtk3-devel
-gtkwave
 gutenprint
 gutenprint-cups
 gvfs-afc
@@ -377,7 +372,6 @@ mesa-libEGL
 mesa-vulkan-drivers
 meson
 microcode_ctl
-minicom
 mousepad
 mozilla-openh264
 mpage
@@ -388,13 +382,9 @@ mpv
 mpv-mpris
 mt7xxx-firmware
 mtr
-nagios
-nagios-plugins
 ncurses
 neovim
 net-snmp-agent-libs
-net-snmp-gui
-net-snmp-utils
 net-tools
 nethogs
 network-manager-applet
@@ -413,7 +403,6 @@ nvtop
 nwg-displays
 nwg-look
 nxpwireless-firmware
-octave
 okular
 open-vm-tools-desktop
 openh264
@@ -436,7 +425,6 @@ pavucontrol
 pciutils
 perl-NKF
 phonon-qt6-backend-vlc
-picocom
 pinentry-gnome3
 pinentry-qt
 pinfo
@@ -571,8 +559,6 @@ texlive-collection-latexrecommended
 texlive-footnotebackref
 texlive-ieeetran
 texlive-scheme-full
-tftp
-tftp-server
 thermald
 thunar-archive-plugin
 thunar-volman
@@ -585,7 +571,6 @@ totem-video-thumbnailer
 traceroute
 tree
 ttcp
-ubridge
 udisks2
 udisks2-btrfs
 unoconv
@@ -611,7 +596,6 @@ wget2-wget
 which
 whois
 wireplumber
-wireshark
 wl-clipboard
 wlogout
 words

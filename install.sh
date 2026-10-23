@@ -183,7 +183,7 @@ list_flavors() {
   for f in $(all_flavors); do
     mark=" "
     [[ " ${chosen[*]} " == *" $f "* ]] && mark="*"
-    printf ' %s %-12s %s\n\n' "$mark" "$f" "$(flavor_title "$f" | fold -s -w 64 | sed '2,$s/^/                /')"
+    printf ' %s %s\n%s\n\n' "$mark" "$f" "$(flavor_title "$f" | fold -s -w 70 | sed 's/^/     /')"
   done
 }
 
@@ -564,6 +564,23 @@ step_flavors() {
       fi
     done < <(find "$FLAVORS_DIR/$f/app-settings" -type f | sort)
   done
+
+  # Apps a flavor can't install (licensed, behind an account): only checked
+  local name check where
+  local -a manual
+  while IFS= read -r file; do
+    load_lines manual "$file"
+    for entry in "${manual[@]}"; do
+      IFS='|' read -r name check where <<<"$entry"
+      name=$(xargs <<<"$name") check=$(xargs <<<"$check") where=$(xargs <<<"$where")
+      check=${check/#\~/$HOME}
+      if { [[ $check == /* ]] && [[ -e $check ]]; } || { [[ $check != /* ]] && command -v "$check" &>/dev/null; }; then
+        ok "$name installed"
+      else
+        warn "$name: install it by hand from $where"
+      fi
+    done
+  done < <(flavor_files manual.txt)
 
   # Remember the choice, so the next run (and the panel, later) knows it
   if [[ $FLAVORS_GIVEN -eq 1 ]]; then

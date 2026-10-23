@@ -1,0 +1,4 @@
+# wireshark: capture packets without root. dialout: serial consoles
+# (minicom / picocom to a router's console port or a board's UART)
+wireshark
+dialout

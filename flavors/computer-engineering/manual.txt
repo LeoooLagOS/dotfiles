@@ -1,0 +1,5 @@
+# Apps a flavor can't install: licensed or behind an account. The flavors step
+# checks each one and says where to get the missing ones.
+# <name> | <command, or a path that exists once installed> | <where to get it>
+MATLAB | matlab | https://www.mathworks.com/downloads (university license; install for the user, e.g. ~/.local/opt/MATLAB, and link bin/matlab into ~/.local/bin)
+Cisco Packet Tracer | /opt/pt | https://www.netacad.com (free with a Networking Academy account; the .deb installs to /opt/pt)
