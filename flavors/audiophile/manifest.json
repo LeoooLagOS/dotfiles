@@ -1,7 +1,11 @@
 {
+  "schema": 1,
   "id": "audiophile",
   "family": "music",
-  "name": { "en": "Audiophile", "es": "Melómano" },
+  "name": {
+    "en": "Audiophile",
+    "es": "Melómano"
+  },
   "description": {
     "en": "Listen to and collect music in full quality: the output follows each song's sample rate (bit-perfect), Picard tags editions exactly (covers with their obi), beets imports, and the panel's Library can check that a FLAC is really lossless.",
     "es": "Escucha y colecciona música en calidad completa: la salida sigue la frecuencia de cada canción (bit-perfect), Picard etiqueta cada edición exacta (portadas con su obi), beets importa, y la Biblioteca del panel comprueba que un FLAC sea lossless de verdad."

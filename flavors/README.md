@@ -46,7 +46,7 @@ Programming toolchains (compilers, databases, containers) aren't engineering-spe
 
 ```
 flavors/<id>/
-├── manifest.json     id, family, name and description in each language, audioProfile
+├── manifest.json     schema (format version, 1), id, family, name and description in each language, audioProfile
 ├── pkglist.txt       DNF packages            (same format as System/pkglist.txt)
 ├── flatpaks.txt      Flathub app ids         (same format as System/flatpaks.txt)
 ├── groups.txt        groups the user joins   (e.g. realtime; needs sudo)
@@ -68,6 +68,8 @@ Every file is optional. Lists allow `#` comments and blank lines.
 | `app-settings/` | `flavors` | `ini-fill.py`: copies only the keys your file lacks. Your own settings always win, and re-running changes nothing |
 
 ## Trust: why flavors are data, not scripts
+The contract (what a flavor may contain, and that the future engine must be able to remove what it adds) is recorded as a design decision: *Flavors are declarative bundles, plugged and unplugged by one engine*. This folder is its proof of concept.
+
 A flavor can install software, join groups and open folders to sandboxed apps, so what it does must be readable before it runs. That's why there is no `setup.sh` in a flavor: every effect has its own declarative file, shown or asked for by `install.sh`. Only official repositories and Flathub; permissions listed one per line. (The same split as the lagOS design: styles are data, flavors install packages, widgets run code.)
 
 ## Adding a flavor

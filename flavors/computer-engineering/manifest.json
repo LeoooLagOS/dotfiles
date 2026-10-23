@@ -1,7 +1,11 @@
 {
+  "schema": 1,
   "id": "computer-engineering",
   "family": "engineering",
-  "name": { "en": "Computer Engineering", "es": "Ingeniería en Computación" },
+  "name": {
+    "en": "Computer Engineering",
+    "es": "Ingeniería en Computación"
+  },
   "description": {
     "en": "Networks and hardware labs: GNS3 and Packet Tracer topologies, Wireshark captures, serial consoles for routers and boards, network monitoring (Nagios, SNMP), digital waveforms (GTKWave), microcontroller flashing and Octave / MATLAB.",
     "es": "Laboratorios de redes y hardware: topologías en GNS3 y Packet Tracer, capturas con Wireshark, consolas seriales para routers y tarjetas, monitoreo de red (Nagios, SNMP), formas de onda digitales (GTKWave), programación de microcontroladores y Octave / MATLAB."
