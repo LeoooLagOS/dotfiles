@@ -2,6 +2,8 @@
 
 Infrastructure-as-Code lists that describe the workstation's packages. `install.sh` reads them; nothing here is linked into `$HOME`.
 
+These are the **base**: what every lagOS-station gets. Software for one kind of work (music listening, DJing, producing…) lives in a [flavor](../flavors/README.md) instead, with its own lists in the same format.
+
 | File | Format | Consumed by |
 |---|---|---|
 | `pkglist.txt` | One DNF package per line (~630) | `packages` step |

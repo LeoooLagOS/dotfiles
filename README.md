@@ -20,6 +20,7 @@ Each directory documents itself; start from the one you need.
 | Directory | Purpose |
 |---|---|
 | [`config/`](config/README.md) | Application configs linked into `~/.config` (Hyprland, Waybar, SwayNC, Kitty, Quickshell, Starship, Fastfetch, power menu icons) |
+| [`flavors/`](flavors/README.md) | Ready-made setups for what you work on (Audiophile, DJ, Producer…): packages, configs, permissions and app settings, chosen per machine |
 | [`git/`](git/README.md) | Global Git identity, Delta pager and GPG signing (also covers `gpg/`) |
 | [`nvim/`](nvim/README.md) | LazyVim-based Neovim IDE |
 | [`scripts/`](scripts/README.md) | The logic layer: WM control, Python libraries, ops tooling and CLI tools |
@@ -43,9 +44,10 @@ git clone git@github.com:LeoooLagOS/dotfiles.git ~/dotfiles
 | Step | What it does |
 |---|---|
 | `repos` | Enables RPM Fusion, Flathub and the COPRs in `System/coprs.txt` |
-| `packages` | Installs `System/pkglist.txt` via DNF (skips live-ISO packages, and NVIDIA drivers when no NVIDIA GPU is present) |
-| `flatpaks` | Installs `System/flatpaks.txt` from Flathub |
+| `packages` | Installs `System/pkglist.txt` and the selected flavors' lists via DNF (skips live-ISO packages, and NVIDIA drivers when no NVIDIA GPU is present) |
+| `flatpaks` | Installs `System/flatpaks.txt` and the selected flavors' Flatpaks from Flathub |
 | `links` | Symlinks configs into `$HOME`; anything already there is moved to `~/.local/state/lagos/backups/<timestamp>/` |
+| `flavors` | The selected [flavors](flavors/README.md)' groups, Flatpak permissions (asked first) and app settings (only keys you haven't set) |
 | `local` | Creates machine-specific files from the `*.example` templates and asks for the weather home location |
 | `shell` | Installs Oh My Zsh and `pokemon-colorscripts`, and sets zsh as the login shell |
 
@@ -63,6 +65,10 @@ cd ~/dotfiles
 
 # Unattended, without Flatpaks
 ./install.sh --yes --skip flatpaks
+
+# Choose flavors (saved in ~/.config/lagos/flavors for the next runs)
+./install.sh --list-flavors
+./install.sh --flavors audiophile,dj
 ```
 
 Each run is logged to `~/.local/state/lagos/install-<timestamp>.log`. See `./install.sh --help` for all options.

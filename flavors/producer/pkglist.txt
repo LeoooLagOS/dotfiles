@@ -1,0 +1,5 @@
+# Producer: JACK clients run on PipeWire; realtime-setup creates the
+# "realtime" group with rtprio / memlock limits (see groups.txt).
+pipewire-jack-audio-connection-kit
+qjackctl
+realtime-setup

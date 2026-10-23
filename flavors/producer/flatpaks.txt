@@ -1,0 +1,4 @@
+com.bitwig.BitwigStudio
+fm.reaper.Reaper
+org.ardour.Ardour
+org.surge_synth_team.surge-xt

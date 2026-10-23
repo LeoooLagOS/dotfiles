@@ -1,0 +1,5 @@
+# Flatpak overrides: <app id> <flatpak override option>. Shown before applying.
+# Mixxx's sandbox sees only the XDG Music folder; its recordings go to
+# ~/Recordings/Mixxx (set in Mixxx: Preferences → Recording), not into ~/Music
+# where MPD and the panel's Library would list them as albums.
+org.mixxx.Mixxx --filesystem=~/Recordings

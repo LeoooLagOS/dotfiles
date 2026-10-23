@@ -1,0 +1,10 @@
+{
+  "id": "producer",
+  "family": "music",
+  "name": { "en": "Producer", "es": "Productor" },
+  "description": {
+    "en": "Compose, record and mix: DAWs (Bitwig, REAPER, Ardour), the Surge XT synth, JACK through PipeWire and realtime priority for low latency.",
+    "es": "Compón, graba y mezcla: DAWs (Bitwig, REAPER, Ardour), el sintetizador Surge XT, JACK a través de PipeWire y prioridad de tiempo real para baja latencia."
+  },
+  "audioProfile": "fixed-rate-low-latency"
+}

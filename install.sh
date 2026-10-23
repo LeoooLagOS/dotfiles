@@ -3,8 +3,9 @@
 #  lagOS-station bootstrapper
 #
 #  Provisions a Fedora workstation from this repository: repositories, DNF
-#  packages, Flatpaks, configuration symlinks, machine-local files and the
-#  login shell. Every step is idempotent and safe to re-run.
+#  packages, Flatpaks, configuration symlinks, flavors (ready-made setups for
+#  what you work on: flavors/README.md), machine-local files and the login
+#  shell. Every step is idempotent and safe to re-run.
 # ==============================================================================
 
 set -Eeuo pipefail
@@ -23,6 +24,9 @@ readonly LOG_FILE="$STATE_DIR/install-$TIMESTAMP.log"
 readonly PKG_LIST="$DOTFILES_DIR/System/pkglist.txt"
 readonly COPR_LIST="$DOTFILES_DIR/System/coprs.txt"
 readonly FLATPAK_LIST="$DOTFILES_DIR/System/flatpaks.txt"
+readonly FLAVORS_DIR="$DOTFILES_DIR/flavors"
+# The flavors this machine uses, one id per line (set with --flavors)
+readonly FLAVOR_FILE="$CONFIG_DIR/lagos/flavors"
 readonly DEFAULT_STARSHIP_PROFILE="2-line-nixos"
 readonly POKEMON_COLORSCRIPTS_REPO="https://gitlab.com/phoneybadger/pokemon-colorscripts.git"
 
@@ -32,7 +36,7 @@ readonly POKEMON_COLORSCRIPTS_REPO="https://gitlab.com/phoneybadger/pokemon-colo
 readonly PKG_EXCLUDE_REGEX='^(anaconda.*|dracut-live|livesys-scripts|kmod-nvidia-.*)$'
 readonly NVIDIA_PKG_REGEX='^(akmod-nvidia|xorg-x11-drv-nvidia.*|nvidia-.*)$'
 
-readonly ALL_STEPS=(repos packages flatpaks links local shell)
+readonly ALL_STEPS=(repos packages flatpaks links flavors local shell)
 
 # Source (relative to repo) -> destination. Directories are linked whole.
 readonly LINKS=(
@@ -52,10 +56,8 @@ readonly LINKS=(
   "config/systemd/user/quickshell-panel.service:$CONFIG_DIR/systemd/user/quickshell-panel.service"
   "config/systemd/user/lagos-lid.service:$CONFIG_DIR/systemd/user/lagos-lid.service"
   "config/systemd/user/lagos-downloads.service:$CONFIG_DIR/systemd/user/lagos-downloads.service"
-  "config/pipewire/pipewire.conf.d/10-hires.conf:$CONFIG_DIR/pipewire/pipewire.conf.d/10-hires.conf"
   "config/mpd/mpd.conf:$CONFIG_DIR/mpd/mpd.conf"
   "config/mpDris2/mpDris2.conf:$CONFIG_DIR/mpDris2/mpDris2.conf"
-  "config/beets/config.yaml:$CONFIG_DIR/beets/config.yaml"
   "config/dbus-1/services/org.freedesktop.Notifications.service:$HOME/.local/share/dbus-1/services/org.freedesktop.Notifications.service"
   "nvim:$CONFIG_DIR/nvim"
   "scripts/build-paper/build_paper.py:$HOME/.local/bin/build-paper"
@@ -73,6 +75,8 @@ readonly LOCAL_TEMPLATES=(
 DRY_RUN=0
 ASSUME_YES=0
 SELECTED_STEPS=("${ALL_STEPS[@]}")
+SELECTED_FLAVORS=()
+FLAVORS_GIVEN=0
 WARNINGS=()
 
 # ------------------------------------------------------------------------------
@@ -132,6 +136,86 @@ load_list() {
   return 0
 }
 
+# Like load_list, but keeps the spaces inside a line ("app --option").
+load_lines() {
+  local -n _lines=$1
+  local line
+  _lines=()
+  [[ -f $2 ]] || return 0
+  while IFS= read -r line || [[ -n $line ]]; do
+    line="${line%%#*}"
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [[ -n $line ]] && _lines+=("$line")
+  done <"$2"
+  return 0
+}
+
+# ------------------------------------------------------------------------------
+# Flavors: flavors/<id>/ with manifest.json, pkglist.txt, flatpaks.txt,
+# groups.txt, permissions.txt, config/ and app-settings/ (flavors/README.md)
+# ------------------------------------------------------------------------------
+
+all_flavors() {
+  local d
+  for d in "$FLAVORS_DIR"/*/; do
+    [[ -f $d/manifest.json ]] && basename "$d"
+  done
+  return 0
+}
+
+# "Name (Nombre) — description" from a flavor's manifest
+flavor_title() {
+  python3 - "$FLAVORS_DIR/$1/manifest.json" <<'PY' 2>/dev/null || printf '%s\n' "$1"
+import json, sys
+m = json.load(open(sys.argv[1]))
+n = m.get("name", {})
+name = n.get("en", m.get("id", "?")) + (f" ({n['es']})" if n.get("es") and n.get("es") != n.get("en") else "")
+print(f"{name} — {m.get('description', {}).get('en', '')}")
+PY
+}
+
+list_flavors() {
+  local f mark
+  local -a chosen=()
+  [[ -f $FLAVOR_FILE ]] && load_list chosen "$FLAVOR_FILE"
+  printf 'Flavors (flavors/<id>/), * = selected on this machine:\n\n'
+  for f in $(all_flavors); do
+    mark=" "
+    [[ " ${chosen[*]} " == *" $f "* ]] && mark="*"
+    printf ' %s %-12s %s\n\n' "$mark" "$f" "$(flavor_title "$f" | fold -s -w 64 | sed '2,$s/^/                /')"
+  done
+}
+
+validate_flavors() {
+  local f
+  for f in "$@"; do
+    [[ -f $FLAVORS_DIR/$f/manifest.json ]] || die "unknown flavor '$f' (valid: $(all_flavors | tr '\n' ' '))"
+  done
+}
+
+# Files of the selected flavors: flavor_files pkglist.txt → one path per flavor that has it
+flavor_files() {
+  local f
+  for f in "${SELECTED_FLAVORS[@]}"; do
+    [[ -f $FLAVORS_DIR/$f/$1 ]] && printf '%s\n' "$FLAVORS_DIR/$f/$1"
+  done
+  return 0
+}
+
+# Groups of the selected flavors the user isn't in yet (they need sudo)
+missing_groups() {
+  local file g
+  local -a groups
+  while IFS= read -r file; do
+    load_list groups "$file"
+    for g in "${groups[@]}"; do
+      id -nG "$USER" | tr ' ' '\n' | grep -qx "$g" || printf '%s\n' "$g"
+    done
+  done < <(flavor_files groups.txt)
+  return 0
+}
+
 has_step() {
   local s
   for s in "${SELECTED_STEPS[@]}"; do [[ $s == "$1" ]] && return 0; done
@@ -149,13 +233,19 @@ Options:
   -y, --yes            Do not prompt for confirmation
       --only STEPS     Run only these comma-separated steps
       --skip STEPS     Skip these comma-separated steps
+      --flavors IDS    Use these comma-separated flavors (saved for next runs;
+                       "none" for none). Default: the saved ones
+      --list-flavors   Show the flavors and which ones this machine uses
   -h, --help           Show this help
 
 Steps (in order):
   repos      Enable RPM Fusion, Flathub and the COPRs in System/coprs.txt
-  packages   Install DNF packages from System/pkglist.txt
-  flatpaks   Install Flatpaks from System/flatpaks.txt
-  links      Symlink configs into \$HOME (existing files are backed up)
+  packages   Install DNF packages from System/pkglist.txt and the flavors'
+  flatpaks   Install Flatpaks from System/flatpaks.txt and the flavors'
+  links      Symlink configs into \$HOME (existing files are backed up),
+             with the selected flavors' config/ files
+  flavors    The selected flavors' groups, Flatpak permissions (shown first)
+             and app settings (only keys you haven't set)
   local      Create machine-specific files from *.example templates
   shell      Install Oh My Zsh and pokemon-colorscripts, set zsh as login shell
 
@@ -163,6 +253,7 @@ Examples:
   $SCRIPT_NAME --dry-run
   $SCRIPT_NAME --only links,local
   $SCRIPT_NAME --yes --skip flatpaks
+  $SCRIPT_NAME --flavors audiophile,dj --only packages,flatpaks,links,flavors
 
 Backups go to $STATE_DIR/backups/<timestamp>/ and logs to $STATE_DIR/.
 EOF
@@ -185,6 +276,9 @@ parse_args() {
       -y|--yes) ASSUME_YES=1 ;;
       --only) [[ $# -ge 2 ]] || die "--only needs a value"; IFS=, read -ra only <<<"$2"; shift ;;
       --skip) [[ $# -ge 2 ]] || die "--skip needs a value"; IFS=, read -ra skip <<<"$2"; shift ;;
+      --flavors) [[ $# -ge 2 ]] || die "--flavors needs a value"; FLAVORS_GIVEN=1
+                 [[ $2 == none ]] || IFS=, read -ra SELECTED_FLAVORS <<<"$2"; shift ;;
+      --list-flavors) list_flavors; exit 0 ;;
       -h|--help) usage; exit 0 ;;
       *) die "unknown option '$1' (see --help)" ;;
     esac
@@ -209,6 +303,11 @@ parse_args() {
     SELECTED_STEPS=("${kept[@]}")
   fi
   [[ ${#SELECTED_STEPS[@]} -gt 0 ]] || die "no steps selected"
+
+  if [[ $FLAVORS_GIVEN -eq 0 && -f $FLAVOR_FILE ]]; then
+    load_list SELECTED_FLAVORS "$FLAVOR_FILE"
+  fi
+  validate_flavors "${SELECTED_FLAVORS[@]}"
 }
 
 # ------------------------------------------------------------------------------
@@ -232,7 +331,8 @@ preflight() {
     ok "repository at $DOTFILES_DIR"
   fi
 
-  if has_step repos || has_step packages || has_step shell; then
+  if has_step repos || has_step packages || has_step shell \
+     || { has_step flavors && [[ -n "$(missing_groups)" ]]; }; then
     if [[ $DRY_RUN -eq 0 ]]; then
       info "requesting sudo for system changes"
       sudo -v
@@ -242,6 +342,7 @@ preflight() {
   fi
 
   info "steps: ${SELECTED_STEPS[*]}"
+  info "flavors: ${SELECTED_FLAVORS[*]:-none} (--list-flavors to see them)"
   [[ $DRY_RUN -eq 1 ]] && info "dry run: no changes will be made"
   return 0
 }
@@ -288,8 +389,14 @@ step_repos() {
 step_packages() {
   step "DNF packages"
   local -a listed packages=()
-  local pkg has_nvidia=0
+  local pkg has_nvidia=0 file
+  local -a extra
   load_list listed "$PKG_LIST"
+  while IFS= read -r file; do
+    load_list extra "$file"
+    listed+=("${extra[@]}")
+    info "flavor ${file#"$FLAVORS_DIR"/}: ${#extra[@]} packages"
+  done < <(flavor_files pkglist.txt)
 
   if command -v lspci &>/dev/null && lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
     has_nvidia=1
@@ -315,8 +422,14 @@ step_packages() {
 step_flatpaks() {
   step "Flatpaks"
   local -a listed apps=()
-  local app
+  local app file
+  local -a extra
   load_list listed "$FLATPAK_LIST"
+  while IFS= read -r file; do
+    load_list extra "$file"
+    listed+=("${extra[@]}")
+    info "flavor ${file#"$FLAVORS_DIR"/}: ${#extra[@]} Flatpaks"
+  done < <(flavor_files flatpaks.txt)
   for app in "${listed[@]}"; do
     # Skip the header row of `flatpak list --columns=application` exports.
     [[ $app == "Application" ]] && continue
@@ -358,6 +471,17 @@ step_links() {
     link "$DOTFILES_DIR/${entry%%:*}" "${entry#*:}"
   done
 
+  # Flavors: each file under flavors/<id>/config/ to the same path in
+  # ~/.config, file by file (a flavor adds to pipewire.conf.d/, it doesn't
+  # take the whole directory)
+  local f src
+  for f in "${SELECTED_FLAVORS[@]}"; do
+    [[ -d $FLAVORS_DIR/$f/config ]] || continue
+    while IFS= read -r src; do
+      link "$src" "$CONFIG_DIR/${src#"$FLAVORS_DIR/$f/config/"}"
+    done < <(find "$FLAVORS_DIR/$f/config" -type f | sort)
+  done
+
   # GnuPG refuses to use a home directory readable by others.
   [[ -d $HOME/.gnupg ]] && run chmod 700 "$HOME/.gnupg"
 
@@ -389,6 +513,65 @@ step_links() {
     ok "music: mpDris2.service enabled"
   else
     warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service lagos-lid.service lagos-downloads.service mpDris2.service"
+  fi
+}
+
+step_flavors() {
+  step "Flavors: ${SELECTED_FLAVORS[*]:-none}"
+  [[ ${#SELECTED_FLAVORS[@]} -gt 0 ]] || { info "no flavors selected (--flavors IDS, --list-flavors)"; return 0; }
+
+  # Groups (e.g. realtime for the Producer): sudo, effective at the next login
+  local g
+  while IFS= read -r g; do
+    run sudo usermod -aG "$g" "$USER"
+    ok "joined group $g (takes effect at the next login)"
+  done < <(missing_groups)
+
+  # Flatpak permissions: what each app gets beyond its sandbox, listed first
+  local file entry app opt
+  local -a perms
+  while IFS= read -r file; do
+    load_lines perms "$file"
+    for entry in "${perms[@]}"; do
+      app=${entry%% *} opt=${entry#* }
+      if flatpak override --user --show "$app" 2>/dev/null | grep -qF -- "${opt#--filesystem=}"; then
+        ok "$app already has $opt"
+      elif [[ $DRY_RUN -eq 1 ]] || confirm "Give $app this permission: $opt?"; then
+        run flatpak override --user "$opt" "$app"
+        ok "$app: $opt"
+      else
+        warn "$app: $opt not granted"
+      fi
+    done
+  done < <(flavor_files permissions.txt)
+
+  # App settings: flavors/<id>/app-settings/<path> fills ~/.config/<path>,
+  # only the keys missing there (your own settings win)
+  local f fragment out
+  for f in "${SELECTED_FLAVORS[@]}"; do
+    [[ -d $FLAVORS_DIR/$f/app-settings ]] || continue
+    while IFS= read -r fragment; do
+      local target="$CONFIG_DIR/${fragment#"$FLAVORS_DIR/$f/app-settings/"}"
+      if [[ $DRY_RUN -eq 1 ]]; then
+        out="$(python3 "$FLAVORS_DIR/ini-fill.py" "$fragment" "$target" --dry-run)"
+      else
+        out="$(python3 "$FLAVORS_DIR/ini-fill.py" "$fragment" "$target")"
+      fi
+      if [[ -n $out ]]; then
+        info "${target/#$HOME/\~}: $(wc -l <<<"$out") settings added"
+      else
+        ok "${target/#$HOME/\~} already set"
+      fi
+    done < <(find "$FLAVORS_DIR/$f/app-settings" -type f | sort)
+  done
+
+  # Remember the choice, so the next run (and the panel, later) knows it
+  if [[ $FLAVORS_GIVEN -eq 1 ]]; then
+    run mkdir -p "$(dirname "$FLAVOR_FILE")"
+    if [[ $DRY_RUN -eq 0 ]]; then
+      printf '%s\n' "${SELECTED_FLAVORS[@]}" >"$FLAVOR_FILE"
+    fi
+    ok "flavors saved to ${FLAVOR_FILE/#$HOME/\~}"
   fi
 }
 

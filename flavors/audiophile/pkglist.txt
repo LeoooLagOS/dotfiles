@@ -1,0 +1,6 @@
+# Audiophile: tagging and the panel Library's quality check.
+# MPD, mpc, mpDris2 and ffmpeg are base (System/pkglist.txt): the Library is
+# in every flavor.
+beets
+picard
+python3-numpy

@@ -52,7 +52,6 @@ bash-color-prompt
 bash-completion
 bat
 bc
-beets
 bind-utils
 bluedevil
 blueman
@@ -437,7 +436,6 @@ pavucontrol
 pciutils
 perl-NKF
 phonon-qt6-backend-vlc
-picard
 picocom
 pinentry-gnome3
 pinentry-qt
@@ -501,7 +499,6 @@ qalculate-gtk
 qcom-wwan-firmware
 qemu-guest-agent
 qemu-kvm
-qjackctl
 qpwgraph
 qt5-qtbase
 qt5-qtbase-gui
@@ -517,7 +514,6 @@ quota
 rabbitmq-server
 realmd
 realtek-firmware
-realtime-setup
 rofi
 rofi-devel
 rootfiles

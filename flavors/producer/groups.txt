@@ -1,0 +1,2 @@
+# Groups the user joins (takes effect at the next login).
+realtime

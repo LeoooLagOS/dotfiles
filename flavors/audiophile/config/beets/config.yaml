@@ -2,7 +2,8 @@
 #   beet import ~/Downloads/<album>   tag with MusicBrainz, fetch the cover,
 #                                     compute ReplayGain, move into ~/Music
 #   beet ls <query>                   search the library
-# Linked to ~/.config/beets/config.yaml by install.sh; beets' own database
+# Part of the Audiophile flavor (flavors/audiophile), linked to
+# ~/.config/beets/config.yaml by install.sh; beets' own database
 # lives in ~/.local/share/beets (not in the repo).
 
 directory: ~/Music

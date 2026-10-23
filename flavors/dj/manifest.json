@@ -1,0 +1,10 @@
+{
+  "id": "dj",
+  "family": "music",
+  "name": { "en": "DJ", "es": "DJ" },
+  "description": {
+    "en": "Mix live with Mixxx, reading the same ~/Music library; your mixes are recorded to ~/Recordings, outside the library.",
+    "es": "Mezcla en vivo con Mixxx, con la misma biblioteca de ~/Music; tus mezclas se graban en ~/Recordings, fuera de la biblioteca."
+  },
+  "audioProfile": "fixed-rate"
+}
