@@ -74,6 +74,9 @@ Rectangle {
     readonly property int grouped: Math.max(Notifs.countOf(notif), thread.length)
     readonly property bool canExpand: grouped > 1 && !compact && !isMail
     readonly property bool isMail: !!Notifs.mailOf(notif)
+    // Album art (hint x-lagos-cover + an image, from scripts/wm/MediaCtrl.sh):
+    // as tall as the card allows, 8 px from its edges
+    readonly property bool cover: notif?.hints?.["x-lagos-cover"] === true && Notifs.imageOf(notif) !== ""
     property bool copied: false
 
     // Level notification (volume, brightness…): Notifs.progressOf ≥ 0
@@ -83,7 +86,7 @@ Rectangle {
     property real barLevel: Notifs.levelFrom[notif?.id] ?? level
     Behavior on barLevel { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
     Component.onCompleted: { barLevel = Qt.binding(() => card.level); logReply(); }
-    implicitHeight: isLevel ? levelRow.implicitHeight + 22 : content.implicitHeight + (compact ? 16 : 24)
+    implicitHeight: isLevel ? levelRow.implicitHeight + 22 : content.implicitHeight + (compact || cover ? 16 : 24)
     radius: compact ? 12 : 18
     color: critical ? critBg : (popup ? card.pal.bg : card.pal.bgAlt)
     border.color: critical ? critBorder : card.pal.border
@@ -200,8 +203,8 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: card.compact ? 8 : 12
-        anchors.leftMargin: card.compact ? 10 : 14
+        anchors.margins: card.compact || card.cover ? 8 : 12
+        anchors.leftMargin: card.cover ? 8 : card.compact ? 10 : 14
         anchors.rightMargin: card.compact ? 8 : 12
         spacing: 8
 
@@ -211,23 +214,25 @@ Rectangle {
 
             // Icon
             Item {
-                Layout.preferredWidth: 32
-                Layout.preferredHeight: 32
+                // A cover takes the text's height plus the 4 px it gives up above and below
+                Layout.preferredWidth: card.cover ? textColumn.implicitHeight + 8 : 32
+                Layout.preferredHeight: Layout.preferredWidth
                 Layout.alignment: Qt.AlignTop
                 // A photo is round (a chat) and fills the circle; an image
                 // hint (screenshot…) gets rounded corners
                 readonly property bool photo: card.showPhoto
                 ClippingRectangle {
                     anchors.fill: parent
-                    radius: parent.photo ? width / 2 : Notifs.imageOf(card.notif) ? 8 : 0
+                    // A cover's corners follow the card's (18 − the 8 px gap)
+                    radius: parent.photo ? width / 2 : card.cover ? 10 : Notifs.imageOf(card.notif) ? 8 : 0
                     color: "transparent"
                     Image {
                         id: icon
                         anchors.fill: parent
                         source: card.iconSource
                         onStatusChanged: if (status === Image.Error && card.showPhoto) card.brokenPhoto = card.photoSource
-                        sourceSize: Qt.size(64, 64)
-                        fillMode: parent.parent.photo ? Image.PreserveAspectCrop : Image.PreserveAspectFit
+                        sourceSize: card.cover ? Qt.size(160, 160) : Qt.size(64, 64)
+                        fillMode: parent.parent.photo || card.cover ? Image.PreserveAspectCrop : Image.PreserveAspectFit
                         asynchronous: true
                     }
                 }
@@ -257,7 +262,10 @@ Rectangle {
             }
 
             ColumnLayout {
+                id: textColumn
                 Layout.fillWidth: true
+                Layout.topMargin: card.cover ? 4 : 0
+                Layout.bottomMargin: card.cover ? 4 : 0
                 spacing: 2
 
                 Label { pal: card.pal;

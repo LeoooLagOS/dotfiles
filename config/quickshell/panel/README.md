@@ -704,7 +704,7 @@ stays English.
 | Zone | Source |
 |---|---|
 | Profile / identity bar | `services/Profile.qml`: `getent passwd`, `hostname`, `/etc/os-release`, `~/.face` avatar (initials if missing) |
-| Notifications | D-Bus `org.freedesktop.Notifications` (this panel is the server) |
+| Notifications | D-Bus `org.freedesktop.Notifications` (this panel is the server). Media keys (`scripts/wm/MediaCtrl.sh`) act on the focused window's player, else one on the workspace, else what plays, else the last one toggled; their notice has the player's name in the title and the cover as an image hint marked `x-lagos-cover`, shown as big as the card allows |
 | Weather / WeatherNow | `scripts/lib/Weather.py` → `~/.cache/open_meteo_cache.json` (location: see `scripts/wm/ToggleWeatherLoc.sh`) |
 | Clock | `SystemClock` |
 | Calendar | local clock + `scripts/events.py`; week start and refresh: Settings → Weather & calendar |
