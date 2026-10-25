@@ -9,7 +9,7 @@ import "../services"
 // (Events.soon: what's due within a few hours or overdue, an event about to
 // start; Settings → Weather & calendar → Reminders), tinted by its urgency.
 // Else the player while something plays (Media.active, still true 20 s after
-// a pause): the art, title and artist; `noPlayer` skips it while the island
+// a pause): the art, then title · artist · album, rolling what doesn't fit (bar/TrackRoll.qml); `noPlayer` skips it while the island
 // grown shows the player. Else the next event of the calendar
 // (services/Events.qml, the next 7 days) going on or still to come: its title,
 // then when ("now · until 17:00", "in 20 min", "16:00 · in 2 h", "tomorrow
@@ -108,11 +108,18 @@ BarPill {
             color: root.urgent ? root.urgent.color : BarState.accent
         }
     }
+    TrackRoll {
+        visible: root.music
+        title: root.player?.trackTitle ?? ""
+        artist: root.player?.trackArtist ?? ""
+        album: root.player?.trackAlbum ?? ""
+        maxWidth: root.fixedWidth - 2 * root.pad - icon.width - root.spacing
+        anchors.verticalCenter: parent.verticalCenter
+    }
     Marquee {
+        visible: !root.music
         textFormat: Text.StyledText
         text: root.urgent ? "<b>" + root.esc(root.urgent.text) + "</b>"
-            : root.music ? "<b>" + root.esc(root.player?.trackTitle) + "</b>"
-                           + (root.player?.trackArtist ? "  ·  " + root.esc(root.player.trackArtist) : "")
             : root.line
         dim: !root.urgent && !root.music && !root.event && !root.todo
         width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - icon.width - root.spacing))

@@ -296,6 +296,7 @@ Scope {
                         visible: windowTitle.visible
                         hide: details.twinsOff || (windowTitle.hasWindow && !Call.active && !details.leftMusic)
                         music: details.leftMusic
+                        room: windowTitle.room
                         fixedWidth: !(Call.active || details.leftMusic) ? details.wLeft
                                   : details.glanceCompact ? Math.ceil(natural) : windowTitle.room
                         x: windowTitle.x

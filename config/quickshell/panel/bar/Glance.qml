@@ -7,7 +7,7 @@ import "../services"
 // video call (services/Call.qml) comes first: the app and the meeting, and
 // buttons for the microphone and the camera (red while off). Then the player
 // (`music`, TopBar.qml: something plays while the right twin has a reminder):
-// the art, title and artist. Else, on an empty workspace, the whole weather:
+// the art, then title · artist · album, rolling what doesn't fit (bar/TrackRoll.qml). Else, on an empty workspace, the whole weather:
 // icon, temperature, then the sky, high / low, rain and the place, scrolling
 // when they don't fit (bar/Marquee.qml). With a window (the call, the player)
 // the weather shrinks to the mini pill at the twin's inner edge (bar/MiniWeather.qml); the call or
@@ -17,6 +17,9 @@ import "../services"
 BarPill {
     id: root
     property int fixedWidth: 340
+    // The most the twin can give the player (TopBar.qml: the window title's room):
+    // the track decides from it what fits side by side, whatever width it takes
+    property real room: fixedWidth
     property bool hide: false
     property bool music: false                  // the player, its other twin taken by a reminder
     signal openTab(string name)
@@ -30,7 +33,7 @@ BarPill {
 
     // As wide as its content (a call, the player): TopBar.qml gives it just this
     // when it fits, and the mini weather beside it takes the rest
-    readonly property real natural: 2 * pad + icon.width + spacing + marquee.implicitWidth
+    readonly property real natural: 2 * pad + icon.width + spacing + (track ? trackRoll.implicitWidth : marquee.implicitWidth)
         + (callButtons.visible ? spacing + callButtons.width : 0)
     implicitWidth: fixedWidth
     opacity: shown ? 1 : 0
@@ -78,21 +81,30 @@ BarPill {
         font.weight: Font.DemiBold
         anchors.verticalCenter: parent.verticalCenter
     }
+    // Its text (centered in the pill), up to the rest of the pill
+    readonly property real textRoom: Math.max(0, fixedWidth - 2 * pad - icon.width - spacing
+                                              - (lead.visible ? lead.width + spacing : 0)
+                                              - (callButtons.visible ? callButtons.width + spacing : 0))
+    TrackRoll {
+        id: trackRoll
+        visible: root.track
+        title: root.player?.trackTitle ?? ""
+        artist: root.player?.trackArtist ?? ""
+        album: root.player?.trackAlbum ?? ""
+        maxWidth: Math.max(0, root.room - 2 * root.pad - icon.width - root.spacing)
+        anchors.verticalCenter: parent.verticalCenter
+    }
     Marquee {
         id: marquee
+        visible: !root.track
         textFormat: Text.StyledText
         text: root.call ? "<b>" + root.esc(Call.name) + "</b>" + (Call.detail ? "  ·  " + root.esc(Call.detail) : "")
-            : root.track ? "<b>" + root.esc(root.player?.trackTitle) + "</b>"
-                           + (root.player?.trackArtist ? "  ·  " + root.esc(root.player.trackArtist) : "")
             : "·  " + [root.esc(Weather.description),
                        "↑" + Math.round(Weather.high) + "° ↓" + Math.round(Weather.low) + "°",
                        root.rain > 0 ? Tr.t("rain %1", root.rain + "%") : "",
                        root.esc(Weather.place)].filter(s => s).join("  ·  ")
         dim: !root.call && !root.track
-        // Its text (centered in the pill), up to the rest of the pill
-        width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - icon.width - root.spacing
-                           - (lead.visible ? lead.width + root.spacing : 0)
-                           - (callButtons.visible ? callButtons.width + root.spacing : 0)))
+        width: Math.min(implicitWidth, root.textRoom)
         anchors.verticalCenter: parent.verticalCenter
     }
     // The call's microphone and camera
