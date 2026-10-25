@@ -770,5 +770,11 @@
  "Alphabetical": "Alfabético",
  "Artist": "Artista",
  "Year": "Año",
- "Find a track": "Buscar una canción"
+ "Find a track": "Buscar una canción",
+ "Charger connected": "Cargador conectado",
+ "Charger unplugged": "Cargador desconectado",
+ "full in %1": "llena en %1",
+ "%1 left": "quedan %1",
+ "%1 h %2 min": "%1 h %2 min",
+ "%1 min": "%1 min"
 }

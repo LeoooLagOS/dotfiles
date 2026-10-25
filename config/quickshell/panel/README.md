@@ -655,7 +655,7 @@ the panel; `services/SystemSettings.qml` applies them:
 | Setting | Applied by |
 |---|---|
 | Idle timeouts, "not while media is playing" | writes `~/.config/lagos/hypridle.conf` (variables `source`d by `config/hypr/hypridle.conf`, which keeps the defaults) and restarts hypridle |
-| Battery alert levels | writes `~/.config/lagos/battery-alerts`, read by `scripts/wm/BatteryNotify.sh` every 30 s |
+| Battery alert levels | writes `~/.config/lagos/battery-alerts`, read by `scripts/wm/BatteryNotify.sh` every 30 s. Charger connected / unplugged: `services/Charger.qml` (laptops only, from UPower's `onBattery` at once: level and, if known, time to full / empty; icons in `icons/`) |
 | Closing the lid (on battery · plugged in · with an external monitor) | writes `~/.config/lagos/lid`, read by `scripts/wm/LaptopLid.sh` each time the lid closes; it acts only while `lagos-lid.service` holds logind's lid inhibitor ("Handled by" shows it), otherwise logind decides |
 | Power profile at login | set once per boot when the panel starts |
 | Wallpaper rotation | a timer picks a random wallpaper and applies it like the Wallpapers tab |

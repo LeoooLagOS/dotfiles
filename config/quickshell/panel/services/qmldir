@@ -27,3 +27,4 @@ singleton WebPages 1.0 WebPages.qml
 singleton Capture 1.0 Capture.qml
 singleton Call 1.0 Call.qml
 singleton Startup 1.0 Startup.qml
+singleton Charger 1.0 Charger.qml

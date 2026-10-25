@@ -14,7 +14,7 @@ import "./services"
 
 ShellRoot {
     // Services that must run from the start (not only once a zone uses them)
-    readonly property var services: [SystemSettings, Toggles, LauncherTheme]
+    readonly property var services: [SystemSettings, Toggles, LauncherTheme, Charger]
 
     TopBar {}
     Panel {}
