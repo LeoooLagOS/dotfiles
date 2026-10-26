@@ -201,6 +201,17 @@ Singleton {
         dispatch(`hl.dsp.workspace.toggle_special("comms-${shown}")`);
     }
     Timer { id: hideLater; interval: 150; onTriggered: root.hide() }
+    // A workspace clicked on the bar while one is shown: hide it, and the way
+    // back (onShownChanged → home) goes to that workspace instead
+    function leaveTo(id) {
+        const m = Hyprland.focusedMonitor;
+        if (!shown || !m) return false;
+        const h = Object.assign({}, home);
+        h[m.name] = id;
+        home = h;
+        hide();
+        return true;
+    }
     function toggle() {
         if (shown) { hide(); return; }
         show(defs.some(d => d.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? defs[0]?.key ?? ""));
@@ -438,6 +449,16 @@ Singleton {
         { value: "60", label: Tr.t("Closes after %1", "1 h") },
         { value: "120", label: Tr.t("Closes after %1", "2 h") }
     ]
+    // Out of the dock (its windows come back: onDefsChanged)
+    function remove(ref) { Settings.set("commsApps", (Settings.v.commsApps ?? []).filter(r => r !== ref)); }
+    // Unread across the dock (the bar's Comms button)
+    readonly property int unread: apps.reduce((a, x) => a + x.badge, 0)
+    // Settings → Comms dock, from the dock's gear or the bar's button (right click)
+    function openSettings() {
+        dockFocus = false;
+        PanelState.open = true;
+        PanelState.openSettings("comms");
+    }
     function inUse(d) {
         if (Object.values(shownOn).includes(d.key) || session?.key === d.key || pending[d.key] || restarting[d.key]) return true;
         const focused = "0x" + String(Hyprland.activeToplevel?.address ?? "");

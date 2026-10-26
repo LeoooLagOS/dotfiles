@@ -53,7 +53,7 @@ Singleton {
         barRight: ["glance", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
         barDetailGap: 200, barScroll: "always",
         barBellCount: true, barBellEvery: 5, barBellFor: 1000,   // the bell shows the count now and then
-        barEmptyWs: "show", barWsIcons: true, barDate: true, bar24h: true, barIslandMessages: true,
+        barEmptyWs: "show", barWsIcons: true, barWsComms: true, barDate: true, bar24h: true, barIslandMessages: true,
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
         commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"],
         commsLife: {},                                           // per app: "login" (default) · "demand" · minutes unused before closing
@@ -178,6 +178,7 @@ Singleton {
             { title: "Workspaces and clock", rows: [
                 { key: "barEmptyWs", label: "Empty workspaces", type: "seg", opts: [["hide", "Hide"], ["show", "Show 1–5"]] },
                 { key: "barWsIcons", label: "Icons of the apps on each workspace", type: "switch" },
+                { key: "barWsComms", label: "Comms dock button", help: "After the workspaces: shows or hides the Comms dock (like Super Y), with the unread count. Right click: its settings", type: "switch" },
                 { key: "barDate", label: "Date next to the time", type: "switch" },
                 { key: "bar24h", label: "24-hour clock", type: "switch" } ] },
             { title: "Notifications bell", rows: [

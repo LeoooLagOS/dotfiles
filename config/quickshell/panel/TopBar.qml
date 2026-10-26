@@ -168,6 +168,7 @@ Scope {
                             cap: details.wsCap
                             visible: win.zone("workspaces")
                             monitor: win.monitor
+                            tipHost: tip
                         }
                     }
 

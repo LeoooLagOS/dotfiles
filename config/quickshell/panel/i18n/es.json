@@ -782,5 +782,12 @@
  "No app matches": "Ninguna app coincide",
  "Type to search every installed app": "Escribe para buscar entre todas las apps instaladas",
  "Suggested": "Sugerida",
- "Open now": "Abierta ahora"
+ "Open now": "Abierta ahora",
+ "When it runs": "Cuándo se abre",
+ "Remove from dock": "Quitar del dock",
+ "Comms dock settings": "Ajustes del dock de mensajería",
+ "%1 unread": "%1 sin leer",
+ "Right click": "Clic derecho",
+ "Comms dock button": "Botón del dock de mensajería",
+ "After the workspaces: shows or hides the Comms dock (like Super Y), with the unread count. Right click: its settings": "Después de los espacios de trabajo: muestra u oculta el dock de mensajería (como Super Y), con los mensajes sin leer. Clic derecho: sus ajustes"
 }

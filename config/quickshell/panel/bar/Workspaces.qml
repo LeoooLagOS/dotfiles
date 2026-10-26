@@ -9,9 +9,13 @@ import "../services"
 // an accent underline. Empty ones 1–5 shown or hidden (Settings → Bar).
 // Click: go there · wheel: next / previous. Special workspaces and the
 // empty "comms" one behind the comms dock (services/Comms.qml) are skipped.
+// After them, the Comms dock's button (Settings → Bar → Comms dock button):
+// click shows / hides it (SUPER Y), right click its settings; the unread count
+// across its apps, and each app in the tip (bar/BarTip.qml, `tipHost`).
 BarPill {
     id: root
     property var monitor: null                   // HyprlandMonitor of this bar
+    property Item tipHost: null                  // TopBar.qml's BarTip
     pad: 4
     spacing: 3
 
@@ -34,7 +38,7 @@ BarPill {
         const widthWith = k => items.reduce((a, it) => {
             const n = Settings.v.barWsIcons ? it.apps.length : 0;
             return a + it.numWidth + Math.min(n, k) * 20 + (n > k ? 21 : 0) + (it.empty ? 12 : 16);
-        }, 0) + Math.max(0, items.length - 1) * spacing + 2 * pad;
+        }, 0) + Math.max(0, items.length - 1) * spacing + 2 * pad + commsRoom;
         for (let k = 4; k > 1; k--) if (widthWith(k) <= cap) return k;
         return 1;
     }
@@ -50,9 +54,13 @@ BarPill {
         for (let i = 0; i < wsRepeater.count; i++) w += wsRepeater.itemAt(i)?.baseWidth ?? 0;
         return w;
     }
-    readonly property real natural: baseSum + Math.max(0, wsRepeater.count - 1) * spacing + 2 * pad
+    readonly property bool commsOn: Settings.v.barWsComms && Comms.defs.length > 0
+    readonly property real commsRoom: commsOn ? commsLine.width + commsCell.baseWidth + 2 * spacing : 0
+    readonly property real natural: baseSum + Math.max(0, wsRepeater.count - 1) * spacing + 2 * pad + commsRoom
     readonly property real extraEach: wsRepeater.count ? Math.max(0, (width - natural) / wsRepeater.count) : 0
     function go(target) { Quickshell.execDetached(["hyprctl", "dispatch", `hl.dsp.focus({ workspace = ${target} })`]); }
+    // A workspace clicked: with a Comms app shown, it hides and goes there in one click
+    function pick(id) { if (!Comms.leaveTo(id)) go(id); }
     onWheel: d => go(d > 0 ? '"e-1"' : '"e+1"')
 
     // The app of a window: its icon from the desktop entry (or the class as a
@@ -142,7 +150,76 @@ BarPill {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: root.go(ws.modelData)
+                onClicked: root.pick(ws.modelData)
+            }
+        }
+    }
+
+    // A thin light line between the workspaces and the Comms button
+    Rectangle {
+        id: commsLine
+        visible: root.commsOn
+        anchors.verticalCenter: parent.verticalCenter
+        width: 1
+        height: Settings.v.barHeight - 18
+        color: Theme.withAlpha(Theme.fg, 0.35)
+    }
+    Rectangle {
+        id: commsCell
+        visible: root.commsOn
+        readonly property bool on: Comms.shown !== ""
+        readonly property real baseWidth: commsRow.implicitWidth + 16
+        // What BarTip shows: each app, unread / open / closed
+        readonly property var tip: ({
+            title: Tr.t("Comms dock"),
+            rows: Comms.apps.map(a => [a.name, a.badge > 0 ? Tr.t("%1 unread", a.badge) : a.running ? Tr.t("Running") : Tr.t("Not running")])
+                .concat([[Tr.t("Right click"), Tr.t("Settings")]])
+        })
+        anchors.verticalCenter: parent.verticalCenter
+        implicitHeight: Settings.v.barHeight - 16
+        implicitWidth: baseWidth
+        radius: 8
+        color: on ? Theme.withAlpha(BarState.accent, 0.18) : commsMouse.containsMouse ? Theme.bgHover : "transparent"
+        Behavior on color { ColorAnimation { duration: Theme.anim } }
+        Rectangle {
+            visible: commsCell.on
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width - 12
+            height: 2
+            radius: 1
+            color: BarState.accent
+        }
+        Row {
+            id: commsRow
+            anchors.centerIn: parent
+            spacing: 5
+            Glyph {
+                text: "\uf086"
+                font.pixelSize: 13
+                color: commsCell.on ? Theme.fg : Theme.fgDim
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Label {
+                visible: Comms.unread > 0
+                text: Comms.unread > 99 ? "99+" : Comms.unread
+                font.pixelSize: 11
+                font.weight: Font.DemiBold
+                font.features: { "tnum": 1 }
+                color: Theme.critical
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+        MouseArea {
+            id: commsMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            onContainsMouseChanged: if (root.tipHost) containsMouse ? root.tipHost.show(commsCell) : root.tipHost.hide(commsCell)
+            onClicked: m => {
+                if (root.tipHost) root.tipHost.hide(commsCell);
+                m.button === Qt.RightButton ? Comms.openSettings() : Comms.toggle();
             }
         }
     }

@@ -15,7 +15,9 @@ import "./services"
 // app), Shift+R restart, Esc back to the app. From inside an app, SUPER TAB /
 // SUPER SHIFT TAB go to the next / previous one (Comms.cycle).
 // Right click on an icon: Reload (web apps) · Restart · Quit, for an app that
-// hangs (Comms.reload / restart / quit; restarting shows on its icon).
+// hangs (Comms.reload / restart / quit; restarting shows on its icon); when it
+// runs (Comms.lives: always on, when picked, closed after a while unused) and
+// Remove from dock. The gear at the end: Settings → Comms dock (add, order).
 // The app above fills the screen down to the dock: its special workspace has
 // a bottom gap (UserConfigs/user_window_rules.lua) of `peek` + 6 px.
 Scope {
@@ -49,9 +51,11 @@ Scope {
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             anchors.bottom: true
-            // Room above the raised dock for the grown icon and its name
+            // Room above the dock for the grown icon and its name, and for
+            // the longest right-click menu (only the dock and the menu take
+            // clicks; the blur skips what's transparent)
             implicitWidth: Math.max(dock.width + 80, 460)
-            implicitHeight: dock.height + 10 + 56
+            implicitHeight: dock.height + 10 + 400
 
             // Raised while hovered; lowered a moment after the mouse leaves
             property bool raised: false
@@ -63,6 +67,19 @@ Scope {
             property string menuKey: ""
             property real menuX: 0
             readonly property var menuApp: Comms.apps.find(a => a.key === menuKey) ?? null
+            // Its lines: the actions, then when it runs, then Remove
+            readonly property var menuItems: {
+                const a = menuApp;
+                if (!a) return [];
+                const acts = !a.running ? [{ id: "open", label: Tr.t("Open"), icon: "\uf04b" }]
+                    : (a.web ? [{ id: "reload", label: Tr.t("Reload"), icon: "\uf021" }] : []).concat([
+                          { id: "restart", label: Tr.t("Restart"), icon: "\uf2f9" },
+                          { id: "quit", label: Tr.t("Quit"), icon: "\uf011" }]);
+                const life = Comms.lifeOf(a.ref);
+                return acts.concat([{ id: "sep" }, { id: "head", label: Tr.t("When it runs") }],
+                    Comms.lives.map(l => ({ id: "life", value: l.value, label: l.label, icon: l.value === life ? "\uf00c" : "" })),
+                    [{ id: "sep" }, { id: "remove", label: Tr.t("Remove from dock"), icon: "\uf00d" }]);
+            }
             Timer { id: lowerTimer; interval: 450; onTriggered: { win.raised = false; win.menuKey = ""; } }
 
             WlrLayershell.namespace: "quickshell:dock"
@@ -95,7 +112,7 @@ Scope {
             Rectangle {
                 id: menu
                 visible: win.menuKey !== "" && !!win.menuApp
-                width: visible ? 170 : 0
+                width: visible ? 210 : 0
                 height: visible ? menuCol.implicitHeight + 12 : 0
                 x: Math.max(4, Math.min(win.width - width - 4, win.menuX - width / 2))
                 y: dock.y - height - 8
@@ -111,37 +128,70 @@ Scope {
                     anchors.margins: 6
                     spacing: 2
                     Repeater {
-                        model: !win.menuApp ? []
-                             : !win.menuApp.running ? [{ id: "open", label: Tr.t("Open"), icon: "\uf04b" }]
-                             : (win.menuApp.web ? [{ id: "reload", label: Tr.t("Reload"), icon: "\uf021" }] : []).concat([
-                                   { id: "restart", label: Tr.t("Restart"), icon: "\uf2f9" },
-                                   { id: "quit", label: Tr.t("Quit"), icon: "\uf011" }])
-                        delegate: Rectangle {
+                        model: win.menuItems
+                        delegate: Item {
+                            id: line
                             required property var modelData
+                            readonly property bool action: modelData.id !== "sep" && modelData.id !== "head"
                             width: menuCol.width
-                            height: 30
-                            radius: 8
-                            color: itemMouse.containsMouse ? Theme.bgHover : "transparent"
-                            Row {
-                                anchors.left: parent.left
-                                anchors.leftMargin: 10
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: 10
-                                Glyph { text: modelData.icon; font.pixelSize: 12; color: modelData.id === "quit" ? Theme.critical : Theme.fg; anchors.verticalCenter: parent.verticalCenter }
-                                Label { text: modelData.label; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
+                            height: modelData.id === "sep" ? 9 : modelData.id === "head" ? 22 : modelData.id === "life" ? 28 : 30
+                            Rectangle {
+                                visible: line.modelData.id === "sep"
+                                anchors.centerIn: parent
+                                width: parent.width - 12
+                                height: 1
+                                color: Theme.border
                             }
-                            MouseArea {
-                                id: itemMouse
+                            Label {
+                                visible: line.modelData.id === "head"
+                                x: 10
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 3
+                                text: line.modelData.label ?? ""
+                                dim: true
+                                font.pixelSize: 10
+                                font.weight: Font.DemiBold
+                            }
+                            Rectangle {
+                                visible: line.action
                                 anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    const k = win.menuKey;
-                                    win.menuKey = "";
-                                    if (modelData.id === "reload") Comms.reload(k);
-                                    else if (modelData.id === "restart") Comms.restart(k);
-                                    else if (modelData.id === "quit") Comms.quit(k);
-                                    else Comms.show(k);
+                                radius: 8
+                                color: itemMouse.containsMouse ? Theme.bgHover : "transparent"
+                                Row {
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 10
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 10
+                                    Glyph {
+                                        width: 14
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: line.modelData.icon ?? ""
+                                        font.pixelSize: line.modelData.id === "life" ? 10 : 12
+                                        color: line.modelData.id === "quit" || line.modelData.id === "remove" ? Theme.critical
+                                             : line.modelData.id === "life" ? Theme.accent : Theme.fg
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    Label {
+                                        text: line.modelData.label ?? ""
+                                        font.pixelSize: line.modelData.id === "life" ? 12 : 13
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                }
+                                MouseArea {
+                                    id: itemMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        const k = win.menuKey, ref = win.menuApp?.ref ?? "", id = line.modelData.id;
+                                        win.menuKey = "";
+                                        if (id === "reload") Comms.reload(k);
+                                        else if (id === "restart") Comms.restart(k);
+                                        else if (id === "quit") Comms.quit(k);
+                                        else if (id === "life") Comms.setLife(ref, line.modelData.value);
+                                        else if (id === "remove") Comms.remove(ref);
+                                        else Comms.show(k);
+                                    }
                                 }
                             }
                         }
@@ -288,6 +338,57 @@ Scope {
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    // Settings → Comms dock (add, remove, order, when each runs)
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 1
+                        height: 40
+                        color: Theme.border
+                    }
+                    // A tile as big as an app's icon, growing the same way on hover
+                    Item {
+                        id: gear
+                        width: 56
+                        height: 56
+                        Rectangle {
+                            width: 44; height: 44
+                            anchors.centerIn: parent
+                            anchors.verticalCenterOffset: -2
+                            radius: 12
+                            // Solid like an app's icon, so its top shows at rest as theirs does
+                            color: gearMouse.containsMouse ? Qt.lighter(Theme.bgAlt, 1.5) : Qt.lighter(Theme.bgAlt, 1.3)
+                            border.color: Theme.border
+                            scale: gearMouse.containsMouse ? 1.28 : 1
+                            transformOrigin: Item.Bottom
+                            Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutBack } }
+                            Glyph {
+                                anchors.centerIn: parent
+                                optical: true                  // centered by its ink, not the font's box
+                                text: "\uf013"
+                                font.pixelSize: 28
+                                color: gearMouse.containsMouse ? Theme.fg : Theme.fgDim
+                            }
+                        }
+                        Rectangle {
+                            visible: gearMouse.containsMouse
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: -height - 26
+                            width: gearTip.implicitWidth + 20
+                            height: 26
+                            radius: 8
+                            color: Theme.withAlpha(Theme.bgAlt, 0.95)
+                            border.color: Theme.border
+                            Label { id: gearTip; anchors.centerIn: parent; font.pixelSize: 12; text: Tr.t("Comms dock settings") }
+                        }
+                        MouseArea {
+                            id: gearMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: { win.menuKey = ""; Comms.openSettings(); }
                         }
                     }
                 }
