@@ -38,6 +38,14 @@ Zone {
     readonly property var appStreams: Media.streamsFor(radio ? ["mpv"] : library ? ["mpd"] : Media.playerKeys(player))
     readonly property var appAudio: appStreams[0]?.audio ?? null
     readonly property string appName: radio ? Tr.t("Radio") : library ? Tr.t("Library") : (player?.identity ?? "App")
+    // The art or the title clicked: to the player's app (Media.goTo), as the
+    // chosen player's chip clicked again
+    component ToApp: MouseArea {
+        enabled: !root.radio && !root.library && !!root.player
+        hoverEnabled: enabled
+        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: Media.goTo(root.player)
+    }
     function setAppVolume(v) { for (const n of appStreams) if (n.audio) n.audio.volume = v; }
     function setAppMuted(m) { for (const n of appStreams) if (n.audio) n.audio.muted = m; }
 
@@ -165,6 +173,7 @@ Zone {
                 opacity: root.preview ? 0 : 1
                 Behavior on opacity { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
             }
+            ToApp { anchors.fill: parent; visible: !root.preview }
 
             // Booklet page (root.preview): two images take turns, the next page
             // loads in the hidden one and fades in over the other
@@ -277,7 +286,9 @@ Zone {
                         text: root.radio ? (modelData.name ?? "") : root.library ? (modelData.t ?? "")
                             : String(modelData.identity ?? "").split(" ")[0] + (modelData.trackTitle ? " · " + modelData.trackTitle : "")
                         active: root.radio ? modelData.name === root.station?.name : root.library ? modelData.on : modelData === root.player
-                        onClicked: root.radio ? Radio.play(modelData) : root.library ? {} : Media.pick(modelData)
+                        // The chosen one clicked again: to its app (Media.goTo)
+                        onClicked: root.radio ? Radio.play(modelData) : root.library ? {}
+                            : modelData === root.player ? Media.goTo(modelData) : Media.pick(modelData)
                     }
                 }
             }
@@ -342,7 +353,11 @@ Zone {
                     y: 12
                     width: middle.textWidth
                     spacing: 2
-                    Label { width: parent.width; text: root.titleText; color: Theme.accent; font.pixelSize: 17; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                    Label {
+                        width: parent.width; text: root.titleText; color: Theme.accent; font.pixelSize: 17; font.weight: Font.DemiBold; elide: Text.ElideRight
+                        font.underline: smallTitleApp.containsMouse
+                        ToApp { id: smallTitleApp; width: Math.min(parent.width, parent.contentWidth); height: parent.height }
+                    }
                     Label { width: parent.width; text: [root.artistText, root.albumText].filter(x => x).join("  ·  "); dim: true; font.pixelSize: 12; elide: Text.ElideRight; visible: text !== "" }
                 }
 
@@ -371,6 +386,8 @@ Zone {
                         wrapMode: Text.Wrap
                         maximumLineCount: 2
                         Layout.fillWidth: true
+                        font.underline: titleApp.containsMouse
+                        ToApp { id: titleApp; width: Math.min(parent.width, parent.contentWidth); height: parent.contentHeight }
                     }
                     // Radio: what's on air (the stream's title), then frequency / city
                     Label { text: root.radio ? Radio.onAir : root.library ? (Library.active ? (root.lib.artist ?? "") : Tr.t("Browse your albums with the search button")) : (root.player?.trackArtist ?? ""); font.pixelSize: 15; visible: text !== ""; Layout.fillWidth: true; elide: Text.ElideRight }

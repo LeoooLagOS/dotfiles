@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
+import "../common"
 
 // Shared MPRIS state for the media zones: the list of players and the one
 // being shown (the one picked by the user, else one that is playing, else the first).
@@ -16,11 +17,6 @@ Singleton {
     readonly property var players: Mpris.players.values.filter(p => !(p.dbusName ?? "").includes("playerctld")
         && !(p.playbackState === MprisPlaybackState.Stopped && !p.trackTitle) && !isPreview(p))
     property var picked: null
-
-    readonly property var player: {
-        if (picked && players.includes(picked)) return picked;
-        return players.find(p => p.isPlaying && counts(p)) ?? players.find(p => p.isPlaying) ?? players[0] ?? null;
-    }
 
     // ---------------- Previews aren't music ----------------
     // Hovering a video on a site plays it muted, and the browser reports that
@@ -61,6 +57,41 @@ Singleton {
     }
 
     function pick(p) { picked = p; }
+
+    // ---------------- Its app ----------------
+    // The chosen player's chip clicked again (MediaZone.qml) goes to its app:
+    // one in the Comms dock (Spotify) shows there; MPD has no window, its app
+    // is the panel's own Library; else its window is focused (leaving a Comms
+    // app shown first), or the player raises itself (MPRIS Raise)
+    function isMpd(p) { return /(^|\.)mpd(\.|$)/i.test(String(p?.dbusName ?? "")); }
+    // How its window may be named: desktop entry, the D-Bus name's app part, identity
+    function appKeys(p) {
+        const bus = String(p?.dbusName ?? "").replace(/^org\.mpris\.MediaPlayer2\./, "").split(".")[0];
+        return [String(p?.desktopEntry ?? ""), bus, String(p?.identity ?? "")]
+            .map(k => k.toLowerCase()).filter(k => k.length > 2);
+    }
+    function goTo(p) {
+        if (!p) return;
+        if (isMpd(p)) { Settings.set("mediaMode", "library"); return; }
+        const keys = appKeys(p);
+        const d = Comms.defs.find(x => keys.some(k => x.classes.includes(k) || x.name.toLowerCase() === k));
+        PanelState.open = false;
+        if (d) { Comms.show(d.key); return; }
+        const w = Comms.clients.find(c => {
+            const cls = String(c.class).toLowerCase();
+            return !c.workspace.name.startsWith("special:") && keys.some(k => cls === k || cls.includes(k));
+        });
+        if (!w) { if (p.canRaise) p.raise(); return; }
+        focusAddress = w.address;
+        if (Comms.leaveTo(w.workspace.id)) focusLater.restart(); else focusLater.triggered();
+    }
+    property string focusAddress: ""
+    // After a Comms app has hidden (its way back moves the workspace)
+    Timer {
+        id: focusLater
+        interval: 300
+        onTriggered: Quickshell.execDetached(["hyprctl", "dispatch", `hl.dsp.focus({ window = "address:${root.focusAddress}" })`])
+    }
 
     // "Something is playing", for the bar (its right twin and the island):
     // still true a little after a pause, so pausing from the island keeps
