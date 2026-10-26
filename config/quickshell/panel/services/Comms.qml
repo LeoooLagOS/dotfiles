@@ -192,9 +192,15 @@ Singleton {
         const w = mainOf(d);
         if (w) moveIn(d, w, true); else launch(d, true);
     }
+    // With the keyboard on the dock, it lets go first: Hyprland then gives it
+    // back to the app, and focusing a window of a hidden special workspace
+    // would show it again, so the hiding waits for that
     function hide() {
-        if (shown) dispatch(`hl.dsp.workspace.toggle_special("comms-${shown}")`);
+        if (!shown) return;
+        if (dockFocus) { dockFocus = false; hideLater.restart(); return; }
+        dispatch(`hl.dsp.workspace.toggle_special("comms-${shown}")`);
     }
+    Timer { id: hideLater; interval: 150; onTriggered: root.hide() }
     function toggle() {
         if (shown) { hide(); return; }
         show(defs.some(d => d.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? defs[0]?.key ?? ""));
