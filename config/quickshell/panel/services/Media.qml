@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
 import "../common"
@@ -14,9 +15,49 @@ Singleton {
     // A stopped player with nothing loaded is left over (a browser keeps one
     // after a video ends, e.g. WhatsApp's in Brave): hidden too. So is a
     // YouTube hover preview (isPreview)
-    readonly property var players: Mpris.players.values.filter(p => !(p.dbusName ?? "").includes("playerctld")
+    readonly property var all: Mpris.players.values.filter(p => !(p.dbusName ?? "").includes("playerctld")
         && !(p.playbackState === MprisPlaybackState.Stopped && !p.trackTitle) && !isPreview(p))
+    // The ones that are part of what you're listening to (ADR-0011): playing,
+    // paused after playing this session, or picked. A pause from before (an
+    // MPD queue left paused days ago) is left out, unless nothing else is:
+    // then all of them, since "resume where you left off" beats an empty view
+    readonly property var players: {
+        const now = all.filter(p => p.isPlaying || played[String(p.dbusName ?? "")] || p === picked);
+        return now.length ? now : all;
+    }
     property var picked: null
+
+    // ---------------- Played this session ----------------
+    // D-Bus names of the players that made music since login (counts(): a
+    // muted preview doesn't). Kept in $XDG_RUNTIME_DIR: a panel restart
+    // remembers, a new login starts clean
+    property var played: ({})
+    property bool playedLoaded: false
+    readonly property var playingNow: Mpris.players.values.filter(p => p.isPlaying && counts(p)).map(p => String(p.dbusName ?? ""))
+    onPlayingNowChanged: {
+        const add = playingNow.filter(n => n && !played[n]);
+        if (!add.length) return;
+        const m = Object.assign({}, played);
+        for (const n of add) m[n] = true;
+        played = m;
+        if (playedLoaded) playedFile.setText(JSON.stringify(m));
+    }
+    FileView {
+        id: playedFile
+        path: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/lagos-panel-played.json"
+        atomicWrites: true
+        onLoaded: {
+            try { root.played = Object.assign(JSON.parse(text()), root.played); } catch (e) {}
+            root.playedLoaded = true;
+            setText(JSON.stringify(root.played));
+        }
+        onLoadFailed: { root.playedLoaded = true; setText(JSON.stringify(root.played)); }
+    }
+
+    readonly property var player: {
+        if (picked && players.includes(picked)) return picked;
+        return players.find(p => p.isPlaying && counts(p)) ?? players.find(p => p.isPlaying) ?? players[0] ?? null;
+    }
 
     // ---------------- Previews aren't music ----------------
     // Hovering a video on a site plays it muted, and the browser reports that
