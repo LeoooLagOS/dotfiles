@@ -1,12 +1,14 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import "./common"
 import "./services"
 
 // Dock under the communication apps (services/Comms.qml), like macOS's: shown
-// on a monitor while one of them is up (SUPER Y). It rests half hidden below
-// the screen edge (the app gets that room) and rises while the mouse is on it. An icon per app — a dot
+// on a monitor while one of them is up (SUPER Y). At rest it shows as much as
+// the top bar takes from the top edge (ADR-0003's symmetry: `peek`), the top of
+// its icons; it rises while the mouse is on it. An icon per app — a dot
 // under the running ones, the unread count, the shown one highlighted;
 // hovering grows it and names it. Click: switch to it (it starts if it isn't
 // running); the shown one hides them (as does SUPER Y).
@@ -18,12 +20,28 @@ import "./services"
 // hangs (Comms.reload / restart / quit; restarting shows on its icon); when it
 // runs (Comms.lives: always on, when picked, closed after a while unused) and
 // Remove from dock. The gear at the end: Settings → Comms dock (add, order).
-// The app above fills the screen down to the dock: its special workspace has
-// a bottom gap (UserConfigs/user_window_rules.lua) of `peek` + 6 px.
+// The app above fills the screen down to the dock, with the same room above
+// and below: its special workspace has a bottom gap
+// (UserConfigs/user_window_rules.lua) of the bar's reserved height + 6 px.
 Scope {
-    readonly property int iconSize: 48
-    readonly property int pad: 12
-    readonly property int peek: 40            // what shows of the dock at rest
+    // What shows at rest: as far up as the bar's cards reach down (its top
+    // margin, then a BarPill, barHeight - 8, centered in the bar's height)
+    readonly property int peek: (Settings.v.barStyle === "full" ? 0 : 6) + Settings.v.barHeight - 4
+
+    // The app's room below matches the bar's above (its reserved height + 6):
+    // set live, since the bar's height is a setting; UserConfigs/user_window_rules.lua
+    // has the default, which a Hyprland reload brings back (then it's set again)
+    readonly property int gapBelow: (Settings.v.barStyle === "full" ? 0 : 6) + Settings.v.barHeight + 6
+    onGapBelowChanged: applyGap()
+    Component.onCompleted: applyGap()
+    function applyGap() {
+        Quickshell.execDetached(["hyprctl", "eval",
+            `hl.workspace_rule({ workspace = "n[s:special:comms-]", gaps_out = { top = 6, right = 6, bottom = ${gapBelow}, left = 6 } })`]);
+    }
+    Connections {
+        target: Hyprland
+        function onRawEvent(event) { if (event.name === "configreloaded") applyGap(); }
+    }
 
     Variants {
         model: Quickshell.screens

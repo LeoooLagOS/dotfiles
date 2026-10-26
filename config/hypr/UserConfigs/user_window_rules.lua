@@ -175,8 +175,10 @@ apply_window_rule({
 
 -- Communication apps (the panel's services/Comms.qml, CommsDock.qml): each in
 -- its own special workspace special:comms-<app>, filling the screen above the
--- dock, of which only the top half shows until hovered (40 px + 6 px of air)
-hl.workspace_rule({ workspace = "n[s:special:comms-]", gaps_out = { top = 6, right = 6, bottom = 46, left = 6 } })
+-- dock. The dock mirrors the top bar, so the room below matches the room
+-- above: the bar's reserved height + 6 px of air. The panel (CommsDock.qml)
+-- sets it live from Settings → Bar → Height; this is the default (6 + 36 + 6)
+hl.workspace_rule({ workspace = "n[s:special:comms-]", gaps_out = { top = 6, right = 6, bottom = 48, left = 6 } })
 -- A bit translucent, so the wallpaper shows through (behind them the panel
 -- switches to an empty workspace, "comms")
 apply_window_rule({
