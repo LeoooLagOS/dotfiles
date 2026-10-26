@@ -177,8 +177,10 @@ Singleton {
         const p = Object.assign({}, pending);
         p[d.key] = { show: show, since: Date.now() };
         pending = p;
-        // Through Hyprland, so the app isn't a child of the panel's service
-        dispatch(`hl.dsp.exec_cmd("gtk-launch ${d.entry.id}")`);
+        // Through Hyprland, so the app isn't a child of the panel's service.
+        // The file's whole name: gtk-launch only adds ".desktop" to a name that
+        // doesn't end in it, and Telegram's id (org.telegram.desktop) does
+        dispatch(`hl.dsp.exec_cmd("gtk-launch ${d.entry.id}.desktop")`);
         pendingTimer.start();
     }
 
