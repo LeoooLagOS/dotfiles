@@ -39,20 +39,36 @@ Singleton {
         status = "loading";
         lines = [];
         synced = false;
-        proc.running = false;
-        proc.command = ["python3", script, track.artist ?? "", track.title, track.album ?? "",
-                        String(track.duration || 0), track.file ?? ""];
-        proc.running = true;
+        // One process per song, each knowing which it asked for: an answer for a
+        // song no longer shown is dropped. (One shared process restarted while
+        // the old one was still closing never started, leaving "loading"; or the
+        // killed one's output landed on the new song)
+        if (current) current.running = false;
+        current = queryComp.createObject(root, { key: key, command: ["python3", script, track.artist ?? "", track.title,
+            track.album ?? "", String(track.duration || 0), track.file ?? ""] });
+        current.running = true;
     }
+    property var current: null
     // A new song: wait a moment (skipping through tracks shouldn't query each one)
     onKeyChanged: if (wanted) loadSoon.restart()
     onWantedChanged: if (wanted) load()
     Timer { id: loadSoon; interval: 400; onTriggered: root.load() }
 
-    Process {
-        id: proc
-        stdout: StdioCollector {
-            onStreamFinished: {
+    Component {
+        id: queryComp
+        Process {
+            id: query
+            property string key
+            // Gone once it has both exited and handed over its output (either order)
+            property bool exitedOk: false
+            property bool readOk: false
+            function done() { if (exitedOk && readOk) { if (root.current === query) root.current = null; destroy(); } }
+            onExited: { exitedOk = true; done(); }
+            stdout: StdioCollector {
+                onStreamFinished: { query.readOk = true; query.handle(text); query.done(); }
+            }
+            function handle(text) {
+                if (query.key !== root.loadedKey) return;      // another song by now
                 let d;
                 try { d = JSON.parse(text); } catch (e) { root.status = "offline"; root.loadedKey = ""; return; }
                 if (d.error) { root.status = "offline"; root.loadedKey = ""; return; }   // tried again later
