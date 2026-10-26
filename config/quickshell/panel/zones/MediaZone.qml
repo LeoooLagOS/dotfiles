@@ -262,7 +262,10 @@ Zone {
         }
 
         // --- Info, controls, visualizer ---
+        // About a quarter for the chips and the title, half for the lyrics (or
+        // the info), a quarter for the controls and the visualizer
         ColumnLayout {
+            id: infoColumn
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 12
@@ -306,12 +309,14 @@ Zone {
                 readonly property real textWidth: width - sideButtons.width - 16
 
                 // Side buttons, top to bottom: lyrics (the radio: record), audio
-                // output, volume; at the same place in every view
+                // output, volume; at the same place in every view: centered in the
+                // column's middle half, like the lyrics (the chips' quarter above)
                 Column {
                     id: sideButtons
                     z: 5
                     anchors.right: parent.right
-                    y: 64
+                    readonly property real bandTop: Math.max(0, middle.height - infoColumn.height * 0.5)
+                    y: Math.round(bandTop + (middle.height - bandTop - height) / 2)
                     spacing: 8
 
                     // Lyrics on / off (player and library)
@@ -347,10 +352,12 @@ Zone {
                     }
                 }
 
-                // Lyrics on: the title, small, at the top
+                // Lyrics on: the title, small, at the top of the lyrics' half of the
+                // column (the chips keep the quarter above)
                 Column {
+                    id: smallTitle
                     visible: root.lyrics
-                    y: 12
+                    y: Math.max(0, middle.height - infoColumn.height * 0.5)
                     width: middle.textWidth
                     spacing: 2
                     Label {
@@ -394,15 +401,17 @@ Zone {
                     Label { text: root.radio ? (root.station?.subtitle ?? "") : root.library ? (Library.active ? (root.lib.album ?? "") : "") : (root.player?.trackAlbum ?? ""); dim: true; font.pixelSize: 13; visible: text !== ""; Layout.fillWidth: true }
                 }
 
-                // Lyrics: from the side buttons' top down to the controls; the line
-                // being sung in the accent color, a bit above the middle; lines fade
-                // out at both edges instead of being cut; a click on a line jumps there
+                // Lyrics: under the title, down to the controls (the rest of that
+                // half): about three lines, the one being sung in the accent color in
+                // the middle (the first one starts there too, the intro above it);
+                // lines fade out at both edges instead of being cut; a click on a
+                // line jumps there
                 Item {
                     id: lyricsBox
                     visible: root.lyrics
-                    y: sideButtons.y
-                    width: middle.textWidth
+                    y: smallTitle.y + smallTitle.height + 6
                     height: middle.height - y
+                    width: middle.textWidth
                     clip: true
 
                     Label {
@@ -426,19 +435,77 @@ Zone {
                         model: Lyrics.lines
                         spacing: 8
                         boundsBehavior: Flickable.StopAtBounds
-                        currentIndex: Lyrics.index
+                        // Synced: the line being sung, else (before it starts) the first
+                        // one, shown as if it were: the look doesn't change when it starts
+                        readonly property int shown: Lyrics.synced && Lyrics.lines.length ? Math.max(0, Lyrics.index) : -1
+                        currentIndex: shown
                         highlightRangeMode: Lyrics.synced ? ListView.ApplyRange : ListView.NoHighlightRange
-                        preferredHighlightBegin: height * 0.3
-                        preferredHighlightEnd: height * 0.3 + 48
+                        preferredHighlightBegin: height / 2 - 22
+                        preferredHighlightEnd: height / 2 + 22
                         highlightMoveDuration: 450
-                        // A new song starts at the top
-                        onModelChanged: positionViewAtBeginning()
+                        // Synced: room before the first line and after the last, so
+                        // they sit in the middle too (a song starts with its first
+                        // line there, not at the top)
+                        // Before the first line, the intro, in the middle of the room above
+                        // it (between the title and the first line): dots lighting up as it
+                        // nears (gently pulsing) and the time left; it fades out when the
+                        // singing starts and goes up with the lines
+                        header: Item {
+                            id: intro
+                            width: lyricsView.width
+                            height: Lyrics.synced ? lyricsView.height / 2 - 16 : 0
+                            readonly property real first: Lyrics.lines[0]?.t ?? 0
+                            readonly property real progress: first > 0 ? Math.max(0, Math.min(1, Lyrics.position / first)) : 1
+                            Row {
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 12
+                                opacity: Lyrics.synced && Lyrics.index < 0 && intro.first >= 3 ? 1 : 0
+                                visible: opacity > 0
+                                Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
+                                Repeater {
+                                    model: 3
+                                    delegate: Rectangle {
+                                        required property int index
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        width: 12; height: 12; radius: 6
+                                        color: Theme.accent
+                                        opacity: 0.25 + 0.75 * Math.max(0, Math.min(1, intro.progress * 3 - index))
+                                        SequentialAnimation on scale {
+                                            running: parent.visible
+                                            loops: Animation.Infinite
+                                            NumberAnimation { to: 1.2; duration: 900; easing.type: Easing.InOutSine }
+                                            NumberAnimation { to: 1; duration: 900; easing.type: Easing.InOutSine }
+                                        }
+                                    }
+                                }
+                                Label {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    leftPadding: 4
+                                    text: Media.fmt(Math.ceil(intro.first - Lyrics.position))
+                                    dim: true
+                                    font.pixelSize: 14
+                                    font.features: { "tnum": 1 }
+                                }
+                            }
+                        }
+                        footer: Item { width: 1; height: Lyrics.synced ? lyricsView.height / 2 - 16 : 0 }
+                        // That line in the middle again whenever the room around it changes
+                        // (Lyrics sets the lines first, then `synced`: the header grows after
+                        // the view was placed, and it doesn't move by itself); unsynced, the top
+                        function recenter() { if (shown >= 0) positionViewAtIndex(shown, ListView.Center); else positionViewAtBeginning(); }
+                        onModelChanged: Qt.callLater(recenter)
+                        onHeightChanged: Qt.callLater(recenter)
+                        onVisibleChanged: if (visible) Qt.callLater(recenter)
+                        Connections {
+                            target: Lyrics
+                            function onSyncedChanged() { Qt.callLater(lyricsView.recenter); }
+                        }
 
                         delegate: Label {
                             required property var modelData
                             required property int index
-                            readonly property bool current: index === Lyrics.index
-                            readonly property bool past: Lyrics.synced && index < Lyrics.index
+                            readonly property bool current: index === lyricsView.shown
+                            readonly property bool past: Lyrics.synced && index < lyricsView.shown
                             width: lyricsView.width
                             text: modelData.text || "\u266A"
                             wrapMode: Text.Wrap
@@ -461,95 +528,101 @@ Zone {
                 }
             }
 
-            Item { implicitHeight: 4 }
-
-            // Transport controls
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 12
-
-                IconButton {
-                    visible: !root.radio
-                    icon: "\uf074"; iconSize: 13; border.width: 0
-                    enabled: root.library || (root.player?.shuffleSupported ?? false)
-                    opacity: enabled ? 1 : 0.35
-                    active: root.library ? !!root.lib.random : (root.player?.shuffle ?? false)
-                    onClicked: root.library ? Library.setRandom(!root.lib.random) : (root.player.shuffle = !root.player.shuffle)
-                }
-                // Radio: previous / next station, and play-stop (a live stream isn't paused)
-                IconButton { icon: "\uf048"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
-                             onClicked: root.radio ? Radio.previous() : root.library ? Library.prev() : root.player.previous() }
-                IconButton { icon: root.radio ? (Radio.active ? "\uf04d" : "\uf04b")
-                                 : root.library ? (Library.playing ? "\uf04c" : "\uf04b")
-                                 : (root.player?.isPlaying ? "\uf04c" : "\uf04b")
-                             iconSize: 18; implicitWidth: 56; implicitHeight: 48
-                             radius: 24; active: true; onClicked: root.radio ? Radio.toggle() : root.library ? Library.toggle() : root.player.togglePlaying() }
-                IconButton { icon: "\uf051"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
-                             onClicked: root.radio ? Radio.next() : root.library ? Library.next() : root.player.next() }
-                IconButton {
-                    visible: !root.radio
-                    icon: !root.library && (root.player?.loopState ?? MprisLoopState.None) === MprisLoopState.Track ? "\u{f0458}" : "\uf01e"
-                    iconSize: 13; border.width: 0
-                    enabled: root.library || (root.player?.loopSupported ?? false)
-                    opacity: enabled ? 1 : 0.35
-                    active: root.library ? !!root.lib.repeat : (root.player?.loopState ?? MprisLoopState.None) !== MprisLoopState.None
-                    onClicked: root.library ? Library.setRepeat(!root.lib.repeat) : Media.cycleLoop()
-                }
-            }
-
-            // Cava visualizer as progress bar: elapsed | bars (played part in accent) | total
-            RowLayout {
+            // The bottom quarter: the controls right above the visualizer
+            ColumnLayout {
                 Layout.fillWidth: true
-                Layout.topMargin: 6
-                spacing: 10
+                Layout.preferredHeight: Math.max(infoColumn.height * 0.25, 48 + 6 + 40)
+                Layout.maximumHeight: Layout.preferredHeight
+                spacing: 6
 
-                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Radio.elapsed : root.library ? Media.fmt(root.lib.elapsed) : Media.fmt(root.player?.position); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
+                // Transport controls
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 12
 
-                Item {
-                    id: viz
+                    IconButton {
+                        visible: !root.radio
+                        icon: "\uf074"; iconSize: 13; border.width: 0
+                        enabled: root.library || (root.player?.shuffleSupported ?? false)
+                        opacity: enabled ? 1 : 0.35
+                        active: root.library ? !!root.lib.random : (root.player?.shuffle ?? false)
+                        onClicked: root.library ? Library.setRandom(!root.lib.random) : (root.player.shuffle = !root.player.shuffle)
+                    }
+                    // Radio: previous / next station, and play-stop (a live stream isn't paused)
+                    IconButton { icon: "\uf048"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
+                                 onClicked: root.radio ? Radio.previous() : root.library ? Library.prev() : root.player.previous() }
+                    IconButton { icon: root.radio ? (Radio.active ? "\uf04d" : "\uf04b")
+                                     : root.library ? (Library.playing ? "\uf04c" : "\uf04b")
+                                     : (root.player?.isPlaying ? "\uf04c" : "\uf04b")
+                                 iconSize: 18; implicitWidth: 56; implicitHeight: 48
+                                 radius: 24; active: true; onClicked: root.radio ? Radio.toggle() : root.library ? Library.toggle() : root.player.togglePlaying() }
+                    IconButton { icon: "\uf051"; iconSize: 15; implicitWidth: 44; implicitHeight: 40; border.width: 0
+                                 onClicked: root.radio ? Radio.next() : root.library ? Library.next() : root.player.next() }
+                    IconButton {
+                        visible: !root.radio
+                        icon: !root.library && (root.player?.loopState ?? MprisLoopState.None) === MprisLoopState.Track ? "\u{f0458}" : "\uf01e"
+                        iconSize: 13; border.width: 0
+                        enabled: root.library || (root.player?.loopSupported ?? false)
+                        opacity: enabled ? 1 : 0.35
+                        active: root.library ? !!root.lib.repeat : (root.player?.loopState ?? MprisLoopState.None) !== MprisLoopState.None
+                        onClicked: root.library ? Library.setRepeat(!root.lib.repeat) : Media.cycleLoop()
+                    }
+                }
+
+                // Cava visualizer as progress bar: elapsed | bars (played part in accent) | total
+                RowLayout {
                     Layout.fillWidth: true
-                    implicitHeight: 76
+                    Layout.fillHeight: true
+                    spacing: 10
 
-                    readonly property int count: 64
-                    readonly property real slot: width / count
+                    Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Radio.elapsed : root.library ? Media.fmt(root.lib.elapsed) : Media.fmt(root.player?.position); dim: true; font.pixelSize: 11; font.features: { "tnum": 1 } }
 
-                    Row {
-                        anchors.fill: parent
-                        Repeater {
-                            model: viz.count
-                            delegate: Item {
-                                required property int index
-                                width: viz.slot
-                                height: viz.height
-                                readonly property real level: Cava.bars[index] ?? 0
-                                readonly property bool played: root.radio ? Radio.active
-                                                                      : (index + 0.5) / viz.count <= (root.library ? Library.progress : Media.progress)
-                                Rectangle {
-                                    anchors.bottom: parent.bottom
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    width: Math.max(2, viz.slot * 0.6)
-                                    height: Math.max(3, parent.height * parent.level)
-                                    radius: width / 2
-                                    color: parent.played ? Theme.vivid : Theme.withAlpha(Theme.fg, 0.25)
-                                    Behavior on height { NumberAnimation { duration: 60 } }
+                    Item {
+                        id: viz
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        readonly property int count: 64
+                        readonly property real slot: width / count
+
+                        Row {
+                            anchors.fill: parent
+                            Repeater {
+                                model: viz.count
+                                delegate: Item {
+                                    required property int index
+                                    width: viz.slot
+                                    height: viz.height
+                                    readonly property real level: Cava.bars[index] ?? 0
+                                    readonly property bool played: root.radio ? Radio.active
+                                                                          : (index + 0.5) / viz.count <= (root.library ? Library.progress : Media.progress)
+                                    Rectangle {
+                                        anchors.bottom: parent.bottom
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        width: Math.max(2, viz.slot * 0.6)
+                                        height: Math.max(3, parent.height * parent.level)
+                                        radius: width / 2
+                                        color: parent.played ? Theme.vivid : Theme.withAlpha(Theme.fg, 0.25)
+                                        Behavior on height { NumberAnimation { duration: 60 } }
+                                    }
                                 }
                             }
                         }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: root.library ? root.lib.duration > 0
+                                   : !root.radio && (root.player?.canSeek ?? false) && root.player.length > 0
+                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            onClicked: mouse => root.library ? Library.seek(root.lib.duration * mouse.x / width)
+                                                             : root.player.position = root.player.length * mouse.x / width
+                        }
                     }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        enabled: root.library ? root.lib.duration > 0
-                               : !root.radio && (root.player?.canSeek ?? false) && root.player.length > 0
-                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: mouse => root.library ? Library.seek(root.lib.duration * mouse.x / width)
-                                                         : root.player.position = root.player.length * mouse.x / width
-                    }
+                    Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Tr.t("LIVE") : root.library ? Media.fmt(root.lib.duration) : Media.fmt(root.player?.length)
+                            color: root.radio && Radio.active ? Theme.accent : Theme.fgDim
+                            font.pixelSize: 11; font.weight: root.radio ? Font.DemiBold : Font.Normal; font.features: { "tnum": 1 } }
                 }
-
-                Label { Layout.alignment: Qt.AlignBottom; text: root.radio ? Tr.t("LIVE") : root.library ? Media.fmt(root.lib.duration) : Media.fmt(root.player?.length)
-                        color: root.radio && Radio.active ? Theme.accent : Theme.fgDim
-                        font.pixelSize: 11; font.weight: root.radio ? Font.DemiBold : Font.Normal; font.features: { "tnum": 1 } }
             }
         }
     }
