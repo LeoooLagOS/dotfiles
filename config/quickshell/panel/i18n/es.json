@@ -411,8 +411,6 @@
  "Default": "Predeterminado",
  "Mute (not even history)": "Silenciar (ni en el historial)",
  "No apps yet.": "Aún no hay apps.",
- "Add an app…": "Agregar una app…",
- "Nothing else to add": "No hay nada más que agregar",
  "No apps: SUPER Y does nothing.": "Sin apps: SUPER Y no hace nada.",
  "Restarting…": "Reiniciando…",
  "Running · ↻ restarts it if it hangs": "Abierta · ↻ la reinicia si se traba",
@@ -576,7 +574,7 @@
  "Every day, during the hours below": "Todos los días, en el horario de abajo",
  "Low urgency: half; critical: 30 s": "Urgencia baja: la mitad; críticas: 30 s",
  "Oldest ones are removed": "Se borran las más antiguas",
- "Each opens hidden at login, in its own workspace. Remove one and its window comes back to the current workspace": "Cada una se abre oculta al iniciar sesión, en su propio escritorio. Si quitas una, su ventana vuelve al escritorio actual",
+ "Each one hidden in its own workspace. Always on: opens at login, so its notifications arrive. When picked: opens only when you choose it. Closes after: also quits once that long passes without using it (not while it plays music). Remove one and its window comes back to the current workspace": "Cada una oculta en su propio espacio de trabajo. Siempre abierta: se abre al iniciar sesión, así llegan sus notificaciones. Al elegirla: solo se abre cuando la eliges. Se cierra tras: además se cierra cuando pasa ese tiempo sin usarla (no mientras reproduce música). Si quitas una, su ventana vuelve al espacio de trabajo actual",
  "XDG autostart: ~/.config/autostart over /etc/xdg/autostart (off: Hidden=true in your copy)": "Inicio automático XDG: ~/.config/autostart sobre /etc/xdg/autostart (apagado: Hidden=true en tu copia)",
  "startup_commands in UserConfigs/user_startup.lua: off comments the line out, and Hyprland reloads its config. The panel's own line stays": "startup_commands en UserConfigs/user_startup.lua: apagado comenta la línea y Hyprland recarga su configuración. La línea del panel se queda",
  "Skip lock, screen off and suspend": "No bloquear, apagar la pantalla ni suspender",
@@ -776,5 +774,13 @@
  "full in %1": "llena en %1",
  "%1 left": "quedan %1",
  "%1 h %2 min": "%1 h %2 min",
- "%1 min": "%1 min"
+ "%1 min": "%1 min",
+ "Always on": "Siempre abierta",
+ "When picked": "Al elegirla",
+ "Closes after %1": "Se cierra tras %1",
+ "Search an app to add…": "Busca una app para agregar…",
+ "No app matches": "Ninguna app coincide",
+ "Type to search every installed app": "Escribe para buscar entre todas las apps instaladas",
+ "Suggested": "Sugerida",
+ "Open now": "Abierta ahora"
 }

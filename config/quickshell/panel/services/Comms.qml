@@ -411,11 +411,62 @@ Singleton {
     }
     Timer { id: muteRestart; interval: 5000; onTriggered: muteProc.running = true }
 
-    // At login: open each one, hidden
+    // ---------------- When each one runs ----------------
+    // Settings.v.commsLife (Settings → Comms dock, per app): "login" opens it at
+    // login and keeps it (the default: its notifications always arrive);
+    // "demand" only when picked; a number of minutes ("30"): when picked, and
+    // closed (quit()) after that long unused. In use: shown, focused, playing
+    // (Spotify while hidden), a reply going on
+    function lifeOf(ref) { return String(Settings.v.commsLife?.[ref] ?? "login"); }
+    function setLife(ref, life) {
+        const m = Object.assign({}, Settings.v.commsLife ?? {});
+        if (life === "login") delete m[ref]; else m[ref] = life;
+        Settings.set("commsLife", m);
+    }
+    // The choices, for Settings and the dock's right-click menu
+    readonly property var lives: [
+        { value: "login", label: Tr.t("Always on") },
+        { value: "demand", label: Tr.t("When picked") },
+        { value: "15", label: Tr.t("Closes after %1", "15 min") },
+        { value: "30", label: Tr.t("Closes after %1", "30 min") },
+        { value: "60", label: Tr.t("Closes after %1", "1 h") },
+        { value: "120", label: Tr.t("Closes after %1", "2 h") }
+    ]
+    function inUse(d) {
+        if (Object.values(shownOn).includes(d.key) || session?.key === d.key || pending[d.key] || restarting[d.key]) return true;
+        const focused = "0x" + String(Hyprland.activeToplevel?.address ?? "");
+        if (windowsOf(d).some(c => c.address === focused)) return true;
+        const word = d.name.split(/\s+/)[0].toLowerCase();
+        return Media.players.some(p => p.isPlaying && (d.classes.includes(String(p.desktopEntry ?? "").toLowerCase())
+                                                      || String(p.identity ?? "").toLowerCase().includes(word)));
+    }
+    property var usedAt: ({})                 // key → when last seen in use (or first seen running)
+    Timer {
+        interval: 60000
+        repeat: true
+        running: root.defs.some(d => Number(root.lifeOf(d.ref)) > 0)
+        onTriggered: {
+            const u = Object.assign({}, root.usedAt), now = Date.now();
+            for (const d of root.defs) {
+                const min = Number(root.lifeOf(d.ref));
+                if (!(min > 0) || !root.mainOf(d)) { delete u[d.key]; continue; }
+                if (root.inUse(d) || u[d.key] === undefined) u[d.key] = now;
+                else if (now - u[d.key] >= min * 60000) {
+                    console.info("comms: closing", d.key, "unused for", min, "min");
+                    delete u[d.key];
+                    root.quit(d.key);
+                }
+            }
+            root.usedAt = u;
+        }
+    }
+
+    // At login: each one set to open then, hidden; the others only tucked
+    // away if they're already running
     function startAll() {
         for (const d of defs) {
             const w = mainOf(d);
-            if (w) moveIn(d, w, false); else launch(d, false);
+            if (w) moveIn(d, w, false); else if (lifeOf(d.ref) === "login") launch(d, false);
         }
     }
     // An app taken out of the dock (Settings): its windows come back to the

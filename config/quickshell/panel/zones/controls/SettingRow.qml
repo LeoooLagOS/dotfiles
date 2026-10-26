@@ -270,20 +270,38 @@ Item {
     }
 
     // ---------------- commsapps: the Comms dock's apps ----------------
-    // In dock order: icon, name, state; move up / down, remove. Below, "Add":
-    // suggested messaging apps that are installed, and apps with a window open
+    // In dock order: icon, name, state; move up / down, remove. Below, a search
+    // to add one, its results inline (pushing what follows, covering nothing):
+    // while empty, suggested messaging apps that are installed and apps with a
+    // window open; typing, any installed app by name or id (Spotify closed too)
     readonly property var commsRefs: type === "commsapps" ? [].concat(Settings.v.commsApps ?? []) : []
+    // { value: ref, label, entry, kind: "suggested" | "open" | "" }
     readonly property var commsCandidates: {
         if (type !== "commsapps") return [];
         const ids = commsRefs.map(r => Comms.entryOf(r)?.id).filter(x => x);
         const out = [];
-        const add = (ref, e) => {
-            if (!e || e.noDisplay || ids.includes(e.id) || out.some(o => o.id === e.id)) return;
-            out.push({ value: ref, label: e.name, id: e.id });
+        const add = (ref, e, kind) => {
+            if (!e || e.noDisplay || ids.includes(e.id) || out.some(o => o.entry.id === e.id)) return;
+            out.push({ value: ref, label: e.name, entry: e, kind: kind });
         };
-        for (const ref of Comms.suggested) add(ref, Comms.entryOf(ref));
-        for (const c of Comms.clients) add(DesktopEntries.heuristicLookup(c.class)?.id ?? "", DesktopEntries.heuristicLookup(c.class));
-        return [{ value: "", label: out.length ? Tr.t("Add an app…") : Tr.t("Nothing else to add"), id: "" }].concat(out);
+        for (const ref of Comms.suggested) add(ref, Comms.entryOf(ref), "suggested");
+        for (const c of Comms.clients) add(DesktopEntries.heuristicLookup(c.class)?.id ?? "", DesktopEntries.heuristicLookup(c.class), "open");
+        DesktopEntries.applications.values.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(e => add(e.id, e, ""));
+        return out;
+    }
+    property string commsChoosing: ""          // the app whose run options are open
+    property string commsQuery: ""
+    function fold(s) { return String(s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+    readonly property var commsResults: {
+        const q = fold(commsQuery.trim());
+        if (!q) return commsCandidates.filter(o => o.kind).slice(0, 6);
+        return commsCandidates.filter(o => fold(o.label).includes(q) || fold(o.entry.id).includes(q)
+                                           || fold(o.entry.genericName).includes(q)).slice(0, 8);
+    }
+    function addComms(ref) {
+        if (!ref) return;
+        Settings.set(row.key, commsRefs.concat([ref]));
+        commsQuery = "";
     }
     function moveComms(i, d) {
         const a = commsRefs.slice(), j = i + d;
@@ -315,66 +333,157 @@ Item {
                 required property int index
                 readonly property var entry: Comms.entryOf(modelData)
                 readonly property var app: Comms.apps.find(a => a.ref === modelData) ?? null
+                readonly property string life: Comms.lifeOf(modelData)
+                readonly property bool choosing: root.commsChoosing === modelData
                 width: comms.width
-                height: 38
-                Image {
-                    id: commsIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 24; height: 24
-                    sourceSize: Qt.size(48, 48)
-                    source: commsLine.entry ? Comms.iconOf(commsLine.entry) : ""
-                    opacity: commsLine.entry ? 1 : 0.4
-                }
-                Column {
-                    anchors.left: commsIcon.right
-                    anchors.leftMargin: 10
-                    anchors.right: commsButtons.left
-                    anchors.rightMargin: 8
-                    anchors.verticalCenter: parent.verticalCenter
-                    Label {
-                        width: parent.width
-                        text: commsLine.entry?.name ?? commsLine.modelData.replace(/^name:/, "")
-                        font.pixelSize: 13
-                        elide: Text.ElideRight
+                height: 38 + (choosing ? lives.implicitHeight + 8 : 0)
+                Item {
+                    width: parent.width
+                    height: 38
+                    Image {
+                        id: commsIcon
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 24; height: 24
+                        sourceSize: Qt.size(48, 48)
+                        source: commsLine.entry ? Comms.iconOf(commsLine.entry) : ""
+                        opacity: commsLine.entry ? 1 : 0.4
                     }
-                    Label {
-                        text: !commsLine.entry ? Tr.t("Not installed") : commsLine.app?.restarting ? Tr.t("Restarting…")
-                            : commsLine.app?.running ? Tr.t("Running · ↻ restarts it if it hangs") : Tr.t("Not running · opens when you pick it")
-                        dim: true
-                        font.pixelSize: 10
+                    Column {
+                        anchors.left: commsIcon.right
+                        anchors.leftMargin: 10
+                        anchors.right: commsButtons.left
+                        anchors.rightMargin: 8
+                        anchors.verticalCenter: parent.verticalCenter
+                        Label {
+                            width: parent.width
+                            text: commsLine.entry?.name ?? commsLine.modelData.replace(/^name:/, "")
+                            font.pixelSize: 13
+                            elide: Text.ElideRight
+                        }
+                        Label {
+                            text: !commsLine.entry ? Tr.t("Not installed") : commsLine.app?.restarting ? Tr.t("Restarting…")
+                                : commsLine.app?.running ? Tr.t("Running · ↻ restarts it if it hangs") : Tr.t("Not running · opens when you pick it")
+                            dim: true
+                            font.pixelSize: 10
+                        }
+                    }
+                    Row {
+                        id: commsButtons
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 4
+                        // When it runs (Comms.lifeOf): its options open inline below the line
+                        Chip {
+                            anchors.verticalCenter: parent.verticalCenter
+                            visible: !!commsLine.entry
+                            text: Comms.lives.find(o => o.value === commsLine.life)?.label ?? ""
+                            icon: commsLine.choosing ? "" : ""
+                            active: commsLine.choosing
+                            onClicked: root.commsChoosing = commsLine.choosing ? "" : commsLine.modelData
+                        }
+                        // Hung? Close it (forcing it if needed) and open it again
+                        IconButton { icon: "\uf2f9"; iconSize: 11; implicitWidth: 28; implicitHeight: 26
+                                     visible: !!commsLine.app?.running
+                                     opacity: commsLine.app?.restarting ? 0.4 : 1
+                                     onClicked: Comms.restart(commsLine.app.key) }
+                        IconButton { icon: "\uf077"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index > 0; opacity: enabled ? 1 : 0.3
+                                     onClicked: root.moveComms(commsLine.index, -1) }
+                        IconButton { icon: "\uf078"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index < root.commsRefs.length - 1; opacity: enabled ? 1 : 0.3
+                                     onClicked: root.moveComms(commsLine.index, 1) }
+                        IconButton { icon: "\uf00d"; iconSize: 11; implicitWidth: 28; implicitHeight: 26
+                                     onClicked: Settings.set(root.row.key, root.commsRefs.filter(r => r !== commsLine.modelData)) }
                     }
                 }
-                Row {
-                    id: commsButtons
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 4
-                    // Hung? Close it (forcing it if needed) and open it again
-                    IconButton { icon: "\uf2f9"; iconSize: 11; implicitWidth: 28; implicitHeight: 26
-                                 visible: !!commsLine.app?.running
-                                 opacity: commsLine.app?.restarting ? 0.4 : 1
-                                 onClicked: Comms.restart(commsLine.app.key) }
-                    IconButton { icon: "\uf077"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index > 0; opacity: enabled ? 1 : 0.3
-                                 onClicked: root.moveComms(commsLine.index, -1) }
-                    IconButton { icon: "\uf078"; iconSize: 10; implicitWidth: 28; implicitHeight: 26; enabled: commsLine.index < root.commsRefs.length - 1; opacity: enabled ? 1 : 0.3
-                                 onClicked: root.moveComms(commsLine.index, 1) }
-                    IconButton { icon: "\uf00d"; iconSize: 11; implicitWidth: 28; implicitHeight: 26
-                                 onClicked: Settings.set(root.row.key, root.commsRefs.filter(r => r !== commsLine.modelData)) }
+                // From login, or only when picked, then closed after that long unused
+                Flow {
+                    id: lives
+                    visible: commsLine.choosing
+                    y: 42
+                    x: 34
+                    width: parent.width - x
+                    spacing: 6
+                    Repeater {
+                        model: Comms.lives
+                        delegate: Chip {
+                            required property var modelData
+                            text: modelData.label
+                            active: modelData.value === commsLine.life
+                            onClicked: {
+                                Comms.setLife(commsLine.modelData, modelData.value);
+                                root.commsChoosing = "";
+                            }
+                        }
+                    }
                 }
             }
         }
+        // Add: type a name; Enter adds the first result
         Item {
             width: comms.width
             height: 40
-            z: 10
-            Dropdown {
+            TextField {
+                id: commsSearch
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                options: root.commsCandidates
-                value: ""
-                listWidth: 260
-                enabled: root.commsCandidates.length > 1
-                onSelected: v => { if (v) Settings.set(root.row.key, root.commsRefs.concat([v])); }
+                width: Math.min(300, parent.width)
+                icon: ""
+                placeholder: Tr.t("Search an app to add…")
+                text: root.commsQuery
+                onTextChanged: root.commsQuery = text
+                onAccepted: root.addComms(root.commsResults[0]?.value ?? "")
+            }
+        }
+        Label {
+            visible: commsSearch.input.activeFocus && root.commsResults.length === 0
+            leftPadding: 4
+            text: root.commsQuery.trim() ? Tr.t("No app matches") : Tr.t("Type to search every installed app")
+            dim: true
+            font.pixelSize: 11
+        }
+        Repeater {
+            model: commsSearch.input.activeFocus || root.commsQuery.trim() ? root.commsResults : []
+            delegate: Rectangle {
+                id: result
+                required property var modelData
+                required property int index
+                width: comms.width
+                height: 34
+                radius: 8
+                color: resultMouse.containsMouse || (index === 0 && root.commsQuery.trim()) ? Theme.bgHover : "transparent"
+                Image {
+                    id: resultIcon
+                    x: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 20; height: 20
+                    sourceSize: Qt.size(40, 40)
+                    source: Comms.iconOf(result.modelData.entry)
+                }
+                Label {
+                    anchors.left: resultIcon.right
+                    anchors.leftMargin: 10
+                    anchors.right: resultKind.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: result.modelData.label
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                }
+                Label {
+                    id: resultKind
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: result.modelData.kind === "suggested" ? Tr.t("Suggested") : result.modelData.kind === "open" ? Tr.t("Open now") : ""
+                    dim: true
+                    font.pixelSize: 10
+                }
+                MouseArea {
+                    id: resultMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.addComms(result.modelData.value)
+                }
             }
         }
     }

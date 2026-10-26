@@ -55,7 +55,8 @@ Singleton {
         barBellCount: true, barBellEvery: 5, barBellFor: 1000,   // the bell shows the count now and then
         barEmptyWs: "show", barWsIcons: true, barDate: true, bar24h: true, barIslandMessages: true,
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
-        commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"]
+        commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"],
+        commsLife: {},                                           // per app: "login" (default) · "demand" · minutes unused before closing
     })
 
     property var v: defaults
@@ -223,7 +224,7 @@ Singleton {
         { id: "comms", icon: "\uf27a", label: "Comms dock",
           lead: "Messaging and mail apps kept running out of sight, so their notifications arrive. SUPER Y shows them full screen above a dock.", groups: [
             { title: "Apps", rows: [
-                { key: "commsApps", label: "In the dock", help: "Each opens hidden at login, in its own workspace. Remove one and its window comes back to the current workspace", type: "commsapps" } ] } ] },
+                { key: "commsApps", label: "In the dock", help: "Each one hidden in its own workspace. Always on: opens at login, so its notifications arrive. When picked: opens only when you choose it. Closes after: also quits once that long passes without using it (not while it plays music). Remove one and its window comes back to the current workspace", type: "commsapps" } ] } ] },
         { id: "startup", icon: "\uf135", label: "Startup apps", system: true,
           lead: "What opens on its own when you log in, and what it holds right now. Off takes effect from the next login; ■ stops it now. Also in the tray's Startup view.", groups: [
             { title: "Apps", rows: [
