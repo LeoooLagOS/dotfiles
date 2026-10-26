@@ -5,7 +5,9 @@ import QtQuick.Layouts
 //   Dropdown { icon: "\uf0b0"; options: [{ label: "All", value: "all" }, …]; value: "all"
 //              onSelected: v => … }
 // The list is drawn above later siblings via `z`; give the Dropdown's parent a
-// z above the content it should cover.
+// z above the content it should cover. It opens below, or above when there's
+// more room there (the nearest clipping ancestor, e.g. a Flickable, or the
+// window), and shrinks to that room, scrolling.
 Item {
     id: root
     property string icon: ""
@@ -21,7 +23,23 @@ Item {
 
     // Keyboard: Enter/Space opens; ↑/↓ move; Enter picks; Esc closes
     activeFocusOnTab: true
-    onOpenChanged: highlight = open ? Math.max(0, options.findIndex(o => o.value === value)) : -1
+    onOpenChanged: {
+        highlight = open ? Math.max(0, options.findIndex(o => o.value === value)) : -1;
+        if (open) place();
+    }
+    // Where the list fits: below unless it doesn't and above has more room
+    property bool up: false
+    property real room: 320
+    function place() {
+        let clipper = parent;
+        while (clipper && !clipper.clip) clipper = clipper.parent;
+        const top = clipper ? mapToItem(clipper, 0, 0).y : mapToItem(null, 0, 0).y;
+        const bottom = clipper ? clipper.height : (Window.height || 100000);
+        const below = bottom - top - height - 12, above = top - 12;
+        const want = Math.min(list.implicitHeight + 12, 320);
+        up = below < want && above > below;
+        room = Math.max(60, Math.min(want, up ? above : below));
+    }
     onActiveFocusChanged: if (!activeFocus) open = false
     Keys.onPressed: event => {
         const k = event.key;
@@ -73,10 +91,10 @@ Item {
     // Option list
     Rectangle {
         visible: root.open
-        y: root.height + 6
+        y: root.up ? -height - 6 : root.height + 6
         // Fixed width (not from the options' widths, which would loop with the Column)
         width: Math.max(root.width, root.listWidth)
-        height: Math.min(list.implicitHeight + 12, 320)
+        height: Math.min(list.implicitHeight + 12, root.room)
         radius: 12
         color: Theme.bgAlt
         border.color: Theme.border
