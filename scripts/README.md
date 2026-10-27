@@ -46,7 +46,7 @@ Upstream ships helpers for other distros (`*NixOS*`, `*Ubuntu*`, `debian-*`); th
 
 ## providers/ — The panel's task providers
 
-Personal data sources for the panel's deadlines, kept here so the panel itself stays generic (the contract: [panel README, Calendar events](../config/quickshell/panel/README.md#calendar-events)). `install.sh` links each into `~/.config/lagos/providers/`.
+Personal data sources for the panel's deadlines, kept here so the panel itself stays generic (the contract: [panel README, Calendar events](../config/quickshell/panel/docs/REFERENCE.md#calendar-events)). `install.sh` links each into `~/.config/lagos/providers/`.
 
 | Provider | What it gives the panel |
 |---|---|

@@ -28,7 +28,7 @@ Upstream KoolDots has since moved Waybar to `~/.config/hypr/waybar`; until that 
 
 ## 🔔 SwayNC
 
-**Not in use** — notifications are now handled by the [Quickshell panel](quickshell/panel/README.md#notifications). Kept for reference: the notification center and its quick-settings panel, from KoolDots: `config.json` (layout, widgets, buttons), `style.css` and the `icons/` and `images/` it uses. Reload with `swaync-client -R -rs`.
+**Not in use** — notifications are now handled by the [Quickshell panel](quickshell/panel/docs/REFERENCE.md#notifications). Kept for reference: the notification center and its quick-settings panel, from KoolDots: `config.json` (layout, widgets, buttons), `style.css` and the `icons/` and `images/` it uses. Reload with `swaync-client -R -rs`.
 
 ## 🚪 Power menu
 
@@ -51,7 +51,7 @@ While a key is held, its tile fills up; releasing early drains it. Holding the l
 
 ## 🔎 Rofi menus
 
-All Rofi menus (app launcher, keybind search, clipboard, emoji, wallpapers, quick settings, theme pickers…) live in `config/hypr/rofi/` and use the **Lagos** theme, made to match the [Quickshell panel](quickshell/panel/README.md):
+All Rofi menus (app launcher, keybind search, clipboard, emoji, wallpapers, quick settings, theme pickers…) live in `config/hypr/rofi/` and use the **Lagos** theme, made to match the [Quickshell panel](quickshell/panel/docs/REFERENCE.md):
 
 - `themes/Lagos.rasi` — Inter, a card about 760 px wide whose height follows its lines, 22/14/10 px corners, the accent at 20% for the selection.
 - **Where menus open**: anchored to the bottom edge (Hyprland slides them up, the default) or floating in the center. `scripts/wm/RofiPosition.sh bottom|center|toggle` writes `position.rasi`, which `Lagos.rasi` imports last; the panel's Settings → Appearance → Menus does the same.

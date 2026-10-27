@@ -2,7 +2,7 @@
 
 > **Not in use:** swaync is no longer the notification daemon. Notifications,
 > popups and the notification list are handled by the Quickshell panel —
-> see [`config/quickshell/panel`](../quickshell/panel/README.md#notifications)
+> see [`config/quickshell/panel`](../quickshell/panel/docs/REFERENCE.md#notifications)
 > (which also explains how to switch back). This folder is kept for reference.
 
 This folder configures [SwayNotificationCenter](https://github.com/ErikReider/SwayNotificationCenter)
