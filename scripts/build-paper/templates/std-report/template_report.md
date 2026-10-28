@@ -1,33 +1,34 @@
 ---
-title: "Document Title"
-subtitle: "Sub-investigation or Project Phase"
+title: "Report Title"
+subtitle: "Subject - Activity"
 author:
-  - "[Author Name](author@email.com)"
-date: 
-titlepage: true
-titlepage-color: 
-titlepage-text-color: FFFFFF
-titlepage-rule-color: FFFFFF
-logo: 
-toc: true
-toc-own-page: true
-listings-no-page-break: true
+  - name: Author Name
+    affiliation: Facultad de Ciencias de la Computación, BUAP
+    email: author@example.com
+date: "Month Year"
+lang: es
+abstract: |
+  A brief summary of the report.
+toc: false
 number-sections: true
-bibliography: My Library.bib
-lang: 
+bibliography: references.bib
 ---
 
-# ABSTRACT
-Enter a brief summary of your research or report here.
+# Introducción
+Context and objective. Cite like this [@authorYear].
 
-# INTRODUCTION
-Start your introduction here. Use citations like this [@authorYear].
+# Desarrollo
+The main technical content. Wide tables shrink to the column.
 
-# DEVELOPMENT
-Your main technical content goes here.
+| Column | Value |
+|---|--:|
+| a | 1 |
 
-# CONCLUSION
-Summarize your findings and pipeline results.
+: A table caption goes after the table.
 
-# BIBLIOGRAPHY
-<div id="refs"></div>
+# Conclusiones
+What was found.
+
+# Referencias {-}
+::: {#refs}
+:::

@@ -1,33 +1,44 @@
 ---
 title: "Document Title"
-subtitle: "Sub-investigation or Project Phase"
+subtitle: "Subject or project phase"
 author:
-  - "[Author Name](author@email.com)"
-date: 
+  - Author Name
+  - Second Author
+date: "Month Year"
+lang: es
 titlepage: true
-titlepage-color: 
+titlepage-color: 003B5C
 titlepage-text-color: FFFFFF
 titlepage-rule-color: FFFFFF
-logo: 
+titlepage-logo: Logo_BUAP_lightBlue.png   # found next to the note, in attachments/ or in the vault
+logo-width: 60mm
 toc: true
 toc-own-page: true
 listings-no-page-break: true
 number-sections: true
-bibliography: My Library.bib
-lang: 
+bibliography: references.bib
 ---
 
-# ABSTRACT
-Enter a brief summary of your research or report here.
+# Resumen {-}
+A brief summary of the report.
 
-# INTRODUCTION
-Start your introduction here. Use citations like this [@authorYear].
+# Introducción
+Context and objective. Cite like this [@authorYear].
 
-# DEVELOPMENT
-Your main technical content goes here.
+# Desarrollo
+The main technical content.
 
-# CONCLUSION
-Summarize your findings and pipeline results.
+| Column | Value |
+|---|--:|
+| a | 1 |
 
-# BIBLIOGRAPHY
-<div id="refs"></div>
+: A table caption goes after the table.
+
+![A figure caption.](attachments/figure.png){width=70%}
+
+# Conclusiones
+What was found.
+
+# Referencias {-}
+::: {#refs}
+:::

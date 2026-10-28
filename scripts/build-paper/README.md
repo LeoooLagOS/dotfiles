@@ -31,9 +31,17 @@ build-paper/
     │   ├── academic.latex  # Main loader/orchestrator
     │   ├── template_academic.md # Starter document with frontmatter
     │   └── ...             # Modular components (fonts, titles, etc.)
-    └── ieee/             # Monolithic IEEE Template
-        ├── ieee.latex    # Single-file IEEE transaction format
-        └── template_ieee.md # Starter document with frontmatter
+    ├── ieee/             # Monolithic IEEE Template
+    │   ├── ieee.latex    # Single-file IEEEtran template (conference mode)
+    │   └── template_ieee.md # Starter document with frontmatter
+    ├── aa-report/        # A&A practice report (Word template, Networks area)
+    │   ├── plantilla_original.docx # Template as handed out in class
+    │   ├── make_reference.py      # Builds reference.docx from it
+    │   ├── reference.docx         # Styles, headers and footers used by Pandoc
+    │   ├── aa-report.lua          # Title block, section/figure/table numbers
+    │   └── template_aa-report.md  # Starter document with frontmatter
+    ├── table-captions.lua # Table captions for std-report and ieee
+    └── clean-metadata.lua # Runs first for every template (e.g. an empty bibliography)
 ```
 
 ## 🛠️ Prerequisites
@@ -57,7 +65,7 @@ The `links` step of the repository's `install.sh` links `build_paper.py` to `~/.
 
 ## 📖 Usage
 
-Citations are resolved with Pandoc citeproc. The bibliography is `<name>.bib` next to the Markdown file if it exists; otherwise the first `.bib` file in the current directory is used. Add `-v` / `--verbose` to print the generated Pandoc command.
+Citations are resolved with Pandoc citeproc. The bibliography is the `bibliography:` field of the frontmatter; if there is none, `<name>.bib` next to the Markdown file, otherwise the first `.bib` file in that directory. The output is written next to the Markdown file, whatever the current directory. Add `-v` / `--verbose` to print the generated Pandoc command and `--no-open` to skip opening the result.
 
 1. Standard Academic Report (Default)
 
@@ -67,7 +75,7 @@ build-paper my_report.md
 ```
 2. IEEE Paper
 
-Follows the official IEEE transaction format for technical protocols and engineering submissions.
+IEEEtran in conference mode (two columns, Roman section numbers with `number-sections: true`) for technical papers.
 ```Bash
 build-paper my_research.md --type ieee
 ```
@@ -79,25 +87,49 @@ Uses the Eisvogel foundation for high-customization reports. Settings like title
 build-paper draft.md --type academic --csl apa
 ```
 
-4. Custom Styles
+4. A&A Practice Report (DOCX + PDF)
+
+Reproduces the Word template of the Networks area (`Plantilla_A&A_ReportesPractica e Investigación2025.docx`): Spanish and English titles, numbered affiliations, "Resumen", keywords, numbered sections ("1 Introducción", "1.1 ..."), "Figura 1." / "Tabla 1." captions and IEEE references. Generates `<name>_aa-report.docx` and, through LibreOffice, `<name>_aa-report.pdf`.
+```Bash
+build-paper reporte.md --type aa-report
+```
+Start from `templates/aa-report/template_aa-report.md`. Frontmatter fields:
+
+| Field | Use |
+|---|---|
+| `title`, `title-en` | Spanish and English titles (`subtitle` is accepted instead of `title-en`) |
+| `author` | List of `{name, affiliation, location, email}`; equal affiliations share a number |
+| `affiliations` | Optional explicit list; then `author.affiliation` is its number (1, 2, ...) |
+| `abstract`, `keywords` | "Resumen" and "Keywords and phrases" |
+| `materia`, `periodo`, `area` | Page headers/footers (default period from the date, e.g. "Otoño 2026") |
+| `number-sections` | `false` if the headings are already numbered by hand |
+
+Write headings without numbers (`# Introducción`); the filter numbers them. If the class template changes, replace `plantilla_original.docx` and run `python3 templates/aa-report/make_reference.py`.
+
+**The template itself is not in this repo:** the `.docx` belongs to the A&A Networks area (its authors, logo and example text). Put the file your professor gives you at `templates/aa-report/plantilla_original.docx` and run `make_reference.py` once to create `reference.docx`; both are git-ignored.
+
+5. Custom Styles
 
 Override the default citation style on the fly:
 ```bash
 build-paper draft.md --type academic --csl ieee
 ```
 
-## ⚠️ Known Issues & Troubleshooting
-### APA "Phantom Brackets" (std-report)
+## 🧾 Frontmatter Behavior
+- **`number-sections: true`** numbers the headings (Pandoc only accepts it on the command line, so build-paper passes it). If most headings are already numbered by hand (`## 1. Introducción`, `# I. INTRODUCCIÓN`), nothing is added and a note says so. Mark a heading as unnumbered with `# Resumen {-}`.
+- **`lang: es`** translates captions and labels ("Cuadro", "Figura", "Índice", "Resumen") in every template.
+- **An empty `bibliography:`** is ignored instead of failing the build.
+- **`std-report`** reads `subtitle`, `toc`, `number-sections`, `lang`, and authors written as plain names or as `{name, affiliation, email}`.
+- **`academic`** keeps headings with the table or text that follows (they move to the next page together). Turn it off with `allow-orphan-headings: true`.
 
-In the current MVP version of the std-report template, using APA (author-date) citations can cause an alignment drift in the bibliography.
-- **Symptom:** Citations are pushed into the gutter or display "phantom" indentation where a numeric label would normally be.
-- **Status:** Under investigation for version 1.1.
-- **Workaround:** For mission-critical alignment, use --csl ieee or switch to the academic template type.
+## ⚠️ Known Issues & Troubleshooting
+- **"You have requested release 2026/06/01 of LaTeX" warning:** harmless; a package is newer than the installed LaTeX kernel.
+- **The PDF of `aa-report`** comes from LibreOffice and may substitute fonts (Calibri, Consolas) that aren't installed; the `.docx` is the file to hand in.
 
 ## 🎨 Asset Management
-- **Images:** The script looks for images in an `attachments/` folder next to your Markdown file, and in `~/Documents/my-cs-notes/attachments` (the Obsidian vault) when it exists.
+- **Images:** The script looks for images in an `attachments/` folder next to your Markdown file, and in the Obsidian vault (`~/Documents/my-cs-notes/attachments` and its root) when it exists.
 - **Stability Bridge:** The `std-report` template includes logic to ensure wide tables are scaled to fit within a single column.
-- **Logos:** For the academic template, ensure your Logo (`eg. Logo_BUAP_lightBlue.png`) is in your project's attachments folder to appear on the title page.
+- **Logos:** `titlepage-logo: Logo_BUAP_lightBlue.png` is looked up like an image: next to the note, in `attachments/`, then in the vault (its root and `attachments/`). If it isn't found, the build goes on without it and prints a warning.
 - **Customization:** To edit the cover page layout, modify templates/academic/eisvogel-title-page.latex. 
 
 ## 📄 CV Template (cv-ats-classic)
