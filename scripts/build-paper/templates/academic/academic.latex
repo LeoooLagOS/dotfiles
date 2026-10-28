@@ -103,6 +103,20 @@ $endif$
 $fonts.latex()$
 $font-settings.latex()$
 $common.latex()$
+$if(allow-orphan-headings)$
+$else$
+% build-paper: keep headings with what follows. A heading needs room for some
+% content (a table's header, a few lines) or it moves to the next page with it.
+\usepackage{needspace}
+\usepackage{etoolbox}
+\newcommand*{\bpNeedSection}[1]{\Needspace{20\baselineskip}}
+\newcommand*{\bpNeedSubsection}[1]{\Needspace{18\baselineskip}}
+\newcommand*{\bpNeedSubsubsection}[1]{\Needspace{8\baselineskip}}
+\AddtoDoHook{heading/preinit/section}{\bpNeedSection}
+\AddtoDoHook{heading/preinit/subsection}{\bpNeedSubsection}
+\AddtoDoHook{heading/preinit/subsubsection}{\bpNeedSubsubsection}
+\AtBeginEnvironment{longtable}{\Needspace{12\baselineskip}}
+$endif$
 $for(header-includes)$
 $header-includes$
 $endfor$

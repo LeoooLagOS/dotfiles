@@ -126,11 +126,8 @@ $if(babel-newcommands)$
   $babel-newcommands$
 $endif$
 \else
-  \usepackage{polyglossia}
-  \setmainlanguage[$polyglossia-lang.options$]{$polyglossia-lang.name$}
-$for(polyglossia-otherlangs)$
-  \setotherlanguage[$polyglossia-otherlangs.options$]{$polyglossia-otherlangs.name$}
-$endfor$
+  % Pandoc 3 no longer sets polyglossia-lang; babel works with XeLaTeX too
+  \usepackage[shorthands=off,$for(babel-otherlangs)$$babel-otherlangs$,$endfor$main=$babel-lang$]{babel}
 \fi
 $endif$
 $if(natbib)$
@@ -158,10 +155,30 @@ $if(verbatim-in-note)$
 $endif$
 $if(tables)$
 \usepackage{longtable,booktabs}
-\usepackage{supertabular}
-\let\longtable\supertabular
-\let\endlongtable\endsupertabular
-\let\endhead\relax
+\usepackage{capt-of} % \captionof for table captions (see table-captions.lua)
+% Pandoc's longtables as plain tabulars scaled to the column (same bridge as std-report)
+\renewenvironment{longtable}[2][]{%
+  \begin{center}
+  \small
+  \let\LTorigbottomrule\bottomrule
+  % Pandoc writes the closing rule as a longtable footer before the body rows:
+  % drop it there and draw it after the last row instead
+  \def\bottomrule\noalign##1\endlastfoot{}%
+  % adjustbox would inherit this template's global Gin width=\maxwidth and shrink
+  % every table, so the box is scaled by hand (only when wider than the column)
+  \setbox0=\hbox\bgroup
+  \begin{tabular}{#2}
+}{%
+  \LTorigbottomrule
+  \end{tabular}
+  \egroup
+  \ifdim\wd0>\linewidth\resizebox{\linewidth}{!}{\box0}\else\box0\fi
+  \end{center}
+}
+\renewcommand{\endfirsthead}{}
+\renewcommand{\endhead}{}
+\renewcommand{\endfoot}{}
+\renewcommand{\endlastfoot}{}
 % Fix footnotes in tables (requires footnote package)
 \IfFileExists{footnote.sty}{\usepackage{footnote}\makesavenoteenv{long table}}{}
 $endif$

@@ -6,6 +6,9 @@
 \providecommand{\citeproc}[2]{\begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
 \providecommand{\citeprocverticalspacing}{|}
 \providecommand{\citeproclayout}[1]{#1}
+% Pandoc writes each reference as \bibitem[\citeproctext]{key}: with an empty
+% label, LaTeX's default \@biblabel prints "[]" (the APA "phantom brackets")
+\def\@biblabel#1{}
 \makeatother
 
 \newlength{\cslhangindent}
@@ -46,12 +49,25 @@
 \usepackage{ifxetex,ifluatex}
 \ifxetex
   \usepackage{fontspec}
-  \setmainfont{Libertinus Serif}
   \defaultfontfeatures{Ligatures=TeX}
+  % Libertinus if installed, otherwise the TeX default (Latin Modern)
+  \IfFontExistsTF{Libertinus Serif}{\setmainfont{Libertinus Serif}}{}
 \else
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
 \fi
+
+% --- 3b. LANGUAGE (captions, hyphenation) ---
+$if(lang)$
+\usepackage[shorthands=off,$for(babel-otherlangs)$$babel-otherlangs$,$endfor$main=$babel-lang$]{babel}
+$endif$
+
+% --- 3c. SECTION NUMBERS (build-paper passes --number-sections when asked) ---
+$if(numbersections)$
+\setcounter{secnumdepth}{$if(secnumdepth)$$secnumdepth$$else$3$endif$}
+$else$
+\setcounter{secnumdepth}{-\maxdimen}
+$endif$
 
 % --- 4. HYPERLINKS & HEADERS ---
 \usepackage[unicode=true]{hyperref}
@@ -65,13 +81,19 @@
 }
 
 % --- 5. THE "STABILITY BRIDGE" (Table Fix) ---
+\usepackage{capt-of} % \captionof for table captions (see table-captions.lua)
 \makeatletter
 \renewenvironment{longtable}[2][]{%
   \begin{center}
   \small
+  \let\LTorigbottomrule\bottomrule
+  % Pandoc writes the closing rule as a longtable footer before the body rows:
+  % drop it there and draw it after the last row instead
+  \def\bottomrule\noalign##1\endlastfoot{}%
   \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{#2}
 }{%
+  \LTorigbottomrule
   \end{tabular}
   \end{adjustbox}
   \end{center}
@@ -92,12 +114,17 @@ $highlighting-macros$
 $endif$
 
 % --- 7. HEADER LOGIC ---
-\title{\textbf{$title$}}
+\title{\textbf{$title$}$if(subtitle)$\\[0.4em]\large $subtitle$$endif$}
 \author{
 $for(author)$
-  $author.name$ \\
-  \small $author.affiliation$ \\
-  \small \texttt{$author.email$} $sep$ \and
+$if(author.name)$
+  $author.name$
+  $if(author.affiliation)$\\ \small $author.affiliation$$endif$
+  $if(author.email)$\\ \small \texttt{$author.email$}$endif$
+$else$
+  $author$
+$endif$
+$sep$ \and
 $endfor$
 }
 \date{$date$}
@@ -115,6 +142,11 @@ $endfor$
     $endif$
   \end{@twocolumnfalse}
 ]
+
+$if(toc)$
+{\small\tableofcontents}
+\vspace{1em}
+$endif$
 
 $body$
 
