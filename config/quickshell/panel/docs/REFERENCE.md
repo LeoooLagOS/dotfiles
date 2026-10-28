@@ -40,7 +40,7 @@ and the island at the center is the only solid, near-black piece.
 
 | Zone | Modules |
 |---|---|
-| Left | distro logo, alone like a start button (click: system menu `scripts/wm/RofiSystemMenu.sh`, Win+X style · right click: Settings → Bar) · tray (a chevron) · workspaces with the icons of their apps (click, wheel) · the focused window's app and title with the mini weather, or on an empty workspace the whole weather |
+| Left | distro logo, alone like a start button (click: the **start menu**, `bar/StartMenu.qml`, also SUPER alone (a release bind) and IPC `start`: search and pinned apps — right click pins / unpins, `Settings.v.startPinned` —, all apps, the flavor's **mode** (`services/Flavors.qml` over `scripts/wm/FlavorMode.sh`: its audio profile and its apps), the **style** (`services/Styles.qml`: Islands · Classic · Floating · Lightweight, presets of existing settings) and light / dark, then who · System menu · settings · lock · power; each part shows its keybind · right click: Settings → Bar). The Win+X rofi menu `scripts/wm/RofiSystemMenu.sh` stays on SUPER X and the flavors' on SUPER ALT F (ADR-0014: mouse and keyboard, both complete) · tray (a chevron) · workspaces with the icons of their apps (click, wheel) · the focused window's app and title with the mini weather, or on an empty workspace the whole weather |
 | Center | notifications (bell · click: the Notifications tab · right click: Do Not Disturb) · **island** · caffeine |
 | Right | the reminder, else the music, else the next event (the window title's twin) · CPU, RAM, disk, temperature (click: system monitor) · Wi-Fi, Bluetooth, battery (click: system popup) · power menu |
 

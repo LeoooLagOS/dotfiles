@@ -1,0 +1,14 @@
+# Flatpak overrides: <app id> <flatpak override option>. Shown before applying.
+# Projects go to ~/Recordings/<DAW>, not into ~/Music where MPD and the panel's
+# Library would list their bounces as albums. Today the three already see all
+# of home (Bitwig: host); these keep ~/Recordings open if Flathub narrows them.
+# Where each DAW saves is set in the app (paths carry the user name):
+#   Ardour   Preferences → General → "Default folder for new sessions": ~/Recordings/Ardour
+#            (ardour9/config: default-session-parent-dir)
+#   REAPER   Preferences → General → Paths: default path to save new projects
+#            and default recording path: ~/Recordings/Reaper (reaper.ini: defsavepath)
+#   Bitwig   prefs are binary: ~/Bitwig Studio/Projects is a symlink to
+#            ~/Recordings/Bitwig/Projects
+org.ardour.Ardour --filesystem=~/Recordings
+fm.reaper.Reaper --filesystem=~/Recordings
+com.bitwig.BitwigStudio --filesystem=~/Recordings

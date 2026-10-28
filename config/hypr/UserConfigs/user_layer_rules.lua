@@ -128,3 +128,9 @@ apply_layer_rule({
   blur = panel_blur,
   ignore_alpha = 0.05,
 })
+apply_layer_rule({
+  name = "user-quickshell-start-menu-blur",
+  match = { namespace = "quickshell:start-menu" },
+  blur = panel_blur,
+  ignore_alpha = 0.05,
+})

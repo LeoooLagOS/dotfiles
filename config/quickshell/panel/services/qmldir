@@ -28,3 +28,5 @@ singleton Capture 1.0 Capture.qml
 singleton Call 1.0 Call.qml
 singleton Startup 1.0 Startup.qml
 singleton Charger 1.0 Charger.qml
+singleton Flavors 1.0 Flavors.qml
+singleton Styles 1.0 Styles.qml

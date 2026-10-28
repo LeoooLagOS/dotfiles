@@ -73,6 +73,8 @@ ShellRoot {
         function commsDock(): void { Comms.focusDock(); }
         // The top bar: hide / show it for now (SUPER CTRL ALT B; TopBar.qml)
         function barToggle(): void { BarState.toggleRequested(); }
+        // The start menu on the focused monitor (the logo's click)
+        function start(): void { BarState.toggleStart(Hyprland.focusedMonitor?.name ?? ""); }
         // Next / previous app while one is up (SUPER TAB / SUPER SHIFT TAB)
         // Quick capture (QuickAdd.qml): SUPER Z, prefilled with `text`; SUPER SHIFT Z: the selected text
         function quickAdd(text: string): void { Capture.open(text, ""); }

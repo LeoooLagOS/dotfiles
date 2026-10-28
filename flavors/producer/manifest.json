@@ -7,8 +7,8 @@
     "es": "Productor"
   },
   "description": {
-    "en": "Compose, record and mix: DAWs (Bitwig, REAPER, Ardour), the Surge XT synth, JACK through PipeWire and realtime priority for low latency.",
-    "es": "Compón, graba y mezcla: DAWs (Bitwig, REAPER, Ardour), el sintetizador Surge XT, JACK a través de PipeWire y prioridad de tiempo real para baja latencia."
+    "en": "Compose, record and mix: DAWs (Bitwig, REAPER, Ardour), the Surge XT synth, JACK through PipeWire and realtime priority for low latency; your projects are saved to ~/Recordings, outside the library.",
+    "es": "Compón, graba y mezcla: DAWs (Bitwig, REAPER, Ardour), el sintetizador Surge XT, JACK a través de PipeWire y prioridad de tiempo real para baja latencia; tus proyectos se guardan en ~/Recordings, fuera de la biblioteca."
   },
   "audioProfile": "fixed-rate-low-latency"
 }

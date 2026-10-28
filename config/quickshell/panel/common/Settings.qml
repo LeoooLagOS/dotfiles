@@ -49,6 +49,7 @@ Singleton {
         libraryView: "grid", librarySort: "recent",              // Media → Library albums: grid / list; recent / added / alpha / artist / year
         // Top bar (TopBar.qml, bar/, services/BarState.qml)
         barEnabled: true, barStyle: "islands", barHeight: 36, barAccent: "auto",
+        startPinned: null,                                       // start menu's pinned apps (desktop ids); null = defaults
         barLeft: ["logo", "tray", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],
         barRight: ["glance", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
         barDetailGap: 200, barScroll: "always",

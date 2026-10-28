@@ -10,7 +10,7 @@ import "./services"
 import "./bar"
 
 // The top bar, one per monitor (replaces waybar; Settings → Bar, services/BarState.qml).
-//   left     distro logo (system menu: scripts/wm/RofiSystemMenu.sh) · tray
+//   left     distro logo (start menu: bar/StartMenu.qml; the rofi system menu is SUPER X) · tray
 //            (bar/TrayModule.qml) ·
 //            workspaces with their apps · the focused window's app and title
 //            (bar/WindowTitle.qml) with the mini weather; on an empty workspace the
@@ -152,7 +152,7 @@ Scope {
                                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                                 onClicked: m => m.button === Qt.RightButton
                                     ? (PanelState.open = true, PanelState.openSettings("bar"))
-                                    : Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/RofiSystemMenu.sh"])
+                                    : BarState.toggleStart(win.screen.name)
                             }
                         }
                         TrayModule {
@@ -527,6 +527,12 @@ Scope {
                 screenName: perScreen.modelData.name
                 barWindow: win
                 rightOffset: barArea.x + right.anchors.rightMargin
+            }
+
+            StartMenu {
+                screen: perScreen.modelData
+                screenName: perScreen.modelData.name
+                barWindow: win
             }
 
             SystemPopup {

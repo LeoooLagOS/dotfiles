@@ -237,6 +237,12 @@ bind("SUPER ALT", "M", exec_cmd(scripts .. "MonitorProfiles.sh"), { description 
 bind("SUPER ALT", "K", exec_cmd(scripts .. "HyprlockWallpaperSelect.sh"), { description = "lock screen wallpaper" })
 bind("SUPER ALT", "T", exec_cmd(scripts .. "ChangeStarshipPrompt.sh"), { description = "Starship prompt style" })
 bind("SUPER", "J", exec_cmd(scripts .. "JavaManager.sh"), { description = "Java versions (install / set default)" })
+bind("SUPER ALT", "F", exec_cmd(scripts .. "FlavorMenu.sh"), { description = "flavors: audio mode and apps (dotfiles/flavors)" })
+-- The Win+X system menu: the logo opens the start menu now, this stays on the keyboard (ADR-0014)
+bind("SUPER", "X", exec_cmd(scripts .. "RofiSystemMenu.sh"), { description = "system menu (Win+X style)" })
+-- SUPER alone (pressed and released, nothing else in between): the start menu on
+-- the logo, as in Windows. A release bind, so SUPER + any key doesn't open it
+bind("SUPER", "Super_L", exec_cmd("qs -c panel ipc call panel start"), { release = true, description = "start menu (SUPER alone)" })
 
 bind(
 	"SUPER SHIFT",

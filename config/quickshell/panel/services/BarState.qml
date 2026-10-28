@@ -12,6 +12,7 @@ import "../common"
 //              waybar; WaybarStartup.sh and Refresh.sh read it too. Settings →
 //              Bar → "Use this bar" runs the script.
 //   popup      the system popup (bar/SystemPopup.qml) open, on which monitor
+//   startOn    the start menu (bar/StartMenu.qml) open, on which monitor
 //   flash      a short message the island shows (Do Not Disturb, caffeine…)
 Singleton {
     id: root
@@ -62,9 +63,12 @@ Singleton {
     // readings): open on one monitor ("" = closed), one at a time
     property string popupOn: ""
     property string monitorOn: ""
-    function togglePopup(monitor) { monitorOn = ""; popupOn = popupOn === monitor ? "" : monitor; }
-    function toggleMonitor(monitor) { popupOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; }
-    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; } } }
+    function togglePopup(monitor) { monitorOn = ""; startOn = ""; popupOn = popupOn === monitor ? "" : monitor; }
+    function toggleMonitor(monitor) { popupOn = ""; startOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; }
+    // Start menu (bar/StartMenu.qml): the logo's click, or IPC `start`
+    property string startOn: ""
+    function toggleStart(monitor) { popupOn = ""; monitorOn = ""; startOn = startOn === monitor ? "" : monitor; }
+    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; root.startOn = ""; } } }
 
     // ---------------- Messages on the island ----------------
     // Instead of a popup (services/Notifs.qml arrive): what it shows is copied

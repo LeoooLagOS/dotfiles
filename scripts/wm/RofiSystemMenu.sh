@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# System menu of the bar's distro logo (config/quickshell/panel/TopBar.qml),
-# like Windows' Win+X: apps, files, settings, system tools, lock and power.
-# Opens under the logo (top left) with the launchers' theme; run again to close.
+# System menu, like Windows' Win+X (SUPER X, and "System menu" in the start
+# menu on the bar's logo): apps, files, settings, system tools, lock and power.
+# The keyboard path next to the start menu (ADR-0014). Opens under the logo
+# (top left) with the launchers' theme; run again to close.
 # Power… opens the power menu, where shutting down has to be held (PowerMenu.py).
 
 if pidof rofi >/dev/null 2>&1; then

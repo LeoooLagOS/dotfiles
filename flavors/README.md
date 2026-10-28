@@ -27,7 +27,7 @@ pw-metadata -n settings 0 clock.force-rate 48000   # session: one fixed rate
 pw-metadata -n settings 0 clock.force-rate 0       # back to following the music
 ```
 
-(A panel toggle for this, "listening / producing", is the plan: the profile becomes a mode you switch, not a choice at install time.)
+Or from the desktop, without a terminal: the **start menu** on the bar's logo (Mode) by mouse, or **SUPER ALT F** (`scripts/wm/FlavorMenu.sh`) by keyboard. Both call `scripts/wm/FlavorMode.sh` (`list` as JSON · `set <id>` · `install <id>`). The rofi menu lists the installed flavors with their audio profile; picking one sets it on the fly (`follow-music-rate` → `force-rate 0`, `fixed-rate*` → 48 kHz, none → untouched) and then offers its apps (its Flatpaks and the `pkglist.txt` packages that ship a launcher). It lasts until another is picked or PipeWire restarts. Flavors not installed yet are listed last: picking one runs `install.sh --flavors … --only packages,flatpaks,links,flavors` in a terminal. (A panel toggle is still the plan.)
 
 ## The engineering family
 Each engineering needs different software, so each discipline is its own flavor. Only the one in use is built; the others are planned with software checked to exist in Fedora or Flathub (2026-10-23), to be built when someone who uses it can test it.
