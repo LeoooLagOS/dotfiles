@@ -814,5 +814,9 @@
  "Each group floats, with glass and motion": "Cada grupo flota, con vidrio y movimiento",
  "One bar across the top, like Windows": "Una barra de lado a lado, como en Windows",
  "One bar that floats away from the edges": "Una barra que flota separada de los bordes",
- "No glass or animations: less work for an old computer": "Sin vidrio ni animaciones: menos trabajo para una computadora vieja"
+ "No glass or animations: less work for an old computer": "Sin vidrio ni animaciones: menos trabajo para una computadora vieja",
+ "Opening %1 again…": "Abriendo %1 de nuevo…",
+ "Try again": "Reintentar",
+ "%1 didn't open": "%1 no se abrió",
+ "It closed while starting, or it's taking too long. Try again, or restart the computer if it keeps happening.": "Se cerró al arrancar o está tardando demasiado. Reinténtalo, o reinicia la computadora si sigue pasando."
 }

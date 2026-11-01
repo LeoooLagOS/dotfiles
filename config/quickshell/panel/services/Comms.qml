@@ -173,9 +173,9 @@ Singleton {
         if (focus) cmds.push(...backdrop(), `hl.dsp.focus({ window = "address:${w.address}" })`);
         if (cmds.length) dispatchAll(cmds);
     }
-    function launch(d, show) {
+    function launch(d, show, tries = 1) {
         const p = Object.assign({}, pending);
-        p[d.key] = { show: show, since: Date.now() };
+        p[d.key] = { show: show, since: Date.now(), checked: false, tries: tries };
         pending = p;
         // Through Hyprland, so the app isn't a child of the panel's service.
         // The file's whole name: gtk-launch only adds ".desktop" to a name that
@@ -513,18 +513,85 @@ Singleton {
         }
     }
 
-    // Started apps: once their window shows up, into their workspace
+    // Started apps: once their window shows up, into their workspace. Still
+    // none after 5 s: is it running at all? (a Flatpak that died starting is
+    // told right away). None after 45 s (90 s if it was opening hidden, as at
+    // login, all at once): it didn't open
     function settlePending() {
-        const p = Object.assign({}, pending);
+        const p = Object.assign({}, pending), late = [];
         let changed = false;
         for (const key in p) {
             const d = defs.find(x => x.key === key);
             const w = d ? mainOf(d) : null;
+            const waited = Date.now() - p[key].since;
             if (w) { moveIn(d, w, p[key].show); delete p[key]; changed = true; }
-            else if (!d || Date.now() - p[key].since > 90000) { delete p[key]; changed = true; }
+            else if (!d) { delete p[key]; changed = true; }
+            else if (waited > (p[key].show ? 45000 : 90000)) late.push(key);
+            else if (!p[key].checked && waited > 5000) {
+                p[key] = Object.assign({}, p[key], { checked: true });
+                changed = true;
+                checkComp.createObject(root, { key: key, command: [Quickshell.shellDir + "/scripts/comms-launch-check.sh", "alive", d.entry.id] }).running = true;
+            }
         }
         if (changed) pending = p;
-        if (Object.keys(p).length === 0) pendingTimer.stop();
+        late.forEach(k => failed(k));
+        if (Object.keys(pending).length === 0) pendingTimer.stop();
+    }
+    Component {
+        id: checkComp
+        Process {
+            property string key
+            onExited: code => { if (code === 1) root.failed(key); destroy(); }
+        }
+    }
+    // It didn't open. A Flatpak that lost the document portal (it happens
+    // after an update): the portal again, and one more try. Else, or if that
+    // one fails too: a notification, with Try again
+    function failed(key) {
+        const was = pending[key], d = defs.find(x => x.key === key);
+        if (!was) return;                     // its window came meanwhile
+        const p = Object.assign({}, pending);
+        delete p[key];
+        pending = p;
+        console.info("comms: didn't open", key, "| try", was.tries);
+        if (!d) return;
+        fixComp.createObject(root, { key: key, show: was.show, tries: was.tries,
+            command: [Quickshell.shellDir + "/scripts/comms-launch-check.sh", "fix", d.entry.id] }).running = true;
+    }
+    Component {
+        id: fixComp
+        Process {
+            property string key
+            property bool show
+            property int tries
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    const d = root.defs.find(x => x.key === key);
+                    if (d && text.trim() === "portal" && tries < 2) {
+                        console.info("comms: document portal restarted, opening", key, "again");
+                        if (show) BarState.say("", Tr.t("Opening %1 again…", d.name));
+                        root.launch(d, show, tries + 1);
+                    } else if (d) root.notifyFailed(d);
+                }
+            }
+            onExited: destroy()
+        }
+    }
+    function notifyFailed(d) {
+        failComp.createObject(root, { key: d.key, command: ["notify-send", "-a", Tr.t("Comms dock"), "-i", d.entry.icon || "dialog-warning",
+            "-A", "retry=" + Tr.t("Try again"),
+            Tr.t("%1 didn't open", d.name),
+            Tr.t("It closed while starting, or it's taking too long. Try again, or restart the computer if it keeps happening.")] }).running = true;
+    }
+    Component {
+        id: failComp
+        Process {
+            property string key
+            stdout: StdioCollector {
+                onStreamFinished: if (text.trim() === "retry") root.show(key)
+            }
+            onExited: destroy()
+        }
     }
     // Polled while waiting: a window can take a while to get its final class
     Timer { id: pendingTimer; interval: 700; repeat: true; onTriggered: root.refresh() }
