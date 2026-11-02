@@ -15,6 +15,14 @@
 music_icon="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/icons/music.png"
 last_file="${XDG_STATE_HOME:-$HOME/.local/state}/mediactrl-last-player"
 
+# A stopped player with nothing loaded is a leftover (a browser keeps one after
+# a video or a voice note ends, e.g. WhatsApp Web's in Brave): it can't play,
+# so it never takes the keys. The panel hides the same ones (services/Media.qml)
+has_media() {
+  [[ $(playerctl -p "$1" status 2>/dev/null) != "Stopped" ]] && return 0
+  [[ -n $(playerctl -p "$1" metadata title 2>/dev/null) ]]
+}
+
 # A player belongs to a window when its name ("firefox" from
 # firefox.instance_1_1296, "brave", "spotify") or desktop entry is in the
 # window class (org.mozilla.firefox, brave-browser, Spotify).
@@ -22,6 +30,7 @@ player_for_class() {
   local class="${1,,}" player base entry
   [[ -z "$class" ]] && return 1
   for player in $(playerctl -l 2>/dev/null); do
+    has_media "$player" || continue
     base="${player%%.*}"
     entry=$(busctl --user get-property "org.mpris.MediaPlayer2.$player" /org/mpris/MediaPlayer2 \
       org.mpris.MediaPlayer2 DesktopEntry 2>/dev/null | sed -E 's/^s "(.*)"$/\1/')
