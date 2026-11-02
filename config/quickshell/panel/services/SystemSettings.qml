@@ -14,9 +14,11 @@ import "../common"
 //   profile    power profile at login (tuned-ppd / power-profiles-daemon)
 //   wallpaper  automatic rotation through Wallpapers.apply()
 //   blur       scripts/wm/PanelBlur.sh (state in ~/.config/lagos/panel-blur)
+//   blurLevel  scripts/wm/Blur.sh level (state in ~/.config/lagos/blur-level)
+//   blurOffApps ~/.config/lagos/blur-off-apps (their window classes), then Blur.sh apps
 //   wallust    scripts/wm/WallustToggle.sh (state in ~/.config/lagos/wallust)
 //   rofi       scripts/wm/RofiPosition.sh (state: ~/.config/hypr/rofi/position.rasi)
-// For blur and wallust the state files are the source of truth: the scripts can
+// For blur, its strength and wallust the state files are the source of truth: the scripts can
 // be run on their own, so the switches follow the files, and a switch only runs
 // its script when it disagrees with the file.
 Singleton {
@@ -35,6 +37,40 @@ Singleton {
         onFileChanged: reload()
         onLoaded: { on = text().trim() !== "off"; if (Settings.loaded) Settings.set("blur", on); }
     }
+    // SUPER ALT O changes it too (Blur.sh level cycle): said on the bar
+    FileView {
+        id: blurLevelState
+        property string level: "soft"
+        property bool read: false             // the first read is no change
+        path: root.dir + "/blur-level"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: {
+            const l = text().trim();
+            level = ["off", "soft", "medium", "strong"].includes(l) ? l : "soft";
+            const quiet = !read;
+            read = true;
+            if (!Settings.loaded || Settings.v.blurLevel === level) return;
+            Settings.set("blurLevel", level);
+            if (!quiet) BarState.say("\uf0d0", Tr.t("Blur: %1", Tr.t(level[0].toUpperCase() + level.slice(1))));
+        }
+    }
+    FileView { id: blurAppsFile; path: root.dir + "/blur-off-apps"; atomicWrites: true; printErrors: false; preload: false }
+    // The apps' window classes (as the Comms dock finds their windows), then
+    // the rule replaced live
+    function writeBlurApps() {
+        const classes = [];
+        for (const id of Settings.v.blurOffApps ?? []) {
+            const e = Comms.entryOf(id);
+            for (const c of e ? Comms.classesOf(e) : [String(id).toLowerCase()])
+                if (!classes.includes(c)) classes.push(c);
+        }
+        blurAppsFile.setText("# Written by the Quickshell panel (Settings → Appearance → Blur). Edit it there.\n"
+            + classes.map(c => c + "\n").join(""));
+        blurAppsApply.restart();
+    }
+    Timer { id: blurAppsApply; interval: 300; onTriggered: Quickshell.execDetached([root.scripts + "/Blur.sh", "apps"]) }
     FileView {
         id: rofiState
         property string position: "bottom"
@@ -96,6 +132,9 @@ Singleton {
             if (root.idleKeys.includes(key)) { root.writeFiles(); restartIdle.restart(); }
             else if (key === "battery" || root.lidKeys.includes(key)) root.writeFiles();
             else if (key === "rotate" || key === "rotateMin") rotation.restart();
+            else if (key === "blurLevel" && Settings.v.blurLevel !== blurLevelState.level)
+                Quickshell.execDetached([root.scripts + "/Blur.sh", "level", Settings.v.blurLevel]);
+            else if (key === "blurOffApps") root.writeBlurApps();
             else if (key === "blur" && Settings.v.blur !== blurState.on)
                 Quickshell.execDetached([root.scripts + "/PanelBlur.sh", Settings.v.blur ? "on" : "off"]);
             else if (key === "rofiPosition" && Settings.v.rofiPosition !== rofiState.position)
@@ -126,6 +165,7 @@ Singleton {
         refreshAbout();
         // Switches follow the state files (missing file = on)
         Settings.set("blur", blurState.on);
+        Settings.set("blurLevel", blurLevelState.level);
         Settings.set("wallust", wallustState.on);
         Settings.set("rofiPosition", rofiState.position);
     }

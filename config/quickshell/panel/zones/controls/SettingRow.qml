@@ -33,9 +33,9 @@ Item {
     }
 
     // apprules / commsapps: label on top, the list of apps below (full width)
-    readonly property bool stacked: type === "apprules" || type === "commsapps" || type === "notiftests" || type === "startupapps"
+    readonly property bool stacked: type === "apprules" || type === "commsapps" || type === "notiftests" || type === "startupapps" || type === "blurapps"
     implicitHeight: stacked ? labels.implicitHeight + (type === "apprules" ? rules : type === "commsapps" ? comms
-                                                       : type === "startupapps" ? startup : tests).implicitHeight + 28
+                                                       : type === "startupapps" ? startup : type === "blurapps" ? blurApps : tests).implicitHeight + 28
                             : Math.max(46, Math.max(labels.implicitHeight, ctl.implicitHeight) + 18)
 
     Rectangle { visible: !root.first; width: parent.width; height: 1; color: Theme.border }
@@ -483,6 +483,140 @@ Item {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.addComms(result.modelData.value)
+                }
+            }
+        }
+    }
+
+    // ---------------- blurapps: apps whose windows go without blur ----------------
+    // Desktop ids (services/SystemSettings.qml writes their window classes for
+    // Hyprland). Below, a search to add one: while empty, the apps with a window
+    // open; typing, any installed app
+    readonly property var blurIds: type === "blurapps" ? [].concat(Settings.v.blurOffApps ?? []) : []
+    property string blurQuery: ""
+    readonly property var blurResults: {
+        if (type !== "blurapps") return [];
+        const q = fold(blurQuery.trim()), out = [];
+        const add = (e, open) => {
+            if (!e || e.noDisplay || blurIds.includes(e.id) || out.some(o => o.entry.id === e.id)) return;
+            out.push({ entry: e, open: open });
+        };
+        for (const c of Comms.clients) add(DesktopEntries.heuristicLookup(c.class), true);
+        if (!q) return out.slice(0, 6);
+        DesktopEntries.applications.values.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(e => add(e, false));
+        return out.filter(o => fold(o.entry.name).includes(q) || fold(o.entry.id).includes(q)).slice(0, 8);
+    }
+    function addBlurOff(id) {
+        if (!id) return;
+        Settings.set(row.key, blurIds.concat([id]));
+        blurQuery = "";
+    }
+    Column {
+        id: blurApps
+        visible: root.type === "blurapps"
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: labels.bottom
+        anchors.topMargin: 8
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        spacing: 4
+        Label {
+            visible: root.blurIds.length === 0
+            text: Tr.t("None: every see-through window is frosted.")
+            dim: true
+            font.pixelSize: 12
+        }
+        Repeater {
+            model: root.blurIds
+            delegate: Item {
+                id: blurLine
+                required property string modelData
+                readonly property var entry: Comms.entryOf(modelData)
+                width: blurApps.width
+                height: 34
+                Image {
+                    id: blurIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 22; height: 22
+                    sourceSize: Qt.size(44, 44)
+                    source: blurLine.entry ? Comms.iconOf(blurLine.entry) : ""
+                    opacity: blurLine.entry ? 1 : 0.4
+                }
+                Label {
+                    anchors.left: blurIcon.right
+                    anchors.leftMargin: 10
+                    anchors.right: blurRemove.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: blurLine.entry?.name ?? blurLine.modelData
+                    font.pixelSize: 13
+                    elide: Text.ElideRight
+                }
+                IconButton { id: blurRemove; icon: "\uf00d"; iconSize: 11; implicitWidth: 28; implicitHeight: 26
+                             anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                             onClicked: Settings.set(root.row.key, root.blurIds.filter(r => r !== blurLine.modelData)) }
+            }
+        }
+        // Add: type a name; Enter adds the first result
+        Item {
+            width: blurApps.width
+            height: 40
+            TextField {
+                id: blurSearch
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                width: Math.min(300, parent.width)
+                icon: "\uf002"
+                placeholder: Tr.t("Search an app to add…")
+                text: root.blurQuery
+                onTextChanged: root.blurQuery = text
+                onAccepted: root.addBlurOff(root.blurResults[0]?.entry.id ?? "")
+            }
+        }
+        Repeater {
+            model: blurSearch.input.activeFocus || root.blurQuery.trim() ? root.blurResults : []
+            delegate: Rectangle {
+                id: blurResult
+                required property var modelData
+                required property int index
+                width: blurApps.width
+                height: 34
+                radius: 8
+                color: blurResultMouse.containsMouse || (index === 0 && root.blurQuery.trim()) ? Theme.bgHover : "transparent"
+                Image {
+                    id: blurResultIcon
+                    x: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 20; height: 20
+                    sourceSize: Qt.size(40, 40)
+                    source: Comms.iconOf(blurResult.modelData.entry)
+                }
+                Label {
+                    anchors.left: blurResultIcon.right
+                    anchors.leftMargin: 10
+                    anchors.right: blurResultKind.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: blurResult.modelData.entry.name
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                }
+                Label {
+                    id: blurResultKind
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: blurResult.modelData.open ? Tr.t("Open now") : ""
+                    dim: true
+                    font.pixelSize: 10
+                }
+                MouseArea {
+                    id: blurResultMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.addBlurOff(blurResult.modelData.entry.id)
                 }
             }
         }

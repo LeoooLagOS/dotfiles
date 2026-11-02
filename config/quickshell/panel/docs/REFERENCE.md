@@ -24,7 +24,7 @@ the wallpaper (wallust), like waybar and swaync.
 | IPC | `qs -c panel ipc call panel toggle` (also `open`, `close`, `tab <Name>`, `currentTab`, `toggleDnd`, `clearNotifications`, `zone <Tab> <ZoneName>` (open a tab with that zone highlighted), `settings [section]`, `setting <key> <json>` (e.g. `setting dim 600`), `themeMode light\|dark\|system`, `toggleInverted`, `currentTheme`, `record`, `radio`, `tabToggle <Name>` (open on a tab, or close if it's the one shown)) |
 | Keys | full keyboard control — see [Keyboard](#keyboard) |
 | Autostart | user service `quickshell-panel.service` (`config/systemd/user/`), see [Notifications](#notifications) |
-| Blur | layer rules `quickshell:panel` (card) and `quickshell:panel-dim` (screen) in `config/hypr/UserConfigs/user_layer_rules.lua` |
+| Blur | layer rules `quickshell:panel` (card) and `quickshell:panel-dim` (screen) in `config/hypr/UserConfigs/user_layer_rules.lua`; how strong: Hyprland's one global `decoration.blur` (see Settings → Appearance → Blur) |
 | Closing | the keybind, `Esc`, or a click outside the card. Only the card takes input: outside it you can keep using other windows. The screen is dimmed while the pointer is over the card. Outside clicks are seen through a non-consuming `mouse:272` bind added with `hyprctl eval` only while the panel is open (`services/PanelState.qml`). Except while picking a screenshot region: clicks don't close it while a `slurp` (layer `selection`) or `hyprpicker` layer is open, so the panel itself can be captured |
 | Logs | `qs log -c panel` |
 
@@ -660,6 +660,8 @@ the panel; `services/SystemSettings.qml` applies them:
 | Power profile at login | set once per boot when the panel starts |
 | Wallpaper rotation | a timer picks a random wallpaper and applies it like the Wallpapers tab |
 | Blur | `scripts/wm/PanelBlur.sh on\|off\|toggle\|status`: saves `~/.config/lagos/panel-blur` (read by `UserConfigs/user_layer_rules.lua` when Hyprland loads) and replaces the two panel layer rules live with `hyprctl eval` |
+| Blur strength | Settings → Appearance → Blur → Strength (`Settings.v.blurLevel`) or SUPER ALT O: `scripts/wm/Blur.sh level off\|soft\|medium\|strong\|cycle` saves `~/.config/lagos/blur-level` (read by `UserConfigs/user_decorations.lua`; soft 4 × 1 pass, medium 6 × 2, strong 8 × 3) and applies it with `hyprctl eval`; the panel follows the file and says a change made by the key on the bar. Hyprland has one strength for everything (windows, bar, panel, the screen behind it): KoolDots' `ChangeBlur.sh` (it went up to "Ultra", 10 × 4, unsaved) is no longer bound. *Behind the open panel* is `Settings.v.dimHover` (blurred and dimmed, or sharp) |
+| Apps without blur | Settings → Appearance → Blur (`Settings.v.blurOffApps`, desktop ids): `services/SystemSettings.qml` writes their window classes (`Comms.classesOf`) to `~/.config/lagos/blur-off-apps`, `Blur.sh apps` replaces the window rule `user-blur-off-apps` (`no_blur`, applies to open windows too), and `UserConfigs/user_window_rules.lua` builds it when Hyprland loads |
 | Where menus open (rofi) | `scripts/wm/RofiPosition.sh bottom\|center\|toggle\|status`: writes `config/hypr/rofi/position.rasi` (imported last by the Lagos rofi theme) |
 | Colors from the wallpaper | `scripts/wm/WallustToggle.sh on\|off\|toggle\|status`: saves `~/.config/lagos/wallust`; when off, `WallustSwww.sh` updates the wallpaper links but skips wallust, so every caller (wallpaper picker, DarkLight, effects…) keeps the current palette; back on recolors from the current wallpaper |
 

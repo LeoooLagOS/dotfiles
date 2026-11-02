@@ -136,6 +136,10 @@ bind(
 local scripts = "$HOME/.config/hypr/scripts/"
 bind("SUPER ALT", "P", exec_cmd("qs -c panel ipc call panel settings ''"), { description = "panel settings" })
 bind("SUPER ALT", "G", exec_cmd(scripts .. "PanelBlur.sh toggle"), { description = "panel blur on/off" })
+-- Blur strength: KoolDots' ChangeBlur.sh went up to "Ultra" behind the panel's
+-- back and was lost on reload; Blur.sh saves it and the panel's Settings follow
+unbind("SUPER ALT", "O")
+bind("SUPER ALT", "O", exec_cmd(scripts .. "Blur.sh level cycle"), { description = "blur strength: off · soft · medium · strong" })
 bind("SUPER ALT", "minus", exec_cmd(scripts .. "PanelOpacity.sh -5"), { description = "panel more transparent", repeating = true })
 bind("SUPER ALT", "equal", exec_cmd(scripts .. "PanelOpacity.sh +5"), { description = "panel more opaque", repeating = true })
 bind("SUPER ALT", "W", exec_cmd(scripts .. "WallustToggle.sh toggle"), { description = "colors from the wallpaper (wallust) on/off" })

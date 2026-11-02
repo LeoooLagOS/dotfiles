@@ -818,5 +818,20 @@
  "Opening %1 again…": "Abriendo %1 de nuevo…",
  "Try again": "Reintentar",
  "%1 didn't open": "%1 no se abrió",
- "It closed while starting, or it's taking too long. Try again, or restart the computer if it keeps happening.": "Se cerró al arrancar o está tardando demasiado. Reinténtalo, o reinicia la computadora si sigue pasando."
+ "It closed while starting, or it's taking too long. Try again, or restart the computer if it keeps happening.": "Se cerró al arrancar o está tardando demasiado. Reinténtalo, o reinicia la computadora si sigue pasando.",
+ "Strength": "Intensidad",
+ "One for everything see-through: windows, the bar, the panel and the screen behind it (Hyprland can't make it different per app). Also SUPER ALT O": "Una sola para todo lo translúcido: ventanas, la barra, el panel y la pantalla detrás (Hyprland no permite una distinta por app). También SUPER ALT O",
+ "Soft": "Suave",
+ "Medium": "Medio",
+ "Strong": "Fuerte",
+ "Panel and bar": "Panel y barra",
+ "Frosted panel card and bar groups": "Tarjeta del panel y grupos de la barra esmerilados",
+ "Behind the open panel": "Detrás del panel abierto",
+ "The rest of the screen while the pointer is on the panel": "El resto de la pantalla mientras el puntero está sobre el panel",
+ "Blurred and dimmed": "Desenfocada y oscurecida",
+ "Apps without blur": "Apps sin desenfoque",
+ "Their see-through windows show what's behind sharp, without frosting": "Sus ventanas translúcidas muestran lo de detrás nítido, sin esmerilado",
+ "None: every see-through window is frosted.": "Ninguna: toda ventana translúcida se esmerila.",
+ "Blur: %1": "Desenfoque: %1",
+ "Sharp": "Nítida"
 }

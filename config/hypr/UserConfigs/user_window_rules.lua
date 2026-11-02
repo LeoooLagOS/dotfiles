@@ -152,6 +152,28 @@ apply_window_rule({
   opacity = 0,
 })
 
+-- Apps whose windows go without blur (the panel's Settings → Appearance →
+-- Blur): ~/.config/lagos/blur-off-apps, a window class per line; the panel
+-- changes the rule live through scripts/wm/Blur.sh apps
+do
+  local classes = {}
+  local f = io.open((os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")) .. "/lagos/blur-off-apps", "r")
+  if f then
+    for line in f:lines() do
+      local c = line:match("^%s*([^#%s]+)")
+      if c then classes[#classes + 1] = c:gsub("[%^%$%(%)%%%.%[%]%*%+%-%?{}|\\]", "\\%0") end
+    end
+    f:close()
+  end
+  if #classes > 0 then
+    apply_window_rule({
+      name = "user-blur-off-apps",
+      match = { class = "(?i)^(" .. table.concat(classes, "|") .. ")$" },
+      no_blur = true,
+    })
+  end
+end
+
 -- Big centered low-battery alert from UserScripts/BatteryNotify.sh
 apply_window_rule({
   name = "user-battery-alert",

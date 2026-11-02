@@ -38,7 +38,7 @@ hl.config({
     },
     blur = {
       enabled = true,
-      size = 4,      -- was 6 / 3 passes (~48px); now ~15% of that for a subtle blur
+      size = 4,      -- soft; the level saved in ~/.config/lagos/blur-level wins (below)
       passes = 1,
       new_optimizations = true,
       xray = false,
@@ -48,6 +48,22 @@ hl.config({
     },
   },
 })
+
+-- Blur strength: ~/.config/lagos/blur-level (off · soft · medium · strong),
+-- set by the panel's Settings → Appearance → Blur or SUPER ALT O through
+-- scripts/wm/Blur.sh, whose levels must match these
+do
+  local levels = {
+    off = { enabled = false },
+    soft = { size = 4, passes = 1 },
+    medium = { size = 6, passes = 2 },
+    strong = { size = 8, passes = 3 },
+  }
+  local f = io.open((os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")) .. "/lagos/blur-level", "r")
+  local level = f and levels[(f:read("*l") or ""):match("^%s*(%S*)")]
+  if f then f:close() end
+  if level then hl.config({ decoration = { blur = level } }) end
+end
 
 -- Example group styling:
 hl.config({

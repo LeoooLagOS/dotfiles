@@ -21,6 +21,7 @@ Singleton {
         language: "system",                                      // common/Tr.qml
         alertMark: "auto", alertShape: "pill",                   // how warnings stand out (Theme.markOf)
         mode: "system", inverted: false, themeScope: "both", themeLaunchers: ["all"], opacity: 72, blur: true, animations: true, rofiPosition: "bottom",
+        blurLevel: "soft", blurOffApps: [],                       // Hyprland's blur strength; apps without it (scripts/wm/Blur.sh)
         // Panel
         openTab: "Overview", closeOutside: true, dimHover: true, width: 50, height: 50,
         // Notifications
@@ -138,8 +139,14 @@ Singleton {
                   visibleIf: v => v.themeScope !== "panel" } ] },
             { title: "Panel surface", rows: [
                 { key: "opacity", label: "Opacity", help: "Of the panel card · light and inverted modes add a little", type: "range", min: 50, max: 100, step: 1, unit: "%" },
-                { key: "blur", label: "Blur", help: "Frosted card, and the screen behind while hovering", type: "switch", system: true },
                 { key: "animations", label: "Animations", help: "Color and highlight transitions", type: "switch" } ] },
+            { title: "Blur", rows: [
+                { key: "blurLevel", label: "Strength", help: "One for everything see-through: windows, the bar, the panel and the screen behind it (Hyprland can't make it different per app). Also SUPER ALT O", type: "seg", system: true,
+                  opts: [["off", "Off"], ["soft", "Soft"], ["medium", "Medium"], ["strong", "Strong"]] },
+                { key: "blur", label: "Panel and bar", help: "Frosted panel card and bar groups", type: "switch", system: true },
+                { key: "dimHover", label: "Behind the open panel", help: "The rest of the screen while the pointer is on the panel", type: "seg",
+                  opts: [[true, "Blurred and dimmed"], [false, "Sharp"]] },
+                { key: "blurOffApps", label: "Apps without blur", help: "Their see-through windows show what's behind sharp, without frosting", type: "blurapps", system: true } ] },
             { title: "Warnings", rows: [
                 { key: "alertMark", label: "Mark warnings", help: "Readings past their limits (CPU, memory, temperature…) are always amber or red. A solid mark makes them stand out on a wallpaper that already has those colors", type: "seg",
                   opts: [["auto", "When the wallpaper has red / amber"], ["always", "Always"], ["never", "Color only"]] },
@@ -153,8 +160,7 @@ Singleton {
             { title: "Behavior", rows: [
                 { key: "openTab", label: "Tab when opening", type: "select",
                   opts: [["Overview", "Overview"], ["Notifications", "Notifications"], ["Calendar", "Calendar"], ["Controls", "Controls"]] },
-                { key: "closeOutside", label: "Close on a click outside", type: "switch" },
-                { key: "dimHover", label: "Dim the screen while hovering", type: "switch" } ] },
+                { key: "closeOutside", label: "Close on a click outside", type: "switch" } ] },
             { title: "Size", rows: [
                 { key: "width", label: "Width", help: "Share of the usable screen", type: "range", min: 35, max: 80, step: 1, unit: "%" },
                 { key: "height", label: "Height", type: "range", min: 35, max: 80, step: 1, unit: "%" } ] } ] },
