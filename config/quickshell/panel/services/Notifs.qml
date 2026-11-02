@@ -242,11 +242,26 @@ Singleton {
     function countOf(n) { const m = mailOf(n); return Math.max(m ? m.count : 1, groupCount[n?.id] ?? 1); }
     // A chat going on: messages of one conversation less than this apart are counted together in popups
     readonly property int chatWindow: 180000
+    // The history's chats, grouped once per change of the list: conversation →
+    // its messages, newest first. Each history card and select() look their
+    // chat up here; scanning the list for each one (placeKind's regexes for
+    // every pair) held the panel ~1.5 s per notification with 100 in the history
+    readonly property var chats: {
+        const by = {};
+        for (const o of list) {
+            if (placeKind(o) !== "message" || mailOf(o)) continue;
+            const c = conversationOf(o);
+            if (!by[c]) by[c] = [];
+            by[c].push(o);
+        }
+        const t = x => received[x.id]?.getTime() ?? 0;
+        for (const c in by) by[c].sort((a, b) => t(b) - t(a));
+        return by;
+    }
     // The history's view of a chat: its messages, newest first (Settings → Group messages)
     function threadOf(n) {
         if (!n || !Settings.v.groupMessages || placeKind(n) !== "message" || mailOf(n)) return n ? [n] : [];
-        const t = x => received[x.id]?.getTime() ?? 0;
-        return list.filter(o => o === n || sameConversation(o, n)).sort((a, b) => t(b) - t(a));
+        return chats[conversationOf(n)] ?? [];
     }
     function dismissThread(n) { dismissAll(threadOf(n)); }
     // Cards as a view shows them, each with the rest of its chat (a grouped
@@ -263,7 +278,7 @@ Singleton {
     // (mail too: its "conversation" is the whole account)
     function chatOf(n) {
         if (!n || placeKind(n) !== "message" || mailOf(n)) return n ? [n] : [];
-        return list.filter(o => o === n || sameConversation(o, n));
+        return chats[conversationOf(n)] ?? [];
     }
     function conversationOf(n) {
         const m = mailOf(n);
