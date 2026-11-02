@@ -52,10 +52,14 @@ Scope {
                     anchors.bottom: !atTop
                     anchors.right: atRight
                     anchors.left: atLeft
-                    margins.left: atLeft ? 10 : 0
-                    margins.top: underPanel ? PanelState.cardBottom + 12 : atTop ? 6 : 0
-                    margins.bottom: atTop ? 0 : 10
-                    margins.right: atRight ? 10 : 0
+                    // The same from every edge (Settings → Notifications → Look; 10 px:
+                    // a window's corner below, 6 px of gaps_out, is 4 px out on both
+                    // sides, the two curves alike)
+                    readonly property int edge: Settings.v.popupMargin ?? 10
+                    margins.left: atLeft ? edge : 0
+                    margins.top: underPanel ? PanelState.cardBottom + 12 : atTop ? edge : 0
+                    margins.bottom: atTop ? 0 : edge
+                    margins.right: atRight ? edge : 0
                     implicitWidth: 380
                     implicitHeight: Math.max(1, stack.implicitHeight)
 

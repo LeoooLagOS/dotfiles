@@ -505,7 +505,10 @@ The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
 - shows popups on the focused monitor (`NotificationPopups.qml`) in the place
   chosen for their type (Settings → Notifications → Where popups appear;
   `Notifs.placeKind` / `placeOf`), newest nearest the screen edge, at most
-  `maxPopups` per place (the rest wait their turn):
+  `maxPopups` per place (the rest wait their turn), `popupMargin` px from the
+  screen edges (Settings → Notifications → Look, 10 by default: 4 px inside a
+  window's corner on both sides, with Hyprland's 6 px gaps_out); their corners
+  round like the windows (`Theme.windowRadius`, Hyprland's `decoration:rounding`):
 
   | Type | Detected by | Default place | Card |
   |---|---|---|---|

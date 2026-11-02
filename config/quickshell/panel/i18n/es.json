@@ -835,5 +835,7 @@
  "Blur: %1": "Desenfoque: %1",
  "Sharp": "Nítida",
  "Window opacity": "Opacidad de ventana",
- "The focused window's level bar (SUPER CTRL O)": "La barra de nivel de la ventana activa (SUPER CTRL O)"
+ "The focused window's level bar (SUPER CTRL O)": "La barra de nivel de la ventana activa (SUPER CTRL O)",
+ "Distance from the screen edges (px)": "Distancia a los bordes de la pantalla (px)",
+ "Windows keep 6 px (Hyprland's gaps_out): at 10 a popup over a window's corner sits 4 px inside it on both sides, its curve like the window's. Their corners always round like the windows": "Las ventanas dejan 6 px (gaps_out de Hyprland): con 10, un aviso sobre la esquina de una ventana queda 4 px por dentro en ambos lados, con la misma curva. Sus esquinas siempre se redondean como las ventanas"
 }

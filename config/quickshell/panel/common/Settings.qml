@@ -29,7 +29,7 @@ Singleton {
         // Where popups appear, per type (services/Notifs.qml placeKind)
         posLevel: "top", posBrightness: "island", posOpacity: "top", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
         posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
-        maxPopups: 3, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, downloadsThroughDnd: true, notifTheme: "panel",
+        maxPopups: 3, popupMargin: 10, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, downloadsThroughDnd: true, notifTheme: "panel",
         appRules: ({}),                                           // appName → place | "off" | "mute"
         // Demos: the two people in the test notifications (scripts/wm/NotifDemo.sh)
         demoPersonX: "Persona X", demoPersonY: "Persona Y",
@@ -198,6 +198,7 @@ Singleton {
             { title: "Look", rows: [
                 { key: "notifTheme", label: "Colors", help: "Of the popups. Critical ones keep their dark look", type: "select",
                   opts: [["panel", "Same as the panel"], ["system", "Same as the system"], ["dark", "Dark"], ["light", "Light"], ["inverted", "Inverted"]] },
+                { key: "popupMargin", label: "Distance from the screen edges (px)", help: "Windows keep 6 px (Hyprland's gaps_out): at 10 a popup over a window's corner sits 4 px inside it on both sides, its curve like the window's. Their corners always round like the windows", type: "range", min: 0, max: 40, step: 1, unit: "" },
                 { label: "Try them", help: "Test notifications of every kind: Settings → Demos", type: "info", value: "Demos" } ] },
             { title: "Where popups appear", rows: [
                 { key: "posCall", label: "Calls", help: "Incoming calls ring until answered or declined", type: "select", opts: notifPlaces.filter(o => o[0] !== "off" && o[0] !== "island") },
