@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import "ColorMath.js" as C
 
 // Colors. Three layers:
@@ -145,6 +146,12 @@ Singleton {
     readonly property int panelRadius: 22
     readonly property int zoneRadius: 14
     readonly property int buttonRadius: 10
+    // Hyprland's window rounding (decoration:rounding), read live: surfaces
+    // that float like windows (notification popups) round their corners the same.
+    // Read again on a config reload and as a popup shows (readRounding): Game
+    // mode squares the windows with hyprctl eval, which reloads nothing
+    property int windowRadius: 10
+    function readRounding() { if (!roundingProc.running) roundingProc.running = true; }
     readonly property int zonePadding: 12
     readonly property string font: "Inter"
     readonly property string iconFont: "JetBrainsMono Nerd Font"
@@ -171,6 +178,19 @@ Singleton {
             }
             root.palette = pal;
         }
+    }
+
+    Process {
+        id: roundingProc
+        command: ["hyprctl", "getoption", "decoration:rounding", "-j"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: { try { root.windowRadius = JSON.parse(text).int; } catch (e) {} }
+        }
+    }
+    Connections {
+        target: Hyprland
+        function onRawEvent(event) { if (event.name === "configreloaded") root.readRounding(); }
     }
 
     // System light/dark, written by scripts/wm/DarkLight.sh

@@ -95,7 +95,8 @@ Rectangle {
     readonly property bool adjustable: isLevel && Notifs.adjustable(notif)
     Component.onCompleted: { barLevel = Qt.binding(() => card.level); logReply(); }
     implicitHeight: isLevel ? levelRow.implicitHeight + 22 : content.implicitHeight + (compact || cover ? 16 : 24)
-    radius: compact ? 12 : 18
+    // Popups round like the windows (Hyprland's rounding); in the panel, like its zones
+    radius: popup ? Theme.windowRadius : compact ? 12 : 18
     color: critical ? critBg : (popup ? card.pal.bg : card.pal.bgAlt)
     border.color: critical ? critBorder : card.pal.border
     border.width: 1

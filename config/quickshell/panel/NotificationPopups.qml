@@ -45,6 +45,8 @@ Scope {
                              && PanelState.open === underPanel
                     color: "transparent"
                     exclusionMode: ExclusionMode.Normal
+                    // Its cards round like the windows, game mode's square ones too
+                    onVisibleChanged: if (visible) Theme.readRounding()
 
                     anchors.top: atTop
                     anchors.bottom: !atTop
