@@ -39,12 +39,19 @@ Zone {
     readonly property var appAudio: appStreams[0]?.audio ?? null
     readonly property string appName: radio ? Tr.t("Radio") : library ? Tr.t("Library") : (player?.identity ?? "App")
     // The art or the title clicked: to the player's app (Media.goTo), as the
-    // chosen player's chip clicked again
+    // chosen player's chip clicked again; in the library, to the album playing
     component ToApp: MouseArea {
-        enabled: !root.radio && !root.library && !!root.player
+        enabled: !root.radio && (root.library ? Library.active : !!root.player)
         hoverEnabled: enabled
         cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-        onClicked: Media.goTo(root.player)
+        onClicked: root.library ? root.openNowAlbum() : Media.goTo(root.player)
+    }
+    // The album of the track playing, opened in the library pane (found by file)
+    function openNowAlbum() {
+        const a = Library.albums.find(x => x.tracks.some(t => t.file === lib.file));
+        if (!a) return;
+        searching = true;
+        openAlbum = a;
     }
     function setAppVolume(v) { for (const n of appStreams) if (n.audio) n.audio.volume = v; }
     function setAppMuted(m) { for (const n of appStreams) if (n.audio) n.audio.muted = m; }
