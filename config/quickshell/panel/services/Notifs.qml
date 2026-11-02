@@ -387,6 +387,7 @@ Singleton {
         const rule = ruleOf(n);
         let place = rule && rule !== "mute" && k !== "call" ? rule
             : k === "level" && /bright|backlight/i.test(syncTag(n) + " " + (n?.summary ?? "")) ? Settings.v.posBrightness
+            : k === "level" && /opacity/i.test(syncTag(n)) ? Settings.v.posOpacity
             : Settings.v["pos" + k[0].toUpperCase() + k.slice(1)];
         // The island only while the bar shows it; calls and security codes need their card's buttons
         if (place === "island" && (!BarState.islandOn || k === "call" || k === "security")) place = "top";
@@ -422,6 +423,8 @@ Singleton {
     // notification id → the level of the one it replaced, so its bar animates from there
     property var levelFrom: ({})
     function progressOf(n) {
+        const live = levelLive[n?.id];
+        if (live !== undefined) return live;
         const v = n?.hints?.value;
         return v === undefined || v === null || v === "" ? -1 : Number(v);
     }
@@ -430,12 +433,18 @@ Singleton {
     // no notification and no D-Bus round trip, just a card object in the
     // popups (shaped like the history's copies), so the bar shows on the same
     // frame as the key press. It takes the place of the one with its tag.
+    // `adjust` ({ min, max, set: pct => … }, optional): its bar can be dragged
+    // and the wheel turned on it (card and island) for an exact value (setLevel)
     property int localSeq: 0
-    function showLevel(tag, title, value, body) {
+    function showLevel(tag, title, value, body, adjust) {
         const o = { id: "l" + (++localSeq), local: true, appName: title, appIcon: "", desktopEntry: "",
                     summary: title, body: body ?? "", image: "", urgency: NotificationUrgency.Low,
-                    hints: { "x-canonical-private-synchronous": tag, value: value },
+                    hints: { "x-canonical-private-synchronous": tag, value: value }, adjust: adjust ?? null,
                     actions: [], transient: true, tracked: true, hasInlineReply: false, inlineReplyPlaceholder: "" };
+        // Values set by hand of levels no longer shown go
+        const live = {};
+        for (const id in levelLive) if (popups.some(p => p.id === id) || BarState.level?.id === id) live[id] = levelLive[id];
+        levelLive = live;
         o.dismiss = () => { root.popups = root.popups.filter(p => p !== o); };
         o.expire = o.dismiss;
         const place = placeOf(o);
@@ -460,15 +469,31 @@ Singleton {
     }
 
     // A level's icon (card and island): from the sync tag / summary (speaker by
-    // level, mic, sun, keyboard); "" = use the notification's own icon
+    // level, mic, sun, keyboard, half circle for a window's opacity); "" = use the notification's own icon
     function levelGlyph(n) {
         const what = (syncTag(n) + " " + (n?.summary ?? "")).toLowerCase();
         const level = progressOf(n);
         const off = level === 0 || /mute/i.test(n?.body ?? "");
         if (/mic/.test(what)) return off ? "\uf131" : "\uf130";
+        if (/opacity/.test(what)) return "\uf042";
         if (/bright|screen|backlight|kbd|keyboard/.test(what)) return /kbd|keyboard/.test(what) ? "\uf11c" : "\uf185";
         if (/vol|audio|sound/.test(what)) return off ? "\u{f0581}" : level < 34 ? "\u{f057f}" : level < 67 ? "\u{f0580}" : "\u{f057e}";
         return "";
+    }
+
+    // A level set by hand (dragging its bar, the wheel): id → value, over the one
+    // it came with (progressOf); the level stays up while it's being set
+    property var levelLive: ({})
+    function adjustable(n) { return typeof n?.adjust?.set === "function"; }
+    function setLevel(n, pct) {
+        if (!adjustable(n)) return;
+        pct = Math.round(Math.max(n.adjust.min ?? 0, Math.min(n.adjust.max ?? 100, pct)));
+        if (progressOf(n) === pct) return;
+        const m = Object.assign({}, levelLive);
+        m[n.id] = pct;
+        levelLive = m;
+        n.adjust.set(pct);
+        if (BarState.level === n) BarState.keepLevel();
     }
 
     function removePopup(n) {

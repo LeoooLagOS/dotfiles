@@ -131,7 +131,11 @@ Singleton {
         level = null;
         if (n && !n.local && (n.transient || Notifs.syncTag(n))) { try { n.expire(); } catch (e) {} }
     }
-    Timer { id: levelTimer; onTriggered: root.clearLevel() }
+    // One being set by hand (Notifs.setLevel), or with the pointer on the
+    // island (bar/Island.qml counts it), stays
+    property int levelHolds: 0
+    function keepLevel() { if (level) levelTimer.restart(); }
+    Timer { id: levelTimer; onTriggered: root.levelHolds > 0 ? restart() : root.clearLevel() }
 
     // A short message on the island ({ icon, text, undo }), gone after a moment.
     // With `undo` (a function) it stays 6 s and clicking the island runs it

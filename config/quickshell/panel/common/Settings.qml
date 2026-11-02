@@ -27,7 +27,7 @@ Singleton {
         // Notifications
         dndSched: false, dndWindow: "23:00-07:00", critical: true, popupSecs: 6, history: 100,
         // Where popups appear, per type (services/Notifs.qml placeKind)
-        posLevel: "top", posBrightness: "island", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
+        posLevel: "top", posBrightness: "island", posOpacity: "top", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
         posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
         maxPopups: 3, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, downloadsThroughDnd: true, notifTheme: "panel",
         appRules: ({}),                                           // appName → place | "off" | "mute"
@@ -205,6 +205,7 @@ Singleton {
                 { key: "posReminder", label: "Reminders", help: "Calendar events: they stay until dismissed", type: "select", opts: notifPlaces },
                 { key: "posLevel", label: "Volume", help: "Level bars: volume and mic", type: "select", opts: notifPlaces },
                 { key: "posBrightness", label: "Brightness", help: "The screen's and the keyboard's level bars", type: "select", opts: notifPlaces },
+                { key: "posOpacity", label: "Window opacity", help: "The focused window's level bar (SUPER CTRL O)", type: "select", opts: notifPlaces },
                 { key: "posSystem", label: "System", help: "Battery, network, devices, screenshots, recordings, scripts", type: "select", opts: notifPlaces },
                 { key: "posMessage", label: "Messages", help: "WhatsApp, Telegram, Teams, Discord, email…", type: "select", opts: notifPlaces },
                 { key: "posMedia", label: "Now playing", help: "Track changes from Spotify and other players", type: "select", opts: notifPlaces },

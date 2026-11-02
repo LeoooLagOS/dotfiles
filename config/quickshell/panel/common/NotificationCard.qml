@@ -14,7 +14,7 @@ Rectangle {
     property bool popup: false          // popups clamp the body to 3 lines
     property bool compact: false        // small card: one-line body, no actions
     property bool showApp: false        // show the app name above the summary
-    property bool hovered: mouse.containsMouse
+    property bool hovered: mouse.containsMouse || levelMouse.pressed
     // Popups take Settings → Notifications → Colors; cards in the panel, the panel's
     readonly property var pal: popup ? Theme.notifications : Theme.panel
     // Quick reply (services/Comms.qml): the Reply button opens ReplyBox.qml,
@@ -84,7 +84,9 @@ Rectangle {
     readonly property bool isLevel: place === "level"
     // Starts at the replaced notification's level and animates to this one's
     property real barLevel: Notifs.levelFrom[notif?.id] ?? level
-    Behavior on barLevel { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+    Behavior on barLevel { enabled: !levelMouse.pressed; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+    // One the panel shows itself may be set by hand (Notifs.setLevel): drag its bar, or the wheel ±1
+    readonly property bool adjustable: isLevel && Notifs.adjustable(notif)
     Component.onCompleted: { barLevel = Qt.binding(() => card.level); logReply(); }
     implicitHeight: isLevel ? levelRow.implicitHeight + 22 : content.implicitHeight + (compact || cover ? 16 : 24)
     radius: compact ? 12 : 18
@@ -122,6 +124,10 @@ Rectangle {
         hoverEnabled: true
         // Clicking the card runs the default action, if any
         onClicked: card.runDefault()
+        onWheel: w => {
+            if (!card.adjustable) { w.accepted = false; return; }
+            Notifs.setLevel(card.notif, card.level + (w.angleDelta.y > 0 ? 1 : -1));
+        }
     }
 
     // ---------------- Level: icon · title · bar · percentage ----------------
@@ -188,11 +194,25 @@ Rectangle {
                 }
             }
             Bar {
+                id: levelBar
                 Layout.fillWidth: true
                 implicitHeight: 6
                 radius: 3
                 value: card.barLevel / 100
                 fillColor: card.level > 100 ? card.pal.warn : card.pal.accent
+                // Taller than the bar, so it's easy to catch
+                MouseArea {
+                    id: levelMouse
+                    enabled: card.adjustable
+                    anchors.fill: parent
+                    anchors.topMargin: -10
+                    anchors.bottomMargin: -10
+                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                    preventStealing: true
+                    function setAt(x) { Notifs.setLevel(card.notif, x / width * 100); }
+                    onPressed: m => setAt(m.x)
+                    onPositionChanged: m => { if (pressed) setAt(m.x); }
+                }
             }
         }
     }

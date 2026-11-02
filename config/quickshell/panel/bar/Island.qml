@@ -101,6 +101,11 @@ Rectangle {
         cursorShape: Qt.PointingHandCursor
         onClicked: BarState.flash?.undo ? BarState.undoFlash() : root.isMessage ? BarState.openMessage() : Recorder.recording ? Recorder.stop() : (PanelState.open = !PanelState.open)
         onWheel: w => {
+            // A level that can be set by hand (Notifs.setLevel): ±1
+            if (root.mode === "level" && Notifs.adjustable(root.lvl)) {
+                Notifs.setLevel(root.lvl, Notifs.progressOf(root.lvl) + (w.angleDelta.y > 0 ? 1 : -1));
+                return;
+            }
             const a = Media.sink?.audio;
             if (!a) return;
             a.volume = Math.max(0, Math.min(1, a.volume + (w.angleDelta.y > 0 ? 0.05 : -0.05)));
@@ -320,9 +325,13 @@ Rectangle {
         spacing: 10
         readonly property real value: root.lvl ? Notifs.progressOf(root.lvl) : 0
         readonly property string glyph: { value; return root.lvl ? Notifs.levelGlyph(root.lvl) : ""; }
-        // Slides from the last value to the new one
+        // Slides from the last value to the new one (not while dragged)
         property real shown: value
-        Behavior on shown { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+        Behavior on shown { enabled: !islandLevelMouse.pressed; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+        // With the pointer on it, it stays (BarState.levelHolds)
+        HoverHandler {
+            onHoveredChanged: BarState.levelHolds = Math.max(0, BarState.levelHolds + (hovered ? 1 : -1))
+        }
         Glyph {
             visible: levelRow.glyph !== ""
             optical: true; text: levelRow.glyph; color: root.accent; font.pixelSize: 14
@@ -350,6 +359,19 @@ Rectangle {
                 width: parent.width * Math.max(0, Math.min(1, levelRow.shown / 100))
                 height: parent.height; radius: parent.radius
                 color: levelRow.value > 100 ? Theme.warn : root.accent
+            }
+            // Dragged or clicked: that value, for a level that can be set by hand
+            MouseArea {
+                id: islandLevelMouse
+                enabled: Notifs.adjustable(root.lvl)
+                anchors.fill: parent
+                anchors.topMargin: -10
+                anchors.bottomMargin: -10
+                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                preventStealing: true
+                function setAt(x) { Notifs.setLevel(root.lvl, x / width * 100); }
+                onPressed: m => setAt(m.x)
+                onPositionChanged: m => { if (pressed) setAt(m.x); }
             }
         }
         Label {

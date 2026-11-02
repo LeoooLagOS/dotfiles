@@ -34,6 +34,10 @@ ShellRoot {
     GlobalShortcut { name: "volumeDownFine"; description: "Volume down 1%"; onPressed: Audio.stepVolume(-1) }
     GlobalShortcut { name: "volumeMute"; description: "Mute output"; onPressed: Audio.toggleMute() }
     GlobalShortcut { name: "micMute"; description: "Mute microphone"; onPressed: Audio.toggleMic() }
+    // SUPER CTRL O: the focused window's opacity (services/WindowOpacity.qml)
+    GlobalShortcut { name: "windowOpacity"; description: "Window opacity: 100 → 85 → 70 → 50 %"; onPressed: WindowOpacity.cycle() }
+    GlobalShortcut { name: "windowOpacityUp"; description: "Window opacity +2 %"; onPressed: WindowOpacity.step(2) }
+    GlobalShortcut { name: "windowOpacityDown"; description: "Window opacity −2 %"; onPressed: WindowOpacity.step(-2) }
 
     IpcHandler {
         target: "panel"

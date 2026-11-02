@@ -833,5 +833,7 @@
  "Their see-through windows show what's behind sharp, without frosting": "Sus ventanas translúcidas muestran lo de detrás nítido, sin esmerilado",
  "None: every see-through window is frosted.": "Ninguna: toda ventana translúcida se esmerila.",
  "Blur: %1": "Desenfoque: %1",
- "Sharp": "Nítida"
+ "Sharp": "Nítida",
+ "Window opacity": "Opacidad de ventana",
+ "The focused window's level bar (SUPER CTRL O)": "La barra de nivel de la ventana activa (SUPER CTRL O)"
 }

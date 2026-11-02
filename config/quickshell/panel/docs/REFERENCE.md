@@ -570,7 +570,26 @@ The panel **is the notification daemon** (`services/Notifs.qml`, Quickshell's
   `volumeMute`, `micMute` in `shell.qml`, bound in `UserConfigs/user_keybinds.lua`),
   `Brightness.step` / `Audio.stepVolume` (PipeWire directly) set it and
   `Notifs.showLevel` puts the card straight into the popups (a plain object,
-  never in the history), so the bar shows on the key's frame.
+  never in the history), so the bar shows on the key's frame. SUPER CTRL O
+  (`quickshell:windowOpacity`, `services/WindowOpacity.qml`, instead of
+  KoolDots' `ToggleOpacity.sh`) does the same for the focused window's
+  opacity: 100 → 85 → 70 → 50 % (`set_prop` opacity / opaque; what it set is
+  remembered per window, one never set counts as 100 %), level tagged
+  `opacity_notif` (half-circle icon), placed by Settings → Notifications →
+  Where popups appear → Window opacity (`Settings.v.posOpacity`, the island too).
+  Its level can be set by hand for an exact value, 20–100 %: drag or click its
+  bar, or turn the wheel on it (±1 %), on the card and on the island; it stays
+  while the pointer is on it. Any level `Notifs.showLevel` gets an `adjust`
+  ({ min, max, set }) for that: `Notifs.setLevel` keeps the value in
+  `Notifs.levelLive` (read first by `progressOf`) and calls `set`;
+  `WindowOpacity.set` sends it straight to Hyprland's socket (`Hyprland.dispatch`,
+  no process), at most once a frame. SUPER CTRL + wheel (`windowOpacityUp` /
+  `Down`, ±2 %) sets it without leaving the window: with `follow_mouse` the
+  pointer on its way to the popup moves the focus (and `dim_inactive` darkens
+  the window). While it's set by drag or wheel, Hyprland's `fadeSwitch` is off
+  (else every value fades in over ~300 ms and the window trails behind); it
+  comes back 0.8 s after the last change, with the values read from
+  `hyprctl animations -j` (its own, else `fade`'s or `global`'s).
 - styles cards like the old swaync setup: wallust colors, 18 px corners, and a
   fixed dark card with the summary as a small red header for critical ones.
 - runs the `default` action when a card is clicked; other actions are buttons.

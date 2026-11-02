@@ -171,6 +171,14 @@ for _, k in ipairs({
   unbind(k[1], k[2])
   bind(k[1], k[2], hl.dsp.global("quickshell:" .. k[3]), { description = k[4], locked = true, repeating = k[5] })
 end
+-- The focused window's opacity the same way (panel services/WindowOpacity.qml):
+-- KoolDots' ToggleOpacity.sh showed its level only after a dozen hyprctl / jq calls
+unbind("SUPER CTRL", "O")
+bind("SUPER CTRL", "O", hl.dsp.global("quickshell:windowOpacity"), { description = "window opacity: 100 → 85 → 70 → 50 %" })
+-- SUPER CTRL + wheel: ±2 % without leaving the window (the pointer on the
+-- level's popup would move the focus, follow_mouse)
+bind("SUPER CTRL", "mouse_up", hl.dsp.global("quickshell:windowOpacityUp"), { description = "window opacity +2 %" })
+bind("SUPER CTRL", "mouse_down", hl.dsp.global("quickshell:windowOpacityDown"), { description = "window opacity −2 %" })
 -- The top bar is the panel's (TopBar.qml), not waybar: SUPER CTRL ALT B hides
 -- or shows it (scripts/wm/BarSwitch.sh switches back to waybar for good)
 unbind("SUPER CTRL ALT", "B")
