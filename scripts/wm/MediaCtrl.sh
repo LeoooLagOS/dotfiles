@@ -59,7 +59,7 @@ pick_player() {
 
 player=$(pick_player)
 if [[ -z "$player" ]]; then
-  notify-send -e -u low -i "$music_icon" " Playback:" " No player"
+  notify-send -e -u low -c x-gnome.music -i "$music_icon" " Playback:" " No player"
   exit 0
 fi
 pctl() { playerctl -p "$player" "$@"; }
@@ -112,9 +112,9 @@ notify_track() {
   local art
   art=$(cover_art)
   if [[ -n "$art" ]]; then
-    notify-send -e -u low -i "$music_icon" -h "string:image-path:$art" -h boolean:x-lagos-cover:true "$@"
+    notify-send -e -u low -c x-gnome.music -i "$music_icon" -h "string:image-path:$art" -h boolean:x-lagos-cover:true "$@"
   else
-    notify-send -e -u low -i "$music_icon" "$@"
+    notify-send -e -u low -c x-gnome.music -i "$music_icon" "$@"
   fi
 }
 
@@ -144,20 +144,23 @@ toggle_play_pause() {
 # Stop playback
 stop_playback() {
   pctl stop
-  notify-send -e -u low -i "$music_icon" "Stopped · $(player_label)" ""
+  notify-send -e -u low -c x-gnome.music -i "$music_icon" "Stopped · $(player_label)" ""
 }
 
-# Display notification with song information
+# Display notification with song information: the song and its artist on top,
+# below its album (MPRIS doesn't say which playlist) and the player
+#   Always on My Mind · Pet Shop Boys
+#   Discography - Complete Singles Collection · Spotify
 show_music_notification() {
+  local status title artist album below
   status=$(pctl status)
-  song_title=$(pctl metadata title)
-  song_artist=$(pctl metadata artist)
-  song="$song_title${song_artist:+ by $song_artist}"
-  if [[ "$status" == "Playing" ]]; then
-    notify_track "Now Playing · $(player_label)" "$song"
-  elif [[ "$status" == "Paused" ]]; then
-    notify_track "Paused · $(player_label)" "$song"
-  fi
+  [[ "$status" == "Playing" || "$status" == "Paused" ]] || return
+  title=$(pctl metadata title)
+  artist=$(pctl metadata artist)
+  album=$(pctl metadata album)
+  below="${album:+$album · }$(player_label)"
+  [[ "$status" == "Paused" ]] && below="Paused · $below"
+  notify_track "${title:-Unknown}${artist:+ · $artist}" "$below"
 }
 
 # Get media control action from command line argument

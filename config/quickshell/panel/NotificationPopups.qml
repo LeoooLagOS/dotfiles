@@ -78,7 +78,9 @@ Scope {
                                 width: stack.width
 
                                 Timer {
-                                    interval: Notifs.timeoutFor(popupCard.modelData)
+                                    readonly property int base: Notifs.timeoutFor(popupCard.modelData)
+                                    // A song too long for the card: long enough to roll it all once
+                                    interval: base > 0 ? Math.max(base, popupCard.rollMs + 800) : 0
                                     // 0 = until dismissed; an expanded chat stays until closed
                                     running: !popupCard.hovered && !popupCard.expanded && interval > 0
                                     onTriggered: Notifs.removePopup(popupCard.modelData)

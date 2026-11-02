@@ -6,18 +6,24 @@ import "../common"
 // Settings → Bar → Long text (barScroll "hover"): it rests at the start and
 // scrolls only while hovered, finishing the turn when left. Every frame of a
 // scroll redraws the bar (and Hyprland with it) at the monitor's rate.
+// Elsewhere (a notification's song): its own palette (pal), and always: true
+// to scroll whatever the bar's setting.
 //   Marquee { width: 200; text: "…"; dim: true }
 Item {
     id: root
     property string text
     property int textFormat: Text.PlainText
     property bool dim: false
+    property var pal: Theme.panel
     property int pixelSize: 13
     property int weight: Font.Normal
     property int gap: 48
     property real speed: 32                     // px per second
+    property int rest: always ? 2000 : 400      // ms at the start of each turn
+    // One turn, its rest included (0: it fits): a popup stays at least this long
+    readonly property int turnMs: overflows ? rest + Math.round((first.implicitWidth + gap) / speed * 1000) : 0
     readonly property bool overflows: first.implicitWidth > width + 1
-    readonly property bool always: Settings.v.barScroll !== "hover"
+    property bool always: Settings.v.barScroll !== "hover"
     // Hover only, left mid-turn: that turn finishes, then it rests
     property bool finishing: false
 
@@ -36,6 +42,7 @@ Item {
             text: root.text
             textFormat: root.textFormat
             dim: root.dim
+            pal: root.pal
             elide: Text.ElideNone
             font.pixelSize: root.pixelSize
             font.weight: root.weight
@@ -46,6 +53,7 @@ Item {
             text: root.text
             textFormat: root.textFormat
             dim: root.dim
+            pal: root.pal
             elide: Text.ElideNone
             font.pixelSize: root.pixelSize
             font.weight: root.weight
@@ -58,7 +66,7 @@ Item {
         paused: root.always && running && hover.hovered
         loops: Animation.Infinite
         PropertyAction { target: strip; property: "x"; value: 0 }
-        PauseAnimation { duration: root.always ? 2000 : 400 }
+        PauseAnimation { duration: root.rest }
         NumberAnimation {
             target: strip; property: "x"
             from: 0; to: -(first.implicitWidth + root.gap)

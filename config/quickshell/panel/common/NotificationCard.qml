@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Notifications
 import "../services"
+import "../bar"
 
 // One notification, used by the popups and the Notifications tab.
 // Normal notifications use the wallust palette; critical ones use a fixed dark
@@ -77,6 +78,11 @@ Rectangle {
     // Album art (hint x-lagos-cover + an image, from scripts/wm/MediaCtrl.sh):
     // as tall as the card allows, 8 px from its edges
     readonly property bool cover: notif?.hints?.["x-lagos-cover"] === true && Notifs.imageOf(notif) !== ""
+    // Now playing: a song or artist too long for the card rolls (bar/Marquee.qml)
+    // instead of being cut with "…"
+    readonly property bool rolls: place === "media" && !compact
+    // A popup stays until both have rolled once (NotificationPopups.qml)
+    readonly property int rollMs: rolls ? Math.max(titleRoll.turnMs, bodyRoll.turnMs) : 0
     property bool copied: false
 
     // Level notification (volume, brightness…): Notifs.progressOf ≥ 0
@@ -304,7 +310,21 @@ Rectangle {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 8
+                    Marquee {
+                        id: titleRoll
+                        visible: card.rolls
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        pal: card.pal
+                        always: true
+                        rest: 700
+                        speed: 60
+                        text: Notifs.titleOf(card.notif)
+                        pixelSize: 15
+                        weight: Font.DemiBold
+                    }
                     Label { pal: card.pal;
+                        visible: !card.rolls
                         Layout.fillWidth: true
                         text: Notifs.titleOf(card.notif)
                         elide: Text.ElideRight
@@ -345,9 +365,22 @@ Rectangle {
                     }
                 }
 
+                Marquee {
+                    id: bodyRoll
+                    visible: card.rolls && text !== ""
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    pal: card.pal
+                    always: true
+                    rest: 700
+                    speed: 60
+                    dim: true
+                    text: Notifs.plain(Notifs.bodyOf(card.notif))
+                    pixelSize: 14
+                }
                 Label { pal: card.pal;
                     Layout.fillWidth: true
-                    visible: text !== ""
+                    visible: !card.rolls && text !== ""
                     text: card.toStyled(Notifs.bodyOf(card.notif))
                     textFormat: Text.StyledText
                     wrapMode: Text.Wrap
