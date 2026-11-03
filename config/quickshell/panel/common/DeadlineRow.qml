@@ -58,7 +58,8 @@ Rectangle {
                     font.pixelSize: row.compact ? 11 : 12
                     font.weight: Font.DemiBold
                     wrapMode: Text.Wrap
-                    maximumLineCount: 2
+                    // Compact (the month's day list): 2 lines; the To-do list: all of it
+                    maximumLineCount: row.compact ? 2 : 50
                     // A provider's task with a link (e.g. its note): click opens it
                     MouseArea { anchors.fill: parent; enabled: !!row.item.open; cursorShape: Qt.PointingHandCursor
                                 onClicked: Quickshell.execDetached(["xdg-open", row.item.open]) }

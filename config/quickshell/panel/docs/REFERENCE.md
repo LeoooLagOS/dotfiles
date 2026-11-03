@@ -391,6 +391,8 @@ removing say so on the island with an **Undo** (click the island, 6 s).
   Reminders: 3 days, 1 day, 3 h, 1 h by default; one reached while off is
   said once) and when overdue; each stays until answered: Done · In 1 h ·
   Tomorrow (9:00) (`notify-send -A`, snoozes kept in `reminded.json`).
+  Clicking the card (its `default` action) opens Calendar → To-do, where the
+  task's whole title shows.
 - **While you were away**: the panel writes `~/.local/state/quickshell-panel/alive`
   every minute; starting again, events that began meanwhile come in one notification.
 - **Morning brief**: once a day from 7:00 (or the first start after it):

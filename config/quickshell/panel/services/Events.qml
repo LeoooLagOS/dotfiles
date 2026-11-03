@@ -388,7 +388,8 @@ Singleton {
     // Each deadline is said at every stage it reaches (Settings → Weather &
     // calendar → Reminders: 3 days, 1 day, 3 h, 1 h before by default; one
     // reached while off is said once), and once more when it's overdue. Each
-    // stays until answered (a reminder) with Done · In 1 h · Tomorrow (9:00).
+    // stays until answered (a reminder) with Done · In 1 h · Tomorrow (9:00);
+    // clicking the card opens Calendar → To-do, where the whole task shows.
     function deadlineKey(x) {
         const id = x.kind === "teams" ? x.uid : x.kind === "provider" ? x.source + ":" + x.id : "todo:" + x.id;
         return id + "|" + x.due.toISOString();
@@ -425,6 +426,8 @@ Singleton {
             "-a", x.kind === "teams" ? "Teams assignments" : x.kind === "provider" ? x.label : "To-do", "-i", "task-due",
             "-u", x.important || over || (x.due - now) <= 3600000 ? "critical" : "normal",
             "-c", "calendar.reminder",
+            // "default" is the click on the card itself (no button): the whole task in the panel
+            "-A", "default=" + Tr.t("Open"),
             "-A", "done=" + Tr.t("Done"), "-A", "hour=" + Tr.t("In 1 h"), "-A", "tomorrow=" + Tr.t("Tomorrow"),
             title, body] }).running = true;
     }
@@ -436,7 +439,8 @@ Singleton {
             stdout: StdioCollector {
                 onStreamFinished: {
                     const a = text.trim();
-                    if (a === "done") root.complete(item);
+                    if (a === "default") { PanelState.open = true; PanelState.goTo("Calendar", "TodoZone"); }
+                    else if (a === "done") root.complete(item);
                     else if (a === "hour" || a === "tomorrow") {
                         const t = new Date();
                         if (a === "hour") t.setHours(t.getHours() + 1);
