@@ -322,7 +322,7 @@ Sources:
    panel knows nothing else about it; it answers `tasks` with JSON
    `{"label": "Vault", "tasks": [{"id", "title", "due": "YYYY-MM-DD" |
    "YYYY-MM-DDTHH:MM", "where", "remind": false (no reminders, not on the bar),
-   "open": url (clicking the title opens it)}]}`, and `done ID` / `undone ID`
+   "open": url (kept; the panel doesn't open it: in Overview the title leads to Calendar → To-do)}]}`, and `done ID` / `undone ID`
    with `{"ok": true}` (it writes it back where the task lives; the island
    offers Undo). Calendar events don't need one: an `.ics` in
    `~/.config/lagos/calendars/` is read like any local calendar. Example: the

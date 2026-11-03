@@ -17,7 +17,7 @@ nothing else about it; it only has to answer:
                                        "due": "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM" (or "": no date),
                                        "where": "…",     optional: the class, the place…
                                        "remind": true,   optional: false = no reminders
-                                       "open": "url"}]}  optional: opened with xdg-open on a click
+                                       "open": "url"}]}  optional: kept, not opened by the panel
   <provider> done ID     mark it done; prints {"ok": true} or {"ok": false, "error": "…"}
   <provider> undone ID   the same, back
 

@@ -6,8 +6,8 @@ import "../services"
 // One thing to hand in (Events.deadlines): a circle to mark it done, its
 // title, and when it's due with the time left, red under a day, amber under
 // three ("Today 23:59 · in 2 h 58 min", "Overdue · Yesterday"). Teams ones
-// carry the Teams mark and their class; a provider's task with a link opens
-// it from its title.
+// carry the Teams mark and their class. Compact (Overview's day list), its
+// title takes you to Calendar → To-do, where the whole task shows.
 // A to-do's date is set by clicking it (common/DuePicker.qml: quick days,
 // typed, repeat).
 //   DeadlineRow { item: Events.deadlines[0]; width: … }
@@ -60,9 +60,9 @@ Rectangle {
                     wrapMode: Text.Wrap
                     // Compact (the month's day list): 2 lines; the To-do list: all of it
                     maximumLineCount: row.compact ? 2 : 50
-                    // A provider's task with a link (e.g. its note): click opens it
-                    MouseArea { anchors.fill: parent; enabled: !!row.item.open; cursorShape: Qt.PointingHandCursor
-                                onClicked: Quickshell.execDetached(["xdg-open", row.item.open]) }
+                    // Compact: to the To-do list, where it's whole (its `open` link isn't followed)
+                    MouseArea { anchors.fill: parent; enabled: row.compact; cursorShape: Qt.PointingHandCursor
+                                onClicked: PanelState.goTo("Calendar", "TodoZone") }
                 }
             }
             Label {
