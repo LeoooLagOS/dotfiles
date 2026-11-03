@@ -178,7 +178,7 @@ def cmd_list(start, end, force):
                 "allDay": all_day,
                 "title": str(ev.get("SUMMARY", "")).strip() or "(no title)",
                 "location": str(ev.get("LOCATION", "")).strip(),
-                "notes": str(ev.get("DESCRIPTION", "")).strip()[:300],
+                "notes": str(ev.get("DESCRIPTION", "")).strip()[:4000],   # whole, shown when an event is clicked
                 "calendar": name,
                 "source": source,
                 "important": outlook or importance >= 2,

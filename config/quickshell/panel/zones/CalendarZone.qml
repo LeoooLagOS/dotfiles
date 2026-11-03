@@ -21,6 +21,15 @@ Zone {
 
     function sameDay(a, b) { return a.toDateString() === b.toDateString(); }
 
+    // An event's description as rich text: its web addresses become links
+    // (split() with a (group) keeps the matches, at the odd places)
+    function richNotes(s) {
+        const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return s.split(/(https?:\/\/[^\s<>"]+)/)
+                .map((part, i) => i % 2 ? '<a href="' + esc(part) + '">' + esc(part) + "</a>" : esc(part))
+                .join("").replace(/\n/g, "<br>");
+    }
+
     function shift(delta) {
         let m = Events.month + delta, y = Events.year;
         if (m < 0) { m = 11; y--; }
@@ -282,13 +291,26 @@ Zone {
                     }
                     Repeater {
                         model: dayList.events
+                        // Click an event: it opens in place (whole title, place and
+                        // description, links clickable); again: it closes
                         delegate: Rectangle {
+                            id: eventCard
                             required property var modelData
                             readonly property bool live: Events.isNow(modelData)
+                            property bool expanded: false
                             width: dayCol.width
                             implicitHeight: info.implicitHeight + 12
                             radius: 8
-                            color: Theme.withAlpha(Theme.accent2, live ? 0.22 : 0.10)
+                            color: Theme.withAlpha(Theme.accent2, live ? 0.22 : cardMouse.containsMouse ? 0.16 : 0.10)
+
+                            // Under the text, so a link in the description still gets its click
+                            MouseArea {
+                                id: cardMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: eventCard.expanded = !eventCard.expanded
+                            }
 
                             // Accent bar on the left
                             Rectangle {
@@ -318,6 +340,7 @@ Zone {
                                     Label {
                                         Layout.fillWidth: true
                                         text: modelData.title
+                                        wrapMode: eventCard.expanded ? Text.Wrap : Text.NoWrap
                                         font.pixelSize: 12
                                         font.weight: Font.DemiBold
                                     }
@@ -335,6 +358,21 @@ Zone {
                                     Layout.fillWidth: true
                                     text: (modelData.allDay ? Tr.t("All day") : modelData.start + " – " + modelData.end)
                                           + (modelData.location ? "  ·  " + modelData.location : "")
+                                    wrapMode: eventCard.expanded ? Text.Wrap : Text.NoWrap
+                                    dim: true
+                                    font.pixelSize: 11
+                                }
+                                // Description: a one-line preview, whole when open
+                                Label {
+                                    Layout.fillWidth: true
+                                    Layout.topMargin: eventCard.expanded ? 4 : 0
+                                    visible: !!modelData.notes
+                                    text: eventCard.expanded ? root.richNotes(modelData.notes ?? "")
+                                                             : (modelData.notes ?? "").replace(/\s+/g, " ")
+                                    textFormat: eventCard.expanded ? Text.StyledText : Text.PlainText
+                                    wrapMode: eventCard.expanded ? Text.Wrap : Text.NoWrap
+                                    linkColor: Theme.accent
+                                    onLinkActivated: link => Qt.openUrlExternally(link)
                                     dim: true
                                     font.pixelSize: 11
                                 }

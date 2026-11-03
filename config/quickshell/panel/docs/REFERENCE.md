@@ -337,7 +337,10 @@ and on top of the To-do zone, one group per source ("FROM TEAMS", "FROM
 VAULT"). Their circle marks one done (`assignments.py done UID` for a Teams
 one, `providers.py done NAME ID` for a provider's). Today's events that are over leave the day lists
 (`Events.dayEvents`, by the real start, so last night's late event doesn't
-linger); the one going on is marked "Now".
+linger); the one going on is marked "Now". In the Calendar zone's day list an event
+shows one line of its description (`notes`, the calendar's DESCRIPTION, up
+to 4000 characters); clicking it opens the whole event in place, with its
+web addresses as links.
 
 **Importance and reminders.** Outlook events are treated as important (★) and
 get a **critical** notification 15 minutes before they start (critical =
