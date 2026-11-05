@@ -34,9 +34,13 @@ sudo cp System/etc/udev/rules.d/90-usb-input-wakeup.rules /etc/udev/rules.d/
 sudo udevadm control --reload && sudo udevadm trigger --subsystem-match=usb --action=add
 sudo install -Dm644 System/etc/systemd/logind.conf.d/10-lid.conf /etc/systemd/logind.conf.d/10-lid.conf
 sudo systemctl kill -s HUP systemd-logind
+sudo install -Dm644 System/etc/modprobe.d/i915-psr.conf /etc/modprobe.d/i915-psr.conf
+sudo dracut --regenerate-all -f
 ```
 
 | File | Purpose |
 |---|---|
 | `udev/rules.d/90-usb-input-wakeup.rules` | Lets the USB keyboard/mouse wake from suspend and keeps them connected across resume |
 | `systemd/logind.conf.d/10-lid.conf` | Don't suspend on lid close while on AC (clamshell with external monitor). Only a fallback: inside the session `lagos-lid.service` takes the lid over (panel Settings → Power & idle) |
+| `modprobe.d/i915-psr.conf` | Keeps the laptop screen from staying black after waking from suspend: turns off Panel Self Refresh (PSR), a power-saving mode. Costs a little battery |
+  
