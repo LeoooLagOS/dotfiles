@@ -45,6 +45,7 @@ alias sv='sudo nvim'
 compdef sv=nvim 2>/dev/null
 alias idea='(~/.local/bin/idea . &>/dev/null &!)'
 alias studio='/opt/android-studio/bin/studio > /dev/null 2>&1 &!'
+alias get_idf='. $HOME/.espressif/v6.0.2/esp-idf/export.sh'
 
 # --- 📚 THE KNOWLEDGE LIBRARIAN (Rerouted directly to Python Engines) ---
 alias vt='python3 $HOME/dotfiles/scripts/ops/sync-vault --vtree'
