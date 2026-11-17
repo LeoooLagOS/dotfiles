@@ -24,7 +24,8 @@
 % Encabezado extraído de las variables del YAML de Markdown
 \begin{center}
   {\Huge \textbf{$title$}} \\ \vspace{6pt}
-  $address$ | $phone$ | \href{mailto:$email$}{$email$} \\ \vspace{2pt}
+  % phone is optional: leave it out of the frontmatter for a public version
+  $address$$if(phone)$ | $phone$$endif$ | \href{mailto:$email$}{$email$} \\ \vspace{2pt}
   \href{$linkedin_url$}{LinkedIn} | \href{$github_url$}{GitHub}
 \end{center}
 

@@ -39,6 +39,12 @@ TEMPLATES = {
         "engine": "xelatex",
         "default_csl": "apa",
     },
+    "cv-ats-classic": {  # One-column, ATS-friendly CV (header from the frontmatter)
+        "type": "latex",
+        "path": str(SCRIPT_DIR / "cv-ats-classic" / "ats-classic.latex"),
+        "engine": "xelatex",
+        "default_csl": "apa",
+    },
     "aa-report": {  # A&A practice/research report (Word template from the Networks area)
         "type": "docx",
         "path": str(TEMPLATES_DIR / "aa-report" / "reference.docx"),

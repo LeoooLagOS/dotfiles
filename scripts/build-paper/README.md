@@ -23,7 +23,7 @@ build-paper/
 ├── csl/                  # Citation Style Language folder
 │   ├── apa.csl           # APA 7th Edition (Default for Academic)
 │   └── ieee.csl          # IEEE Standard (Default for IEEE)
-├── cv-ats-classic/       # ATS-friendly CV template (standalone, see below)
+├── cv-ats-classic/       # ATS-friendly CV template (--type cv-ats-classic, see below)
 └── templates/            # Encapsulated LaTeX templates
     ├── std-report/       # Daily Driver: Two-column academic layout
     │   └── std-report.latex # Stability-focused template for BUAP reports
@@ -87,7 +87,14 @@ Uses the Eisvogel foundation for high-customization reports. Settings like title
 build-paper draft.md --type academic --csl apa
 ```
 
-4. A&A Practice Report (DOCX + PDF)
+4. CV (ATS-friendly, one column)
+
+```Bash
+build-paper cv.md --type cv-ats-classic
+```
+See [CV Template](#-cv-template-cv-ats-classic) below.
+
+5. A&A Practice Report (DOCX + PDF)
 
 Reproduces the Word template of the Networks area (`Plantilla_A&A_ReportesPractica e Investigación2025.docx`): Spanish and English titles, numbered affiliations, "Resumen", keywords, numbered sections ("1 Introducción", "1.1 ..."), "Figura 1." / "Tabla 1." captions and IEEE references. Generates `<name>_aa-report.docx` and, through LibreOffice, `<name>_aa-report.pdf`.
 ```Bash
@@ -108,7 +115,7 @@ Write headings without numbers (`# Introducción`); the filter numbers them. If 
 
 **The template itself is not in this repo:** the `.docx` belongs to the A&A Networks area (its authors, logo and example text). Put the file your professor gives you at `templates/aa-report/plantilla_original.docx` and run `make_reference.py` once to create `reference.docx`; both are git-ignored.
 
-5. Custom Styles
+6. Custom Styles
 
 Override the default citation style on the fly:
 ```bash
@@ -134,12 +141,11 @@ build-paper draft.md --type academic --csl ieee
 
 ## 📄 CV Template (cv-ats-classic)
 
-`cv-ats-classic/` holds an ATS-friendly résumé template. It is not one of the `--type` options; build it with Pandoc directly:
+`cv-ats-classic/` holds an ATS-friendly, one-column résumé template. The header comes from the frontmatter (`title`, `address`, `phone`, `email`, `linkedin_url`, `github_url`); **`phone` is optional**: leave it out for a public version and the header drops it with its separator.
 
 ```Bash
-cd ~/dotfiles/scripts/build-paper/cv-ats-classic
-cp template_ats-classic.md ~/cv.md   # fill in the frontmatter and sections
-pandoc ~/cv.md --template ats-classic.latex --pdf-engine=xelatex -o ~/cv.pdf
+cp ~/dotfiles/scripts/build-paper/cv-ats-classic/template_ats-classic.md ~/cv.md   # fill in the frontmatter and sections
+build-paper ~/cv.md --type cv-ats-classic          # → cv_cv-ats-classic.pdf next to cv.md
 ```
 
 ## 🤝 Acknowledgements
