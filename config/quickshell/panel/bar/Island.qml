@@ -317,91 +317,23 @@ Rectangle {
         }
     }
 
-    // ---------------- Level: icon · title · bar · percentage ----------------
-    Row {
+    // ---------------- Level: icon · title · bar · percentage (bar/LevelRow.qml) ----------------
+    LevelRow {
         id: levelRow
         visible: root.mode === "level"
         anchors.centerIn: parent
-        spacing: 10
-        readonly property real value: root.lvl ? Notifs.progressOf(root.lvl) : 0
-        readonly property string glyph: { value; return root.lvl ? Notifs.levelGlyph(root.lvl) : ""; }
-        // Slides from the last value to the new one (not while dragged)
-        property real shown: value
-        Behavior on shown { enabled: !islandLevelMouse.pressed; NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-        // With the pointer on it, it stays (BarState.levelHolds)
-        HoverHandler {
-            onHoveredChanged: BarState.levelHolds = Math.max(0, BarState.levelHolds + (hovered ? 1 : -1))
-        }
-        Glyph {
-            visible: levelRow.glyph !== ""
-            optical: true; text: levelRow.glyph; color: root.accent; font.pixelSize: 14
-            anchors.verticalCenter: parent.verticalCenter
-        }
-        Image {
-            visible: levelRow.glyph === ""
-            width: 16; height: 16; sourceSize: Qt.size(32, 32)
-            source: levelRow.glyph === "" && root.lvl ? Notifs.appIconOf(root.lvl) : ""
-            anchors.verticalCenter: parent.verticalCenter
-        }
-        // The name only when the icon doesn't say it (a download's file, not "Brightness")
-        Label {
-            visible: levelRow.glyph === ""
-            text: root.lvl ? Notifs.titleOf(root.lvl) : ""
-            color: root.ink; font.pixelSize: 13; font.weight: Font.DemiBold
-            elide: Text.ElideRight; width: Math.min(implicitWidth, 180)
-            anchors.verticalCenter: parent.verticalCenter
-        }
-        Rectangle {
-            width: 120; height: 6; radius: 3
-            color: Qt.rgba(1, 1, 1, 0.14)
-            anchors.verticalCenter: parent.verticalCenter
-            Rectangle {
-                width: parent.width * Math.max(0, Math.min(1, levelRow.shown / 100))
-                height: parent.height; radius: parent.radius
-                color: levelRow.value > 100 ? Theme.warn : root.accent
-            }
-            // Dragged or clicked: that value, for a level that can be set by hand
-            MouseArea {
-                id: islandLevelMouse
-                enabled: Notifs.adjustable(root.lvl)
-                anchors.fill: parent
-                anchors.topMargin: -10
-                anchors.bottomMargin: -10
-                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                preventStealing: true
-                function setAt(x) { Notifs.setLevel(root.lvl, x / width * 100); }
-                onPressed: m => setAt(m.x)
-                onPositionChanged: m => { if (pressed) setAt(m.x); }
-            }
-        }
-        Label {
-            text: Math.round(levelRow.value) + "%"
-            color: levelRow.value > 100 ? Theme.warn : root.ink
-            font.pixelSize: 12; font.weight: Font.DemiBold; font.features: { "tnum": 1 }
-            width: 34; horizontalAlignment: Text.AlignRight
-            anchors.verticalCenter: parent.verticalCenter
-        }
+        lvl: root.lvl
+        accent: root.accent
+        ink: root.ink
     }
 
-    // ---------------- Flash message ----------------
-    Row {
+    // ---------------- Flash message (bar/FlashRow.qml) ----------------
+    FlashRow {
         id: flashRow
         visible: root.mode === "flash"
         anchors.centerIn: parent
-        spacing: 9
-        Glyph { optical: true; text: BarState.flash?.icon ?? ""; color: root.accent; font.pixelSize: 14; anchors.verticalCenter: parent.verticalCenter }
-        Label { text: BarState.flash?.text ?? ""; color: root.ink; font.pixelSize: 13; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter
-                elide: Text.ElideRight; width: Math.min(implicitWidth, 360) }
-        // Undo (click anywhere on the island)
-        Rectangle {
-            visible: !!BarState.flash?.undo
-            implicitWidth: undoText.implicitWidth + 16
-            implicitHeight: 20
-            radius: 10
-            color: root.accent
-            anchors.verticalCenter: parent.verticalCenter
-            Label { id: undoText; anchors.centerIn: parent; text: Tr.t("Undo"); color: Theme.onColor(root.accent); font.pixelSize: 11; font.weight: Font.Bold }
-        }
+        accent: root.accent
+        ink: root.ink
     }
 
     // ---------------- Message ----------------

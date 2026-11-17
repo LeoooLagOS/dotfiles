@@ -9,6 +9,7 @@ import "./services"
 // Notification popups, on the focused monitor, in up to four places chosen per
 // type (Settings → Notifications → Where popups appear; Notifs.placeOf):
 //   top           top center, below the bar — system, levels, critical
+// Over a fullscreen window that covers the bar they go up to the screen's edge.
 //   top-left      top left corner — calls
 //   top-right     top right corner — now playing, other apps, reminders
 //   bottom-right  bottom right corner — messages
@@ -44,7 +45,13 @@ Scope {
                     visible: items.length > 0 && Hyprland.focusedMonitor?.name === perScreen.modelData.name
                              && PanelState.open === underPanel
                     color: "transparent"
-                    exclusionMode: ExclusionMode.Normal
+                    // A fullscreen window covers the bar (services/Fullscreen.qml): up to the
+                    // screen's edge, not below the bar's reserved strip; at the top center,
+                    // below the island's pill while it shows there (LevelOsd.qml)
+                    readonly property bool fullscreen: Fullscreen.monitorName === perScreen.modelData.name
+                    readonly property bool belowOsd: fullscreen && place === "top" && BarState.islandOn
+                                                     && (!!BarState.level || !!BarState.flash)
+                    exclusionMode: fullscreen ? ExclusionMode.Ignore : ExclusionMode.Normal
                     // Its cards round like the windows, game mode's square ones too
                     onVisibleChanged: if (visible) Theme.readRounding()
 
@@ -57,7 +64,7 @@ Scope {
                     // sides, the two curves alike)
                     readonly property int edge: Settings.v.popupMargin ?? 10
                     margins.left: atLeft ? edge : 0
-                    margins.top: underPanel ? PanelState.cardBottom + 12 : atTop ? edge : 0
+                    margins.top: underPanel ? PanelState.cardBottom + 12 : atTop ? edge + (belowOsd ? Settings.v.barHeight + 6 : 0) : 0
                     margins.bottom: atTop ? 0 : edge
                     margins.right: atRight ? edge : 0
                     implicitWidth: 380

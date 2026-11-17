@@ -22,6 +22,7 @@ ShellRoot {
     CommsDock {}
     ReplyBox {}
     QuickAdd {}
+    LevelOsd {}
 
     // Brightness and volume keys, straight from Hyprland (bind → hl.dsp.global):
     // no script and no notification in between, so the bar follows the key at once

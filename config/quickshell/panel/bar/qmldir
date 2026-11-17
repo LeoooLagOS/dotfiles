@@ -15,3 +15,5 @@ CallButtons 1.0 CallButtons.qml
 MiniWeather 1.0 MiniWeather.qml
 TrackRoll 1.0 TrackRoll.qml
 StartMenu 1.0 StartMenu.qml
+LevelRow 1.0 LevelRow.qml
+FlashRow 1.0 FlashRow.qml
