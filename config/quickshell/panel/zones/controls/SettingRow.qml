@@ -212,7 +212,7 @@ Item {
 
     // ---------------- apprules: one line per app ----------------
     // Apps with a rule plus the ones in the history; a rule back to Default is removed
-    readonly property var ruleOpts: [["default", Tr.t("Default")]].concat(Settings.notifPlaces, [["mute", Tr.t("Mute (not even history)")]])
+    readonly property var ruleOpts: [["default", Tr.t("Default")]].concat(Settings.notifPlaces, [["brief", Tr.t("Popup only (not kept)")], ["mute", Tr.t("Mute (not even history)")]])
                                     .map(o => ({ value: o[0], label: Tr.t(o[1]) }))
     readonly property var ruleApps: stacked
         ? [...new Set(Object.keys(Settings.v.appRules ?? {}).concat(Notifs.apps))].sort((a, b) => a.localeCompare(b)) : []

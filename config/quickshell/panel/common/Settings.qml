@@ -30,7 +30,7 @@ Singleton {
         posLevel: "top", posBrightness: "island", posOpacity: "top", posSystem: "top", posMessage: "bottom-right", posMedia: "top-right", posApp: "top-right",
         posCall: "top-left", posSecurity: "top", posReminder: "top-right", posProgress: "top-right",
         maxPopups: 3, popupMargin: 10, groupMessages: true, msgPicture: "photo", callsThroughDnd: true, downloadsThroughDnd: true, notifTheme: "panel",
-        appRules: ({}),                                           // appName → place | "off" | "mute"
+        appRules: ({}),                                           // appName → place | "off" | "brief" | "mute"
         // Demos: the two people in the test notifications (scripts/wm/NotifDemo.sh)
         demoPersonX: "Persona X", demoPersonY: "Persona Y",
         // Power & idle (system)
@@ -221,7 +221,7 @@ Singleton {
                 { key: "callsThroughDnd", label: "Calls ring through Do Not Disturb", type: "switch" },
                 { key: "downloadsThroughDnd", label: "Finished downloads show through Do Not Disturb", help: "You started them, so you're waiting for them (category transfer.complete)", type: "switch" } ] },
             { title: "Per app", rows: [
-                { key: "appRules", label: "Rules", help: "Send an app elsewhere, history only, or mute it. Apps show up here after their first notification", type: "apprules" } ] },
+                { key: "appRules", label: "Rules", help: "Send an app elsewhere, history only, popup only (shown even in Do Not Disturb, gone with its popup, never kept), or mute it. Apps show up here after their first notification", type: "apprules" } ] },
             { title: "Do Not Disturb", rows: [
                 { key: "dndSched", label: "Turn on automatically", help: "Every day, during the hours below", type: "switch" },
                 { key: "dndWindow", label: "Quiet hours", type: "select",

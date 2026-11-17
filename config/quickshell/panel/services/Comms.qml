@@ -93,6 +93,15 @@ Singleton {
         return windowsOf(d).sort((a, b) => score(b) - score(a) || b.size[0] * b.size[1] - a.size[0] * a.size[1])[0] ?? null;
     }
     // Notifications from this app: its desktop entry, or its name in the app name
+    // The app a notification came from is in front of you: its window
+    // focused, or shown above the dock (Notifs: a message it closes was read)
+    function lookingAt(n) {
+        const d = defs.find(x => isFrom(x, n));
+        if (!d) return false;
+        if (shown === d.key) return true;
+        const w = mainOf(d), a = Hyprland.activeToplevel?.address;
+        return !!w && !!a && String(w.address) === "0x" + a;
+    }
     function isFrom(d, n) {
         if (!n) return false;
         if (n.desktopEntry && n.desktopEntry === d.entry.id) return true;

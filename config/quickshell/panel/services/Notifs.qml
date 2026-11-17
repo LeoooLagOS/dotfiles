@@ -48,11 +48,32 @@ Singleton {
         const changed = () => Qt.callLater(root.replaced, n);
         n.summaryChanged.connect(changed);
         n.bodyChanged.connect(changed);
-        // Closed by the app itself (WhatsApp Web closes its own after a few
-        // seconds): a message stays in the history as a copy
+        // Closed by the app itself: WhatsApp Web closes a chat's notification
+        // once the chat is seen (opened there, or read on the phone), so it
+        // was read: it leaves the history, with the older ones of its chat.
+        // Except closed within 15 s while its app isn't in front of you
+        // (focused, or shown above the Comms dock): not something you could
+        // have read, so it stays as a copy, as it did before (October: it
+        // seemed to close them after a few seconds)
         n.closed.connect(reason => {
-            if (reason === NotificationCloseReason.CloseRequested && root.placeKind(n) === "message" && !root.isTest(n))
-                root.keepCopy(n, root.lastContent[n.id] ?? root.contentOf(n), root.received[n.id]);
+            if (reason !== NotificationCloseReason.CloseRequested || root.placeKind(n) !== "message" || root.isTest(n)) return;
+            const at = root.received[n.id] ?? new Date();
+            const age = Math.round((Date.now() - at.getTime()) / 1000);
+            const looking = Comms.lookingAt(n);
+            if (age >= 15 || looking) {
+                const key = root.conversationOf(n), app = root.appLabel(n);
+                const t = x => root.received[x.id]?.getTime() ?? 0;
+                // Newer ones of the chat aren't touched: they close on their own when read
+                Qt.callLater(() => {
+                    const old = root.list.filter(x => x !== n && root.placeKind(x) === "message"
+                                                    && root.conversationOf(x) === key && t(x) <= at.getTime());
+                    console.info("notifs:", app, "closed a message after", age + " s" + (looking ? " (in front)" : "") + ": read, cleared", old.length, "older of its chat");
+                    root.dismissAll(old);
+                });
+            } else {
+                console.info("notifs:", root.appLabel(n), "closed a message after", age + " s, out of sight: kept as a copy");
+                root.keepCopy(n, root.lastContent[n.id] ?? root.contentOf(n), at);
+            }
         });
     }
     // A plain copy in the history (no actions), received at `when`
@@ -389,7 +410,10 @@ Singleton {
     }
 
     // Per-app rules (Settings → Notifications → Per app): appName → a place,
-    // "off" (history only) or "mute" (dropped, not even in the history).
+    // "off" (history only), "brief" (the popup only: it shows where its kind
+    // goes, also during Do Not Disturb, and leaves with it, never kept;
+    // Claude's "waiting for you", the keyboard layout) or "mute" (dropped,
+    // not even in the history).
     // They don't apply to critical notifications or calls.
     function ruleOf(n) {
         const r = (Settings.v.appRules ?? {})[appLabel(n)];
@@ -400,7 +424,7 @@ Singleton {
         const k = placeKind(n);
         if (k === "critical") return "top";
         const rule = ruleOf(n);
-        let place = rule && rule !== "mute" && k !== "call" ? rule
+        let place = rule && rule !== "mute" && rule !== "brief" && k !== "call" ? rule
             : k === "level" && /bright|backlight/i.test(syncTag(n) + " " + (n?.summary ?? "")) ? Settings.v.posBrightness
             : k === "level" && /opacity/i.test(syncTag(n)) ? Settings.v.posOpacity
             : Settings.v["pos" + k[0].toUpperCase() + k.slice(1)];
@@ -513,8 +537,9 @@ Singleton {
 
     function removePopup(n) {
         popups = popups.filter(p => p !== n);
-        // Transient and level notifications are not kept in the history
-        if (n && (n.transient || syncTag(n))) n.expire();
+        // Transient and level notifications, and apps set to "popup only"
+        // (ruleOf "brief"), are not kept in the history
+        if (n && (n.transient || syncTag(n) || ruleOf(n) === "brief")) n.expire();
     }
     function dismiss(n) { n.dismiss(); }
 
@@ -623,11 +648,19 @@ Singleton {
             const pk = root.placeKind(n);
             const critical = pk === "critical";
             const download = String(n.hints?.category ?? "").toLowerCase() === "transfer.complete";
+            // "Popup only" apps too: status you want to see now (the keyboard
+            // layout), gone with the popup, so nothing piles up
             const bypass = pk === "level" || pk === "security" || n.hints?.["SWAYNC_BYPASS_DND"] === true
+                || root.ruleOf(n) === "brief"
                 || (pk === "call" && Settings.v.callsThroughDnd)
                 || (download && Settings.v.downloadsThroughDnd);
             const shown = root.placeOf(n) !== "off"
                 && (!root.dnd || bypass || (Settings.v.critical && critical));
+            // "Popup only" with no popup: nothing to keep it for
+            if (!shown && root.ruleOf(n) === "brief" && !critical && pk !== "call") {
+                Qt.callLater(() => n.expire());
+                return;
+            }
             // Chat messages go to the bar's island instead of a popup (Settings →
             // Bar → Messages on the island); the history keeps them as usual
             if (shown && pk === "message" && !root.mailOf(n) && BarState.takesMessages) {

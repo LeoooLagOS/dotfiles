@@ -570,7 +570,7 @@
  "One card per chat (“Ana · 3 messages”); each one stays in the history": "Una tarjeta por chat (“Ana · 3 mensajes”); cada uno se queda en el historial",
  "The chat's photo, with the app's icon on its corner, or just the app's icon. Chats without a photo show the icon": "La foto del chat, con el icono de la app en la esquina, o solo el icono de la app. Los chats sin foto muestran el icono",
  "You started them, so you're waiting for them (category transfer.complete)": "Tú las iniciaste, así que las estás esperando (categoría transfer.complete)",
- "Send an app elsewhere, history only, or mute it. Apps show up here after their first notification": "Manda una app a otro lugar, solo al historial, o siléncialas. Las apps aparecen aquí después de su primera notificación",
+ "Send an app elsewhere, history only, popup only (shown even in Do Not Disturb, gone with its popup, never kept), or mute it. Apps show up here after their first notification": "Envía una app a otro lugar, solo al historial, solo el aviso (aparece aun en No molestar, se va con su aviso, nunca se guarda) o silénciala. Las apps aparecen aquí tras su primera notificación",
  "Every day, during the hours below": "Todos los días, en el horario de abajo",
  "Low urgency: half; critical: 30 s": "Urgencia baja: la mitad; críticas: 30 s",
  "Oldest ones are removed": "Se borran las más antiguas",
@@ -858,5 +858,6 @@
  "Enter: apply (the menu stays open to try another) · Esc: close": "Enter: aplicar (el menú sigue abierto para probar otro) · Esc: cerrar",
  "Prompt": "Prompt",
  "Menus": "Menús",
- "Current: %1": "Actual: %1"
+ "Current: %1": "Actual: %1",
+ "Popup only (not kept)": "Solo el aviso (no se guarda)"
 }
