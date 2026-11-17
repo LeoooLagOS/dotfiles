@@ -256,6 +256,11 @@ bind("SUPER", "X", exec_cmd(scripts .. "RofiSystemMenu.sh"), { description = "sy
 -- the logo, as in Windows. A release bind, so SUPER + any key doesn't open it
 bind("SUPER", "Super_L", exec_cmd("qs -c panel ipc call panel start"), { release = true, description = "start menu (SUPER alone)" })
 
+-- Laptop screen still black after waking up: reconnect it (PanelRelink.py; the
+-- lagos-panel-relink service does it on its own, this is the manual rescue).
+-- locked = true so it works on the lock screen, pressed blind.
+bind("SUPER CTRL ALT", "P", exec_cmd(scripts .. "PanelRelink.py now"), { description = "laptop screen black after waking: reconnect it", locked = true })
+
 bind(
 	"SUPER SHIFT",
 	"L",

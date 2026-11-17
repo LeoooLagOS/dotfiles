@@ -1,0 +1,16 @@
+# The laptop screen sometimes stays black after waking up: the Intel GPU fails
+# to reconnect to the panel ("Failed to enable link training" in the kernel
+# log). scripts/wm/PanelRelink.py watches for that error and turns the panel
+# off and on again, which reconnects it.
+[Unit]
+Description=Bring the laptop screen back when it stays black after waking up
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.config/hypr/scripts/PanelRelink.py watch
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target
