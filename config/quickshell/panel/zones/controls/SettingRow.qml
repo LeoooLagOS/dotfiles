@@ -195,7 +195,7 @@ Item {
                     radius: 6
                     color: Theme.withAlpha(Theme.fg, 0.05)
                     border.color: Theme.border
-                    Label { id: keyLabel; anchors.centerIn: parent; text: parent.modelData; font.family: "JetBrains Mono"; font.pixelSize: 11 }
+                    Label { id: keyLabel; anchors.centerIn: parent; text: Tr.t(parent.modelData); font.family: "JetBrains Mono"; font.pixelSize: 11 }
                 }
             }
         }

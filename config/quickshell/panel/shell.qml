@@ -48,7 +48,7 @@ ShellRoot {
         function close(): void { PanelState.open = false; }
         // Open on a tab by name, e.g. `qs -c panel ipc call panel tab Weather`
         // (not named "show": that clashes with the `qs ipc show` subcommand)
-        function toggleDnd(): void { Notifs.toggleDnd(); }
+        function toggleDnd(): string { BarState.toggleDnd(); return Notifs.dnd ? "on" : "off"; }
         function currentTab(): string { return PanelState.open ? Config.tabs[PanelState.tab].name : ""; }
         function clearNotifications(): void { Notifs.clearAll(); }
         // Open a tab with one zone highlighted, e.g. `zone Controls SystemZone`
@@ -80,6 +80,8 @@ ShellRoot {
         function barToggle(): void { BarState.toggleRequested(); }
         // The start menu on the focused monitor (the logo's click)
         function start(): void { BarState.toggleStart(Hyprland.focusedMonitor?.name ?? ""); }
+        // The system monitor on the focused monitor (CTRL SHIFT Esc, as Windows' Task Manager)
+        function systemMonitor(): void { BarState.toggleMonitor(Hyprland.focusedMonitor?.name ?? ""); }
         // Next / previous app while one is up (SUPER TAB / SUPER SHIFT TAB)
         // Quick capture (QuickAdd.qml): SUPER Z, prefilled with `text`; SUPER SHIFT Z: the selected text
         function quickAdd(text: string): void { Capture.open(text, ""); }
@@ -93,7 +95,7 @@ ShellRoot {
         function commsNext(): void { Comms.cycle(1); }
         function commsPrev(): void { Comms.cycle(-1); }
         // Caffeine on/off (SUPER ALT I)
-        function caffeine(): string { Toggles.setCaffeine(!Toggles.caffeine, 0); return Toggles.caffeine ? "on" : "off"; }
+        function caffeine(): string { BarState.toggleCaffeine(); return Toggles.caffeine ? "on" : "off"; }
         // Colors: `themeMode light|dark|system`, `toggleInverted`, `currentTheme`
         function themeMode(mode: string): void { if (["system", "dark", "light"].includes(mode)) Theme.setMode(mode); }
         function toggleInverted(): void { Theme.setInverted(!Theme.chosenInverted); }

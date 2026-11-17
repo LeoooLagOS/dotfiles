@@ -117,19 +117,77 @@ panel_tab("C", "Controls", "controls")
 -- RofiBeats (online stations / local music in Rofi) moves from SUPER SHIFT M
 bind("SUPER CTRL SHIFT", "M", exec_cmd("$HOME/.config/hypr/scripts/RofiBeats.sh"), { description = "online music (RofiBeats)" })
 
--- Quickshell side panel (profile, weather, calendar, system, media…)
--- Opened with SUPER ALT + N or SUPER CTRL SHIFT + N
-bind(
-	"SUPER ALT",
-	"N",
-	exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh"),
-	{ description = "side panel (Quickshell)" }
-)
+-- =============================================================================
+-- Keybind layout (vault: lagOS_Panel/ADRs/ADR-0015_Keybind_Layout)
+--   SUPER + letter         open something; Windows' letters do what they do there
+--   SUPER SHIFT + letter   a tab of the panel (above)
+--   SUPER ALT + letter     switches and looks (caffeine, blur, dark / light…)
+--   SUPER CTRL + letter    windows and layouts
+-- =============================================================================
+local wm = "$HOME/.config/hypr/scripts/"
+-- Each Windows key: what was on it moves to the SUPER CTRL / SUPER ALT twin
+local function move(mods, key, new_mods, new_key, action, what)
+	unbind(mods, key)
+	unbind(new_mods, new_key)
+	bind(new_mods, new_key, action, { description = what })
+end
+local function win(mods, key, action, what, opts)
+	unbind(mods, key)
+	local o = opts or {}
+	o.description = what
+	bind(mods, key, action, o)
+end
+
+-- SUPER R: Run, a one-line "mini terminal" under the logo (Win+R)
+move("SUPER", "R", "SUPER CTRL", "R", exec_cmd("bash " .. wm .. "ScrollCycleColumnWidth.sh"), "cycle column width preset (scrolling)")
+win("SUPER", "R", exec_cmd(wm .. "RofiRun.sh"), "run a command (Win+R)")
+-- SUPER ALT R: screen recording (Win+Alt+R); SUPER ALT Print still works.
+-- Refreshing the bar and menus moves to SUPER SHIFT R, and reloads Hyprland too
+win("SUPER ALT", "R", exec_cmd("qs -c panel ipc call panel record"), "screen recording start / stop (Win+Alt+R)")
+win("SUPER SHIFT", "R", exec_cmd("hyprctl reload && " .. wm .. "Refresh.sh"), "reload Hyprland, refresh bar and menus")
+-- SUPER L: lock (Win+L); CTRL ALT L still works
+win("SUPER", "L", exec_cmd(wm .. "LockScreen.sh"), "lock screen (Win+L)")
+-- SUPER I: the panel's Settings (Win+I); SUPER ALT P still works
+move("SUPER", "I", "SUPER CTRL", "I", dispatch("layoutmsg", "addmaster"), "add master")
+win("SUPER", "I", exec_cmd("qs -c panel ipc call panel settings ''"), "settings (Win+I)")
+-- SUPER N: notifications (Win+N); the night light moves to SUPER ALT N
+-- (the panel's plain toggle was SUPER ALT N: SUPER N, SUPER A and the
+-- SUPER SHIFT tabs open it)
+move("SUPER", "N", "SUPER ALT", "N", exec_cmd(wm .. "Hyprsunset.sh toggle"), "night light on/off")
+win("SUPER", "N", exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh Notifications"), "notifications (Win+N)")
+-- SUPER A: the panel's Controls, the quick settings (Win+A); the desktop
+-- overview moves to SUPER CTRL A (it was Ags', which isn't installed)
+move("SUPER", "A", "SUPER CTRL", "A", exec_cmd(wm .. "OverviewToggle.sh"), "desktop overview")
+win("SUPER", "A", exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh Controls"), "quick settings: the panel's Controls (Win+A)")
+-- SUPER V: clipboard history (Win+V); SUPER ALT V still works
+win("SUPER", "V", exec_cmd(wm .. "ClipManager.sh"), "clipboard history (Win+V)")
+-- SUPER P: monitors (Win+P); SUPER ALT M still works
+move("SUPER", "P", "SUPER CTRL", "P", dispatch("pseudo", ""), "toggle pseudo (dwindle)")
+win("SUPER", "P", exec_cmd(wm .. "MonitorProfiles.sh"), "monitor profiles (Win+P)")
+-- CTRL SHIFT Esc: the system monitor (Task Manager)
+win("CTRL SHIFT", "Escape", exec_cmd("qs -c panel ipc call panel systemMonitor"), "system monitor (Task Manager)")
+-- ALT F4: close the window
+win("ALT", "F4", dispatch("killactive", ""), "close active window (Alt+F4)")
+-- CTRL ALT Del: the power menu. It quit Hyprland at once, everything open lost,
+-- the first thing someone from Windows presses when something hangs; quitting
+-- is the power menu's Logout
+win("CTRL ALT", "Delete", exec_cmd(wm .. "Wlogout.sh"), "power menu: lock, log out, restart, shut down")
+
+-- Cleanup: binds for things that aren't here any more
+unbind("SUPER ALT", "B")         -- waybar layout menu (the bar is the panel's)
+unbind("SUPER CTRL", "B")        -- waybar styles menu
+unbind("SUPER", "j")             -- "cycle next (layout-aware)": SUPER J opens Java
+unbind("SUPER CTRL", "K")        -- Kitty themes: SUPER ALT T
+unbind("SUPER CTRL", "G")        -- Ghostty themes: SUPER ALT T
+unbind("SUPER CTRL SHIFT", "R")  -- rofi themes (modified): SUPER ALT T
+unbind("SUPER SHIFT", "O")       -- Oh My Zsh themes: Starship draws the prompt
+
+-- Do Not Disturb, next to the other N keys (notifications); said on the island
 bind(
 	"SUPER CTRL SHIFT",
 	"N",
-	exec_cmd("$HOME/dotfiles/scripts/wm/PanelToggle.sh"),
-	{ description = "side panel (Quickshell), alternate" }
+	exec_cmd("qs -c panel ipc call panel toggleDnd"),
+	{ description = "Do Not Disturb on/off" }
 )
 
 -- Panel look and desktop toggles (scripts/wm/*.sh; the panel's Settings show the same values)
@@ -247,7 +305,10 @@ bind("", "XF86Calculator", exec_cmd(scripts .. "RofiCalc.sh"), { description = "
 -- Menus that had no shortcut
 bind("SUPER ALT", "M", exec_cmd(scripts .. "MonitorProfiles.sh"), { description = "monitor profiles" })
 bind("SUPER ALT", "K", exec_cmd(scripts .. "HyprlockWallpaperSelect.sh"), { description = "lock screen wallpaper" })
-bind("SUPER ALT", "T", exec_cmd(scripts .. "ChangeStarshipPrompt.sh"), { description = "Starship prompt style" })
+-- Themes of the terminals, the prompt and the menus, in one menu with a tab
+-- each (RofiThemes.sh); they had a keybind each (SUPER CTRL K / G / R,
+-- SUPER CTRL SHIFT R, SUPER ALT T was the prompt alone)
+bind("SUPER ALT", "T", exec_cmd(scripts .. "RofiThemes.sh"), { description = "themes: terminals (Kitty, Ghostty), prompt, menus" })
 bind("SUPER", "J", exec_cmd(scripts .. "JavaManager.sh"), { description = "Java versions (install / set default)" })
 bind("SUPER ALT", "F", exec_cmd(scripts .. "FlavorMenu.sh"), { description = "flavors: audio mode and apps (dotfiles/flavors)" })
 -- The Win+X system menu: the logo opens the start menu now, this stays on the keyboard (ADR-0014)

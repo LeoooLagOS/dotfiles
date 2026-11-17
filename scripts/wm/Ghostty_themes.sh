@@ -127,11 +127,19 @@ else
   done
 fi
 
-"${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
-choice=$(
-  printf "%s\n" "${menu_entries[@]}" |
-    rofi -i -dmenu -p "Ghostty Theme" "${rofi_config_args[@]}" -mesg "Select a theme to apply" -selected-row "$current_selection_index"
-)
+# Non-interactive use (RofiThemes.sh, the themes menu: SUPER ALT T):
+#   --list  the themes · --current  the one in use · --apply NAME  apply it
+case "${1:-}" in
+  --list) printf '%s\n' "${menu_entries[@]}"; exit 0 ;;
+  --current) printf '%s\n' "${menu_entries[$current_selection_index]}"; exit 0 ;;
+  --apply) choice="${2:-}" ;;
+  *)
+    "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
+    choice=$(
+      printf "%s\n" "${menu_entries[@]}" |
+        rofi -i -dmenu -p "Ghostty Theme" "${rofi_config_args[@]}" -mesg "Select a theme to apply" -selected-row "$current_selection_index"
+    ) ;;
+esac
 
 [[ -z "$choice" ]] && exit 0
 

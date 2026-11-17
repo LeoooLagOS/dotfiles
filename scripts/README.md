@@ -19,10 +19,10 @@ The scripts behind Hyprland keybinds, Waybar modules and Rofi menus, mostly from
 
 | Area | Scripts |
 |---|---|
-| Launchers & menus | `RofiLauncher.sh`, `RofiCalc.sh`, `RofiEmoji.sh`, `RofiSearch.sh`, `RofiBeats.sh`, `ClipManager.sh`, `KeyHints.sh`, `KeyBinds.sh`, `rofi-ssh-menu.sh` |
+| Launchers & menus | `RofiLauncher.sh`, `RofiRun.sh` (Run, SUPER R), `RofiCalc.sh`, `RofiEmoji.sh`, `RofiSearch.sh`, `RofiBeats.sh`, `ClipManager.sh`, `KeyHints.sh`, `KeyBinds.sh`, `rofi-ssh-menu.sh` |
 | Windows & workspaces | `Dropterminal.sh`, `OverviewToggle.sh`, `toggle-qs-hyprview.sh`, `select-hyprview-layout.sh`, `Lua*.sh` (focus, move, swap, cycle), `ChangeLayout.sh`, `ResizeActive.sh`, `Float-all-Windows.sh`, `Zoom.sh` |
 | Hardware & media | `Volume.sh`, `Brightness.sh`, `BrightnessKbd.sh`, `ExternalBrightness.sh`, `MediaCtrl.sh`, `TouchPad.sh`, `AirplaneMode.sh`, `Battery.sh`, `LidSwitch.sh` |
-| Theming | `WallpaperSelect.sh`, `WallpaperRandom.sh`, `WallpaperEffects.sh`, `WallustSwww.sh`, `DarkLight.sh`, `ThemeChanger.sh`, `Kitty_themes.sh`, `ChangeStarshipPrompt.sh`, `Animations.sh`, `ChangeBlur.sh` |
+| Theming | `WallpaperSelect.sh`, `WallpaperRandom.sh`, `WallpaperEffects.sh`, `WallustSwww.sh`, `DarkLight.sh`, `ThemeChanger.sh`, `RofiThemes.sh` (themes menu, SUPER ALT T), `Kitty_themes.sh`, `ChangeStarshipPrompt.sh`, `Animations.sh`, `ChangeBlur.sh` |
 | Waybar | `WaybarStyles.sh`, `WaybarLayout.sh`, `WaybarScripts.sh`, `WaybarCava.sh`, `Weather.sh`, `WeatherWrap.sh`, `ToggleWeatherLoc.sh` |
 | Session | `LockScreen.sh`, `Wlogout.sh`, `PowerMenu.py`, `Hypridle.sh`, `Hyprsunset.sh`, `GameMode.sh`, `Refresh.sh`, `ScreenShot.sh`, `Polkit.sh`, `PortalHyprland.sh`, `DownloadWatch.py` (a notification with Open / Show in folder when a file lands in `~/Downloads`; browsers keep that inside their window; run by `lagos-downloads.service`), `PanelRelink.py` (laptop screen black after waking: the Intel GPU fails to reconnect to the panel, "Failed to enable link training"; turns the panel off and on again. `watch` follows the kernel log, run by `lagos-panel-relink.service`; `now` is SUPER CTRL ALT P, works on the lock screen), `NotifDemo.sh` (every kind of notification in a row, paced for a video; `-p` pause, `-w` countdown, `-k` kinds, `-x` / `-y` the two people, else the panel's Settings → Demos, else "Persona X" / "Persona Y"; the panel runs it from that section, one kind or all), `CommsStartup.sh` (at login: asks the panel to open its Comms dock apps hidden, each in `special:comms-<app>`; SUPER Y shows them above the dock) |
 

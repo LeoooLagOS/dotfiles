@@ -35,7 +35,7 @@ Zone {
             wrapMode: Text.Wrap
             dim: true
             font.pixelSize: 11
-            text: Tr.t("Lower is warmer. Also toggled with SUPER N.")
+            text: Tr.t("Lower is warmer. Also toggled with SUPER ALT N.")
         }
     }
 }

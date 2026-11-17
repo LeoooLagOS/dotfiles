@@ -152,4 +152,16 @@ Singleton {
         if (f?.undo) { f.undo(); say("\uf0e2", Tr.t("Undone")); }
     }
     Timer { id: flashTimer; interval: 1800; onTriggered: root.flash = null }
+
+    // Do Not Disturb and caffeine, switched and said on the island (or over a
+    // fullscreen window, LevelOsd.qml): the bar's buttons and the keybinds (IPC)
+    // call these, so every path says it the same way
+    function toggleDnd() {
+        Notifs.toggleDnd();
+        say(Notifs.dnd ? "" : "", Notifs.dnd ? Tr.t("Do Not Disturb on") : Tr.t("Do Not Disturb off"));
+    }
+    function toggleCaffeine() {
+        Toggles.setCaffeine(!Toggles.caffeine, 0);
+        say(Toggles.caffeine ? "" : "\u{f06ca}", Toggles.caffeine ? Tr.t("Screen stays awake") : Tr.t("Idle as usual"));
+    }
 }

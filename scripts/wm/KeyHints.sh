@@ -34,24 +34,33 @@ GDK_BACKEND=$BACKEND yad \
   " enter" "Terminal" "(Default:kitty)" \
   " SHIFT enter" "DropDown Terminal" " Q to close" \
   " B" "Launch Browser" "(Default browser)" \
-  " A" "Desktop Overview" "Shows open apps in workspaces" \
+  " A" "Quick settings" "the panel's Controls (Win+A)" \
+  " CTRL A" "Desktop Overview" "Shows open apps in workspaces" \
   " D" "Application Launcher" "(rofi-wayland)" \
+  " R" "Run a command" "mini terminal under the logo (Win+R)" \
+  " X" "System menu" "(Win+X)" \
+  " L" "Lock screen" "(Win+L)" \
+  " I" "Settings" "the panel's (Win+I)" \
+  " P" "Monitors" "profiles (Win+P)" \
+  "CTRL SHIFT Esc" "System monitor" "(Task Manager)" \
+  "ALT F4" "Close active window" "" \
   " E" "Open File Manager" "(Thunar)" \
   " S" "Google Search using rofi" "(rofi)" \
   " T" "Global theme switcher" "(rofi)" \
   " Q" "close active window" "(not kill)" \
   " Shift Q " "kills an active window" "(kill)" \
   " ALT mouse scroll up/down   " "Desktop Zoom" "Desktop Magnifier" \
-  " Alt V" "Clipboard Manager" "(cliphist)" \
+  " V" "Clipboard history" "(Win+V; ALT V too)" \
   " W" "Choose wallpaper" "(Wallpaper Menu)" \
   " Shift W" "Choose wallpaper effects" "(imagemagick + awww)" \
   "CTRL ALT W" "Random wallpaper" "(via awww)" \
   " CTRL ALT B" "Hide/UnHide Waybar" "waybar" \
-  " CTRL B" "Choose waybar styles" "(waybar styles)" \
-  " ALT B" "Choose waybar layout" "(waybar layout)" \
-  " ALT R" "Reload Waybar swaync Rofi" "CHECK NOTIFICATION FIRST!!!" \
+  " SHIFT R" "Reload Hyprland, bar and menus" "" \
+  " ALT R" "Screen recording start / stop" "(Win+Alt+R; ALT Print too)" \
   " SHIFT N" "Notifications" "Quickshell panel (Notifications tab)" \
-  " ALT N" "Side panel" "Ctrl+Tab tabs · Tab controls · Esc close" \
+  " N" "Notifications" "the panel (Win+N)" \
+  " CTRL SHIFT N" "Do Not Disturb on / off" "" \
+  " ALT N" "Night light on / off" "(hyprsunset)" \
   " Print" "screenshot" "(grim)" \
   " Shift Print" "screenshot region" "(grim + slurp)" \
   " Shift S" "screenshot region" "(swappy)" \
@@ -61,7 +70,7 @@ GDK_BACKEND=$BACKEND yad \
   "CTRL ALT P" "power-menu" "(wlogout)" \
   "CTRL ALT D" "Toggle dock" "(nwg-dock-hyprland)" \
   "CTRL ALT L" "screen lock" "(hyprlock)" \
-  "CTRL ALT Del" "Hyprland Exit" "(NOTE: Hyprland Will exit immediately)" \
+  "CTRL ALT Del" "Power menu" "lock, log out, restart, shut down" \
   "CTRL ALT + / -" "Brightness Up / Down" "Increase/Decrease brightness" \
   " SHIFT F" "Fullscreen" "Toggles to full screen" \
   " F" "Fake Fullscreen" "Toggles to fake full screen" \
@@ -71,8 +80,7 @@ GDK_BACKEND=$BACKEND yad \
   " ALT O" "Toggle Blur" "normal or less blur" \
   " CTRL O" "Toggle Opaque ON or OFF" "on active window only" \
   " Shift A" "Animations Menu" "Choose Animations via rofi" \
-  " CTRL R" "Rofi Themes Menu" "Choose Rofi Themes via rofi" \
-  " CTRL Shift R" "Rofi Themes Menu v2" "Choose Rofi Themes via Theme Selector (modified)" \
+  " ALT T" "Themes" "terminals (Kitty, Ghostty), prompt, menus: a tab each" \
   " SHIFT G" "Gamemode! All animations OFF or ON" "toggle" \
   " ALT E" "Rofi Emoticons" "Emoticon" \
   " H" "Launch this Quick Cheat Sheet" "" \

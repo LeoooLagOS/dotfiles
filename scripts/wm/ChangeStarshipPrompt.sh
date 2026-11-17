@@ -44,9 +44,16 @@ rofi_options=("${available_prompts[@]}")
 if [[ -f "$BACKUP_FILE" ]]; then
   rofi_options+=("$RESTORE_LABEL")
 fi
-"${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
-
-selection="$(printf '%s\n' "${rofi_options[@]}" | rofi -dmenu -i -p "Select Starship Prompt" -mesg "Select Starship Prompt" -theme "$ROFI_THEME")"
+# Non-interactive use (RofiThemes.sh, the themes menu: SUPER ALT T):
+#   --list  the themes · --current  the one in use · --apply NAME  apply it
+case "${1:-}" in
+  --list) printf '%s\n' "${rofi_options[@]}"; exit 0 ;;
+  --current) [[ -L "$STARSHIP_CONFIG" ]] && basename "$(readlink "$STARSHIP_CONFIG")"; exit 0 ;;
+  --apply) selection="${2:-}" ;;
+  *)
+    "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
+    selection="$(printf '%s\n' "${rofi_options[@]}" | rofi -dmenu -i -p "Select Starship Prompt" -mesg "Select Starship Prompt" -theme "$ROFI_THEME")" ;;
+esac
 
 if [[ -z "$selection" ]]; then
   exit 0

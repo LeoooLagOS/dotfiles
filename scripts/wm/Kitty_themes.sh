@@ -200,6 +200,14 @@ if [ -n "$current_active_theme_name" ]; then
 fi
 theme_to_preview_now="${available_theme_names[$current_selection_index]}"
 
+# Non-interactive use (RofiThemes.sh, the themes menu: SUPER ALT T):
+#   --list  the themes · --current  the one in use · --apply NAME  apply it
+case "${1:-}" in
+  --list) printf '%s\n' "${available_theme_names[@]}"; exit 0 ;;
+  --current) printf '%s\n' "${available_theme_names[$current_selection_index]}"; exit 0 ;;
+  --apply) apply_kitty_theme_to_config "${2:-}" apply; exit $? ;;
+esac
+
 while true; do
 
   rofi_input_list=""

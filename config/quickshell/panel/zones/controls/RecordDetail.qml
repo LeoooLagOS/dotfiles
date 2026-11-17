@@ -58,9 +58,9 @@ Zone {
             font.pixelSize: 11
             visible: text !== ""
             text: Recorder.error ? Tr.t("Last try failed: %1", Recorder.error)
-                : Recorder.recording ? Tr.t("Recording · %1. SUPER ALT Print or the tile stops it.", Recorder.elapsed)
+                : Recorder.recording ? Tr.t("Recording · %1. SUPER ALT R or the tile stops it.", Recorder.elapsed)
                 : Recorder.lastFile ? Tr.t("Saved %1", Recorder.lastFile.split("/").pop())
-                : Recorder.installed ? Tr.t("The panel closes when it starts. SUPER ALT Print starts / stops.") : ""
+                : Recorder.installed ? Tr.t("The panel closes when it starts. SUPER ALT R starts / stops.") : ""
         }
         RowLayout {
             spacing: 6

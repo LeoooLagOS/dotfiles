@@ -365,8 +365,7 @@ Scope {
                             active: Notifs.dnd
                             onClicked: b => {
                                 if (b === Qt.RightButton) {
-                                    Notifs.toggleDnd();
-                                    BarState.say(Notifs.dnd ? "" : "", Notifs.dnd ? Tr.t("Do Not Disturb on") : Tr.t("Do Not Disturb off"));
+                                    BarState.toggleDnd();
                                 } else win.openTab("Notifications");
                             }
                             Glyph { optical: true; visible: !bell.counting; text: Notifs.dnd ? "" : ""; font.pixelSize: 14; color: Notifs.dnd || bell.unread ? BarState.accent : Theme.fg }
@@ -390,10 +389,7 @@ Scope {
                         square: true
                         clickable: true
                         active: Toggles.caffeine
-                        onClicked: {
-                            Toggles.setCaffeine(!Toggles.caffeine, 0);
-                            BarState.say(Toggles.caffeine ? "" : "\u{f06ca}", Toggles.caffeine ? Tr.t("Screen stays awake") : Tr.t("Idle as usual"));
-                        }
+                        onClicked: BarState.toggleCaffeine()
                         Glyph { optical: true; text: Toggles.caffeine ? "" : "\u{f06ca}"; font.pixelSize: 14; color: Toggles.caffeine ? BarState.accent : Theme.fgDim }
                     }
 

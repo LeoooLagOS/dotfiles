@@ -107,6 +107,14 @@ if [ -n "$current_active_theme_path" ]; then
   done
 fi
 
+# Non-interactive use (RofiThemes.sh, the themes menu: SUPER ALT T):
+#   --list  the themes · --current  the one in use · --apply NAME  apply it
+case "${1:-}" in
+  --list) printf '%s\n' "${available_theme_names[@]}"; exit 0 ;;
+  --current) printf '%s\n' "${available_theme_names[$current_selection_index]}"; exit 0 ;;
+  --apply) apply_rofi_theme_to_config "${2:-}"; exit $? ;;
+esac
+
 # Main preview loop
 while true; do
   theme_to_preview_now="${available_theme_names[$current_selection_index]}"

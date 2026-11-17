@@ -292,13 +292,30 @@ Singleton {
                 { key: "rotateMin", label: "Every", type: "select", opts: [[15, "15 min"], [30, "30 min"], [60, "1 hour"], [180, "3 hours"]] } ] } ] },
         { id: "keyboard", icon: "", label: "Keyboard", lead: "Shortcuts (read-only; edit them in UserConfigs/user_keybinds.lua).", groups: [
             { title: "Panel", rows: [
-                { label: "Open or close the panel", type: "keys", value: ["SUPER", "ALT", "N"] },
-                { label: "Notifications", type: "keys", value: ["SUPER", "SHIFT", "N"] },
+                { label: "Notifications", type: "keys", value: ["SUPER", "N"] },
+                { label: "Quick settings (Controls)", type: "keys", value: ["SUPER", "A"] },
+                { label: "Settings", type: "keys", value: ["SUPER", "I"] },
+                { label: "A tab of the panel", type: "keys", value: ["SUPER", "SHIFT", "letter"] },
                 { label: "Next / previous tab", type: "keys", value: ["CTRL", "TAB"] },
                 { label: "Jump to a tab", type: "keys", value: ["CTRL", "1…7"] },
                 { label: "Back / close", type: "keys", value: ["ESC"] } ] },
+            { title: "Like in Windows", rows: [
+                { label: "Start menu", type: "keys", value: ["SUPER"] },
+                { label: "Run a command", type: "keys", value: ["SUPER", "R"] },
+                { label: "System menu", type: "keys", value: ["SUPER", "X"] },
+                { label: "Lock the screen", type: "keys", value: ["SUPER", "L"] },
+                { label: "Clipboard history", type: "keys", value: ["SUPER", "V"] },
+                { label: "Monitors", type: "keys", value: ["SUPER", "P"] },
+                { label: "Files", type: "keys", value: ["SUPER", "E"] },
+                { label: "Screenshot of an area", type: "keys", value: ["SUPER", "SHIFT", "S"] },
+                { label: "Record the screen", type: "keys", value: ["SUPER", "ALT", "R"] },
+                { label: "System monitor", type: "keys", value: ["CTRL", "SHIFT", "ESC"] },
+                { label: "Close the window", type: "keys", value: ["ALT", "F4"] },
+                { label: "Power menu", type: "keys", value: ["CTRL", "ALT", "DEL"] } ] },
             { title: "Desktop", rows: [
-                { label: "Night light", type: "keys", value: ["SUPER", "N"] },
+                { label: "Night light", type: "keys", value: ["SUPER", "ALT", "N"] },
+                { label: "Do Not Disturb", type: "keys", value: ["SUPER", "CTRL", "SHIFT", "N"] },
+                { label: "Themes: terminals, prompt, menus", type: "keys", value: ["SUPER", "ALT", "T"] },
                 { label: "Choose a wallpaper", type: "keys", value: ["SUPER", "W"] },
                 { label: "All shortcuts (searchable)", type: "keys", value: ["SUPER", "H"] } ] } ] },
         { id: "demos", icon: "\uf0c3", label: "Demos", lead: "Test notifications, to see how each kind looks and where it appears, or to record a video of the panel. They're marked as tests: no quick reply, and a click opens nothing.", groups: [
