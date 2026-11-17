@@ -20,11 +20,11 @@ element {
   orientation:   vertical;
   padding:       8px;
   spacing:       6px;
-  border-radius: 14px;
+  border-radius: @lagos-radius-inner;
 }
 element-icon {
   size:          150px;
-  border-radius: 10px;
+  border-radius: @lagos-radius-inner;
   horizontal-align: 0.5;
 }
 element-text {

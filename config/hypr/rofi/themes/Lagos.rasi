@@ -2,7 +2,8 @@
  * Inter, the panel's palette (lagos-* tokens: the wallust dark defaults from
  * config/hypr/wallust/templates/colors-rofi.rasi; each menu's config then
  * imports ~/.config/lagos/rofi/<group>.rasi with its colors, written by the
- * panel: Settings → Appearance → Panel & launchers), 22/14/10 px corners, the
+ * panel: Settings → Appearance → Panel & launchers), corners like the windows'
+ * (lagos-radius / lagos-radius-inner, written there too from Hyprland's rounding), the
  * accent at 20% for the selection. A card ~760 px wide whose height follows
  * its lines; where it opens (bottom edge or centered) is position.rasi, imported
  * at the end (scripts/wm/RofiPosition.sh). Launcher configs (config-*.rasi) only change the layout:
@@ -25,6 +26,13 @@ configuration {
 }
 
 * {
+  /* Defaults until the panel writes them (~/.config/lagos/rofi/<group>.rasi) */
+  lagos-radius:       10px;
+  lagos-radius-inner: 8px;
+  /* Room so the menus never touch the panel's card (services/LauncherTheme.qml) */
+  lagos-room:          497px;
+  lagos-room-top:      535px;
+  lagos-side-width:    464px;
   background-color: transparent;
   text-color:       @lagos-fg;
   margin:  0;
@@ -39,7 +47,7 @@ window {
   background-color: @lagos-surface;
   border:           1px solid;
   border-color:     @lagos-border;
-  border-radius:    22px;
+  border-radius: @lagos-radius;
 }
 
 mainbox {
@@ -55,7 +63,7 @@ inputbar {
   background-color: @lagos-zone;
   border:           1px solid;
   border-color:     @lagos-border;
-  border-radius:    14px;
+  border-radius: @lagos-radius-inner;
   children:         [ "icon-search", "entry" ];
 }
 icon-search {
@@ -74,7 +82,7 @@ entry {
 /* ---- Note from the script (-mesg) ---- */
 message {
   background-color: @lagos-zone;
-  border-radius:    12px;
+  border-radius: @lagos-radius-inner;
   padding:          9px 14px;
 }
 textbox {
@@ -96,7 +104,7 @@ listview {
 element {
   padding:       9px 12px;
   spacing:       12px;
-  border-radius: 10px;
+  border-radius: @lagos-radius-inner;
   cursor:        pointer;
 }
 element normal.normal, element alternate.normal {
@@ -137,7 +145,7 @@ mode-switcher {
 }
 button {
   padding:       7px;
-  border-radius: 10px;
+  border-radius: @lagos-radius-inner;
   text-color:    @lagos-fg-dim;
   cursor:        pointer;
 }
@@ -149,7 +157,7 @@ button selected {
 error-message {
   padding:          14px;
   background-color: @lagos-surface;
-  border-radius:    14px;
+  border-radius:    @lagos-radius;
 }
 
 /* ---- Where it opens: bottom (slides up) or center ---- */

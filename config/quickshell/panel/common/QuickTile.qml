@@ -18,7 +18,7 @@ Rectangle {
     signal settingsRequested()
 
     implicitHeight: 54
-    radius: 12
+    radius: Theme.innerRadius
     color: active ? Theme.withAlpha(Theme.accent, body.containsMouse ? 0.28 : 0.20)
                   : (body.containsMouse ? Theme.bgHover : Theme.bgAlt)
     border.color: selected ? Theme.accent : active ? Theme.withAlpha(Theme.accent, 0.55) : Theme.border

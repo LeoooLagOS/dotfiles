@@ -42,7 +42,7 @@ choice=$(
     IFS='|' read -r label icon _ <<<"$e"
     printf '%s\0icon\x1f%s\n' "$label" "$icon"
   done | rofi -dmenu -i -show-icons -config "$config" -p "$(t "System")" -format i \
-    -theme-str "window { location: north west; anchor: north west; x-offset: 8px; y-offset: ${y}px; width: 400px; }
+    -theme-str "window { location: north west; anchor: north west; x-offset: 8px; y-offset: ${y}px; width: @lagos-side-width; }
                 listview { columns: 1; lines: ${#entries[@]}; }
                 mode-switcher { enabled: false; }
                 entry { placeholder: \"$(t "Search")\"; }"

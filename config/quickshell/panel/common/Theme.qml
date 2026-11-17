@@ -143,15 +143,20 @@ Singleton {
     function aqiColor(aqi) { return panel.aqiColor(aqi); }
 
     // ---------------- Shape & type ----------------
-    readonly property int panelRadius: 22
-    readonly property int zoneRadius: 14
-    readonly property int buttonRadius: 10
+    // The panel's card rounds like the windows (windowRadius, below); its zones
+    // and buttons a bit less, so the curves nest (were 22 / 14 / 10)
+    readonly property int panelRadius: windowRadius
+    readonly property int zoneRadius: innerRadius
+    readonly property int buttonRadius: Math.min(10, innerRadius)
     // Hyprland's window rounding (decoration:rounding), read live: surfaces
-    // that float like windows (notification popups) round their corners the same.
+    // that float like windows (the panel, notification popups, the bar's popups and
+    // start menu, the rofi menus via services/LauncherTheme.qml) round their corners the same.
     // Read again on a config reload and as a popup shows (readRounding): Game
     // mode squares the windows with hyprctl eval, which reloads nothing
     property int windowRadius: 10
     function readRounding() { if (!roundingProc.running) roundingProc.running = true; }
+    // Inside such a surface (its rows, tiles, cards): a bit less, so the curves nest
+    readonly property int innerRadius: Math.round(windowRadius * 0.8)
     readonly property int zonePadding: 12
     readonly property string font: "Inter"
     readonly property string iconFont: "JetBrainsMono Nerd Font"

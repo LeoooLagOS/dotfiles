@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Where the Rofi menus open (Lagos theme, config/hypr/rofi/themes/Lagos.rasi):
 #   bottom  anchored to the bottom edge; Hyprland slides it up from there
-#   center  a floating card in the middle of the screen
+#   center  a floating card centered across, just below the panel's card
 #   RofiPosition.sh bottom | center | toggle | status
 # Writes config/hypr/rofi/position.rasi (imported at the end of Lagos.rasi) and
 # keeps the Quickshell panel's Settings → Appearance → Menus in sync.
@@ -26,9 +26,12 @@ RASI
     center) cat >"$POSITION_FILE" <<'RASI'
 /* Where the menus open — written by scripts/wm/RofiPosition.sh (bottom | center) */
 window {
-  location: center;
-  anchor:   center;
-  y-offset: 0;
+  /* centered across, hanging just below the panel's card so it never
+     touches it (lagos-room-top, written by the panel: services/LauncherTheme.qml).
+     Not location: center: a centered layer ignores its offsets */
+  location: north;
+  anchor:   north;
+  y-offset: @lagos-room-top;
 }
 RASI
       ;;

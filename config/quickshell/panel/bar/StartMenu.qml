@@ -78,6 +78,7 @@ PanelWindow {
         search.text = "";
         showAll = false;
         Flavors.refresh();
+        Theme.readRounding();
         Qt.callLater(search.focusInput);
     }
 
@@ -105,7 +106,7 @@ PanelWindow {
         id: card
         width: parent.width
         implicitHeight: col.implicitHeight + 28
-        radius: 18
+        radius: Theme.windowRadius
         color: Theme.bg
         border.color: Theme.border
         opacity: root.open ? 1 : 0
@@ -161,7 +162,7 @@ PanelWindow {
                     required property int index
                     width: list.width
                     implicitHeight: 40
-                    radius: 10
+                    radius: Theme.innerRadius
                     color: index === root.sel ? Theme.withAlpha(Theme.accent, 0.18) : rowMouse.containsMouse ? Theme.bgHover : "transparent"
                     RowLayout {
                         anchors.fill: parent
@@ -219,7 +220,7 @@ PanelWindow {
                             required property var modelData
                             Layout.fillWidth: true
                             implicitHeight: 70
-                            radius: 12
+                            radius: Theme.innerRadius
                             color: tileMouse.containsMouse || activeFocus ? Theme.bgHover : "transparent"
                             activeFocusOnTab: true
                             Keys.onReturnPressed: root.launch(modelData.id)

@@ -209,7 +209,7 @@ apply_hypr_border_fallback() {
 set +e
 "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
 current_global_theme="$(read_global_theme)"
-choice="$(build_menu_options "$current_global_theme" | rofi -dmenu -i -p 'Select Global Theme' -config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config.rasi")"
+choice="$(build_menu_options "$current_global_theme" | rofi -dmenu -i -p 'Select Global Theme' -config "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-large.rasi")"
 prompt_status=$?
 set -e
 

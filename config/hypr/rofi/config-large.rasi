@@ -1,0 +1,9 @@
+/* The big menus: apps (SUPER D, scripts/wm/RofiLauncher.sh), the desktop's
+ * theme (SUPER T, ThemeChanger.sh) and the themes menu (SUPER ALT T,
+ * RofiThemes.sh). About the size of Windows 11's start menu: as tall as the
+ * room below the panel's card (lagos-room, written by the panel from its size,
+ * up to 720 px), so it never touches the panel.
+ * Layout only: colors, fonts and corners come from themes/Lagos.rasi (via config.rasi). */
+@import "~/.config/hypr/rofi/config.rasi"
+
+window   { width: 820px; height: @lagos-room; }

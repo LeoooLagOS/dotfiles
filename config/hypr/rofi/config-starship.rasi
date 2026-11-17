@@ -16,3 +16,7 @@ listview {
 element { spacing: 0; }
 element-icon { size: 0; }
 element-text { horizontal-align: 0.0; }
+
+/* A long list: as tall as the room below the panel's card, never more
+ * (lagos-room, written by the panel: services/LauncherTheme.qml) */
+window { height: @lagos-room; }

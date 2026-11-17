@@ -63,11 +63,12 @@ Singleton {
     // readings): open on one monitor ("" = closed), one at a time
     property string popupOn: ""
     property string monitorOn: ""
-    function togglePopup(monitor) { monitorOn = ""; startOn = ""; popupOn = popupOn === monitor ? "" : monitor; }
-    function toggleMonitor(monitor) { popupOn = ""; startOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; }
+    function togglePopup(monitor) { monitorOn = ""; startOn = ""; popupOn = popupOn === monitor ? "" : monitor; if (popupOn) PanelState.open = false; }
+    function toggleMonitor(monitor) { popupOn = ""; startOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; if (monitorOn) PanelState.open = false; }
     // Start menu (bar/StartMenu.qml): the logo's click, or IPC `start`
     property string startOn: ""
-    function toggleStart(monitor) { popupOn = ""; monitorOn = ""; startOn = startOn === monitor ? "" : monitor; }
+    function toggleStart(monitor) { popupOn = ""; monitorOn = ""; startOn = startOn === monitor ? "" : monitor; if (startOn) PanelState.open = false; }
+    // The panel and these never show together (they'd overlap): opening one closes the other
     Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; root.startOn = ""; } } }
 
     // ---------------- Messages on the island ----------------

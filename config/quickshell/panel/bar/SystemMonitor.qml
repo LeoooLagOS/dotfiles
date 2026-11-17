@@ -26,7 +26,7 @@ PanelWindow {
     // What the big block shows: "store" (memory & storage), "cpu" or "net"
     property string view: "store"
     function show(v) { view = view === v ? "store" : v; }
-    onOpenChanged: if (!open) view = "store"
+    onOpenChanged: if (!open) view = "store"; else Theme.readRounding()
 
     visible: open || card.opacity > 0
     color: "transparent"
@@ -127,7 +127,7 @@ PanelWindow {
         }
     }
     component Card: Rectangle {
-        radius: 14
+        radius: Theme.innerRadius
         color: Theme.bgAlt
         border.color: Theme.border
     }
@@ -137,7 +137,7 @@ PanelWindow {
         id: card
         width: parent.width
         implicitHeight: (root.d ? col.implicitHeight : 120) + 28
-        radius: 18
+        radius: Theme.windowRadius
         color: Theme.bg
         border.color: Theme.border
         opacity: root.open ? 1 : 0

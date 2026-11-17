@@ -18,7 +18,7 @@ if [ -x "$SCRIPTSDIR/RofiFocusedWallpaperLink.sh" ]; then
   "$SCRIPTSDIR/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
 fi
 
-config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config.rasi"
+config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-large.rasi"
 calc_opts=(-terse -automatic-save-to-history -hint-result "= "
   -calc-command "$SCRIPTSDIR/RofiCalcAction.sh '{expression}' '{result}'")
 

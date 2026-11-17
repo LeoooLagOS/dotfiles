@@ -22,6 +22,7 @@ PanelWindow {
     property real rightOffset: 8          // from the screen's right edge to the pill's right edge
     property string screenName: ""        // this bar's monitor
     readonly property bool open: screenName !== "" && BarState.popupOn === screenName
+    onOpenChanged: if (open) Theme.readRounding()
 
     visible: open || card.opacity > 0
     color: "transparent"
@@ -61,7 +62,7 @@ PanelWindow {
         id: card
         width: parent.width
         implicitHeight: col.implicitHeight + 28
-        radius: 18
+        radius: Theme.windowRadius
         color: Theme.bg
         border.color: Theme.border
         opacity: root.open ? 1 : 0
@@ -123,7 +124,7 @@ PanelWindow {
                         readonly property color tint: modelData.v >= modelData.bad ? Theme.bad : modelData.v >= modelData.warn ? Theme.warn : BarState.accent
                         Layout.fillWidth: true
                         implicitHeight: 64
-                        radius: 12
+                        radius: Theme.innerRadius
                         color: Theme.bgAlt
                         border.color: Theme.border
                         ColumnLayout {
@@ -147,7 +148,7 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: sliders.implicitHeight + 16
-                radius: 12
+                radius: Theme.innerRadius
                 color: Theme.bgAlt
                 border.color: Theme.border
                 ColumnLayout {

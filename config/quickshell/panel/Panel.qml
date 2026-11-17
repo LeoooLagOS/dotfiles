@@ -85,7 +85,7 @@ Scope {
                 Connections {
                     target: PanelState
                     function onTabChanged() { keyRoot.forceActiveFocus(); }
-                    function onOpenChanged() { if (PanelState.open) keyRoot.forceActiveFocus(); }
+                    function onOpenChanged() { if (PanelState.open) { keyRoot.forceActiveFocus(); Theme.readRounding(); } }
                 }
 
                 Keys.onPressed: event => {
