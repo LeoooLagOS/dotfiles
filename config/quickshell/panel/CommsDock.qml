@@ -19,7 +19,9 @@ import "./services"
 // Right click on an icon: Reload (web apps) · Restart · Quit, for an app that
 // hangs (Comms.reload / restart / quit; restarting shows on its icon); when it
 // runs (Comms.lives: always on, when picked, closed after a while unused) and
-// Remove from dock. The gear at the end: Settings → Comms dock (add, order).
+// Remove from dock. After the apps, guests (Comms.guests: a window that
+// opened behind them, like the browser for a link), until closed; their menu:
+// Move to a workspace · Close. The gear at the end: Settings → Comms dock.
 // The app above fills the screen down to the dock, with the same room above
 // and below: its special workspace has a bottom gap
 // (UserConfigs/user_window_rules.lua) of the bar's reserved height + 6 px.
@@ -89,6 +91,9 @@ Scope {
             readonly property var menuItems: {
                 const a = menuApp;
                 if (!a) return [];
+                // A guest (a window that opened behind the apps): out, or closed
+                if (a.guest) return [{ id: "out", label: Tr.t("Move to a workspace"), icon: "" },
+                                     { id: "close", label: Tr.t("Close"), icon: "" }];
                 const acts = !a.running ? [{ id: "open", label: Tr.t("Open"), icon: "\uf04b" }]
                     : (a.web ? [{ id: "reload", label: Tr.t("Reload"), icon: "\uf021" }] : []).concat([
                           { id: "restart", label: Tr.t("Restart"), icon: "\uf2f9" },
@@ -185,7 +190,7 @@ Scope {
                                         horizontalAlignment: Text.AlignHCenter
                                         text: line.modelData.icon ?? ""
                                         font.pixelSize: line.modelData.id === "life" ? 10 : 12
-                                        color: line.modelData.id === "quit" || line.modelData.id === "remove" ? Theme.critical
+                                        color: ["quit", "remove", "close"].includes(line.modelData.id) ? Theme.critical
                                              : line.modelData.id === "life" ? Theme.accent : Theme.fg
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
@@ -208,6 +213,8 @@ Scope {
                                         else if (id === "quit") Comms.quit(k);
                                         else if (id === "life") Comms.setLife(ref, line.modelData.value);
                                         else if (id === "remove") Comms.remove(ref);
+                                        else if (id === "out") Comms.guestOut(k);
+                                        else if (id === "close") Comms.guestClose(k);
                                         else Comms.show(k);
                                     }
                                 }
@@ -324,7 +331,8 @@ Scope {
                                     // With the keyboard: its number, and what Enter does
                                     text: cell.modelData.restarting ? Tr.t("Restarting %1…", cell.modelData.name)
                                         : win.keys ? (cell.index + 1) + "  ·  " + cell.modelData.name
-                                                     + (cell.modelData.web ? "  ·  " + Tr.t("R reload") : "") + "  ·  " + Tr.t("⇧R restart")
+                                                     + (cell.modelData.web ? "  ·  " + Tr.t("R reload") : "")
+                                                     + (cell.modelData.guest ? "" : "  ·  " + Tr.t("⇧R restart"))
                                         : cell.shown ? Tr.t("Hide %1", cell.modelData.name) + "  ·  Super Y"
                                         : cell.modelData.running ? cell.modelData.name : Tr.t("Open %1", cell.modelData.name)
                                 }

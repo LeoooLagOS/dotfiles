@@ -19,6 +19,7 @@ import "../common"
 // Behind the shown app the monitor switches to an empty workspace, "comms", so
 // the wallpaper shows through (the apps are a bit translucent: a window rule;
 // special workspaces aren't dimmed: user_settings.lua); hiding goes back.
+// A window that opens there anyway joins the dock as a guest (see Guests).
 // Keyboard: SUPER SHIFT Y (IPC commsDock) puts the focus on the dock:
 // ←/→ choose, Enter opens, 1–9 by position, Esc back to the app.
 //   apps      [{ ref, key, name, icon, running, address, badge }] (installed ones)
@@ -112,7 +113,58 @@ Singleton {
         return { ref: d.ref, key: d.key, name: d.name, icon: iconOf(d.entry), running: !!w, address: w?.address ?? "",
                  web: isWebApp(d.entry), restarting: !!restarting[d.key],
                  badge: m ? Number(m[1]) : unseen(d) };
+    }).concat(guests)
+
+    // ---------------- Guests ----------------
+    // Nothing goes under the apps: a window that opens on "comms" (the empty
+    // workspace behind them; e.g. the browser, for a link clicked in WhatsApp)
+    // would sit there, seen through them. It joins the dock instead, after
+    // the apps, for as long as it's open: its own special:comms-guest-<address>,
+    // shown right away. Its icon's menu: Move to a workspace · Close (SUPER O
+    // takes it out too: UserConfigs/user_keybinds.lua)
+    readonly property var guests: clients.filter(c => String(c.workspace?.name ?? "").startsWith("special:comms-guest-")).map(c => {
+        const e = DesktopEntries.heuristicLookup(c.class);
+        return { ref: "", key: guestKey(c), name: e ? shortName(e.name) : String(c.class), icon: e ? iconOf(e) : "",
+                 running: true, address: c.address, web: false, restarting: false, badge: 0, guest: true };
     })
+    function guestKey(c) { return "guest-" + String(c.address).replace(/^0x/, ""); }
+    function isGuest(key) { return String(key).startsWith("guest-"); }
+    property var adopting: ({})               // address → true: moved in, waiting for the clients to say so
+    // Shown only if you're looking at the comms (one shown, or on "comms");
+    // else (one left there before the panel started) just tucked in the dock
+    function adoptStrays() {
+        const a = {};
+        const looking = !!shown || Hyprland.focusedMonitor?.activeWorkspace?.name === "comms";
+        for (const c of clients) {
+            if (c.workspace?.name !== "comms") continue;
+            a[c.address] = true;
+            if (adopting[c.address]) continue;
+            console.info("comms: guest", c.class, "into the dock", looking ? "(shown)" : "(hidden)");
+            const cmds = [`hl.dsp.window.move({ workspace = "special:comms-${guestKey(c)}", follow = false, window = "address:${c.address}" })`];
+            if (looking) cmds.push(...backdrop(), `hl.dsp.focus({ window = "address:${c.address}" })`);
+            dispatchAll(cmds);
+        }
+        adopting = a;
+    }
+    // Out of the dock: to the first empty workspace, and there once hidden
+    // (onShownChanged goes to home[monitor])
+    function guestOut(key) {
+        const g = guests.find(x => x.key === key), m = Hyprland.focusedMonitor;
+        if (!g || !m) return;
+        const used = clients.filter(c => c.workspace?.id > 0).map(c => c.workspace.id);
+        let target = 1;
+        while (used.includes(target)) target++;
+        const h = Object.assign({}, home);
+        h[m.name] = target;
+        home = h;
+        dockFocus = false;
+        const cmds = shown === key ? [`hl.dsp.workspace.toggle_special("comms-${key}")`] : [];
+        dispatchAll(cmds.concat([`hl.dsp.window.move({ workspace = ${target}, follow = false, window = "address:${g.address}" })`]));
+    }
+    function guestClose(key) {
+        const g = guests.find(x => x.key === key);
+        if (g) dispatch(`hl.dsp.window.close({ window = "address:${g.address}" })`);
+    }
     // What the bar's window title shows for a comms app's window (bar/WindowTitle.qml):
     //   { name, badge: unread (the web app's title count, the mail's new ones,
     //     else notifications not seen), context: what the title says besides the
@@ -185,6 +237,12 @@ Singleton {
     }
 
     function show(key) {
+        const g = guests.find(x => x.key === key);
+        if (g) {
+            last = key;
+            dispatchAll([...backdrop(), `hl.dsp.focus({ window = "address:${g.address}" })`]);
+            return;
+        }
         const d = defs.find(x => x.key === key);
         if (!d) return;
         last = key;
@@ -214,19 +272,19 @@ Singleton {
     }
     function toggle() {
         if (shown) { hide(); return; }
-        show(defs.some(d => d.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? defs[0]?.key ?? ""));
+        show(apps.some(a => a.key === last) ? last : (defs.find(d => mainOf(d))?.key ?? apps[0]?.key ?? ""));
     }
     function pick(key) { key === shown ? hide() : show(key); }
     // SUPER TAB / SUPER SHIFT TAB inside an app (UserConfigs/user_keybinds.lua):
-    // the next / previous one in the dock's order, round
+    // the next / previous one in the dock's order (guests too), round
     function cycle(step) {
-        if (!shown || defs.length < 2) return;
-        const i = defs.findIndex(d => d.key === shown);
-        show(defs[(i + step + defs.length) % defs.length].key);
+        if (!shown || apps.length < 2) return;
+        const i = apps.findIndex(a => a.key === shown);
+        show(apps[(i + step + apps.length) % apps.length].key);
     }
     // SUPER SHIFT Y: the keyboard to the dock (showing an app first if none is)
     function focusDock() {
-        if (!defs.length) return;
+        if (!apps.length) return;
         if (!shown) toggle();
         dockFocus = true;
     }
@@ -507,7 +565,8 @@ Singleton {
             const ws = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1;
             for (const c of root.clients) {
                 const name = c.workspace.name;
-                if (name.startsWith("special:comms-") && !keys.includes(name.slice("special:comms-".length)))
+                const key = name.slice("special:comms-".length);
+                if (name.startsWith("special:comms-") && !keys.includes(key) && !root.isGuest(key))
                     root.dispatch(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${c.address}" })`);
             }
         }
@@ -604,6 +663,7 @@ Singleton {
             onStreamFinished: {
                 try { root.clients = JSON.parse(text); } catch (e) { return; }
                 if (Object.keys(root.pending).length) root.settlePending();
+                root.adoptStrays();
             }
         }
     }
