@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Plot y = f(x) in a window with the Lagos look (wallust colors, Inter).
 #   CalcPlot.sh "x^2 - 3x" [xmin xmax]      (default -10 … 10)
-# Used by the quickcalc row of the app launcher (SUPER D) and by the Calc tab
+# Used by the Calc tab of the app launcher (SUPER D)
 # (RofiCalcAction.sh). Expressions use qalculate syntax ("2x", "sqrt", "pi",
 # "sin(x)"…): qalc computes the points, gnuplot only draws them, so anything
 # qalc understands can be plotted. Undefined or complex points leave gaps.

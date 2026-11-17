@@ -4,7 +4,7 @@
 #   2+2*3 · 15% * 80 · sqrt(2)·pi · 10 km to mi · 100 USD to MXN · 3 h to min
 #   x^2 - 3x (Enter plots it) · plot sin(x) -6 6
 # Enter copies the result (or plots, RofiCalcAction.sh); history is kept.
-# The app launcher (SUPER D) also answers simple math inline (quickcalc plugin).
+# The app launcher (SUPER D) has it as its Calc tab.
 
 if pidof rofi >/dev/null; then
   pkill -x rofi

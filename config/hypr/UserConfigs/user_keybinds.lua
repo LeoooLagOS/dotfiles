@@ -297,9 +297,9 @@ bind("SUPER SHIFT", "Z", exec_cmd("qs -c panel ipc call panel quickAddSelection"
 bind("SUPER ALT", "Print", exec_cmd("qs -c panel ipc call panel record"), { description = "screen recording start / stop (gpu-screen-recorder)" })
 bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
 
--- App launcher: RofiLauncher.sh adds inline math (quickcalc) to the Apps tab
+-- App launcher: RofiLauncher.sh (Apps · Files · Run · Windows · Calc tabs)
 unbind("SUPER", "D")
-bind("SUPER", "D", exec_cmd(scripts .. "RofiLauncher.sh"), { description = "app launcher (type math for an instant answer)" })
+bind("SUPER", "D", exec_cmd(scripts .. "RofiLauncher.sh"), { description = "app launcher (apps, files, run, windows, calculator)" })
 bind("", "XF86Calculator", exec_cmd(scripts .. "RofiCalc.sh"), { description = "calculator" })
 
 -- Menus that had no shortcut
