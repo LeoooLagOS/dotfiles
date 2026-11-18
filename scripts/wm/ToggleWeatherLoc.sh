@@ -8,7 +8,15 @@ HOME_PLACE_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/lagos/weather-home"
 # Active manual location read by Weather.py; absent means Network mode
 PLACE_STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/lagos/weather-place"
 
-if [ -s "$PLACE_STATE_FILE" ]; then
+# toggle (default), or the mode itself: auto | home (Settings → Weather &
+# calendar sets it; the keybind is gone)
+want="${1:-toggle}"
+if [[ $want == toggle ]]; then
+  [ -s "$PLACE_STATE_FILE" ] && want=auto || want=home
+fi
+if [[ $want == auto ]] && [ ! -s "$PLACE_STATE_FILE" ]; then exit 0; fi
+
+if [[ $want == auto ]]; then
   # Switch to Network mode
   rm -f "$PLACE_STATE_FILE"
   MODE="$(t "Network (Dynamic)")"

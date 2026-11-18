@@ -38,7 +38,7 @@ Singleton {
         lidBattery: "suspend", lidAc: "lock", lidDocked: "nothing",  // scripts/wm/LaptopLid.sh
         battery: [50, 20, 10, 5], loginProfile: "keep",
         // Weather & calendar
-        weekStart: 0, calRefresh: 30, agendaView: "list",
+        weekStart: 0, calRefresh: 30, agendaView: "list", weatherPlace: "auto",
         dueStages: [4320, 1440, 180, 60], briefOn: true, briefHour: 7, soonEvent: 30, soonDue: 6,  // services/Events.qml
         // Wallpaper
         wallust: true, rotate: false, rotateMin: 30,
@@ -269,6 +269,8 @@ Singleton {
             { title: "Weather", rows: [
                 // Units are not here: the weather cache is shared with waybar, which
                 // takes them from $WEATHER_UNITS (Hyprland startup)
+                { key: "weatherPlace", label: "Weather for", help: "Where you are comes from the internet connection (IP); home is the place below", type: "seg",
+                  opts: [["auto", "Where I am"], ["home", "Home"]] },
                 { label: "Home location", help: "~/.config/lagos/weather-home", type: "info", infoKey: "weatherHome" } ] },
             { title: "Calendar", rows: [
                 { key: "weekStart", label: "Week starts on", type: "seg", opts: [[0, "Sunday"], [1, "Monday"]] },

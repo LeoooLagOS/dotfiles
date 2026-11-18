@@ -89,6 +89,18 @@ Singleton {
         onFileChanged: reload()
         onLoaded: { on = text().trim() !== "off"; if (Settings.loaded) Settings.set("wallust", on); }
     }
+    // Weather.py's place: the state file holds the home city while it's used
+    // (scripts/wm/ToggleWeatherLoc.sh writes it; missing = where I am, by IP)
+    FileView {
+        id: weatherPlaceState
+        property string place: "auto"
+        path: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/lagos/weather-place"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: { place = text().trim() !== "" ? "home" : "auto"; if (Settings.loaded) Settings.set("weatherPlace", place); }
+        onLoadFailed: { place = "auto"; if (Settings.loaded) Settings.set("weatherPlace", place); }
+    }
     property var about: ({})
 
     // ---------------- hypridle ----------------
@@ -141,6 +153,8 @@ Singleton {
                 Quickshell.execDetached([root.scripts + "/RofiPosition.sh", Settings.v.rofiPosition]);
             else if (key === "wallust" && Settings.v.wallust !== wallustState.on)
                 Quickshell.execDetached([root.scripts + "/WallustToggle.sh", Settings.v.wallust ? "on" : "off"]);
+            else if (key === "weatherPlace" && Settings.v.weatherPlace !== weatherPlaceState.place)
+                Quickshell.execDetached([root.scripts + "/ToggleWeatherLoc.sh", Settings.v.weatherPlace]);
         }
     }
 
@@ -168,6 +182,7 @@ Singleton {
         Settings.set("blurLevel", blurLevelState.level);
         Settings.set("wallust", wallustState.on);
         Settings.set("rofiPosition", rofiState.position);
+        Settings.set("weatherPlace", weatherPlaceState.place);
     }
 
     // ---------------- Wallpaper rotation ----------------
