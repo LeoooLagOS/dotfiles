@@ -60,12 +60,31 @@ PanelWindow {
         Settings.set("startPinned", ids.includes(e.id) ? ids.filter(i => i !== e.id) : ids.concat([e.id]));
     }
 
+    // All apps: grouped by what each app says it is (its .desktop Categories,
+    // the freedesktop main ones), nothing to set up; a new app finds its group.
+    // The first category in this order wins (MATLAB is Development before
+    // Science); none of them: Other
+    readonly property var groupBy: [["Game", "Games"], ["Development", "Development"], ["Graphics", "Graphics"],
+        ["AudioVideo", "Multimedia"], ["Audio", "Multimedia"], ["Video", "Multimedia"], ["Office", "Office"],
+        ["Education", "Education & science"], ["Science", "Education & science"], ["Network", "Internet"],
+        ["Settings", "Settings"], ["System", "System"], ["Utility", "Utilities"]]
+    // …and the groups shown in this order
+    readonly property var groups: ["Internet", "Office", "Development", "Multimedia", "Graphics",
+        "Education & science", "Games", "Utilities", "System", "Settings", "Other"]
+    function groupOf(e) {
+        const c = e?.categories ?? [];
+        for (const g of groupBy) if (c.includes(g[0])) return g[1];
+        return "Other";
+    }
+    readonly property var grouped: apps.map(e => ({ e: e, g: groups.indexOf(groupOf(e)) }))
+        .sort((a, b) => a.g - b.g || a.e.name.localeCompare(b.e.name)).map(x => x.e)
+
     property bool showAll: false
     readonly property string query: search.text.trim().toLowerCase()
     readonly property bool listing: query !== "" || showAll
     // A name that starts with the words first, then any that contains them
     readonly property var results: {
-        if (query === "") return showAll ? apps : [];
+        if (query === "") return showAll ? grouped : [];
         const words = e => (e.name + " " + (e.genericName ?? "") + " " + (e.keywords ?? []).join(" ")).toLowerCase();
         const hits = apps.filter(e => words(e).includes(query));
         return hits.filter(e => e.name.toLowerCase().startsWith(query))
@@ -157,34 +176,52 @@ PanelWindow {
                 currentIndex: root.sel
                 boundsBehavior: Flickable.StopAtBounds
                 onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
-                delegate: Rectangle {
+                delegate: Column {
+                    id: entry
                     required property var modelData
                     required property int index
                     width: list.width
-                    implicitHeight: 40
-                    radius: Theme.innerRadius
-                    color: index === root.sel ? Theme.withAlpha(Theme.accent, 0.18) : rowMouse.containsMouse ? Theme.bgHover : "transparent"
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 10
-                        anchors.rightMargin: 10
-                        spacing: 10
-                        IconImage { implicitSize: 24; source: root.iconOf(modelData) }
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-                            Label { text: modelData.name; font.pixelSize: 12; Layout.fillWidth: true; elide: Text.ElideRight }
-                            Label { visible: !!modelData.genericName; text: modelData.genericName ?? ""; dim: true; font.pixelSize: 10; Layout.fillWidth: true; elide: Text.ElideRight }
-                        }
-                        Glyph { visible: root.pinned.some(p => p.id === modelData.id); text: "\uf08d"; font.pixelSize: 10; color: Theme.fgDim }
+                    // All apps: the group's name above its first app (searching: none)
+                    readonly property string group: root.query === "" ? root.groupOf(modelData) : ""
+                    readonly property bool first: group !== ""
+                        && (index === 0 || root.groupOf(root.results[index - 1]) !== group)
+                    Label {
+                        visible: entry.first
+                        text: Tr.t(entry.group)
+                        dim: true
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                        leftPadding: 10
+                        topPadding: entry.index === 0 ? 2 : 10
+                        bottomPadding: 4
                     }
-                    MouseArea {
-                        id: rowMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        onClicked: m => m.button === Qt.RightButton ? root.togglePin(modelData) : root.launch(modelData.id)
+                    Rectangle {
+                        width: list.width
+                        implicitHeight: 40
+                        radius: Theme.innerRadius
+                        color: index === root.sel ? Theme.withAlpha(Theme.accent, 0.18) : rowMouse.containsMouse ? Theme.bgHover : "transparent"
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 10
+                            spacing: 10
+                            IconImage { implicitSize: 24; source: root.iconOf(modelData) }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
+                                Label { text: modelData.name; font.pixelSize: 12; Layout.fillWidth: true; elide: Text.ElideRight }
+                                Label { visible: !!modelData.genericName; text: modelData.genericName ?? ""; dim: true; font.pixelSize: 10; Layout.fillWidth: true; elide: Text.ElideRight }
+                            }
+                            Glyph { visible: root.pinned.some(p => p.id === modelData.id); text: "\uf08d"; font.pixelSize: 10; color: Theme.fgDim }
+                        }
+                        MouseArea {
+                            id: rowMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            onClicked: m => m.button === Qt.RightButton ? root.togglePin(modelData) : root.launch(modelData.id)
+                        }
                     }
                 }
             }
