@@ -37,6 +37,7 @@ TEMPLATES = {
         "type": "latex",
         "path": str(TEMPLATES_DIR / "academic" / "academic.latex"),
         "engine": "xelatex",
+        "lua_filters": [str(TEMPLATES_DIR / "keep-with-table.lua")],
         "default_csl": "apa",
     },
     "cv-ats-classic": {  # One-column, ATS-friendly CV (header from the frontmatter)
