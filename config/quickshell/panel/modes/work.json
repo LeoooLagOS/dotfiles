@@ -1,0 +1,26 @@
+{
+  "id": "work",
+  "name": "Work",
+  "icon": "",
+  "order": 1,
+  "notifications": {
+    "allow": "list",
+    "apps": [
+      "teams",
+      "outlook",
+      "thunderbird",
+      "calendar"
+    ],
+    "people": []
+  },
+  "comms": [
+    "teams",
+    "thunderbird"
+  ],
+  "caffeine": null,
+  "night": null,
+  "dark": null,
+  "game": null,
+  "open": [],
+  "timer": null
+}

@@ -33,9 +33,10 @@ Item {
     }
 
     // apprules / commsapps: label on top, the list of apps below (full width)
-    readonly property bool stacked: type === "apprules" || type === "commsapps" || type === "notiftests" || type === "startupapps" || type === "blurapps"
+    readonly property bool stacked: type === "apprules" || type === "commsapps" || type === "notiftests" || type === "startupapps" || type === "blurapps" || type === "modes"
     implicitHeight: stacked ? labels.implicitHeight + (type === "apprules" ? rules : type === "commsapps" ? comms
-                                                       : type === "startupapps" ? startup : type === "blurapps" ? blurApps : tests).implicitHeight + 28
+                                                       : type === "startupapps" ? startup : type === "blurapps" ? blurApps
+                                                       : type === "modes" ? modesEd : tests).implicitHeight + 28
                             : Math.max(46, Math.max(labels.implicitHeight, ctl.implicitHeight) + 18)
 
     Rectangle { visible: !root.first; width: parent.width; height: 1; color: Theme.border }
@@ -620,6 +621,20 @@ Item {
                 }
             }
         }
+    }
+
+    // ---------------- modes: the modes editor (ADR-0016) ----------------
+    Loader {
+        id: modesEd
+        active: root.type === "modes"
+        visible: active
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: labels.bottom
+        anchors.topMargin: 8
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        sourceComponent: ModesEditor {}
     }
 
     // ---------------- notiftests: a button per kind of test notification ----------------

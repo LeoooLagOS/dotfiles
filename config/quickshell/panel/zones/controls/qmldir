@@ -10,3 +10,4 @@ NightDetail 1.0 NightDetail.qml
 OutputDetail 1.0 OutputDetail.qml
 SettingRow 1.0 SettingRow.qml
 SettingsView 1.0 SettingsView.qml
+ModesEditor 1.0 ModesEditor.qml

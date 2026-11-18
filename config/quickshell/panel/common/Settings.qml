@@ -295,6 +295,9 @@ Singleton {
                 { key: "wallust", label: "Take colors from the wallpaper", help: "wallust → panel, waybar, rofi, kitty, borders. Off keeps the current colors", type: "switch", system: true },
                 { key: "rotate", label: "Change automatically", help: "A random one from the folder", type: "switch" },
                 { key: "rotateMin", label: "Every", type: "select", opts: [[15, "15 min"], [30, "30 min"], [60, "1 hour"], [180, "3 hours"]] } ] } ] },
+        { id: "modes", icon: "\uf0b1", label: "Modes", lead: "What the desktop is for right now: which notifications get through, which apps the comms dock shows, caffeine, night light, dark theme, game mode, apps to open, a timer or Pomodoro. Choose one in the bar (the button right of the island) or with SUPER ALT M. What a mode turns on or off comes back when it ends.", groups: [
+            { title: "Your modes", rows: [
+                { label: "Modes", help: "Built in: panel/modes. Yours and your changes: ~/.config/lagos/modes", type: "modes" } ] } ] },
         { id: "night", icon: "\uf186", label: "Night light", lead: "Warmer colors in the evening, easier on the eyes. Like in Windows, it can turn on and off by itself.", groups: [
             { title: "Schedule", rows: [
                 { key: "nightSchedule", label: "Turn on by itself", help: "Sunset to sunrise: today's times for your weather location. You can still turn it on or off by hand (SUPER ALT N, Controls); the schedule takes over again at the next change", type: "seg",

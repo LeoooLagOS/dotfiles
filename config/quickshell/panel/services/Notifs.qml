@@ -654,8 +654,11 @@ Singleton {
                 || root.ruleOf(n) === "brief"
                 || (pk === "call" && Settings.v.callsThroughDnd)
                 || (download && Settings.v.downloadsThroughDnd);
+            // The mode (services/Modes.qml, ADR-0016) keeps quiet what it doesn't
+            // let through, with the same exceptions as Do Not Disturb
             const shown = root.placeOf(n) !== "off"
-                && (!root.dnd || bypass || (Settings.v.critical && critical));
+                && (!root.dnd || bypass || (Settings.v.critical && critical))
+                && (!Modes.silences(n) || bypass || critical);
             // "Popup only" with no popup: nothing to keep it for
             if (!shown && root.ruleOf(n) === "brief" && !critical && pk !== "call") {
                 Qt.callLater(() => n.expire());

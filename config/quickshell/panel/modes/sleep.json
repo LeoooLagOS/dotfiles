@@ -1,0 +1,18 @@
+{
+  "id": "sleep",
+  "name": "Sleep",
+  "icon": "",
+  "order": 4,
+  "notifications": {
+    "allow": "none",
+    "apps": [],
+    "people": []
+  },
+  "comms": null,
+  "caffeine": false,
+  "night": true,
+  "dark": null,
+  "game": null,
+  "open": [],
+  "timer": null
+}

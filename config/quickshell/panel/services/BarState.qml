@@ -63,13 +63,16 @@ Singleton {
     // readings): open on one monitor ("" = closed), one at a time
     property string popupOn: ""
     property string monitorOn: ""
-    function togglePopup(monitor) { monitorOn = ""; startOn = ""; popupOn = popupOn === monitor ? "" : monitor; if (popupOn) PanelState.open = false; }
-    function toggleMonitor(monitor) { popupOn = ""; startOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; if (monitorOn) PanelState.open = false; }
+    function togglePopup(monitor) { monitorOn = ""; startOn = ""; modesOn = ""; popupOn = popupOn === monitor ? "" : monitor; if (popupOn) PanelState.open = false; }
+    function toggleMonitor(monitor) { popupOn = ""; startOn = ""; modesOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; if (monitorOn) PanelState.open = false; }
     // Start menu (bar/StartMenu.qml): the logo's click, or IPC `start`
     property string startOn: ""
-    function toggleStart(monitor) { popupOn = ""; monitorOn = ""; startOn = startOn === monitor ? "" : monitor; if (startOn) PanelState.open = false; }
+    // The modes menu (bar/ModesButton.qml), on one monitor; SUPER ALT M (IPC modes)
+    property string modesOn: ""
+    function toggleModes(monitor) { popupOn = ""; monitorOn = ""; startOn = ""; modesOn = modesOn === monitor ? "" : monitor; if (modesOn) PanelState.open = false; }
+    function toggleStart(monitor) { popupOn = ""; monitorOn = ""; modesOn = ""; startOn = startOn === monitor ? "" : monitor; if (startOn) PanelState.open = false; }
     // The panel and these never show together (they'd overlap): opening one closes the other
-    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; root.startOn = ""; } } }
+    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; root.startOn = ""; root.modesOn = ""; } } }
 
     // ---------------- Messages on the island ----------------
     // Instead of a popup (services/Notifs.qml arrive): what it shows is copied

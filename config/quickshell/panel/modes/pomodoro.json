@@ -1,0 +1,27 @@
+{
+  "id": "pomodoro",
+  "name": "Pomodoro",
+  "icon": "",
+  "order": 3,
+  "notifications": {
+    "allow": "list",
+    "apps": [
+      "calendar"
+    ],
+    "people": []
+  },
+  "comms": [],
+  "caffeine": true,
+  "night": null,
+  "dark": null,
+  "game": null,
+  "open": [],
+  "timer": {
+    "pomodoro": {
+      "work": 25,
+      "break": 5,
+      "long": 15,
+      "every": 4
+    }
+  }
+}

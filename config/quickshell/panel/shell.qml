@@ -96,6 +96,11 @@ ShellRoot {
         function commsPrev(): void { Comms.cycle(-1); }
         // Caffeine on/off (SUPER ALT I)
         function caffeine(): string { BarState.toggleCaffeine(); return Toggles.caffeine ? "on" : "off"; }
+        // Modes (ADR-0016): the bar's menu on the focused monitor (SUPER ALT M);
+        // mode(id) sets one ("personal" ends it), modeNow() says which
+        function modes(): void { BarState.toggleModes(Hyprland.focusedMonitor?.name ?? ""); }
+        function mode(id: string): string { if (!Modes.byId(id)) return "unknown mode"; Modes.set(id, ""); return id; }
+        function modeNow(): string { return Modes.currentId; }
         // Colors: `themeMode light|dark|system`, `toggleInverted`, `currentTheme`
         function themeMode(mode: string): void { if (["system", "dark", "light"].includes(mode)) Theme.setMode(mode); }
         function toggleInverted(): void { Theme.setInverted(!Theme.chosenInverted); }

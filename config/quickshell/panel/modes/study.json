@@ -1,0 +1,20 @@
+{
+  "id": "study",
+  "name": "Study",
+  "icon": "",
+  "order": 2,
+  "notifications": {
+    "allow": "list",
+    "apps": [
+      "calendar"
+    ],
+    "people": []
+  },
+  "comms": [],
+  "caffeine": true,
+  "night": null,
+  "dark": null,
+  "game": null,
+  "open": [],
+  "timer": null
+}

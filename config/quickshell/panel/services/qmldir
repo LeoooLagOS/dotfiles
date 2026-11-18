@@ -32,3 +32,4 @@ singleton Charger 1.0 Charger.qml
 singleton Flavors 1.0 Flavors.qml
 singleton Styles 1.0 Styles.qml
 singleton Fullscreen 1.0 Fullscreen.qml
+singleton Modes 1.0 Modes.qml

@@ -289,6 +289,15 @@ Rectangle {
                         font.features: { "tnum": 1 }
                     }
                 }
+                // A mode's timer (services/Modes.qml): Pomodoro's phase and time
+                // left, or how long the mode has; the left side widens to match
+                Row {
+                    visible: Modes.timerText !== "" && root.mode !== "rec"
+                    spacing: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    Glyph { text: Modes.timerIcon; font.pixelSize: 11; color: root.accent; anchors.verticalCenter: parent.verticalCenter }
+                    Label { text: Modes.timerText; color: root.inkDim; font.pixelSize: 12; font.weight: Font.Medium; font.features: { "tnum": 1 }; anchors.verticalCenter: parent.verticalCenter }
+                }
                 // Equalizer (decorative: moves while playing)
                 Row {
                     visible: root.mode === "media"

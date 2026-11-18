@@ -1,0 +1,18 @@
+{
+  "id": "personal",
+  "name": "Personal",
+  "icon": "",
+  "order": 0,
+  "notifications": {
+    "allow": "all",
+    "apps": [],
+    "people": []
+  },
+  "comms": null,
+  "caffeine": null,
+  "night": null,
+  "dark": null,
+  "game": null,
+  "open": [],
+  "timer": null
+}

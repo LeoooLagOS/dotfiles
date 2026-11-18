@@ -1,0 +1,18 @@
+{
+  "id": "game",
+  "name": "Game",
+  "icon": "",
+  "order": 5,
+  "notifications": {
+    "allow": "none",
+    "apps": [],
+    "people": []
+  },
+  "comms": null,
+  "caffeine": null,
+  "night": null,
+  "dark": null,
+  "game": true,
+  "open": [],
+  "timer": null
+}

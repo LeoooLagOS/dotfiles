@@ -75,10 +75,13 @@ Singleton {
         return Quickshell.iconPath(ic, true) || Quickshell.iconPath(e.id, true);
     }
 
-    readonly property var defs: (Settings.v.commsApps ?? []).map(ref => {
+    readonly property var allDefs: (Settings.v.commsApps ?? []).map(ref => {
         const e = entryOf(ref);
         return e ? { ref: ref, entry: e, key: slug(shortName(e.name)), name: shortName(e.name), classes: classesOf(e) } : null;
     }).filter(d => d)
+    // The dock shows the ones the mode allows (services/Modes.qml: Work, Teams
+    // and Thunderbird; Study, none). The others keep running, out of sight
+    readonly property var defs: allDefs.filter(d => Modes.commsAllows(d))
     readonly property var missing: (Settings.v.commsApps ?? []).filter(ref => !entryOf(ref))
 
     function windowsOf(d) { return clients.filter(c => d.classes.includes(String(c.class).toLowerCase())); }
@@ -96,7 +99,7 @@ Singleton {
     // The app a notification came from is in front of you: its window
     // focused, or shown above the dock (Notifs: a message it closes was read)
     function lookingAt(n) {
-        const d = defs.find(x => isFrom(x, n));
+        const d = allDefs.find(x => isFrom(x, n));
         if (!d) return false;
         if (shown === d.key) return true;
         const w = mainOf(d), a = Hyprland.activeToplevel?.address;
@@ -181,7 +184,7 @@ Singleton {
     //     three notifications, newest first [{ who, text }] }, or null
     function infoOf(appId, title) {
         const id = String(appId ?? "").toLowerCase();
-        const d = defs.find(x => x.classes.includes(id));
+        const d = allDefs.find(x => x.classes.includes(id));
         if (!d) return null;
         const app = apps.find(a => a.key === d.key);
         const name = d.name.toLowerCase(), entryName = String(d.entry.name).toLowerCase();
@@ -538,7 +541,7 @@ Singleton {
     Timer {
         interval: 60000
         repeat: true
-        running: root.defs.some(d => Number(root.lifeOf(d.ref)) > 0)
+        running: root.allDefs.some(d => Number(root.lifeOf(d.ref)) > 0)
         onTriggered: {
             const u = Object.assign({}, root.usedAt), now = Date.now();
             for (const d of root.defs) {
@@ -558,7 +561,7 @@ Singleton {
     // At login: each one set to open then, hidden; the others only tucked
     // away if they're already running
     function startAll() {
-        for (const d of defs) {
+        for (const d of allDefs) {
             const w = mainOf(d);
             if (w) moveIn(d, w, false); else if (lifeOf(d.ref) === "login") launch(d, false);
         }
