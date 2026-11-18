@@ -80,7 +80,9 @@ Singleton {
         return e ? { ref: ref, entry: e, key: slug(shortName(e.name)), name: shortName(e.name), classes: classesOf(e) } : null;
     }).filter(d => d)
     // The dock shows the ones the mode allows (services/Modes.qml: Work, Teams
-    // and Thunderbird; Study, none). The others keep running, out of sight
+    // and Thunderbird; Study, none). The others are off while it lasts: closed
+    // when the mode starts, never opened, but still the dock's (Settings), so
+    // they open again when it ends (see "Modes" below)
     readonly property var defs: allDefs.filter(d => Modes.commsAllows(d))
     readonly property var missing: (Settings.v.commsApps ?? []).filter(ref => !entryOf(ref))
 
@@ -400,13 +402,14 @@ Singleton {
     function restart(key) { stop(key, true); }
     function quit(key) { stop(key, false); }
     function stop(key, again) {
-        const d = defs.find(x => x.key === key), w = d ? mainOf(d) : null;
+        const d = allDefs.find(x => x.key === key), w = d ? mainOf(d) : null;
         if (!d || restarting[key]) return;
         if (!w) { if (again) launch(d, shown === key); return; }
         const r = Object.assign({}, restarting); r[key] = true; restarting = r;
         console.info("comms:", again ? "restart" : "quit", key, "pid", w.pid);
         const proc = stopComp.createObject(root, { key: key, again: again, show: shown === key,
-            command: [Quickshell.shellDir + "/scripts/comms-stop.sh", w.address, String(w.pid)] });
+            // A web app's PID is its browser's (other web apps, the tabs): only its window closes
+            command: [Quickshell.shellDir + "/scripts/comms-stop.sh", w.address, isWebApp(d.entry) ? "" : String(w.pid)] });
         proc.running = true;
     }
     Component {
@@ -417,7 +420,7 @@ Singleton {
             property bool show
             onExited: {
                 const r = Object.assign({}, root.restarting); delete r[key]; root.restarting = r;
-                const d = root.defs.find(x => x.key === key);
+                const d = root.allDefs.find(x => x.key === key);
                 if (again && d) root.launch(d, show);
                 destroy();
             }
@@ -563,23 +566,55 @@ Singleton {
     function startAll() {
         for (const d of allDefs) {
             const w = mainOf(d);
-            if (w) moveIn(d, w, false); else if (lifeOf(d.ref) === "login") launch(d, false);
+            if (w) moveIn(d, w, false);
+            else if (lifeOf(d.ref) === "login" && Modes.commsAllows(d)) launch(d, false);
         }
     }
     // An app taken out of the dock (Settings): its windows come back to the
-    // current workspace instead of staying hidden
-    onDefsChanged: releaseSoon.restart()
+    // current workspace instead of staying hidden. Not one a mode turns off:
+    // that one is still the dock's (allDefs)
+    onAllDefsChanged: releaseSoon.restart()
     Timer {
         id: releaseSoon
         interval: 300
         onTriggered: {
-            const keys = root.defs.map(d => d.key);
+            const keys = root.allDefs.map(d => d.key);
             const ws = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1;
             for (const c of root.clients) {
                 const name = c.workspace.name;
                 const key = name.slice("special:comms-".length);
                 if (name.startsWith("special:comms-") && !keys.includes(key) && !root.isGuest(key))
                     root.dispatch(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${c.address}" })`);
+            }
+        }
+    }
+
+    // ---------------- Modes ----------------
+    // A mode that leaves an app out of the dock turns it off: closed (its
+    // notifications stop with it), out of the dock, not opened at login. When
+    // the mode ends, the ones that open at login open again, hidden.
+    // At the panel's start (the mode read from its file) it only closes:
+    // the apps were opened, or not, at login
+    Connections {
+        target: Modes
+        function onCurrentIdChanged() { modeApply.opens = Modes.stateRead; modeApply.restart(); }
+    }
+    Timer {
+        id: modeApply
+        property bool opens: true
+        interval: 300                       // after `defs` follows the new mode
+        onTriggered: {
+            for (const d of root.allDefs) {
+                const w = root.mainOf(d);
+                if (!Modes.commsAllows(d)) {
+                    if (!w) continue;
+                    console.info("comms: off during the mode:", d.key);
+                    if (root.shown === d.key) root.hide();
+                    root.quit(d.key);
+                } else if (opens && !w && !root.pending[d.key] && root.lifeOf(d.ref) === "login") {
+                    console.info("comms: back after the mode:", d.key);
+                    root.launch(d, false);
+                }
             }
         }
     }
