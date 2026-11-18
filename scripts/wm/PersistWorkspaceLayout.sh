@@ -286,8 +286,13 @@ def replace_rule(match):
     params = parse_rule_table(body)
     ws = params.get("workspace", "")
     mon = params.get("monitor", "")
-    if ws == target_ws and mon == target_mon:
-        updated = True
+    # A rule's monitor isn't a selector: Hyprland applies every rule of the
+    # workspace, and the last one's layout wins. So all the rules of this
+    # workspace (any monitor) take the new layout; otherwise a rule for the
+    # laptop's screen put it back after the config reload.
+    if ws == target_ws:
+        if mon == target_mon:
+            updated = True
         if re.search(r'\blayout\s*=', body):
             new_body = re.sub(r'(\blayout\s*=\s*)(["\'][^"\']*["\']|[^\s,]+)', r'\1"' + target_layout + '"', body)
         else:

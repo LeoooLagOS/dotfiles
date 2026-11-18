@@ -8,7 +8,7 @@
 # Switch Hyprland layouts per active monitor/workspace.
 # This avoids global layout mutations and keeps workspace-specific rules intact.
 
-notif="${XDG_CONFIG_HOME:-$HOME/.config}/swaync/images/ja.png"
+. "$(dirname "$(readlink -f "$0")")/lagos_i18n.sh"
 persist_layout_script="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/PersistWorkspaceLayout.sh"
 layouts=(master dwindle scrolling monocle)
 quiet_mode=0
@@ -154,7 +154,10 @@ set_workspace_layout_rule() {
   fi
 
   output="$(hyprctl keyword workspace "${workspace_selector}, monitor:${monitor_name}, layout:${target}" 2>&1 || true)"
-  if grep -q "keyword can't work with non-legacy parsers" <<<"$output"; then
+  # Lua config: `hyprctl keyword` fails ("keyword can't work with non-legacy
+  # parsers" before, "unknown request" since Hyprland dropped it), so any
+  # failure tries the Lua rule
+  if ! is_ok_output "$output"; then
     ws_escaped="$(escape_lua_string "$workspace_selector")"
     monitor_escaped="$(escape_lua_string "$monitor_name")"
     target_escaped="$(escape_lua_string "$target")"
@@ -179,17 +182,70 @@ next_layout() {
   echo "${layouts[0]}"
 }
 
+# What each layout does, in plain words, for the notice
+describe_layout() {
+  case "$1" in
+  master) t "One big window, the rest stacked beside it" ;;
+  dwindle) t "Each new window splits the focused one in half" ;;
+  scrolling) t "Windows in columns, side by side" ;;
+  monocle) t "One window at a time, full size" ;;
+  esac
+}
+
+# One notice at a time: a new one replaces the last (the panel's
+# synchronous tag), so pressing keys in a row doesn't stack them
+notice() {
+  notify-send -e -u "$1" -a Hyprland -i view-grid-symbolic \
+    -h string:x-canonical-private-synchronous:lagos-layout "$2" "$3" 2>/dev/null || true
+}
+
+# A layout message (hl.dsp.layout), only where it exists. Elsewhere Hyprland
+# answered with its red Lua error; now a short notice says where it works.
+#   layout_msg "swapwithmaster auto" master
+layout_msg() {
+  local msg=$1 out
+  shift
+  if [[ " $* " != *" $current "* ]]; then
+    notice low "$(t "Only in %1" "${*^}")" "$(t "Now: %1 · SUPER ALT L changes it" "${current^}")"
+    return 1
+  fi
+  out=$(hyprctl dispatch "hl.dsp.layout(\"$msg\")" 2>&1)
+  # "window is floating", "no window"… : nothing to arrange, nothing to say
+  [[ $out == error:* ]] && return 1
+  return 0
+}
+
+# SUPER ALT S: scrolling's strip sideways <-> up and down (scrolling:direction;
+# `hyprctl keyword` doesn't exist with a Lua config, so it goes through hl.config)
+scroll_direction() {
+  local now new
+  now=$(hyprctl getoption scrolling:direction -j 2>/dev/null | jq -r '.str // "right"')
+  [[ $now == right ]] && new=down || new=right
+  hyprctl eval "hl.config({ scrolling = { direction = \"$new\" } })" >/dev/null 2>&1 || return 1
+  if [[ $new == down ]]; then
+    notice low "$(t "Scrolling: up and down")" "$(t "New windows go below")"
+  else
+    notice low "$(t "Scrolling: sideways")" "$(t "New windows go to the right")"
+  fi
+}
+
+# SUPER CTRL L: the current layout's own move, one key for all of them
+layout_action() {
+  case "$current" in
+  dwindle) layout_msg togglesplit dwindle ;;           # side by side <-> one over the other
+  master) layout_msg "swapwithmaster auto" master ;;   # the window to the big side
+  scrolling) bash "$(dirname "$(readlink -f "$0")")/ScrollCycleColumnWidth.sh" ;;  # next column width
+  monocle) layout_msg cyclenext monocle ;;             # the next window
+  esac
+}
+
 set_layout() {
   local target="$1"
-  local ws_json workspace_label monitor_name actual
+  local actual err
 
-  ws_json="$(get_active_workspace_json)"
-  workspace_label="$(get_workspace_label "$ws_json")"
-  monitor_name="$(get_monitor_name "$ws_json")"
-
-  if ! set_workspace_layout_rule "$target"; then
+  if ! err="$(set_workspace_layout_rule "$target" 2>&1)"; then
     if [[ "$quiet_mode" -eq 0 ]]; then
-      notify-send -e -u critical -i "$notif" " Layout switch failed: $target"
+      notice critical "$(t "Couldn't change the window layout")" "${target^}: ${err:-?}"
     fi
     return 1
   fi
@@ -198,11 +254,11 @@ set_layout() {
   if [[ "$actual" == "$target" ]]; then
     persist_current_workspace_layout "$target"
     if [[ "$quiet_mode" -eq 0 ]]; then
-      notify-send -e -u low -i "$notif" " ${actual^} Layout · WS ${workspace_label}${monitor_name:+ @ ${monitor_name}}"
+      notice low "$(t "Windows: %1" "${actual^}")" "$(describe_layout "$actual")"
     fi
   else
     if [[ "$quiet_mode" -eq 0 ]]; then
-      notify-send -e -u critical -i "$notif" " Layout switch failed: still ${actual}"
+      notice critical "$(t "Couldn't change the window layout")" "$(t "It's still %1" "${actual^}")"
     fi
     return 1
   fi
@@ -227,11 +283,21 @@ current | status | get)
 toggle | next)
   set_layout "$(next_layout "$current")"
   ;;
+action)
+  layout_action
+  ;;
+direction)
+  scroll_direction
+  ;;
+msg)
+  # msg "<layout message>" <layouts where it exists…>
+  layout_msg "${2:?message}" "${@:3}"
+  ;;
 master | dwindle | scrolling | monocle)
   set_layout "$arg"
   ;;
 *)
-  echo "Usage: $(basename "$0") [--quiet|--no-notify] [toggle|next|init|current|master|dwindle|scrolling|monocle]" >&2
+  echo "Usage: $(basename "$0") [--quiet|--no-notify] [toggle|next|action|direction|msg MSG LAYOUT…|init|current|master|dwindle|scrolling|monocle]" >&2
   exit 1
   ;;
 esac

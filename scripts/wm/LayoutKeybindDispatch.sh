@@ -45,14 +45,25 @@ get_active_layout() {
   printf '%s\n' "$layout"
 }
 
+# Hyprland with a Lua config takes only Lua in `hyprctl dispatch`
+# (hl.dsp…): the old `hyprctl dispatch layoutmsg "focus r"` failed, so in
+# scrolling SUPER ← / → never moved. The layout messages and movefocus go as
+# Lua; anything else is tried the old way, and the callers fall back to
+# Lua focus / LuaCycleWindow.sh when the focus didn't change.
 dispatch_quiet() {
   local dispatcher="$1"
   shift || true
-  if (($# > 0)); then
+  case "$dispatcher" in
+  layoutmsg)
+    hyprctl dispatch "hl.dsp.layout(\"$*\")" >/dev/null 2>&1 || true
+    ;;
+  movefocus)
+    hyprctl dispatch "hl.dsp.focus({ direction = \"$(direction_word "${1:-r}")\" })" >/dev/null 2>&1 || true
+    ;;
+  *)
     hyprctl dispatch "$dispatcher" "$@" >/dev/null 2>&1 || true
-  else
-    hyprctl dispatch "$dispatcher" >/dev/null 2>&1 || true
-  fi
+    ;;
+  esac
 }
 
 get_active_window_address() {
