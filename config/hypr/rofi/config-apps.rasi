@@ -1,0 +1,14 @@
+/* The app launcher (SUPER D, scripts/wm/RofiLauncher.sh): 10 apps, two
+ * columns of 5, icon beside the name. CTRL 1 … CTRL 5 open the left column
+ * top to bottom, CTRL 6 … CTRL 0 the right one (kb-select-1…10, set in the
+ * script). Its own height (shorter than the room below the panel, so it
+ * never touches it).
+ * Layout only: colors, fonts and corners come from themes/Lagos.rasi (via config.rasi). */
+@import "~/.config/hypr/rofi/config.rasi"
+
+window       { width: 820px; }
+entry        { placeholder: "Search apps   (Ctrl+1 ... Ctrl+0 open one)"; }
+listview     { columns: 2; lines: 5; flow: vertical; spacing: 4px; }
+element      { padding: 12px 14px; spacing: 14px; }
+element-icon { size: 32px; }
+element-text { font: "Inter Medium 12"; }

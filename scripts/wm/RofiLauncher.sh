@@ -18,10 +18,14 @@ if [ -x "$SCRIPTSDIR/RofiFocusedWallpaperLink.sh" ]; then
   "$SCRIPTSDIR/RofiFocusedWallpaperLink.sh" >/dev/null 2>&1 || true
 fi
 
-config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-large.rasi"
+config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/rofi/config-apps.rasi"
 calc_opts=(-terse -automatic-save-to-history -hint-result "= "
   -calc-command "$SCRIPTSDIR/RofiCalcAction.sh '{expression}' '{result}'")
 
 # Apps tab: only the apps. Math goes in the Calc tab (history, plots); the
 # quickcalc plugin (scripts/rofi-quickcalc) used to put its rows above the apps
-exec rofi -show drun -modi drun,filebrowser,run,window,calc "${calc_opts[@]}" -config "$config"
+# CTRL 1 … CTRL 0: open the app in that place of the grid (rofi's
+# kb-select-N; its default SUPER+N is Hyprland's, it never reaches rofi)
+select_keys=()
+for n in 1 2 3 4 5 6 7 8 9 10; do select_keys+=(-kb-select-$n "Control+$((n % 10))"); done
+exec rofi -show drun -modi drun,filebrowser,run,window,calc "${calc_opts[@]}" "${select_keys[@]}" -config "$config"

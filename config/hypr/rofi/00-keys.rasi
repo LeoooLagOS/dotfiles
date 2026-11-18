@@ -1,0 +1,12 @@
+/* Keys in every menu (imported by config.rasi):
+ *   Shift ← / →        previous / next page of the tab shown
+ *   Ctrl Shift ← / →   previous / next tab (Ctrl Tab / Ctrl Shift Tab too)
+ *   Page Up / Down     pages as well
+ * rofi's defaults had Shift ← / → for the tabs. SUPER D adds Ctrl 1 … Ctrl 0
+ * (open the app in that place: scripts/wm/RofiLauncher.sh). */
+configuration {
+  kb-page-prev:     "Page_Up,Shift+Left";
+  kb-page-next:     "Page_Down,Shift+Right";
+  kb-mode-previous: "Control+Shift+Left,Control+ISO_Left_Tab";
+  kb-mode-next:     "Control+Shift+Right,Control+Tab";
+}

@@ -4,7 +4,8 @@
  * imports ~/.config/lagos/rofi/<group>.rasi with its colors, written by the
  * panel: Settings → Appearance → Panel & launchers), corners like the windows'
  * (lagos-radius / lagos-radius-inner, written there too from Hyprland's rounding), the
- * accent at 20% for the selection. A card ~760 px wide whose height follows
+ * a faint step of the text color for the selection (Windows 11's Start), the
+ * accent only where focus is: the search line and the selected tab. A card ~760 px wide whose height follows
  * its lines; where it opens (bottom edge or centered) is position.rasi, imported
  * at the end (scripts/wm/RofiPosition.sh). Launcher configs (config-*.rasi) only change the layout:
  * columns, lines, width, placeholder. */
@@ -61,8 +62,9 @@ inputbar {
   padding:          11px 14px;
   spacing:          10px;
   background-color: @lagos-zone;
-  border:           1px solid;
-  border-color:     @lagos-border;
+  /* Windows 11's search field: a line of the accent below it */
+  border:           0px 0px 2px 0px solid;
+  border-color:     @lagos-accent;
   border-radius: @lagos-radius-inner;
   children:         [ "icon-search", "entry" ];
 }
@@ -151,7 +153,7 @@ button {
 }
 button selected {
   background-color: @lagos-accent-soft;
-  text-color:       @lagos-selected-fg;
+  text-color:       @lagos-accent;
 }
 
 error-message {

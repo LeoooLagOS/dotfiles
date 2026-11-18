@@ -6,8 +6,7 @@
 
 * To load a new theme, manually edit the file path below or choose desired theme via rofi theme selector (choose via app menu)
 
-* Alternative way to Load (preferred) own cooked by Ja
-* SUPER CTRL R - Choose style & SUPER CTRL SHIFT R
+* Alternative way to Load: SUPER ALT T → Menus (the themes menu)
 
 * TIPS
 * If you have edited a config, rename it with a unique name. During update, the contents of
@@ -19,8 +18,11 @@
 /* Force kitty as terminal for Terminal=true apps and run-shell */
 @import "~/.config/hypr/rofi/00-terminal.rasi"
 
+/* Pages with Shift ← / →, tabs with Ctrl Shift ← / → */
+@import "~/.config/hypr/rofi/00-keys.rasi"
+
 /* Main theme: Lagos (matches the Quickshell panel). The other themes are in
- * ~/.config/hypr/rofi/themes/; the rofi theme selector (SUPER CTRL R) appends
+ * ~/.config/hypr/rofi/themes/; the themes menu (SUPER ALT T → Menus) appends
  * its choice below, and the last @theme wins. */
 @theme "~/.config/hypr/rofi/themes/Lagos.rasi"
 

@@ -28,24 +28,43 @@ Singleton {
 
     readonly property var tokenNames: ["surface", "zone", "hover", "fg", "fg-dim", "accent", "accent-soft",
                                        "selected-fg", "on-accent", "border", "urgent"]
+    // The menus look like Windows 11's Start: a neutral card (#202020 dark,
+    // #f3f3f3 light) with a hint of the wallpaper, nearly opaque; the search
+    // field and the selected row a faint step of the text color, not a color
+    // block; the accent only where focus is (the search line, the tab).
+    // Inverted keeps the wallpaper-colored surfaces. Also with the default
+    // theme (Theme.launchers is then dark, normal)
+    readonly property var win: {
+        const p = Theme.launchers;
+        if (p.inverted) return { surface: C.rasi(p.base, 0.97), zone: C.rasi(p.bgAlt, 0.95),
+                                 soft: C.rasi(p.tabBg), selFg: C.rasi(p.tabFg) };
+        const card = C.mix(p.light ? "#f3f3f3" : "#202020", p.base, 0.12);
+        return { surface: C.rasi(card, 0.96),
+                 zone: p.light ? C.rasi("#ffffff", 0.85) : C.rasi(C.mix(card, "#ffffff", 0.07), 0.95),
+                 soft: C.rasi(p.fg, p.light ? 0.06 : 0.08), selFg: C.rasi(p.fg) };
+    }
+    readonly property string surface: win.surface
+    readonly property string zone: win.zone
     readonly property string themedTokens: {
         const p = Theme.launchers;
         const v = {
-            "surface": C.rasi(p.base, Math.max(0.92, p.bgOpacity)),
-            "zone": C.rasi(p.bgAlt, p.original ? 0.70 : 0.95),
+            "surface": surface,
+            "zone": zone,
             "hover": C.rasi(p.bgHover),
             "fg": C.rasi(p.fg),
             "fg-dim": C.rasi(p.fgDim),
             "accent": C.rasi(p.accent),
-            "accent-soft": C.rasi(p.tabBg),
-            "selected-fg": C.rasi(p.tabFg),
+            "accent-soft": win.soft,
+            "selected-fg": win.selFg,
             "on-accent": C.rasi(p.accentText),
             "border": C.rasi(p.border),
             "urgent": C.rasi(p.bad)
         };
         return tokenNames.map(n => `  lagos-${n}: ${v[n]};`).join("\n");
     }
-    readonly property string defaultTokens: tokenNames.map(n => `  lagos-${n}: @lagos-dark-${n};`).join("\n")
+    readonly property string defaultTokens: tokenNames.map(n => `  lagos-${n}: ${
+        n === "surface" ? surface : n === "zone" ? zone : n === "accent-soft" ? win.soft
+        : n === "selected-fg" ? win.selFg : "@lagos-dark-" + n};`).join("\n")
     // Corners like the windows' (Hyprland's decoration:rounding, Theme.windowRadius),
     // themed or not: the menus float like windows
     // And the room the menus have so they never touch the panel's card
@@ -61,8 +80,7 @@ Singleton {
     //                         an anchored edge, so they hang from the top instead)
     //   lagos-side-width      menus under the logo (SUPER R, SUPER X): to 8 px left of the card
     readonly property var screen: Quickshell.screens.find(x => x.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0] ?? null
-    readonly property int reserved: !BarState.enabled ? 0
-        : (Settings.v.barStyle === "islands" || Settings.v.barStyle === "floating" ? 6 : 0) + Settings.v.barHeight
+    readonly property int reserved: !BarState.enabled ? 0 : BarState.zone
     readonly property int areaH: (screen?.height ?? 1080) - reserved
     readonly property int cardBottom: Config.topMargin + Math.round(areaH * Config.heightFraction)
     readonly property int cardLeft: Math.round(((screen?.width ?? 1920) - Math.round((screen?.width ?? 1920) * Config.widthFraction)) / 2)
@@ -79,7 +97,7 @@ Singleton {
              + `* {\n${on ? themedTokens : defaultTokens}\n${radiusTokens}\n}\n`;
     }
     // Everything the files depend on; a change rewrites them (debounced)
-    readonly property string state: JSON.stringify([Settings.launcherGroups.map(g => themed(g.id)), themedTokens, radiusTokens])
+    readonly property string state: JSON.stringify([Settings.launcherGroups.map(g => themed(g.id)), themedTokens, defaultTokens, radiusTokens])
     onStateChanged: writer.restart()
     Component.onCompleted: writer.restart()
 
