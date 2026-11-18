@@ -37,5 +37,21 @@ Zone {
             font.pixelSize: 11
             text: Tr.t("Lower is warmer. Also toggled with SUPER ALT N.")
         }
+        // The schedule (Settings → Night light), like Windows'
+        RowLayout {
+            Layout.fillWidth: true
+            Label {
+                Layout.fillWidth: true
+                wrapMode: Text.Wrap
+                font.pixelSize: 12
+                text: Settings.v.nightSchedule === "off" ? Tr.t("No schedule")
+                    : Toggles.nightPlan || Tr.t("Waiting for today's sun times")
+            }
+            Chip {
+                text: Tr.t("Schedule")
+                implicitHeight: 26
+                onClicked: PanelState.openSettings("night")
+            }
+        }
     }
 }

@@ -42,6 +42,9 @@ Singleton {
         dueStages: [4320, 1440, 180, 60], briefOn: true, briefHour: 7, soonEvent: 30, soonDue: 6,  // services/Events.qml
         // Wallpaper
         wallust: true, rotate: false, rotateMin: 30,
+        // Night light schedule (services/Toggles.qml): "off" | "sun" | "hours";
+        // the hours are minutes of the day (21:00 = 1260)
+        nightSchedule: "off", nightOnAt: 1260, nightOffAt: 420,
         // Not shown in Settings (set from Controls)
         nightTemp: 4500,
         recTarget: "screen", recAudio: "system", recFps: 60,     // screen recording (services/Recorder.qml)
@@ -290,6 +293,15 @@ Singleton {
                 { key: "wallust", label: "Take colors from the wallpaper", help: "wallust → panel, waybar, rofi, kitty, borders. Off keeps the current colors", type: "switch", system: true },
                 { key: "rotate", label: "Change automatically", help: "A random one from the folder", type: "switch" },
                 { key: "rotateMin", label: "Every", type: "select", opts: [[15, "15 min"], [30, "30 min"], [60, "1 hour"], [180, "3 hours"]] } ] } ] },
+        { id: "night", icon: "\uf186", label: "Night light", lead: "Warmer colors in the evening, easier on the eyes. Like in Windows, it can turn on and off by itself.", groups: [
+            { title: "Schedule", rows: [
+                { key: "nightSchedule", label: "Turn on by itself", help: "Sunset to sunrise: today's times for your weather location. You can still turn it on or off by hand (SUPER ALT N, Controls); the schedule takes over again at the next change", type: "seg",
+                  opts: [["off", "Never"], ["sun", "Sunset to sunrise"], ["hours", "Set hours"]] },
+                { key: "nightOnAt", label: "Turn on at", type: "range", min: 0, max: 1425, step: 15, unit: "clock",
+                  visibleIf: v => v.nightSchedule === "hours" },
+                { key: "nightOffAt", label: "Turn off at", type: "range", min: 0, max: 1425, step: 15, unit: "clock",
+                  visibleIf: v => v.nightSchedule === "hours" },
+                { label: "Color temperature", help: "Controls → Night light (the arrow on its tile)", type: "info", value: "SUPER A" } ] } ] },
         { id: "keyboard", icon: "", label: "Keyboard", lead: "Shortcuts (read-only; edit them in UserConfigs/user_keybinds.lua).", groups: [
             { title: "Panel", rows: [
                 { label: "Notifications", type: "keys", value: ["SUPER", "N"] },

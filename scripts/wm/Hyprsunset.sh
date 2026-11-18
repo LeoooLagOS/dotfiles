@@ -51,23 +51,33 @@ icon_on() {
   esac
 }
 
+# Stop hyprsunset and wait until it's gone. A hyprsunset that lost Hyprland's
+# socket can hang with SIGTERM blocked: then the toggle changed the state file
+# but the screen stayed warm forever. After a second it gets SIGKILL.
+stop_hyprsunset() {
+  pgrep -x hyprsunset >/dev/null 2>&1 || return 0
+  pkill -x hyprsunset || true
+  for _ in 1 2 3 4 5; do
+    sleep 0.2
+    pgrep -x hyprsunset >/dev/null 2>&1 || return 0
+  done
+  pkill -KILL -x hyprsunset || true
+  sleep 0.2
+}
+
 cmd_toggle() {
   ensure_state
   state="$(cat "$STATE_FILE" || echo off)"
 
   # Always stop any running hyprsunset first to avoid CTM manager conflicts
-  if pgrep -x hyprsunset >/dev/null 2>&1; then
-    pkill -x hyprsunset || true
-    # give it a moment to release the CTM manager
-    sleep 0.2
-  fi
+  stop_hyprsunset
 
 if [[ "$state" == "on" ]]; then
     # Turning OFF: set identity and exit
     if command -v hyprsunset >/dev/null 2>&1; then
       nohup hyprsunset -i >/dev/null 2>&1 &
       # if hyprsunset persists, stop it shortly after applying identity
-      sleep 0.3 && pkill -x hyprsunset || true
+      sleep 0.3 && stop_hyprsunset
     fi
     echo off > "$STATE_FILE"
     notify-send -u low "Hyprsunset: Disabled" || true

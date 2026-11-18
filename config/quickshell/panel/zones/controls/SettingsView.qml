@@ -16,6 +16,9 @@ RowLayout {
     onSectionChanged: SystemSettings.refreshAbout()
 
     function fmt(row, v) {
+        // A time of day, from minutes since midnight (1260 → 21:00)
+        if (row.unit === "clock")
+            return String(Math.floor(v / 60)).padStart(2, "0") + ":" + String(v % 60).padStart(2, "0");
         if (row.unit === "time") {
             if (v < 60) return v + " s";
             const m = v / 60;
