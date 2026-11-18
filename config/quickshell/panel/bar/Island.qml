@@ -9,9 +9,9 @@ import "../services"
 // The island at the center of the bar: a near-black pill, whatever the theme.
 // Grown, it's the bigger view of the bar's right twin (bar/Glance.qml): the
 // music while something plays (Media.active), else the weather.
-//   rest       date · time
-//   media      while a player plays and no twin shows it (playerShown): its
-//              art on the left, an equalizer on the right; the time stays where it was
+//   rest       date · time (· a mode's timer: services/Modes.qml)
+//   media      while a player plays (a twin showing it too): its art on the
+//              left, an equalizer on the right; the time stays where it was
 //   expanded   hovering it while a player plays (or paused it a moment ago):
 //              it grows down with the art, title, progress and controls
 //   weather    hovering it otherwise: it grows down with the weather (sky,
@@ -36,10 +36,6 @@ Rectangle {
     readonly property bool playing: Media.playing
     readonly property bool music: Media.active
     property bool expandWanted: false
-    // The bar already shows the player in a twin (TopBar.qml): then the pill
-    // stays day · time · date while it plays (no small art, no equalizer), so
-    // its width, and the twins' room, don't change when music starts or stops
-    property bool playerShown: false
     readonly property var msg: BarState.message
     readonly property var lvl: BarState.level
     readonly property string mode: lvl ? "level"
@@ -48,7 +44,7 @@ Rectangle {
         : Recorder.recording ? "rec"
         : expandWanted && music ? "expanded"
         : expandWanted && Weather.ready ? "weather"
-        : playing && !playerShown ? "media" : "rest"
+        : playing ? "media" : "rest"
     readonly property bool isMessage: mode === "message" || mode === "messageOpen"
     readonly property int pillH: Settings.v.barHeight - 6
     readonly property color ink: "#f1f3f5"

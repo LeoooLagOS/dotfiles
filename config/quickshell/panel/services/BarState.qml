@@ -19,6 +19,22 @@ Singleton {
 
     readonly property string stateFile: Quickshell.env("HOME") + "/.config/lagos/bar"
     property bool enabled: true
+
+    // ---------------- Geometry: the strip at the top of each screen ----------------
+    // Islands: 4 px of air above the cards and 4 px below them to the windows,
+    // no more (the most screen for the windows). The strip is the cards + 2 px
+    // each side (the island, 2 px taller, still fits); Hyprland adds its
+    // gaps_out (6) under the reserved zone, so the zone stops 2 px above the
+    // cards' bottom. Floating keeps 6 px (its own background needs the air),
+    // the full bar none.
+    readonly property string style: Settings.v.barStyle
+    readonly property int top: style === "islands" ? 2 : style === "floating" ? 6 : 0
+    readonly property int stripH: style === "islands" ? Settings.v.barHeight - 4 : Settings.v.barHeight
+    readonly property int cardH: Settings.v.barHeight - 8
+    // Where the cards end, from the screen's top edge
+    readonly property int cardBottom: top + Math.round((stripH + cardH) / 2)
+    // The reserved zone (exclusiveZone); windows start gaps_out (6) below it
+    readonly property int zone: style === "islands" ? cardBottom + 4 - 6 : top + stripH
     FileView {
         id: stateView
         path: root.stateFile
@@ -40,7 +56,7 @@ Singleton {
     // Modules shown, per zone, in this order (Settings → Bar → Modules)
     readonly property var allModules: ({
         left: [["logo", Tr.t("Logo")], ["workspaces", Tr.t("Workspaces")], ["window", Tr.t("Window / weather")]],
-        center: [["bell", Tr.t("Notifications")], ["island", Tr.t("Island")], ["caffeine", Tr.t("Caffeine")]],
+        center: [["bell", Tr.t("Notifications")], ["island", Tr.t("Island")], ["caffeine", Tr.t("Modes")]],
         right: [["tray", Tr.t("Tray")], ["cpu", "CPU"], ["ram", "RAM"], ["disk", "Disk"], ["temp", Tr.t("Temperature")],
                 ["wifi", "Wi-Fi"], ["bluetooth", "Bluetooth"], ["battery", Tr.t("Battery")], ["power", Tr.t("Power")]]
     })

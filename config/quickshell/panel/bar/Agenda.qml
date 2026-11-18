@@ -15,7 +15,8 @@ import "../services"
 // then when ("now · until 17:00", "in 20 min", "16:00 · in 2 h", "tomorrow
 // 09:00", "Fri 09:00", "today" for all day) and where; with none, the first
 // open to-do (services/Todos.qml); with neither, that the week is free.
-// Scrolls when it doesn't fit (bar/Marquee.qml).
+// Like the music, in pages that roll up when they don't fit side by side
+// (bar/TrackRoll.qml): the event, when, where.
 // Click: the Calendar tab (music: the Media tab) · middle click (music): play / pause.
 BarPill {
     id: root
@@ -63,10 +64,6 @@ BarPill {
         if (daysTo(e.date) <= 0) return e.start + " · " + Tr.t("in %1 h", Math.round(mins / 60));
         return day + " " + e.start;
     }
-    readonly property string line: event
-        ? "<b>" + esc(event.title) + "</b>  ·  " + esc(whenOf(event)) + (event.location ? "  ·  " + esc(event.location) : "")
-        : todo ? "<b>" + esc(todo.text) + "</b>" + (Todos.isOverdue(todo) ? "  ·  " + Tr.t("overdue") : todo.due ? "  ·  " + Tr.t("due %1", esc(dayName(todo.due))) : "")
-        : Tr.t("Nothing on the calendar this week")
 
     implicitWidth: fixedWidth
     opacity: hide ? 0 : 1
@@ -108,20 +105,26 @@ BarPill {
             color: root.urgent ? root.urgent.color : BarState.accent
         }
     }
+    // What it says, in pages like the music (bar/TrackRoll.qml): side by side
+    // when they fit, else rolling up one after another: the event, then when,
+    // then where (a to-do: then when it's due; the player: title, artist, album)
+    readonly property var pages: music ? [player?.trackTitle ?? "", player?.trackArtist ?? "", player?.trackAlbum ?? ""]
+        : urgent ? [urgent.text, "", ""]
+        : event ? [event.title, whenOf(event), event.location ?? ""]
+        : todo ? [todo.text, Todos.isOverdue(todo) ? Tr.t("overdue") : todo.due ? Tr.t("due %1", dayName(todo.due)) : "", ""]
+        : null
     TrackRoll {
-        visible: root.music
-        title: root.player?.trackTitle ?? ""
-        artist: root.player?.trackArtist ?? ""
-        album: root.player?.trackAlbum ?? ""
+        visible: !!root.pages
+        title: root.pages?.[0] ?? ""
+        artist: root.pages?.[1] ?? ""
+        album: root.pages?.[2] ?? ""
         maxWidth: root.fixedWidth - 2 * root.pad - icon.width - root.spacing
         anchors.verticalCenter: parent.verticalCenter
     }
     Marquee {
-        visible: !root.music
-        textFormat: Text.StyledText
-        text: root.urgent ? "<b>" + root.esc(root.urgent.text) + "</b>"
-            : root.line
-        dim: !root.urgent && !root.music && !root.event && !root.todo
+        visible: !root.pages
+        text: Tr.t("Nothing on the calendar this week")
+        dim: true
         width: Math.min(implicitWidth, Math.max(0, root.fixedWidth - 2 * root.pad - icon.width - root.spacing))
         anchors.verticalCenter: parent.verticalCenter
     }

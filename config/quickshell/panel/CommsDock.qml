@@ -26,14 +26,13 @@ import "./services"
 // and below: its special workspace has a bottom gap
 // (UserConfigs/user_window_rules.lua) of the bar's reserved height + 6 px.
 Scope {
-    // What shows at rest: as far up as the bar's cards reach down (its top
-    // margin, then a BarPill, barHeight - 8, centered in the bar's height)
-    readonly property int peek: (Settings.v.barStyle === "full" ? 0 : 6) + Settings.v.barHeight - 4
+    // What shows at rest: as far up as the bar's cards reach down (BarState.cardBottom)
+    readonly property int peek: BarState.cardBottom
 
     // The app's room below matches the bar's above (its reserved height + 6):
     // set live, since the bar's height is a setting; UserConfigs/user_window_rules.lua
     // has the default, which a Hyprland reload brings back (then it's set again)
-    readonly property int gapBelow: (Settings.v.barStyle === "full" ? 0 : 6) + Settings.v.barHeight + 6
+    readonly property int gapBelow: BarState.zone + 6
     onGapBelowChanged: applyGap()
     Component.onCompleted: applyGap()
     function applyGap() {

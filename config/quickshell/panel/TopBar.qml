@@ -10,15 +10,16 @@ import "./services"
 import "./bar"
 
 // The top bar, one per monitor (replaces waybar; Settings → Bar, services/BarState.qml).
-//   left     distro logo (start menu: bar/StartMenu.qml; the rofi system menu is SUPER X) · tray
-//            (bar/TrayModule.qml) ·
+//   left     distro logo (start menu: bar/StartMenu.qml; the rofi system menu is SUPER X) · one card:
+//            the tray's chevron (bar/TrayModule.qml) and the
 //            workspaces with their apps · the focused window's app and title
 //            (bar/WindowTitle.qml) with the mini weather; on an empty workspace the
 //            whole weather instead (bar/Glance.qml). Its twin on the right: the
 //            reminder, else the music playing, else the next event (bar/Agenda.qml)
 //   center   notifications (click: the panel's Notifications · right click:
-//            Do Not Disturb) · the island (bar/Island.qml) · caffeine
-//   right    CPU, RAM, disk, temperature · Wi-Fi, Bluetooth, battery ·
+//            Do Not Disturb) · the island (bar/Island.qml) · modes (bar/ModesButton.qml)
+//   right    CPU, RAM, disk, temperature · Wi-Fi (with the download /
+//            upload speed), Bluetooth (how many connected), battery ·
 //            power menu. Clicking the readings opens the
 //            system monitor (bar/SystemMonitor.qml), the network / battery the
 //            system popup (bar/SystemPopup.qml); hovering one shows its details (bar/BarTip.qml)
@@ -40,14 +41,18 @@ Scope {
                 visible: BarState.enabled && !hidden
                 property bool hidden: false
                 readonly property int h: Settings.v.barHeight
+                // Each card's tip (bar/BarTip.qml): what it is and the keys that open it
+                readonly property Item tipItem: tip
+                readonly property var monitorKeys: [[Tr.t("System monitor"), "CTRL SHIFT Esc"]]
+                readonly property var connKeys: [[Tr.t("Quick settings"), "SUPER A"]]
                 readonly property bool islands: Settings.v.barStyle === "islands"
                 readonly property bool floating: Settings.v.barStyle === "floating"
-                readonly property int top: islands || floating ? 6 : 0
+                readonly property int top: BarState.top          // the strip's geometry: services/BarState.qml
                 readonly property var monitor: Hyprland.monitorFor(screen)
 
                 anchors { top: true; left: true; right: true }
                 implicitHeight: 620
-                exclusiveZone: top + h
+                exclusiveZone: BarState.zone
                 exclusionMode: ExclusionMode.Normal
                 color: "transparent"
                 WlrLayershell.namespace: "quickshell:bar"
@@ -58,6 +63,7 @@ Scope {
                     item: barArea
                     Region { item: island }
                     Region { item: tray.dropdown }
+                    Region { item: modes.dropdown }
                 }
 
                 // The tray's list closes on a click anywhere else
@@ -66,10 +72,17 @@ Scope {
                     windows: [win]
                     onClose: tray.open = false
                 }
+                // …and so does the modes menu
+                PopupGrab {
+                    open: modes.open
+                    windows: [win]
+                    onClose: BarState.modesOn = ""
+                }
                 Connections {
                     target: BarState
                     function onPopupOnChanged() { if (BarState.popupOn) tray.open = false; }
                     function onMonitorOnChanged() { if (BarState.monitorOn) tray.open = false; }
+                    function onModesOnChanged() { if (BarState.modesOn) tray.open = false; }
                 }
                 Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) tray.open = false; } }
 
@@ -78,7 +91,7 @@ Scope {
                 // the bar's layer rule, so the strip looks like the rest of the screen
                 Rectangle {
                     width: parent.width
-                    height: win.top + win.h
+                    height: BarState.zone
                     color: Theme.backdrop
                     opacity: PanelState.open && PanelState.dimmed && Hyprland.focusedMonitor?.name === win.screen.name ? 1 : 0
                     visible: opacity > 0
@@ -102,7 +115,7 @@ Scope {
                     x: win.floating ? 8 : 0
                     y: win.top
                     width: parent.width - 2 * x
-                    height: win.h
+                    height: BarState.stripH
                     radius: win.floating ? 14 : 0
                     color: win.islands ? "transparent" : Theme.bg
                     border.width: win.islands ? 0 : 1
@@ -121,6 +134,8 @@ Scope {
                         // button): grows and brightens under the pointer
                         Item {
                             id: logo
+                            readonly property var tip: ({ title: Tr.t("Start menu"), desc: Tr.t("Your apps, search and the power options"),
+                                                          keys: [["", "SUPER"]], hint: Tr.t("Right click: the bar's settings") })
                             visible: win.zone("logo")
                             implicitWidth: Settings.v.barHeight - 8
                             implicitHeight: Settings.v.barHeight - 8
@@ -146,6 +161,7 @@ Scope {
                             }
                             MouseArea {
                                 id: logoMouse
+                                onContainsMouseChanged: containsMouse ? win.tipItem.show(logo) : win.tipItem.hide(logo)
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
@@ -155,28 +171,40 @@ Scope {
                                     : BarState.toggleStart(win.screen.name)
                             }
                         }
-                        TrayModule {
-                            id: tray
-                            visible: win.zone("tray")
-                            barWindow: win
-                            alignLeft: true
-                            onOpenChanged: if (open) { BarState.popupOn = ""; BarState.monitorOn = ""; }
-                        }
+                        // The tray's chevron is the workspaces' first cell: one card,
+                        // the twin of the right side's Wi-Fi · Bluetooth · battery
                         Workspaces {
                             id: workspaces
-                            implicitWidth: Math.max(natural, details.match(workspaces, [logo, tray, workspaces], left.anchors.leftMargin))
+                            implicitWidth: Math.max(natural, details.match(workspaces, [logo, workspaces], left.anchors.leftMargin))
                             cap: details.wsCap
-                            visible: win.zone("workspaces")
+                            visible: win.zone("workspaces") || win.zone("tray")
+                            wsShown: win.zone("workspaces")
+                            leadShown: win.zone("tray")
                             monitor: win.monitor
                             tipHost: tip
+                            barTip: win.tipItem
+                            tip: ({ title: Tr.t("Workspaces"), desc: Tr.t("Each desktop with its apps. Click: go there · wheel: next / previous"),
+                                    keys: [[Tr.t("Go to one"), "SUPER 1…0"], [Tr.t("Next / previous"), "SUPER (SHIFT) Tab"],
+                                           [Tr.t("Move the window there"), "SUPER SHIFT 1…0"], [Tr.t("Overview"), "SUPER CTRL A"],
+                                           [Tr.t("Comms dock"), "SUPER Y"]] })
+                            lead: TrayModule {
+                                id: tray
+                                inCard: true
+                                barTip: win.tipItem
+                                tip: open ? null : ({ title: Tr.t("In the background"), desc: Tr.t("Tray icons, open apps, what starts at login and services"),
+                                                     hint: Tr.t("Click: open the list") })
+                                barWindow: win
+                                alignLeft: true
+                                onOpenChanged: if (open) { BarState.popupOn = ""; BarState.monitorOn = ""; BarState.modesOn = ""; }
+                            }
                         }
                     }
 
                     // ---------------- The details: window title · music or weather ----------------
-                    // Each one fills from its side's fixed group (logo · tray · workspaces,
+                    // Each one fills from its side's fixed group (logo · tray and workspaces,
                     // readings · power) toward the center, up to a gap that is the
                     // same on both sides between it and the center group (bell ·
-                    // island · caffeine): Settings → Bar → Gap to the center. While the
+                    // island · modes): Settings → Bar → Gap to the center. While the
                     // island stretches in the bar (messages) they shrink with it, and
                     // one too narrow to read hides. Both follow the island grown
                     // (the weather: the left one's bigger view; the player: the right one skips it).
@@ -188,7 +216,7 @@ Scope {
                         // How far the center group reaches, the longer side (the island is centered).
                         // Held while the island is grown (player, weather): it hangs below the bar
                         readonly property real liveReach: Math.max(mid - (bell.visible ? bell.x : island.x),
-                            (caffeine.visible ? caffeine.x + caffeine.width : island.x + island.width) - mid)
+                            (modes.visible ? modes.x + modes.width : island.x + island.width) - mid)
                         property real reach: 0
                         onLiveReachChanged: if (!island.grown) reach = liveReach
                         readonly property Connections follow: Connections {
@@ -237,13 +265,13 @@ Scope {
                             return right.anchors.rightMargin + cards.reduce((a, w) => a + w, 0) + Math.max(0, cards.length - 1) * 8;
                         }
                         readonly property bool compactReadings: panelOpen
-                            || (twinsOff && rightFull > natural([logo, tray, workspaces], left.anchors.leftMargin) + 0.5)
+                            || (twinsOff && rightFull > natural([logo, workspaces], left.anchors.leftMargin) + 0.5)
                         // Each side's width with its cards as wide as their content, from the screen's edge
                         function natural(items, margin) {
                             const shown = items.filter(i => i.visible);
                             return margin + shown.reduce((a, i) => a + (i.natural ?? i.width), 0) + Math.max(0, shown.length - 1) * 8;
                         }
-                        readonly property real side: Math.max(natural([logo, tray, workspaces], left.anchors.leftMargin),
+                        readonly property real side: Math.max(natural([logo, workspaces], left.anchors.leftMargin),
                                                               natural([stats, conn, power], right.anchors.rightMargin))
                         // Mirrored (twins off), both sides measure the same: the narrower
                         // one's middle card (workspaces, readings) widens to the other's width.
@@ -257,7 +285,7 @@ Scope {
                         // Held while mirrored: the readings losing their numbers mustn't
                         // take apps off the workspaces, they set the size then
                         readonly property real liveWsCap: natural([stats, conn, power], right.anchors.rightMargin)
-                            - natural([logo, tray], left.anchors.leftMargin) - (logo.visible || tray.visible ? 8 : 0)
+                            - natural([logo], left.anchors.leftMargin) - (logo.visible ? 8 : 0)
                         property real wsCap: liveWsCap
                         onLiveWsCapChanged: if (!twinsOff) wsCap = liveWsCap
                         onTwinsOffChanged: wsCap = twinsOff ? wsCap : liveWsCap
@@ -271,6 +299,8 @@ Scope {
                     // bigger view (both twins hide then).
                     MiniWeather {
                         id: miniWeather
+                        barTip: win.tipItem
+                        tip: ({ title: Tr.t("Weather"), desc: Tr.t("Click: the Weather tab, with the forecast"), keys: [["", "SUPER SHIFT T"]] })
                         readonly property bool wanted: win.zone("window") && Weather.ready
                             && (windowTitle.hasWindow || Call.active || details.leftMusic)
                             && !island.grown && !details.twinsOff && details.wLeft >= 100 + minWidth + 8
@@ -283,6 +313,9 @@ Scope {
                     }
                     WindowTitle {
                         id: windowTitle
+                        barTip: win.tipItem
+                        tip: hide ? null : ({ title: Tr.t("The window in use"), desc: Tr.t("Its app and title; in a terminal, the git repository and what's pending"),
+                                keys: [[Tr.t("Next / previous window"), "ALT (SHIFT) Tab"], [Tr.t("Close it"), "SUPER Q"], [Tr.t("All the windows"), "SUPER CTRL S"]] })
                         visible: win.zone("window") && details.wLeft >= 100
                         // A call or the player takes its place (Glance below)
                         hide: details.twinsOff || Call.active || details.leftMusic
@@ -294,6 +327,11 @@ Scope {
                     // The window title's place: a call, the player; on an empty workspace the whole weather
                     Glance {
                         id: glance
+                        barTip: win.tipItem
+                        // Hidden under the window title (same place), it mustn't answer the hover
+                        tip: hide ? null : call ? ({ title: Tr.t("Call"), desc: Tr.t("Click: its window. The buttons: microphone and camera") })
+                           : track ? ({ title: Tr.t("Now playing"), desc: Tr.t("Click: the Media tab · middle click: play / pause"), keys: [["", "SUPER SHIFT M"]] })
+                           : ({ title: Tr.t("Weather"), desc: Tr.t("Click: the Weather tab, with the forecast"), keys: [["", "SUPER SHIFT T"]] })
                         visible: windowTitle.visible
                         hide: details.twinsOff || (windowTitle.hasWindow && !Call.active && !details.leftMusic)
                         music: details.leftMusic
@@ -309,6 +347,10 @@ Scope {
                     // island grown shows the player, the twin skips it.
                     Agenda {
                         id: agenda
+                        barTip: win.tipItem
+                        tip: hide ? null : music ? ({ title: Tr.t("Now playing"), desc: Tr.t("Click: the Media tab · middle click: play / pause"), keys: [["", "SUPER SHIFT M"]] })
+                           : ({ title: Tr.t("Agenda"), desc: Tr.t("What's due soon, else the next event or to-do. Click: the Calendar tab"),
+                                keys: [["", "SUPER SHIFT D"], [Tr.t("Quick add"), "SUPER Z"]] })
                         visible: win.zone("glance") && details.wRight >= 100
                         hide: details.twinsOff
                         noPlayer: island.mode === "expanded"
@@ -318,22 +360,21 @@ Scope {
                         onOpenTab: name => win.openTab(name)
                     }
 
-                    // ---------------- Center: bell · island · caffeine ----------------
+                    // ---------------- Center: bell · island · modes ----------------
                     // The island: centered on the screen, at the bar's top; it
                     // grows down past the bar (barArea doesn't clip)
                     Island {
                         id: island
                         visible: win.zone("island")
-                        // A twin shows the player: the left one (with a reminder on the
-                        // right) or the right one. Not while the twins are off
-                        playerShown: !details.twinsOff && ((details.leftMusic && win.zone("window"))
-                                                           || (agenda.music && win.zone("glance")))
                         x: Math.round((barArea.width - width) / 2)
-                        y: 3
+                        y: Math.round((barArea.height - pillH) / 2)
                     }
 
                         BarPill {
                             id: bell
+                            barTip: win.tipItem
+                            tip: ({ title: Tr.t("Notifications"), desc: Tr.t("Click: the list · right click: Do Not Disturb"),
+                                    keys: [["", "SUPER N"], [Tr.t("Do Not Disturb"), "SUPER SHIFT N"]] })
                             // Always one icon wide (the bar's gaps stay even): the bell, in the
                             // accent while there are notifications; a new one shows the count
                             // instead of the bell for a moment, and so does every few seconds
@@ -380,17 +421,21 @@ Scope {
                             }
                         }
 
-                    BarPill {
-                        id: caffeine
+                    // Modes (vault ADR-0016; the zone keeps caffeine's id, Settings → Bar)
+                    ModesButton {
+                        id: modes
+                        barTip: win.tipItem
+                        tip: open ? null : ({ title: Tr.t("Modes") + (Modes.isPersonal ? "" : " · " + Modes.nameOf(Modes.current)),
+                                              desc: Tr.t("What the desktop is for now: which notifications get through, the comms dock, caffeine, a timer. Right click: edit them"),
+                                              keys: [["", "SUPER ALT M"], [Tr.t("Caffeine"), "SUPER ALT I"]] })
                         visible: win.zone("caffeine")
                         anchors.left: island.right
                         anchors.leftMargin: 8
                         anchors.verticalCenter: parent.verticalCenter
-                        square: true
-                        clickable: true
-                        active: Toggles.caffeine
-                        onClicked: BarState.toggleCaffeine()
-                        Glyph { optical: true; text: Toggles.caffeine ? "" : "\u{f06ca}"; font.pixelSize: 14; color: Toggles.caffeine ? BarState.accent : Theme.fgDim }
+                        open: BarState.modesOn === win.screen.name
+                        onToggleRequested: BarState.toggleModes(win.screen.name)
+                        onCloseRequested: BarState.modesOn = ""
+                        onEditModes: { PanelState.open = true; PanelState.openSettings("modes"); }
                     }
 
                     // ---------------- Right ----------------
@@ -417,7 +462,7 @@ Scope {
                                 compact: details.compactReadings
                                 icon: ""; text: SystemStats.cpu + "%"; level: win.lvl(SystemStats.cpu, 80, 95)
                                 tip: ({ title: "CPU", rows: [[Tr.t("Usage"), SystemStats.cpu + " %"], [Tr.t("Temperature"), SystemStats.temp + " °C"]],
-                                        hist: SystemStats.cpuHist, hint: Tr.t("Last minute · click: system monitor") })
+                                        hist: SystemStats.cpuHist, hint: Tr.t("Last minute · click: system monitor"), keys: win.monitorKeys })
                             }
                             StatItem {
                                 id: ramItem
@@ -425,7 +470,7 @@ Scope {
                                 compact: details.compactReadings
                                 icon: "\uefc5"; text: SystemStats.memPct + "%"; level: win.lvl(SystemStats.memPct, 80, 92)
                                 tip: ({ title: Tr.t("Memory"), rows: [[Tr.t("In use"), SystemStats.gb(SystemStats.memUsed) + " / " + SystemStats.gb(SystemStats.memTotal) + " GiB"]],
-                                        hist: SystemStats.memHist, hint: Tr.t("Last minute · click: system monitor") })
+                                        hist: SystemStats.memHist, hint: Tr.t("Last minute · click: system monitor"), keys: win.monitorKeys })
                             }
                             StatItem {
                                 id: diskItem
@@ -433,7 +478,7 @@ Scope {
                                 compact: details.compactReadings
                                 icon: "\uf0a0"; text: SystemStats.diskPct + "%"; level: win.lvl(SystemStats.diskPct, 90, 97)
                                 tip: ({ title: Tr.t("Disk ( / )"), rows: [[Tr.t("Used"), SystemStats.gb(SystemStats.diskUsed) + " / " + SystemStats.gb(SystemStats.diskTotal) + " GiB"],
-                                                                    [Tr.t("Free"), SystemStats.gb(SystemStats.diskTotal - SystemStats.diskUsed) + " GiB"]] })
+                                                                    [Tr.t("Free"), SystemStats.gb(SystemStats.diskTotal - SystemStats.diskUsed) + " GiB"]], hint: Tr.t("Click: system monitor"), keys: win.monitorKeys })
                             }
                             StatItem {
                                 id: tempItem
@@ -441,7 +486,7 @@ Scope {
                                 compact: details.compactReadings
                                 icon: ""; text: SystemStats.temp + "°"; level: win.lvl(SystemStats.temp, 80, 90)
                                 tip: ({ title: Tr.t("CPU temperature"), rows: [[Tr.t("Package"), SystemStats.temp + " °C"]], hist: SystemStats.tempHist, min: 30, max: 100,
-                                        hint: Tr.t("Last minute · click: system monitor") })
+                                        hint: Tr.t("Last minute · click: system monitor"), keys: win.monitorKeys })
                             }
                         }
 
@@ -470,8 +515,14 @@ Scope {
                                 icon: !Networking.wifiEnabled ? "\u{f092d}" : !conn.wifiNet ? "\u{f092f}"
                                     : ["\u{f091f}", "\u{f0922}", "\u{f0925}", "\u{f0928}"][Math.min(3, Math.floor(conn.signal * 4))]
                                 iconSize: 14
-                                tip: ({ title: "Wi-Fi", rows: !Networking.wifiEnabled ? [[Tr.t("State"), Tr.t("Off")]] : conn.wifiNet
-                                        ? [[Tr.t("Network"), conn.wifiNet.name], [Tr.t("Signal"), Math.round(conn.signal * 100) + " %"]] : [[Tr.t("State"), Tr.t("Not connected")]] })
+                                // Download and upload speed while online (services/NetSpeed.qml)
+                                readonly property bool online: !!conn.wifiNet || NetSpeed.wired
+                                text: online ? NetSpeed.cell("↓", NetSpeed.down) + " " + NetSpeed.cell("↑", NetSpeed.up) : ""
+                                widest: "↓888M ↑888M"
+                                tip: ({ title: "Wi-Fi", rows: (!Networking.wifiEnabled ? [[Tr.t("State"), Tr.t("Off")]] : conn.wifiNet
+                                        ? [[Tr.t("Network"), conn.wifiNet.name], [Tr.t("Signal"), Math.round(conn.signal * 100) + " %"]] : [[Tr.t("State"), Tr.t("Not connected")]])
+                                        .concat(wifiItem.online ? [[Tr.t("Download"), NetSpeed.fmt(NetSpeed.down) + "B/s"], [Tr.t("Upload"), NetSpeed.fmt(NetSpeed.up) + "B/s"]] : []),
+                                        hint: Tr.t("Click: network, Bluetooth and battery"), keys: win.connKeys })
                             }
                             StatItem {
                                 id: btItem
@@ -482,7 +533,7 @@ Scope {
                                 iconSize: 13
                                 tip: ({ title: "Bluetooth", rows: !conn.bt?.enabled ? [[Tr.t("State"), Tr.t("Off")]]
                                         : conn.btOn.length ? conn.btOn.map(d => [d.name, d.batteryAvailable ? Math.round(d.battery * 100) + " %" : Tr.t("connected")])
-                                        : [[Tr.t("State"), Tr.t("No devices connected")]] })
+                                        : [[Tr.t("State"), Tr.t("No devices connected")]], hint: Tr.t("Click: network, Bluetooth and battery"), keys: win.connKeys })
                             }
                             StatItem {
                                 id: batItem
@@ -497,12 +548,15 @@ Scope {
                                         : conn.bat?.state === UPowerDeviceState.Charging ? [Tr.t("Full in"), conn.dur(conn.bat.timeToFull)]
                                         : [Tr.t("Left"), conn.bat?.timeToEmpty > 0 ? conn.dur(conn.bat.timeToEmpty) : "…"],
                                         [Tr.t("Profile"), PowerProfiles.profile === PowerProfile.PowerSaver ? Tr.t("Power saver")
-                                                  : PowerProfiles.profile === PowerProfile.Performance ? Tr.t("Performance") : Tr.t("Balanced")]] })
+                                                  : PowerProfiles.profile === PowerProfile.Performance ? Tr.t("Performance") : Tr.t("Balanced")]], hint: Tr.t("Click: network, Bluetooth and battery"), keys: win.connKeys })
                             }
                         }
 
                         BarPill {
                             id: power
+                            barTip: win.tipItem
+                            tip: ({ title: Tr.t("Power menu"), desc: Tr.t("Lock, log out, restart, shut down"),
+                                    keys: [["", "CTRL ALT Del"], ["", "CTRL ALT P"], [Tr.t("Lock now"), "SUPER L"]] })
                             visible: win.zone("power")
                             square: true
                             clickable: true
@@ -514,7 +568,7 @@ Scope {
 
                 BarTip {
                     id: tip
-                    barBottom: win.top + win.h
+                    barBottom: win.top + BarState.stripH
                 }
             }
 

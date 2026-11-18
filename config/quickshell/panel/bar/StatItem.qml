@@ -19,9 +19,13 @@ Item {
     property var tip: null                 // { title, rows, hist }
     property var tipHost: null             // the bar's BarTip
     property bool compact: false           // the icon alone (the bar mirrored: TopBar.qml)
+    // A text that changes all the time (the network speed): as wide as this
+    // one always, so the card doesn't move with every sample
+    property string widest: ""
+    readonly property real numWidth: widest ? Math.max(numLabel.implicitWidth, widestMetrics.advanceWidth) : numLabel.implicitWidth
     // Its width with the number, whether shown or not (TopBar decides from it
     // whether the numbers fit; it doesn't depend on `compact`, so no binding loop)
-    readonly property real fullWidth: iconBox.implicitWidth + (text !== "" ? row.spacing + numLabel.implicitWidth : 0) + (pill ? 14 : 0)
+    readonly property real fullWidth: iconBox.implicitWidth + (text !== "" ? row.spacing + numWidth : 0) + (pill ? 14 : 0)
     readonly property color tint: level === "bad" ? Theme.bad : level === "warn" ? Theme.warn : Theme.fg
     readonly property string mark: level ? Theme.markOf(tint) : ""
     readonly property bool pill: mark === "pill"
@@ -70,6 +74,7 @@ Item {
         Label {
             id: numLabel
             visible: root.text !== "" && !root.compact
+            width: root.numWidth
             text: root.text
             color: root.pill ? root.onTint : root.disc ? Theme.fg : root.tint
             font.pixelSize: 12
@@ -78,4 +83,5 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
         }
     }
+    TextMetrics { id: widestMetrics; font: numLabel.font; text: root.widest }
 }

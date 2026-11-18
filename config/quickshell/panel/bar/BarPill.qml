@@ -14,6 +14,11 @@ Rectangle {
     property bool clickable: false
     property bool square: false                 // icon button: as wide as tall
     property bool active: false                 // accent-tinted (DND on, caffeine on…)
+    property bool bare: false                   // no card of its own: a cell inside another one (the tray in the workspaces')
+    // What it is and its keys, shown below the bar on hover (bar/BarTip.qml)
+    property var tip: null
+    property Item barTip: null
+    readonly property bool isCard: !bare        // the tip lines up with the card (bar/BarTip.qml)
     readonly property bool hovered: mouse.containsMouse
     readonly property real contentWidth: row.implicitWidth
     readonly property bool islands: Settings.v.barStyle === "islands"
@@ -25,11 +30,17 @@ Rectangle {
     radius: 11
     color: active ? Theme.withAlpha(BarState.accent, hovered ? 0.30 : 0.20)
          : clickable && hovered ? Theme.bgHover
-         : islands ? Theme.bg : "transparent"
-    border.width: islands ? 1 : 0
+         : islands && !bare ? Theme.bg : "transparent"
+    border.width: islands && !bare ? 1 : 0
     border.color: Theme.border
     Behavior on color { ColorAnimation { duration: Theme.anim } }
     Behavior on implicitWidth { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+
+    // Passive: it still sees the pointer over a child's own MouseArea
+    HoverHandler {
+        enabled: !!root.barTip && !!root.tip
+        onHoveredChanged: hovered ? root.barTip.show(root) : root.barTip.hide(root)
+    }
 
     MouseArea {
         id: mouse

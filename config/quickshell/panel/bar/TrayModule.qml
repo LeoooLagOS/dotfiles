@@ -29,12 +29,19 @@ BarPill {
     property var barWindow: null
     property bool open: false
     property bool alignLeft: false             // the list's left edge under the chevron's
+    // Inside the workspaces' card (its first cell, bar/Workspaces.qml `lead`):
+    // no card of its own, as tall as the workspaces
+    property bool inCard: false
     property string view: "tray"
     readonly property var items: SystemTray.items.values
     property alias dropdown: drop
     square: true
     clickable: true
     active: open
+    bare: inCard
+    implicitHeight: inCard ? Settings.v.barHeight - 16 : Settings.v.barHeight - 8
+    implicitWidth: inCard ? 24 : implicitHeight
+    radius: inCard ? 8 : 11
     onClicked: open = !open
 
     Glyph {

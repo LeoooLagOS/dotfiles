@@ -16,6 +16,11 @@ BarPill {
     id: root
     property var monitor: null                   // HyprlandMonitor of this bar
     property Item tipHost: null                  // TopBar.qml's BarTip
+    // A first cell before the workspaces, behind a line (TopBar.qml: the
+    // tray's chevron), so the two share one card; and whether each part shows
+    property Item lead: null
+    property bool leadShown: true
+    property bool wsShown: true
     pad: 4
     spacing: 3
 
@@ -38,7 +43,7 @@ BarPill {
         const widthWith = k => items.reduce((a, it) => {
             const n = Settings.v.barWsIcons ? it.apps.length : 0;
             return a + it.numWidth + Math.min(n, k) * 20 + (n > k ? 21 : 0) + (it.empty ? 12 : 16);
-        }, 0) + Math.max(0, items.length - 1) * spacing + 2 * pad + commsRoom;
+        }, 0) + Math.max(0, items.length - 1) * spacing + 2 * pad + commsRoom + leadRoom;
         for (let k = 4; k > 1; k--) if (widthWith(k) <= cap) return k;
         return 1;
     }
@@ -54,9 +59,10 @@ BarPill {
         for (let i = 0; i < wsRepeater.count; i++) w += wsRepeater.itemAt(i)?.baseWidth ?? 0;
         return w;
     }
-    readonly property bool commsOn: Settings.v.barWsComms && Comms.defs.length > 0
+    readonly property bool commsOn: wsShown && Settings.v.barWsComms && Comms.defs.length > 0
+    readonly property real leadRoom: leadBox.visible ? leadBox.implicitWidth + (leadLine.visible ? 1 + 2 * spacing : 0) : 0
     readonly property real commsRoom: commsOn ? commsLine.width + commsCell.baseWidth + 2 * spacing : 0
-    readonly property real natural: baseSum + Math.max(0, wsRepeater.count - 1) * spacing + 2 * pad + commsRoom
+    readonly property real natural: baseSum + Math.max(0, wsRepeater.count - 1) * spacing + 2 * pad + commsRoom + leadRoom
     readonly property real extraEach: wsRepeater.count ? Math.max(0, (width - natural) / wsRepeater.count) : 0
     function go(target) { Quickshell.execDetached(["hyprctl", "dispatch", `hl.dsp.focus({ workspace = ${target} })`]); }
     // A workspace clicked: with a Comms app shown, it hides and goes there in one click
@@ -74,9 +80,25 @@ BarPill {
         return Quickshell.iconPath(e?.icon ?? id.toLowerCase(), true) || Quickshell.iconPath(id.toLowerCase(), true);
     }
 
+    Item {
+        id: leadBox
+        visible: !!root.lead && root.leadShown
+        implicitWidth: root.lead ? root.lead.implicitWidth : 0
+        implicitHeight: root.lead ? root.lead.implicitHeight : 0
+        anchors.verticalCenter: parent.verticalCenter
+        children: root.lead ? [root.lead] : []
+    }
+    Rectangle {
+        id: leadLine
+        visible: leadBox.visible && (wsRepeater.count > 0 || root.commsOn)
+        anchors.verticalCenter: parent.verticalCenter
+        width: 1
+        height: Settings.v.barHeight - 18
+        color: Theme.withAlpha(Theme.fg, 0.35)
+    }
     Repeater {
         id: wsRepeater
-        model: root.ids
+        model: root.wsShown ? root.ids : []
         onCountChanged: root.relayout()
         delegate: Rectangle {
             id: ws
@@ -173,7 +195,8 @@ BarPill {
         readonly property var tip: ({
             title: Tr.t("Comms dock"),
             rows: Comms.apps.map(a => [a.name, a.badge > 0 ? Tr.t("%1 unread", a.badge) : a.running ? Tr.t("Running") : Tr.t("Not running")])
-                .concat([[Tr.t("Right click"), Tr.t("Settings")]])
+                .concat([[Tr.t("Right click"), Tr.t("Settings")]]),
+            keys: [["", "SUPER Y"], [Tr.t("The keyboard to the dock"), "SUPER SHIFT Y"]]
         })
         anchors.verticalCenter: parent.verticalCenter
         implicitHeight: Settings.v.barHeight - 16
