@@ -9,7 +9,7 @@ import Quickshell.Hyprland
 // `hyprctl monitors all -j` (re-read when Hyprland adds/removes a monitor or
 // reloads, and after each change) and applies quick changes at runtime with
 // `hyprctl eval 'hl.monitor({...})'`. They last until Hyprland reloads its
-// config: nwg-displays (or monitor profiles, SUPER ALT M) saves a layout.
+// config: nwg-displays (or monitor profiles, SUPER P) saves a layout.
 //   monitors   [{ name, description, width, height, refresh, scale, x, y,
 //                 disabled, focused, modes: ["1920x1080@100", …] }]
 //   setMode(m, mode) · setScale(m, s) · setEnabled(m, on)

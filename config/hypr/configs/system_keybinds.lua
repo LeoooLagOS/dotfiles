@@ -419,7 +419,7 @@ bind(
 	exec_cmd("$HOME/.config/hypr/scripts/ThemeChanger.sh"),
 	{ description = "Global theme switcher using Wallust" }
 )
-bind("SUPER", "H", exec_cmd("$HOME/.config/hypr/scripts/KeyHints.sh"), { description = "help / cheat sheet" })
+bind("SUPER", "H", exec_cmd("$HOME/.config/hypr/scripts/KeyHelp.sh"), { description = "help / cheat sheet" })
 bind("SUPER ALT", "R", exec_cmd("$HOME/.config/hypr/scripts/Refresh.sh"), { description = "refresh bar and menus" })
 bind("SUPER ALT", "E", exec_cmd("$HOME/.config/hypr/scripts/RofiEmoji.sh"), { description = "emoji menu" })
 bind("SUPER", "S", exec_cmd("$HOME/.config/hypr/scripts/RofiSearch.sh"), { description = "web search" })
@@ -534,7 +534,7 @@ bind(
 	exec_cmd("$HOME/.config/hypr/scripts/ToggleOpacity.sh"),
 	{ description = "toggle active window opacity" }
 )
-bind("SUPER SHIFT", "K", exec_cmd("$HOME/.config/hypr/scripts/KeyBinds.sh"), { description = "search keybinds" })
+bind("SUPER SHIFT", "K", exec_cmd("$HOME/.config/hypr/scripts/KeyHelp.sh search"), { description = "search keybinds" })
 bind("SUPER SHIFT", "A", exec_cmd("$HOME/.config/hypr/scripts/Animations.sh"), { description = "animations menu" })
 bind(
 	"SUPER SHIFT",

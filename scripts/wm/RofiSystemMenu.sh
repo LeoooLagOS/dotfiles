@@ -27,7 +27,7 @@ entries=(
   "$(t "Sound")|audio-volume-high|pavucontrol"
   "$(t "Screenshot")|applets-screenshooter|$S/ScreenShot.sh --area"
   "$(t "Wallpapers")|preferences-desktop-wallpaper|panel:wallpapers"
-  "$(t "Keybinds")|preferences-desktop-keyboard-shortcuts|$S/KeyBinds.sh"
+  "$(t "Keybinds")|preferences-desktop-keyboard-shortcuts|$S/KeyHelp.sh"
   "$(t "Update the system")|system-software-update|$S/Distro_update.sh"
   "$(t "Lock")|system-lock-screen|$S/LockScreen.sh"
   "$(t "Power…")|system-shutdown|$S/Wlogout.sh"

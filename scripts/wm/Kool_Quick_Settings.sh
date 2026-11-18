@@ -5,7 +5,7 @@
 #  License: GNU GPLv3
 #  SPDX-License-Identifier: GPL-3.0-or-later
 # ==================================================
-# Rofi menu for KooL Hyprland Quick Settings (SUPER SHIFT E)
+# Rofi menu for KooL Hyprland Quick Settings (no keybind since ADR-0015 §7: the panel's Settings replace it)
 # Updated for UserConfigs/configs separation
 
 # Detect active Hyprland config mode (Lua entrypoint vs legacy .conf includes)
@@ -599,7 +599,7 @@ handle_choice() {
   "Choose Hyprland Animations") "$scriptsDir/Animations.sh" ;;
   "Choose Monitor Profiles") "$scriptsDir/MonitorProfiles.sh" ;;
   "Choose Rofi Themes") "$scriptsDir/RofiThemeSelector.sh" ;;
-  "Search for Keybinds") "$scriptsDir/KeyBinds.sh" ;;
+  "Search for Keybinds") "$scriptsDir/KeyHelp.sh" search ;;
   "Toggle Waybar Weather units"* | "Toggle Waybar Weather units (C/F)") "$scriptsDir/Toggle-weather-waybar-units.sh" ;;
   "Toggle Waybar Clock (12H/24H)") "$scriptsDir/ToggleWaybarTime.sh" ;;
   "Toggle Game Mode") "$scriptsDir/GameMode.sh" ;;

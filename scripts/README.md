@@ -19,7 +19,7 @@ The scripts behind Hyprland keybinds, Waybar modules and Rofi menus, mostly from
 
 | Area | Scripts |
 |---|---|
-| Launchers & menus | `RofiLauncher.sh`, `RofiRun.sh` (Run, SUPER R), `RofiCalc.sh`, `RofiEmoji.sh`, `RofiSearch.sh`, `RofiBeats.sh`, `ClipManager.sh`, `KeyHints.sh`, `KeyBinds.sh`, `rofi-ssh-menu.sh` |
+| Launchers & menus | `RofiLauncher.sh`, `RofiRun.sh` (Run, SUPER R), `RofiCalc.sh`, `RofiEmoji.sh`, `RofiSearch.sh`, `RofiBeats.sh`, `ClipManager.sh`, `KeyHelp.sh` (SUPER H, from `hyprctl binds`), `rofi-ssh-menu.sh` |
 | Windows & workspaces | `Dropterminal.sh`, `OverviewToggle.sh`, `toggle-qs-hyprview.sh`, `select-hyprview-layout.sh`, `Lua*.sh` (focus, move, swap, cycle), `ChangeLayout.sh`, `ResizeActive.sh`, `Float-all-Windows.sh`, `Zoom.sh` |
 | Hardware & media | `Volume.sh`, `Brightness.sh`, `BrightnessKbd.sh`, `ExternalBrightness.sh`, `MediaCtrl.sh`, `TouchPad.sh`, `AirplaneMode.sh`, `Battery.sh`, `LidSwitch.sh` |
 | Theming | `WallpaperSelect.sh`, `WallpaperRandom.sh`, `WallpaperEffects.sh`, `WallustSwww.sh`, `DarkLight.sh`, `ThemeChanger.sh`, `RofiThemes.sh` (themes menu, SUPER ALT T), `Kitty_themes.sh`, `ChangeStarshipPrompt.sh`, `Animations.sh`, `ChangeBlur.sh` |
@@ -33,7 +33,6 @@ Upstream ships helpers for other distros (`*NixOS*`, `*Ubuntu*`, `debian-*`); th
 | File | Purpose |
 |---|---|
 | `Weather.py` | Weather from the Open-Meteo API (no API key) as Waybar JSON plus a text cache; run through `wm/WeatherWrap.sh`, which falls back to `wm/Weather.sh` (wttr.in). Location comes from IP, or from `~/.config/lagos/weather-home` when toggled with `ToggleWeatherLoc.sh`. The API cache is written atomically (the Quickshell panel watches it) |
-| `keybinds_parser.py` | Parses Hyprland keybind files given as arguments and prints formatted bindings |
 
 ## ops/ — Maintenance tooling
 
