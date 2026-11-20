@@ -28,7 +28,10 @@ Rectangle {
     implicitHeight: Settings.v.barHeight - 8
     implicitWidth: square ? implicitHeight : row.implicitWidth + 2 * pad
     radius: 11
-    color: active ? Theme.withAlpha(BarState.accent, hovered ? 0.30 : 0.20)
+    // Active: the accent tints the card instead of replacing it, so the
+    // icon stays readable on any wallpaper, dark or light
+    readonly property color tint: Theme.withAlpha(BarState.accent, hovered ? 0.30 : 0.20)
+    color: active ? (islands && !bare ? Qt.tint(Theme.bg, tint) : tint)
          : clickable && hovered ? Theme.bgHover
          : islands && !bare ? Theme.bg : "transparent"
     border.width: islands && !bare ? 1 : 0

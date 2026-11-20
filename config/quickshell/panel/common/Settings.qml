@@ -57,7 +57,7 @@ Singleton {
         barLeft: ["logo", "tray", "workspaces", "window"], barCenter: ["bell", "island", "caffeine"],
         barRight: ["glance", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
         barDetailGap: 200, barScroll: "always",
-        barBellCount: true, barBellEvery: 5, barBellFor: 1000,   // the bell shows the count now and then
+        barBellCount: true,   // the count on a badge on the bell
         barEmptyWs: "show", barWsIcons: true, barWsComms: true, barDate: true, bar24h: true, barIslandMessages: true,
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
         commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"],
@@ -192,9 +192,7 @@ Singleton {
                 { key: "barDate", label: "Date next to the time", type: "switch" },
                 { key: "bar24h", label: "24-hour clock", type: "switch" } ] },
             { title: "Notifications bell", rows: [
-                { key: "barBellCount", label: "Show the count now and then", help: "While there are notifications, the number takes the bell's place for a moment (a new one always shows it)", type: "switch" },
-                { key: "barBellEvery", label: "Every", type: "select", opts: [[3, "3 s"], [5, "5 s"], [10, "10 s"], [30, "30 s"], [60, "1 min"]] },
-                { key: "barBellFor", label: "For", type: "select", opts: [[500, "0.5 s"], [1000, "1 s"], [2000, "2 s"], [3000, "3 s"]] } ] },
+                { key: "barBellCount", label: "Show the count on the bell", help: "While there are notifications, their number sits on a badge on the bell (not during Do Not Disturb)", type: "switch" } ] },
             { title: "Island", rows: [
                 { key: "barIslandMessages", label: "Messages on the island", help: "Chat messages stretch the island with the chat's photo instead of a popup. Hover: the whole message, Reply and Open", type: "switch" } ] } ] },
         { id: "notifications", icon: "", label: "Notifications", lead: "Where popups appear, quiet hours and history.", groups: [

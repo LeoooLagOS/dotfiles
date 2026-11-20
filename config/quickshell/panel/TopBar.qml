@@ -375,28 +375,12 @@ Scope {
                             barTip: win.tipItem
                             tip: ({ title: Tr.t("Notifications"), desc: Tr.t("Click: the list · right click: Do Not Disturb"),
                                     keys: [["", "SUPER N"], [Tr.t("Do Not Disturb"), "SUPER SHIFT N"]] })
-                            // Always one icon wide (the bar's gaps stay even): the bell, in the
-                            // accent while there are notifications; a new one shows the count
-                            // instead of the bell for a moment, and so does every few seconds
-                            // while there are some (Settings → Bar → Notifications bell)
+                            // As big as the modes button: the bell, with the count of
+                            // notifications on an accent badge in front of it (Settings → Bar →
+                            // Notifications bell; with the count off, the bell itself turns
+                            // accent). DND hides the count and tints the card
                             readonly property bool unread: !Notifs.dnd && Notifs.count > 0
-                            property int seen: 0
-                            Component.onCompleted: seen = Notifs.count
-                            readonly property bool counting: countFlash.running
-                            Timer { id: countFlash; interval: Settings.v.barBellFor }
-                            Timer {
-                                interval: Settings.v.barBellEvery * 1000
-                                repeat: true
-                                running: Settings.v.barBellCount && bell.unread && bell.visible
-                                onTriggered: countFlash.restart()
-                            }
-                            Connections {
-                                target: Notifs
-                                function onCountChanged() {
-                                    if (Notifs.count > bell.seen && !Notifs.dnd) countFlash.restart();
-                                    bell.seen = Notifs.count;
-                                }
-                            }
+                            readonly property bool counting: Settings.v.barBellCount && unread
                             visible: win.zone("bell")
                             anchors.right: island.left
                             anchors.rightMargin: 8
@@ -409,15 +393,32 @@ Scope {
                                     BarState.toggleDnd();
                                 } else win.openTab("Notifications");
                             }
-                            Glyph { optical: true; visible: !bell.counting; text: Notifs.dnd ? "" : ""; font.pixelSize: 14; color: Notifs.dnd || bell.unread ? BarState.accent : Theme.fg }
-                            Label {
-                                visible: bell.counting
-                                text: Notifs.count > 99 ? "99+" : Notifs.count
-                                color: BarState.accent
-                                font.pixelSize: Notifs.count > 99 ? 10 : Notifs.count > 9 ? 12 : 14
-                                font.weight: Font.Bold
-                                font.features: { "tnum": 1 }
-                                anchors.verticalCenter: parent.verticalCenter
+                            Item {
+                                implicitWidth: bellGlyph.implicitWidth
+                                implicitHeight: bellGlyph.implicitHeight
+                                Glyph { id: bellGlyph; optical: true; anchors.centerIn: parent; text: Notifs.dnd ? "" : ""; font.pixelSize: 14; color: Notifs.dnd || (bell.unread && !bell.counting) ? BarState.accent : Theme.fg }
+                                // The badge sits on the bell's top-right corner, in front of it
+                                Rectangle {
+                                    visible: bell.counting
+                                    // a ring in the card's color cuts it out of the bell
+                                    x: parent.width - width / 2 - 3
+                                    y: -2
+                                    height: 15
+                                    width: Math.max(height, badgeText.implicitWidth + 8)
+                                    radius: height / 2
+                                    color: BarState.accent
+                                    border.width: 2
+                                    border.color: Theme.withAlpha(Theme.bg, 1)
+                                    Label {
+                                        id: badgeText
+                                        anchors.centerIn: parent
+                                        text: Notifs.count > 99 ? "99+" : Notifs.count
+                                        color: BarState.accentText
+                                        font.pixelSize: 9
+                                        font.weight: Font.Bold
+                                        font.features: { "tnum": 1 }
+                                    }
+                                }
                             }
                         }
 
