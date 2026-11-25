@@ -1,0 +1,165 @@
+/**
+ * @name lagOS wallpaper
+ * @description Discord in the wallpaper's colors (wallust). Colors only, stock layout. Rendered by wallust to ~/.config/lagos/app-colors/staging/vesktop.css; scripts/AppColors.sh copies it into Vesktop's themes while Settings → Wallpaper → Apps that follow the colors → Vesktop is on. Variable list from DankMaterialShell's Discord theme.
+ * @author lagOS
+ * @version 1.0.0
+*/
+
+:root {
+  --w-bg: {{background}};
+  --w-fg: {{foreground}};
+  --w-c0: {{color0}};
+  --w-c4: {{color4}};
+  --w-c7: {{color7}};
+  --w-c8: {{color8}};
+  --w-accent: {{color12}};
+  --w-accent-2: {{color14}};
+  /* Surfaces: the wallpaper background, lifted toward color0 step by step (content darkest) */
+  --w-s0: var(--w-bg);
+  --w-s1: color-mix(in srgb, var(--w-c0) 20%, var(--w-bg));
+  --w-s2: color-mix(in srgb, var(--w-c0) 35%, var(--w-bg));
+  --w-s3: color-mix(in srgb, var(--w-c0) 55%, var(--w-bg));
+  --w-s4: color-mix(in srgb, var(--w-c0) 75%, var(--w-bg));
+  --w-muted: color-mix(in srgb, var(--w-c8) 80%, var(--w-bg));
+  --w-on-accent: var(--w-bg);
+}
+
+.theme-dark,
+.visual-refresh.theme-dark,
+.visual-refresh .theme-dark {
+  --background-base-low: var(--w-s0) !important;
+  --chat-background: var(--w-s0) !important;
+  --chat-background-default: var(--w-s0) !important;
+  --background-primary: var(--w-s0) !important;
+  --bg-base-primary: var(--w-s0) !important;
+  --home-background: var(--w-s0) !important;
+
+  --background-base-lower: var(--w-s1) !important;
+  --background-secondary: var(--w-s1) !important;
+  --bg-base-secondary: var(--w-s1) !important;
+  --custom-channel-members-bg: var(--w-s1) !important;
+
+  --background-base-lowest: var(--w-s2) !important;
+  --app-frame-background: var(--w-s2) !important;
+  --background-tertiary: var(--w-s2) !important;
+  --background-secondary-alt: var(--w-s2) !important;
+  --bg-base-tertiary: var(--w-s2) !important;
+  --__header-bar-background: var(--w-s2) !important;
+
+  --background-surface-high: var(--w-s3) !important;
+  --bg-surface-raised: var(--w-s3) !important;
+  --card-primary-bg: var(--w-s3) !important;
+  --activity-card-background: var(--w-s3) !important;
+  --background-surface-higher: var(--w-s3) !important;
+  --bg-surface-overlay: var(--w-s3) !important;
+  --background-floating: var(--w-s3) !important;
+  --background-nested-floating: var(--w-s3) !important;
+  --autocomplete-bg: var(--w-s3) !important;
+
+  --background-surface-highest: var(--w-s4) !important;
+  --modal-background: var(--w-s4) !important;
+  --modal-footer-background: var(--w-s4) !important;
+  --background-accent: var(--w-s4) !important;
+  --card-secondary-bg: var(--w-s4) !important;
+  --user-profile-overlay-background: var(--w-s4) !important;
+
+  --chat-border: color-mix(in srgb, var(--w-c7) 12%, transparent) !important;
+
+  /* text */
+  --text-default: var(--w-fg) !important;
+  --text-normal: var(--w-fg) !important;
+  --text-primary: var(--w-fg) !important;
+  --text-strong: var(--w-fg) !important;
+  --header-primary: var(--w-fg) !important;
+  --embed-title: var(--w-fg) !important;
+  --interactive-active: var(--w-fg) !important;
+  --input-text-default: var(--w-fg) !important;
+
+  --text-secondary: var(--w-c7) !important;
+  --text-muted: var(--w-c7) !important;
+  --text-subtle: var(--w-c7) !important;
+  --text-tertiary: var(--w-c7) !important;
+  --chat-text-muted: var(--w-c7) !important;
+  --header-secondary: var(--w-c7) !important;
+  --header-muted: var(--w-c7) !important;
+  --text-muted-on-default: var(--w-c7) !important;
+  --text-low-contrast: var(--w-c7) !important;
+
+  --interactive-normal: var(--w-c7) !important;
+  --channels-default: var(--w-muted) !important;
+  --channel-icon: var(--w-muted) !important;
+  --icon-primary: var(--w-c7) !important;
+  --icon-secondary: var(--w-c7) !important;
+  --icon-tertiary: var(--w-c7) !important;
+  --interactive-icon-default: var(--w-c7) !important;
+  --interactive-hover: var(--w-fg) !important;
+  --interactive-icon-hover: var(--w-fg) !important;
+  --interactive-icon-active: var(--w-fg) !important;
+  --interactive-text-hover: var(--w-fg) !important;
+  --interactive-text-active: var(--w-fg) !important;
+
+  --interactive-muted: var(--w-s4) !important;
+  --icon-muted: var(--w-muted) !important;
+  --channel-text-area-placeholder: var(--w-muted) !important;
+  --input-placeholder-text-default: var(--w-muted) !important;
+
+  --text-link: var(--w-accent-2) !important;
+  --text-brand: var(--w-accent) !important;
+  --control-brand-foreground: var(--w-accent) !important;
+  --control-brand-foreground-new: var(--w-accent) !important;
+  --badge-text-brand: var(--w-on-accent) !important;
+
+  /* hover / active / selected layers: translucent text or accent */
+  --background-modifier-hover: color-mix(in srgb, var(--w-fg) 8%, transparent) !important;
+  --background-mod-subtle: color-mix(in srgb, var(--w-fg) 8%, transparent) !important;
+  --bg-mod-faint: color-mix(in srgb, var(--w-fg) 8%, transparent) !important;
+  --interactive-background-hover: color-mix(in srgb, var(--w-fg) 8%, transparent) !important;
+  --background-modifier-active: color-mix(in srgb, var(--w-fg) 10%, transparent) !important;
+  --background-mod-normal: color-mix(in srgb, var(--w-fg) 10%, transparent) !important;
+  --interactive-background-active: color-mix(in srgb, var(--w-fg) 10%, transparent) !important;
+  --background-modifier-selected: color-mix(in srgb, var(--w-accent) 16%, transparent) !important;
+  --background-mod-strong: color-mix(in srgb, var(--w-accent) 16%, transparent) !important;
+  --bg-mod-strong: color-mix(in srgb, var(--w-accent) 16%, transparent) !important;
+  --interactive-background-selected: color-mix(in srgb, var(--w-accent) 16%, transparent) !important;
+  --background-modifier-accent: color-mix(in srgb, var(--w-fg) 6%, transparent) !important;
+  --background-message-hover: color-mix(in srgb, var(--w-fg) 4%, transparent) !important;
+  --message-background-hover: color-mix(in srgb, var(--w-fg) 4%, transparent) !important;
+
+  --background-mentioned: color-mix(in srgb, var(--w-accent) 10%, transparent) !important;
+  --background-mentioned-hover: color-mix(in srgb, var(--w-accent) 14%, transparent) !important;
+  --message-mentioned-background-default: color-mix(in srgb, var(--w-accent) 10%, transparent) !important;
+  --message-mentioned-background-hover: color-mix(in srgb, var(--w-accent) 14%, transparent) !important;
+  --mention-background: color-mix(in srgb, var(--w-accent) 15%, transparent) !important;
+  --mention-foreground: var(--w-accent) !important;
+  --message-reacted-background-default: color-mix(in srgb, var(--w-accent) 15%, transparent) !important;
+  --message-reacted-text-default: var(--w-fg) !important;
+
+  /* brand: the accent */
+  --brand-500: var(--w-accent) !important;
+  --brand-560: color-mix(in srgb, var(--w-accent) 90%, black) !important;
+  --brand-600: color-mix(in srgb, var(--w-accent) 85%, black) !important;
+  --brand-experiment: var(--w-accent) !important;
+  --brand-experiment-360: var(--w-accent) !important;
+  --brand-experiment-500: var(--w-accent) !important;
+  --bg-brand: var(--w-accent) !important;
+  --background-brand: var(--w-accent) !important;
+  --control-primary-background-default: var(--w-accent) !important;
+  --control-primary-background-hover: color-mix(in srgb, var(--w-accent) 90%, black) !important;
+  --control-primary-background-active: color-mix(in srgb, var(--w-accent) 80%, black) !important;
+  --control-primary-text-default: var(--w-on-accent) !important;
+  --control-primary-icon-default: var(--w-on-accent) !important;
+  --button-filled-brand-background: var(--w-accent) !important;
+  --button-filled-brand-background-hover: color-mix(in srgb, var(--w-accent) 90%, black) !important;
+  --button-filled-brand-text: var(--w-on-accent) !important;
+
+  --control-secondary-background-default: var(--w-s3) !important;
+  --control-secondary-background-hover: var(--w-s4) !important;
+  --control-secondary-text-default: var(--w-fg) !important;
+  --button-secondary-background: var(--w-s3) !important;
+  --button-secondary-background-hover: var(--w-s4) !important;
+  --button-secondary-text: var(--w-fg) !important;
+
+  --redesign-input-control-selected: var(--w-accent) !important;
+  --focus-primary: var(--w-accent) !important;
+  --__adaptive-focus-ring-color: var(--w-accent) !important;
+}

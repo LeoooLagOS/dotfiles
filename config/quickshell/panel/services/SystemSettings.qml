@@ -89,6 +89,23 @@ Singleton {
         onFileChanged: reload()
         onLoaded: { on = text().trim() !== "off"; if (Settings.loaded) Settings.set("wallust", on); }
     }
+    // Apps that follow the wallpaper colors (Settings → Wallpaper): scripts/AppColors.sh keeps
+    // the apps turned off in app-colors/off (missing = all on); the switches follow it
+    readonly property var appColorKeys: ({ appColorsThunderbird: "thunderbird", appColorsFirefox: "firefox",
+                                           appColorsVesktop: "vesktop", appColorsObsidian: "obsidian",
+                                           appColorsNvim: "nvim", appColorsBtop: "btop" })
+    FileView {
+        id: appColorsState
+        property var off: []
+        path: root.dir + "/app-colors/off"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: { off = text().split("\n").filter(s => s.length > 0); if (Settings.loaded) root.syncAppColors(); }
+    }
+    function syncAppColors() {
+        for (const k in appColorKeys) Settings.set(k, !appColorsState.off.includes(appColorKeys[k]));
+    }
     // Weather.py's place: the state file holds the home city while it's used
     // (scripts/wm/ToggleWeatherLoc.sh writes it; missing = where I am, by IP)
     FileView {
@@ -153,6 +170,8 @@ Singleton {
                 Quickshell.execDetached([root.scripts + "/RofiPosition.sh", Settings.v.rofiPosition]);
             else if (key === "wallust" && Settings.v.wallust !== wallustState.on)
                 Quickshell.execDetached([root.scripts + "/WallustToggle.sh", Settings.v.wallust ? "on" : "off"]);
+            else if (key in root.appColorKeys && Settings.v[key] === appColorsState.off.includes(root.appColorKeys[key]))
+                Quickshell.execDetached([root.scripts + "/AppColors.sh", root.appColorKeys[key], Settings.v[key] ? "on" : "off"]);
             else if (key === "weatherPlace" && Settings.v.weatherPlace !== weatherPlaceState.place)
                 Quickshell.execDetached([root.scripts + "/ToggleWeatherLoc.sh", Settings.v.weatherPlace]);
         }
@@ -183,6 +202,7 @@ Singleton {
         Settings.set("wallust", wallustState.on);
         Settings.set("rofiPosition", rofiState.position);
         Settings.set("weatherPlace", weatherPlaceState.place);
+        syncAppColors();
     }
 
     // ---------------- Wallpaper rotation ----------------

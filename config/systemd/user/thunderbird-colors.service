@@ -1,0 +1,8 @@
+# Started by thunderbird-colors.path. Waits while Thunderbird is in use (up to 2 h),
+# then restarts it through the panel's Comms dock, hidden where it was.
+[Unit]
+Description=Restart Thunderbird, hidden, to load new wallpaper colors
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/hypr/scripts/ThunderbirdColors.sh

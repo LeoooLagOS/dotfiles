@@ -1006,5 +1006,16 @@
  "What the desktop is for right now: which notifications get through, which apps the comms dock shows, caffeine, night light, dark theme, game mode, apps to open, a timer or Pomodoro. Choose one in the bar (the button right of the island) or with SUPER ALT M. What a mode turns on or off comes back when it ends.": "Para qué es el escritorio ahora mismo: qué notificaciones pasan, qué apps muestra el dock de comunicación, cafeína, luz nocturna, tema oscuro, modo juego, apps que abrir, un temporizador o Pomodoro. Elige uno en la barra (el botón a la derecha de la isla) o con SUPER ALT M. Lo que un modo enciende o apaga vuelve como estaba cuando termina.",
  "Your modes": "Tus modos",
  "Built in: panel/modes. Yours and your changes: ~/.config/lagos/modes": "Incluidos: panel/modes. Los tuyos y tus cambios: ~/.config/lagos/modes",
- "Modes (work, study, pomodoro…)": "Modos (trabajo, estudio, pomodoro…)"
+ "Modes (work, study, pomodoro…)": "Modos (trabajo, estudio, pomodoro…)",
+ "Apps that follow the colors": "Apps que siguen los colores",
+ "Restarts by itself, hidden, when you're not using it": "Se reinicia sola, oculta, cuando no la estás usando",
+ "Changes at once. The first time: Vencord → Themes → turn on “lagOS wallpaper”": "Cambia al instante. La primera vez: Vencord → Temas → activa “lagOS wallpaper”",
+ "Changes at once. The first time: Appearance → CSS snippets → turn on “lagos-wallpaper”": "Cambia al instante. La primera vez: Apariencia → Fragmentos CSS → activa “lagos-wallpaper”",
+ "Terminal and Starship": "Terminal y Starship",
+ "kitty, ghostty and the prompt follow on their own": "kitty, ghostty y el prompt los siguen solos",
+ "Changes at once. Needs the Pywalfox add-on and `pywalfox install`. Off: Pywalfox's Reset brings Firefox's colors back": "Cambia al instante. Necesita la extensión Pywalfox y `pywalfox install`. Apagado: el botón Reset de Pywalfox devuelve los colores de Firefox",
+ "Changes at once, in every open Neovim. Its default theme, lagos-wallpaper (first in <leader>uC)": "Cambia al instante, en cada Neovim abierto. Es su tema por defecto, lagos-wallpaper (el primero en <leader>uC)",
+ "Changes at once. Off: back to the theme it had": "Cambia al instante. Apagado: vuelve al tema que tenía",
+ "Panel, bar, launchers and borders": "Panel, barra, lanzadores y bordes",
+ "Take colors from the wallpaper, above": "Tomar los colores del fondo, arriba"
 }

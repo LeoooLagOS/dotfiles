@@ -1,0 +1,8 @@
+# Started by lagos-app-colors.path. A short wait lets wallust write every file first.
+[Unit]
+Description=Copy new wallpaper colors into the apps that follow them
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/sleep 2
+ExecStart=%h/.config/hypr/scripts/AppColors.sh sync

@@ -1,0 +1,14 @@
+# Thunderbird follows the wallpaper: wallust rewrites this palette (template
+# config/hypr/wallust/templates/colors-thunderbird.css) and Thunderbird only reads
+# its userChrome.css at startup, so a change restarts it, hidden and only when idle
+# (thunderbird-colors.service → scripts/ThunderbirdColors.sh).
+[Unit]
+Description=Restart Thunderbird when the wallpaper colors change
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Path]
+PathChanged=%h/.config/lagos/thunderbird-colors.css
+
+[Install]
+WantedBy=graphical-session.target

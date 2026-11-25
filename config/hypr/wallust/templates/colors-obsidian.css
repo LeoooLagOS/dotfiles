@@ -1,0 +1,46 @@
+/* lagOS wallpaper colors for Obsidian (wallust template).
+ * Rendered to ~/.config/lagos/app-colors/staging/obsidian.css; scripts/AppColors.sh copies it
+ * into the vault's .obsidian/snippets/ while Settings → Wallpaper → Apps that follow the
+ * colors → Obsidian is on. Obsidian reloads snippets live. Dark theme only. */
+.theme-dark {
+  --w-bg: {{background}};
+  --w-fg: {{foreground}};
+  --w-c0: {{color0}};
+  --w-c7: {{color7}};
+  --w-c8: {{color8}};
+  --w-accent: {{color12}};
+  --w-accent-2: {{color14}};
+
+  /* Surfaces: the note is the darkest, the side panes a step lighter */
+  --background-primary: var(--w-bg);
+  --background-primary-alt: color-mix(in srgb, var(--w-c0) 25%, var(--w-bg));
+  --background-secondary: color-mix(in srgb, var(--w-c0) 30%, var(--w-bg));
+  --background-secondary-alt: color-mix(in srgb, var(--w-c0) 45%, var(--w-bg));
+  --titlebar-background: color-mix(in srgb, var(--w-c0) 30%, var(--w-bg));
+  --titlebar-background-focused: color-mix(in srgb, var(--w-c0) 40%, var(--w-bg));
+  --background-modifier-border: color-mix(in srgb, var(--w-c7) 14%, transparent);
+  --background-modifier-border-hover: color-mix(in srgb, var(--w-c7) 24%, transparent);
+  --background-modifier-hover: color-mix(in srgb, var(--w-fg) 7%, transparent);
+  --background-modifier-active-hover: color-mix(in srgb, var(--w-accent) 15%, transparent);
+
+  /* Text */
+  --text-normal: var(--w-fg);
+  --text-muted: var(--w-c7);
+  --text-faint: var(--w-c8);
+  --text-on-accent: var(--w-bg);
+  --text-selection: color-mix(in srgb, var(--w-accent) 30%, transparent);
+  --text-highlight-bg: color-mix(in srgb, var(--w-accent-2) 30%, transparent);
+
+  /* Accent: links, buttons, the active file, checkboxes */
+  --color-accent: var(--w-accent);
+  --color-accent-1: color-mix(in srgb, var(--w-accent) 85%, white);
+  --color-accent-2: color-mix(in srgb, var(--w-accent) 70%, white);
+  --text-accent: var(--w-accent);
+  --text-accent-hover: color-mix(in srgb, var(--w-accent) 80%, white);
+  --interactive-accent: var(--w-accent);
+  --interactive-accent-hover: color-mix(in srgb, var(--w-accent) 85%, white);
+  --link-color: var(--w-accent-2);
+  --link-external-color: var(--w-accent-2);
+  --h1-color: var(--w-fg);
+  --h2-color: var(--w-fg);
+}

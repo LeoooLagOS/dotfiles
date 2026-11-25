@@ -1,0 +1,25 @@
+@import url("lagos-theme.css");
+/* wallust template - Thunderbird (lagOS)
+ * Rendered to ~/.config/lagos/app-colors/staging/thunderbird.css; scripts/AppColors.sh copies
+ * it to ~/.config/lagos/thunderbird-colors.css while the app's switch is on. The @import
+ * (first, as CSS requires) loads the color mapping, config/thunderbird/lagos-theme.css. */
+:root {
+  --lagos-bg: {{background}};
+  --lagos-fg: {{foreground}};
+  --lagos-c0: {{color0}};
+  --lagos-c1: {{color1}};
+  --lagos-c2: {{color2}};
+  --lagos-c3: {{color3}};
+  --lagos-c4: {{color4}};
+  --lagos-c5: {{color5}};
+  --lagos-c6: {{color6}};
+  --lagos-c7: {{color7}};
+  --lagos-c8: {{color8}};
+  --lagos-c9: {{color9}};
+  --lagos-c10: {{color10}};
+  --lagos-c11: {{color11}};
+  --lagos-c12: {{color12}};
+  --lagos-c13: {{color13}};
+  --lagos-c14: {{color14}};
+  --lagos-c15: {{color15}};
+}

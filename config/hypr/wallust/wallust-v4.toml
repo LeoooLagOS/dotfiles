@@ -52,5 +52,25 @@ ghostty.target = '~/.config/ghostty/wallust.conf'
 quickshell.template = 'qml_color.json'
 quickshell.target = '~/.config/quickshell/qml_color.json'
 
+# Apps that follow the colors (panel: Settings → Wallpaper): wallust writes to staging,
+# scripts/AppColors.sh copies into each app whose switch is on (lagos-app-colors.path)
+thunderbird.template = 'colors-thunderbird.css'
+thunderbird.target = '~/.config/lagos/app-colors/staging/thunderbird.css'
+
+vesktop.template = 'colors-vesktop.css'
+vesktop.target = '~/.config/lagos/app-colors/staging/vesktop.css'
+
+obsidian.template = 'colors-obsidian.css'
+obsidian.target = '~/.config/lagos/app-colors/staging/obsidian.css'
+
+firefox.template = 'colors-firefox.json'
+firefox.target = '~/.config/lagos/app-colors/staging/firefox.json'
+
+nvim.template = 'colors-nvim.lua'
+nvim.target = '~/.config/lagos/app-colors/staging/nvim.lua'
+
+btop.template = 'colors-btop.theme'
+btop.target = '~/.config/lagos/app-colors/staging/btop.theme'
+
 nwg-dock.template = 'colors-nwg-dock.css'
 nwg-dock.target = '~/.config/nwg-dock-hyprland/wallust/colors-wallust.css'

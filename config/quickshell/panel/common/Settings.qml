@@ -42,6 +42,9 @@ Singleton {
         dueStages: [4320, 1440, 180, 60], briefOn: true, briefHour: 7, soonEvent: 30, soonDue: 6,  // services/Events.qml
         // Wallpaper
         wallust: true, rotate: false, rotateMin: 30,
+        // Apps that follow the wallpaper colors (scripts/AppColors.sh; the state file is the truth)
+        appColorsThunderbird: true, appColorsFirefox: true, appColorsVesktop: true, appColorsObsidian: true,
+        appColorsNvim: true, appColorsBtop: true,
         // Night light schedule (services/Toggles.qml): "off" | "sun" | "hours";
         // the hours are minutes of the day (21:00 = 1260)
         nightSchedule: "off", nightOnAt: 1260, nightOffAt: 420,
@@ -292,7 +295,16 @@ Singleton {
                 { label: "Current", type: "info", infoKey: "wallpaper", mono: true },
                 { key: "wallust", label: "Take colors from the wallpaper", help: "wallust → panel, waybar, rofi, kitty, borders. Off keeps the current colors", type: "switch", system: true },
                 { key: "rotate", label: "Change automatically", help: "A random one from the folder", type: "switch" },
-                { key: "rotateMin", label: "Every", type: "select", opts: [[15, "15 min"], [30, "30 min"], [60, "1 hour"], [180, "3 hours"]] } ] } ] },
+                { key: "rotateMin", label: "Every", type: "select", opts: [[15, "15 min"], [30, "30 min"], [60, "1 hour"], [180, "3 hours"]] } ] },
+            { title: "Apps that follow the colors", rows: [
+                { key: "appColorsThunderbird", label: "Thunderbird", help: "Restarts by itself, hidden, when you're not using it", type: "switch", system: true },
+                { key: "appColorsFirefox", label: "Firefox", help: "Changes at once. Needs the Pywalfox add-on and `pywalfox install`. Off: Pywalfox's Reset brings Firefox's colors back", type: "switch", system: true },
+                { key: "appColorsVesktop", label: "Vesktop (Discord)", help: "Changes at once. The first time: Vencord → Themes → turn on “lagOS wallpaper”", type: "switch", system: true },
+                { key: "appColorsObsidian", label: "Obsidian", help: "Changes at once. The first time: Appearance → CSS snippets → turn on “lagos-wallpaper”", type: "switch", system: true },
+                { key: "appColorsNvim", label: "Neovim", help: "Changes at once, in every open Neovim. Its default theme, lagos-wallpaper (first in <leader>uC)", type: "switch", system: true },
+                { key: "appColorsBtop", label: "btop", help: "Changes at once. Off: back to the theme it had", type: "switch", system: true },
+                { label: "Terminal and Starship", help: "kitty, ghostty and the prompt follow on their own", type: "info", value: "Always" },
+                { label: "Panel, bar, launchers and borders", help: "Take colors from the wallpaper, above", type: "info", value: "Always" } ] } ] },
         { id: "modes", icon: "\uf0b1", label: "Modes", lead: "What the desktop is for right now: which notifications get through, which apps the comms dock shows, caffeine, night light, dark theme, game mode, apps to open, a timer or Pomodoro. Choose one in the bar (the button right of the island) or with SUPER ALT M. What a mode turns on or off comes back when it ends.", groups: [
             { title: "Your modes", rows: [
                 { label: "Modes", help: "Built in: panel/modes. Yours and your changes: ~/.config/lagos/modes", type: "modes" } ] } ] },

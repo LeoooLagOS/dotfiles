@@ -57,6 +57,10 @@ readonly LINKS=(
   "config/systemd/user/lagos-lid.service:$CONFIG_DIR/systemd/user/lagos-lid.service"
   "config/systemd/user/lagos-downloads.service:$CONFIG_DIR/systemd/user/lagos-downloads.service"
   "config/systemd/user/lagos-panel-relink.service:$CONFIG_DIR/systemd/user/lagos-panel-relink.service"
+  "config/systemd/user/thunderbird-colors.path:$CONFIG_DIR/systemd/user/thunderbird-colors.path"
+  "config/systemd/user/thunderbird-colors.service:$CONFIG_DIR/systemd/user/thunderbird-colors.service"
+  "config/systemd/user/lagos-app-colors.path:$CONFIG_DIR/systemd/user/lagos-app-colors.path"
+  "config/systemd/user/lagos-app-colors.service:$CONFIG_DIR/systemd/user/lagos-app-colors.service"
   "config/mpd/mpd.conf:$CONFIG_DIR/mpd/mpd.conf"
   "config/mpDris2/mpDris2.conf:$CONFIG_DIR/mpDris2/mpDris2.conf"
   "config/dbus-1/services/org.freedesktop.Notifications.service:$HOME/.local/share/dbus-1/services/org.freedesktop.Notifications.service"
@@ -512,11 +516,17 @@ step_links() {
     # Laptop screen black after waking (Intel "link training" error): reconnect it
     run systemctl --user enable lagos-panel-relink.service
     ok "screen: lagos-panel-relink.service enabled"
+    # Thunderbird follows the wallpaper: new wallust colors restart it, hidden and only when idle
+    run systemctl --user enable thunderbird-colors.path
+    ok "thunderbird: thunderbird-colors.path enabled"
+    # Apps that follow the wallpaper colors (Thunderbird, Firefox, Vesktop, Obsidian, Neovim, btop): Settings → Wallpaper
+    run systemctl --user enable lagos-app-colors.path
+    ok "app colors: lagos-app-colors.path enabled"
     # MPD as an MPRIS player: the library's music shows in the island and Overview
     run systemctl --user enable mpDris2.service
     ok "music: mpDris2.service enabled"
   else
-    warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service lagos-lid.service lagos-downloads.service lagos-panel-relink.service mpDris2.service"
+    warn "no systemd user session; run later: systemctl --user mask swaync.service && systemctl --user enable quickshell-panel.service lagos-lid.service lagos-downloads.service lagos-panel-relink.service thunderbird-colors.path lagos-app-colors.path mpDris2.service"
   fi
 }
 

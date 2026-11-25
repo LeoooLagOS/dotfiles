@@ -1,0 +1,19 @@
+# Apps that follow the wallpaper colors: wallust renders each app's palette into
+# ~/.config/lagos/app-colors/staging/ (templates config/hypr/wallust/templates/colors-<app>.css);
+# a new one is copied into the apps whose switch is on (lagos-app-colors.service →
+# scripts/AppColors.sh sync). Switches: panel Settings → Wallpaper.
+[Unit]
+Description=Copy new wallpaper colors into the apps that follow them
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Path]
+PathChanged=%h/.config/lagos/app-colors/staging/thunderbird.css
+PathChanged=%h/.config/lagos/app-colors/staging/vesktop.css
+PathChanged=%h/.config/lagos/app-colors/staging/obsidian.css
+PathChanged=%h/.config/lagos/app-colors/staging/firefox.json
+PathChanged=%h/.config/lagos/app-colors/staging/nvim.lua
+PathChanged=%h/.config/lagos/app-colors/staging/btop.theme
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,52 @@
+# wallust template - btop (lagOS): the wallpaper palette.
+# Rendered to ~/.config/lagos/app-colors/staging/btop.theme; scripts/AppColors.sh copies it to
+# ~/.config/btop/themes/lagos-wallpaper.theme and points btop.conf at it while
+# Settings → Wallpaper → btop is on, then makes a running btop reload (SIGUSR2).
+
+# Background, text, titles; main_bg empty = the terminal's own background
+theme[main_bg]=""
+theme[main_fg]="{{foreground}}"
+theme[title]="{{foreground}}"
+theme[hi_fg]="{{color12}}"
+theme[selected_bg]="{{color0}}"
+theme[selected_fg]="{{color15}}"
+theme[inactive_fg]="{{color8}}"
+theme[graph_text]="{{color7}}"
+theme[meter_bg]="{{color0}}"
+theme[proc_misc]="{{color14}}"
+theme[div_line]="{{color8}}"
+
+# Box outlines
+theme[cpu_box]="{{color12}}"
+theme[mem_box]="{{color14}}"
+theme[net_box]="{{color13}}"
+theme[proc_box]="{{color10}}"
+
+# Gradients: dark → bright → accent
+theme[temp_start]="{{color10}}"
+theme[temp_mid]="{{color11}}"
+theme[temp_end]="{{color12}}"
+theme[cpu_start]="{{color10}}"
+theme[cpu_mid]="{{color14}}"
+theme[cpu_end]="{{color12}}"
+theme[free_start]="{{color2}}"
+theme[free_mid]="{{color10}}"
+theme[free_end]="{{color14}}"
+theme[cached_start]="{{color5}}"
+theme[cached_mid]="{{color13}}"
+theme[cached_end]="{{color15}}"
+theme[available_start]="{{color6}}"
+theme[available_mid]="{{color14}}"
+theme[available_end]="{{color15}}"
+theme[used_start]="{{color4}}"
+theme[used_mid]="{{color12}}"
+theme[used_end]="{{color15}}"
+theme[download_start]="{{color2}}"
+theme[download_mid]="{{color10}}"
+theme[download_end]="{{color14}}"
+theme[upload_start]="{{color5}}"
+theme[upload_mid]="{{color13}}"
+theme[upload_end]="{{color12}}"
+theme[process_start]="{{color10}}"
+theme[process_mid]="{{color14}}"
+theme[process_end]="{{color12}}"
