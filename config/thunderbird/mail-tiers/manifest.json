@@ -1,0 +1,11 @@
+{
+  "manifest_version": 2,
+  "name": "lagOS mail tiers",
+  "description": "Ages mail by folder importance: marks it read after N days and moves it to the Trash after M days.",
+  "version": "1.2",
+  "browser_specific_settings": {
+    "gecko": { "id": "mail-tiers@lagos", "strict_min_version": "128.0" }
+  },
+  "background": { "scripts": ["background.js"] },
+  "permissions": ["accountsRead", "messagesRead", "messagesUpdate", "messagesDelete", "alarms", "notifications"]
+}
