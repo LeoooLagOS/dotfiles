@@ -1,0 +1,58 @@
+/* lagOS colors for Thunderbird: the wallpaper palette (--lagos-*) mapped onto
+ * Thunderbird's own variables.
+ *
+ * Loaded only while Settings → Wallpaper → Apps that follow the colors → Thunderbird
+ * is on: the generated lagos-colors.css (wallust template colors-thunderbird.css,
+ * copied by scripts/AppColors.sh) starts with @import "lagos-theme.css"; off, it is
+ * empty and Thunderbird keeps its stock colors.
+ *
+ * Only Thunderbird's base variables are overridden (all defined on :root in
+ * omni.ja: layout.css, shared/variables.css, colors.css, folderColors.css,
+ * shared/threadCard.css). Derived ones (card hover/selection, tree colors)
+ * follow on their own. !important is needed because a user sheet loses to
+ * the app's sheets otherwise. Tuned for dark mode. */
+:root,
+:host {
+  --lagos-accent: var(--lagos-c12);
+  --lagos-accent-2: var(--lagos-c14);
+
+  /* Surfaces: the wallpaper background, lifted toward color0 step by step */
+  --layout-background-0: color-mix(in srgb, var(--lagos-c0) 30%, var(--lagos-bg)) !important;
+  --layout-background-1: var(--lagos-bg) !important;
+  --layout-background-2: color-mix(in srgb, var(--lagos-c0) 45%, var(--lagos-bg)) !important;
+  --layout-background-3: color-mix(in srgb, var(--lagos-c0) 65%, var(--lagos-bg)) !important;
+  --layout-background-4: var(--lagos-c0) !important;
+
+  /* Text: brightest for emphasis, dimmer for secondary */
+  --layout-color-0: var(--lagos-c15) !important;
+  --layout-color-1: var(--lagos-c7) !important;
+  --layout-color-2: var(--lagos-c8) !important;
+  --layout-color-3: color-mix(in srgb, var(--lagos-c8) 70%, var(--lagos-bg)) !important;
+
+  /* Borders: a hint of the text color, not grey */
+  --layout-border-0: color-mix(in srgb, var(--lagos-c7) 12%, transparent) !important;
+  --layout-border-1: color-mix(in srgb, var(--lagos-c7) 22%, transparent) !important;
+
+  /* Selection and primary buttons: the accent */
+  --sidebar-highlight-background-color: var(--lagos-accent) !important;
+  --sidebar-highlight-text-color: var(--lagos-bg) !important;
+  --selected-item-color: var(--lagos-accent) !important;
+  --selected-item-text-color: var(--lagos-bg) !important;
+  --color-primary-default: var(--lagos-accent) !important;
+  --color-primary-hover: color-mix(in srgb, var(--lagos-accent) 85%, white) !important;
+  --color-primary-pressed: color-mix(in srgb, var(--lagos-accent) 80%, black) !important;
+  --color-primary-soft: color-mix(in srgb, var(--lagos-accent) 22%, transparent) !important;
+
+  /* Unread mail: the second accent, so it stands out from selection */
+  --new-subject-color: var(--lagos-accent-2) !important;
+  --new-color: var(--lagos-accent-2) !important;
+
+  /* Folder icons: each kind its own palette color */
+  --folder-color-inbox: var(--lagos-accent) !important;
+  --folder-color-folder: var(--lagos-c11) !important;
+  --folder-color-sent: var(--lagos-c10) !important;
+  --folder-color-draft: var(--lagos-c13) !important;
+  --folder-color-archive: var(--lagos-c5) !important;
+  --folder-color-trash: var(--lagos-c8) !important;
+  --folder-color-spam: var(--lagos-c4) !important;
+}

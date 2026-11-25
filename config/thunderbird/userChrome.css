@@ -1,0 +1,36 @@
+/* lagOS look for Thunderbird.
+ *
+ * lagos-colors.css: the wallpaper palette, a symlink to ~/.config/lagos/thunderbird-colors.css.
+ * scripts/AppColors.sh writes it from wallust's output (template
+ * config/hypr/wallust/templates/colors-thunderbird.css) while Settings → Wallpaper →
+ * Apps that follow the colors → Thunderbird is on; it then imports lagos-theme.css (the
+ * color mapping). Off, it is empty: stock colors, but the font and icons below stay.
+ * Thunderbird reads this only at startup: thunderbird-colors.path restarts it, hidden. */
+@import url("lagos-colors.css");
+
+/* Typography: Inter, the panel's font (Theme.qml), instead of the GTK default (Noto Sans).
+ * Thunderbird styles many elements with system fonts (font: message-box), so inheriting
+ * from :root isn't enough: every element gets it, except code (kept monospace).
+ * Inter features: cv05 = "l" with a tail (l vs I), tnum = tabular figures (dates align). */
+:root {
+  --lagos-font: "Inter", "Noto Sans", sans-serif;
+}
+*:not(code, pre, kbd, samp, tt, .monospace) {
+  font-family: var(--lagos-font) !important;
+  font-feature-settings: "cv05", "tnum";
+}
+
+/* Gmail's Starred and Important (Destacados / Importantes) are plain IMAP folders
+ * to Thunderbird, so they get the generic folder icon. Folder rows carry their
+ * name only in aria-label ("Starred, 3 unread"), hence the prefix match.
+ * Icons are Thunderbird's own (omni.ja icons/new/compact), tinted via --icon-color;
+ * Important takes the wallpaper accent, or Thunderbird's own when the colors are off. */
+li[is="folder-tree-row"]:is([aria-label^="Starred"], [aria-label^="Destacados"]) > .container > .icon {
+  content: url("chrome://messenger/skin/icons/new/compact/star.svg") !important;
+  --icon-color: var(--color-amber-30) !important;
+}
+
+li[is="folder-tree-row"][aria-label^="Important"] > .container > .icon {
+  content: url("chrome://messenger/skin/icons/new/compact/priority.svg") !important;
+  --icon-color: var(--lagos-accent, var(--color-primary-default)) !important;
+}
