@@ -76,6 +76,9 @@ ShellRoot {
         function commsStart(): void { Comms.startAll(); }
         // The keyboard to the dock: ←/→, Enter, 1–9, Esc (SUPER SHIFT Y)
         function commsDock(): void { Comms.focusDock(); }
+        // Restart one dock app where it was, hidden if hidden (e.g. `thunderbird` after new
+        // wallust colors: scripts/wm/ThunderbirdColors.sh)
+        function commsRestart(key: string): void { Comms.restart(key); }
         // The top bar: hide / show it for now (SUPER CTRL ALT B; TopBar.qml)
         function barToggle(): void { BarState.toggleRequested(); }
         // The start menu on the focused monitor (the logo's click)
