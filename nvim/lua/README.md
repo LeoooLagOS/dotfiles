@@ -15,7 +15,7 @@ Lua modules loaded by LazyVim. Files under `config/` are loaded automatically at
 
 | File | Purpose |
 |---|---|
-| `colorscheme.lua` | Installs `base16-nvim` and sets the LazyVim colorscheme to `base16-tokyodark-terminal` |
+| `colorscheme.lua` | Installs `base16-nvim` and makes `lagos-wallpaper` (`colors/lagos-wallpaper.lua`) the default: the wallpaper's colors (wallust, via `~/.config/lagos/nvim-colors.lua`) on the terminal's background, reloaded live when they change; falls back to `base16-tokyodark-terminal` when Settings → Wallpaper → Neovim is off |
 | `render-markdown.lua` | `render-markdown.nvim` for in-buffer Markdown rendering (Markdown and Avante buffers) |
 | `lsp.lua` | Language servers for bash and QML, plus `shellcheck` |
 
