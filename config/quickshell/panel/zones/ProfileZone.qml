@@ -6,8 +6,9 @@ import Quickshell.Widgets
 import "../common"
 import "../services"
 
-// ZONE: Profile — avatar, full name (GECOS field of /etc/passwd, falls back
-// to $USER), $USER@$HOST, distro logo "on <WM>" and uptime.
+// ZONE: Profile — the avatar nearly filling the card (like the album art),
+// beside it the full name (GECOS field of /etc/passwd, if set), $USER@$HOST,
+// distro logo "on <WM>" and uptime.
 // Lock / power-menu buttons live in the System zone header.
 // Avatar: put a square image at ~/.face (falls back to initials).
 // Data: services/Profile.qml (shared with the Controls identity bar).
@@ -15,14 +16,25 @@ Zone {
     id: root
     centered: true
 
-    RowLayout {
+    // The photo nearly fills the card (half the usual padding around it);
+    // beside it, from the top, the full name level with the other cards'
+    // titles (Zone's header: NOTIFICATIONS, SYSTEM), then $USER@$HOST,
+    // "on <WM>" and the uptime
+    readonly property real inner: root.height - 2 * Theme.zonePadding
+    readonly property int inset: Math.round(Theme.zonePadding / 2)
+
+    Item {
         width: parent.width
-        spacing: 8
+        implicitHeight: root.inner
 
         ClippingRectangle {
-            implicitWidth: 40
-            implicitHeight: 40
-            radius: 20
+            id: photo
+            // The body starts zonePadding in: out to `inset` from the card's edges
+            x: root.inset - Theme.zonePadding
+            y: root.inset - Theme.zonePadding
+            width: root.height - 2 * root.inset
+            height: width
+            radius: Theme.zoneRadius
             color: Theme.accent2
 
             Label {
@@ -30,7 +42,7 @@ Zone {
                 visible: avatar.status !== Image.Ready
                 text: Profile.initials
                 color: Theme.accent2Text
-                font.pixelSize: 15
+                font.pixelSize: 30
                 font.weight: Font.DemiBold
             }
 
@@ -39,13 +51,17 @@ Zone {
                 anchors.fill: parent
                 source: Profile.avatar
                 fillMode: Image.PreserveAspectCrop
-                sourceSize: Qt.size(92, 92)
+                sourceSize: Qt.size(220, 220)
                 visible: status === Image.Ready
             }
         }
 
         ColumnLayout {
-            Layout.fillWidth: true
+            x: photo.x + photo.width + 12
+            // In the band the compact cards beside it use for their content
+            // (Zone's bandTop: weather / clock, notifications), so the three line up
+            y: root.bandTop - Theme.zonePadding
+            width: parent.width - x
             spacing: 3
 
             // Full name (only if set; otherwise $USER@$HOST is enough)
@@ -53,7 +69,7 @@ Zone {
                 Layout.fillWidth: true
                 visible: Profile.hasFullName
                 text: Profile.fullName
-                font.pixelSize: 13
+                font.pixelSize: 17
                 font.weight: Font.DemiBold
                 elide: Text.ElideRight
             }

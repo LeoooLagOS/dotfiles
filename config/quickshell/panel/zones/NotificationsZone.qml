@@ -51,6 +51,10 @@ Zone {
         width: parent.width
         notif: root.latest
         compact: true
+        // Compact zone (Overview): down to the band's bottom, like the weather's
+        // content beside it, its text in the middle
+        centerContent: root.compact
+        height: root.compact ? Math.max(implicitHeight, root.bandTop + root.bandHeight - root.headerHeight) : implicitHeight
     }
 
     RowLayout {

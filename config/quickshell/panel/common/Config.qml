@@ -46,18 +46,24 @@ Singleton {
             // The profile is centered under the "Overview" tab (the middle of 7
             // tabs = the middle of the panel), with weather/clock and
             // notifications equally wide on each side; the right column below
-            // lines up with notifications.
+            // lines up with notifications. The profile is wide enough for its
+            // photo to fill the card's height, like the album art below.
             rows: [
                 { height: 0.25, cells: [
-                    { width: 0.3957, zones: ["NowZone"] },
-                    { width: 0.2086, zones: [{ zone: "ProfileZone", link: "Controls" }] },
-                    { width: 0.3957, zones: ["NotificationsZone"] }
+                    // Weather / clock and notifications compact: their content in the
+                    // middle 68 % of the card, so the profile's photo, nearly the
+                    // card's whole height, stands out between them
+                    { width: 0.3645, zones: [{ zone: "NowZone", props: { compact: true } }] },
+                    { width: 0.2710, zones: [{ zone: "ProfileZone", link: "Controls" }] },
+                    { width: 0.3645, zones: [{ zone: "NotificationsZone", props: { compact: true } }] }
                 ] },
                 { height: 0.75, cells: [
-                    // monthFraction keeps the month grid the same size as before;
-                    // the narrower card takes the space from the day's events
-                    { width: 0.6076, zones: [{ zone: "CalendarZone", props: { monthFraction: 0.63 } }] },
-                    { width: 0.3924, zones: [{ zone: "SystemZone", link: "Controls" }, "MediaMiniZone"] }
+                    // monthFraction: the line between the month and the day's events
+                    // falls in the middle of the gap above, between weather / clock
+                    // and the profile (measured on a 1920 px screen: a fraction, so
+                    // it can drift a pixel on others)
+                    { width: 0.6388, zones: [{ zone: "CalendarZone", props: { monthFraction: 0.5505 } }] },
+                    { width: 0.3612, zones: [{ zone: "SystemZone", link: "Controls" }, "MediaMiniZone"] }
                 ] }
             ]
         },

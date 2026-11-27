@@ -14,6 +14,7 @@ Rectangle {
     required property var notif
     property bool popup: false          // popups clamp the body to 3 lines
     property bool compact: false        // small card: one-line body, no actions
+    property bool centerContent: false  // taller than it needs (Overview): its content in the middle
     property bool showApp: false        // show the app name above the summary
     property bool hovered: mouse.containsMouse || levelMouse.pressed
     // Popups take Settings → Notifications → Colors; cards in the panel, the panel's
@@ -229,7 +230,8 @@ Rectangle {
         visible: !card.isLevel
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: parent.top
+        anchors.top: card.centerContent ? undefined : parent.top
+        anchors.verticalCenter: card.centerContent ? parent.verticalCenter : undefined
         anchors.margins: card.compact || card.cover ? 8 : 12
         anchors.leftMargin: card.cover ? 8 : card.compact ? 10 : 14
         anchors.rightMargin: card.compact ? 8 : 12

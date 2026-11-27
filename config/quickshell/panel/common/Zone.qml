@@ -9,6 +9,11 @@ Rectangle {
     property string badge: ""         // small accent pill shown before the title (instead of the icon)
     property bool accentHeader: false // header icon + title in the accent color
     property bool centered: false     // center the content vertically (no header)
+    // Compact: the content in the middle 68 % of the card's height (the header
+    // starts 16 % down, closer to what's below it); `band` is where it may go
+    property bool compact: false
+    readonly property int bandTop: Math.round(height * 0.16)
+    readonly property int bandHeight: height - 2 * bandTop
     property bool clickable: false    // whole card clickable → clicked()
     signal clicked()
     default property alias content: body.data
@@ -40,8 +45,10 @@ Rectangle {
         else event.accepted = false;
     }
 
-    readonly property real headerHeight: header.visible ? header.y + header.height + 10 : Theme.zonePadding
-    implicitHeight: headerHeight + body.implicitHeight + Theme.zonePadding
+    readonly property real headerHeight: header.visible ? header.y + header.height + (compact ? 5 : 10) : Theme.zonePadding
+    // What it asks for can't depend on its height (compact's header does): the usual header's room then
+    implicitHeight: (compact && header.visible ? Theme.zonePadding - 2 + header.height + 5 : headerHeight)
+                    + body.implicitHeight + Theme.zonePadding
     color: Theme.bgAlt
     Behavior on color { ColorAnimation { duration: Theme.anim } }
     radius: Theme.zoneRadius
@@ -61,6 +68,9 @@ Rectangle {
         visible: root.title !== ""
         x: Theme.zonePadding
         y: Theme.zonePadding - 2
+        // Compact: in the band. Delayed: `compact` is set right after the zone
+        // loads (Cell.qml), while the height still follows what it asked for
+        Binding on y { when: root.compact; value: root.bandTop; delayed: true }
         spacing: 8
         Glyph { text: root.icon; font.pixelSize: 13; color: root.accentHeader ? Theme.accent : Theme.fgDim; visible: root.icon !== "" && root.badge === "" }
         Rectangle {
