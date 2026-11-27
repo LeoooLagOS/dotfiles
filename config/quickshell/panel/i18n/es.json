@@ -1017,5 +1017,7 @@
  "Changes at once, in every open Neovim. Its default theme, lagos-wallpaper (first in <leader>uC)": "Cambia al instante, en cada Neovim abierto. Es su tema por defecto, lagos-wallpaper (el primero en <leader>uC)",
  "Changes at once. Off: back to the theme it had": "Cambia al instante. Apagado: vuelve al tema que tenía",
  "Panel, bar, launchers and borders": "Panel, barra, lanzadores y bordes",
- "Take colors from the wallpaper, above": "Tomar los colores del fondo, arriba"
+ "Take colors from the wallpaper, above": "Tomar los colores del fondo, arriba",
+ "hold": "mantén",
+ "press": "pulsa"
 }

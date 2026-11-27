@@ -100,7 +100,7 @@ PanelWindow {
                     Label { text: Tr.t("up %1", SystemStats.uptime) + (root.hasBattery ? "  ·  " + root.batPct + "%" + (root.bat.state === UPowerDeviceState.Charging ? " " + Tr.t("charging") : "") : ""); dim: true; font.pixelSize: 11; Layout.fillWidth: true }
                 }
                 IconButton { icon: ""; iconSize: 12; implicitWidth: 34; implicitHeight: 30; onClicked: root.run(Config.lockCmd) }
-                IconButton { icon: ""; iconSize: 12; implicitWidth: 34; implicitHeight: 30; iconColor: Theme.bad; onClicked: root.run(Config.powerCmd) }
+                IconButton { icon: ""; iconSize: 12; implicitWidth: 34; implicitHeight: 30; iconColor: Theme.bad; onClicked: BarState.togglePower(root.screenName, false) }
                 IconButton { icon: ""; iconSize: 13; implicitWidth: 34; implicitHeight: 30; onClicked: { BarState.popupOn = ""; PanelState.open = true; PanelState.openSettings("bar"); } }
             }
 

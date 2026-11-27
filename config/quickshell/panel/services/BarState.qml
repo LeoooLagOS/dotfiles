@@ -79,16 +79,27 @@ Singleton {
     // readings): open on one monitor ("" = closed), one at a time
     property string popupOn: ""
     property string monitorOn: ""
-    function togglePopup(monitor) { monitorOn = ""; startOn = ""; modesOn = ""; popupOn = popupOn === monitor ? "" : monitor; if (popupOn) PanelState.open = false; }
-    function toggleMonitor(monitor) { popupOn = ""; startOn = ""; modesOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; if (monitorOn) PanelState.open = false; }
+    function togglePopup(monitor) { powerOn = ""; monitorOn = ""; startOn = ""; modesOn = ""; popupOn = popupOn === monitor ? "" : monitor; if (popupOn) PanelState.open = false; }
+    function toggleMonitor(monitor) { powerOn = ""; popupOn = ""; startOn = ""; modesOn = ""; monitorOn = monitorOn === monitor ? "" : monitor; if (monitorOn) PanelState.open = false; }
     // Start menu (bar/StartMenu.qml): the logo's click, or IPC `start`
     property string startOn: ""
     // The modes menu (bar/ModesButton.qml), on one monitor; SUPER ALT M (IPC modes)
     property string modesOn: ""
-    function toggleModes(monitor) { popupOn = ""; monitorOn = ""; startOn = ""; modesOn = modesOn === monitor ? "" : monitor; if (modesOn) PanelState.open = false; }
-    function toggleStart(monitor) { popupOn = ""; monitorOn = ""; modesOn = ""; startOn = startOn === monitor ? "" : monitor; if (startOn) PanelState.open = false; }
+    function toggleModes(monitor) { powerOn = ""; popupOn = ""; monitorOn = ""; startOn = ""; modesOn = modesOn === monitor ? "" : monitor; if (modesOn) PanelState.open = false; }
+    function toggleStart(monitor) { powerOn = ""; popupOn = ""; monitorOn = ""; modesOn = ""; startOn = startOn === monitor ? "" : monitor; if (startOn) PanelState.open = false; }
+    // The power menu (bar/PowerMenu.qml): small under the bar's power button, or
+    // big in the middle of the screen (centered: IPC `power`, CTRL ALT P / Del).
+    // Asked in the other form while open, it switches to it
+    property string powerOn: ""
+    property bool powerCentered: false
+    function togglePower(monitor, centered) {
+        popupOn = ""; monitorOn = ""; startOn = ""; modesOn = "";
+        if (powerOn === monitor && powerCentered === !!centered) powerOn = "";
+        else { powerCentered = !!centered; powerOn = monitor; }
+        if (powerOn) PanelState.open = false;
+    }
     // The panel and these never show together (they'd overlap): opening one closes the other
-    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; root.startOn = ""; root.modesOn = ""; } } }
+    Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) { root.popupOn = ""; root.monitorOn = ""; root.startOn = ""; root.modesOn = ""; root.powerOn = ""; } } }
 
     // ---------------- Messages on the island ----------------
     // Instead of a popup (services/Notifs.qml arrive): what it shows is copied

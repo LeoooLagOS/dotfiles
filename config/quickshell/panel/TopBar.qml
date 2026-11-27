@@ -83,6 +83,7 @@ Scope {
                     function onPopupOnChanged() { if (BarState.popupOn) tray.open = false; }
                     function onMonitorOnChanged() { if (BarState.monitorOn) tray.open = false; }
                     function onModesOnChanged() { if (BarState.modesOn) tray.open = false; }
+                    function onPowerOnChanged() { if (BarState.powerOn) tray.open = false; }
                 }
                 Connections { target: PanelState; function onOpenChanged() { if (PanelState.open) tray.open = false; } }
 
@@ -93,7 +94,9 @@ Scope {
                     width: parent.width
                     height: BarState.zone
                     color: Theme.backdrop
-                    opacity: PanelState.open && PanelState.dimmed && Hyprland.focusedMonitor?.name === win.screen.name ? 1 : 0
+                    // …and behind the big power menu (bar/PowerMenu.qml, centered): its blur reaches the bar's gaps
+                    opacity: (PanelState.open && PanelState.dimmed && Hyprland.focusedMonitor?.name === win.screen.name)
+                        || (BarState.powerCentered && BarState.powerOn === win.screen.name) ? 1 : 0
                     visible: opacity > 0
                     Behavior on opacity { NumberAnimation { duration: 200 } }
                 }
@@ -573,12 +576,13 @@ Scope {
                         BarPill {
                             id: power
                             barTip: win.tipItem
-                            tip: ({ title: Tr.t("Power menu"), desc: Tr.t("Lock, log out, restart, shut down"),
+                            tip: active ? null : ({ title: Tr.t("Power menu"), desc: Tr.t("Lock, log out, restart, shut down"),
                                     keys: [["", "CTRL ALT Del"], ["", "CTRL ALT P"], [Tr.t("Lock now"), "SUPER L"]] })
                             visible: win.zone("power")
                             square: true
                             clickable: true
-                            onClicked: Quickshell.execDetached(["bash", "-c", Config.powerCmd])
+                            active: BarState.powerOn === win.screen.name && !BarState.powerCentered
+                            onClicked: BarState.togglePower(win.screen.name, false)
                             Glyph { optical: true; text: ""; font.pixelSize: 13; color: Theme.bad }
                         }
                     }
@@ -595,6 +599,23 @@ Scope {
                 screenName: perScreen.modelData.name
                 barWindow: win
                 rightOffset: barArea.x + right.anchors.rightMargin
+            }
+
+            PowerMenu {
+                screen: perScreen.modelData
+                screenName: perScreen.modelData.name
+                barWindow: win
+                rightOffset: barArea.x + right.anchors.rightMargin
+            }
+            // The same, big in the middle (CTRL ALT P): as wide as the center
+            // islands plus half the gap to the side ones on each side, where the
+            // twins' room starts halfway (details.reach + Settings → Bar → Gap to the center)
+            PowerMenu {
+                screen: perScreen.modelData
+                screenName: perScreen.modelData.name
+                barWindow: win
+                centered: true
+                span: 2 * details.reach + Settings.v.barDetailGap
             }
 
             StartMenu {

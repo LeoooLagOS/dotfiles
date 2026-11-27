@@ -84,6 +84,8 @@ ShellRoot {
         // The start menu on the focused monitor (the logo's click)
         function start(): void { BarState.toggleStart(Hyprland.focusedMonitor?.name ?? ""); }
         // The system monitor on the focused monitor (CTRL SHIFT Esc, as Windows' Task Manager)
+        // The power menu, big in the middle of the focused screen (CTRL ALT P / Del via scripts/wm/Wlogout.sh)
+        function power(): void { BarState.togglePower(Hyprland.focusedMonitor?.name ?? "", true); }
         function systemMonitor(): void { BarState.toggleMonitor(Hyprland.focusedMonitor?.name ?? ""); }
         // Next / previous app while one is up (SUPER TAB / SUPER SHIFT TAB)
         // Quick capture (QuickAdd.qml): SUPER Z, prefilled with `text`; SUPER SHIFT Z: the selected text

@@ -18,3 +18,4 @@ StartMenu 1.0 StartMenu.qml
 LevelRow 1.0 LevelRow.qml
 FlashRow 1.0 FlashRow.qml
 ModesButton 1.0 ModesButton.qml
+PowerMenu 1.0 PowerMenu.qml
