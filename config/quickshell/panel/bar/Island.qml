@@ -56,7 +56,9 @@ Rectangle {
     width: grown ? 520 : isMessage ? 480 : (mode === "flash" ? flashRow.implicitWidth : mode === "level" ? levelRow.implicitWidth : topRow.implicitWidth) + 34
     height: grown ? expandedH : mode === "messageOpen" ? pillH + msgBody.implicitHeight + 58 : pillH
     radius: grown || mode === "messageOpen" ? 24 : pillH / 2
-    color: Theme.mix(Theme.panel.base, "#000000", Theme.light ? 0.85 : 0.55)
+    // Settings → Bar → Island color: the wallpaper's dark color (its base, darkened) or black
+    color: Settings.v.barIslandColor === "black" ? "#000000"
+         : Theme.mix(Theme.panel.base, "#000000", Theme.light ? 0.85 : 0.55)
     border.width: 1
     border.color: Qt.rgba(1, 1, 1, 0.07)
     clip: true

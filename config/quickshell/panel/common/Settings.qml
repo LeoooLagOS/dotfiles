@@ -61,7 +61,7 @@ Singleton {
         barRight: ["glance", "cpu", "ram", "disk", "temp", "wifi", "bluetooth", "battery", "power"],
         barDetailGap: 200, barScroll: "always",
         barBellCount: true,   // the count on a badge on the bell
-        barEmptyWs: "show", barWsIcons: true, barWsComms: true, barDate: true, bar24h: true, barIslandMessages: true,
+        barEmptyWs: "show", barWsIcons: true, barWsComms: true, barDate: true, bar24h: true, barIslandMessages: true, barIslandColor: "wallpaper",
         // Comms dock (services/Comms.qml): apps kept hidden, shown above the dock by SUPER Y
         commsApps: ["name:WhatsApp Web", "net.thunderbird.Thunderbird", "com.github.IsmaelMartinez.teams_for_linux"],
         commsLife: {},                                           // per app: "login" (default) · "demand" · minutes unused before closing
@@ -199,7 +199,9 @@ Singleton {
             { title: "Notifications bell", rows: [
                 { key: "barBellCount", label: "Show the count on the bell", help: "While there are notifications, their number sits on a badge on the bell (not during Do Not Disturb)", type: "switch" } ] },
             { title: "Island", rows: [
-                { key: "barIslandMessages", label: "Messages on the island", help: "Chat messages stretch the island with the chat's photo instead of a popup. Hover: the whole message, Reply and Open", type: "switch" } ] } ] },
+                { key: "barIslandMessages", label: "Messages on the island", help: "Chat messages stretch the island with the chat's photo instead of a popup. Hover: the whole message, Reply and Open", type: "switch" },
+                { key: "barIslandColor", label: "Island color", help: "Wallpaper: its darkest color. Black: pure black, like a phone's island", type: "seg",
+                  opts: [["wallpaper", "Wallpaper"], ["black", "Black"]] } ] } ] },
         { id: "notifications", icon: "", label: "Notifications", lead: "Where popups appear, quiet hours and history.", groups: [
             { title: "Look", rows: [
                 { key: "notifTheme", label: "Colors", help: "Of the popups. Critical ones keep their dark look", type: "select",

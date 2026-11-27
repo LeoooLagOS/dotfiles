@@ -596,7 +596,14 @@ Scope {
                             clickable: true
                             active: BarState.powerOn === win.screen.name && !BarState.powerCentered
                             onClicked: BarState.togglePower(win.screen.name, false)
-                            Glyph { optical: true; text: ""; font.pixelSize: 13; color: Theme.bad }
+                            // The logo's twin (the bar mirrored): a disc in the accent, dark in light
+                            // mode and light in dark, the symbol cut out of it; red under the pointer
+                            // or while its menu is open (it ends the session)
+                            readonly property bool hot: hovered || active
+                            radius: height / 2
+                            color: hot ? Theme.bad : BarState.accent
+                            border.width: 0
+                            Glyph { optical: true; text: ""; font.pixelSize: 13; color: power.hot ? Theme.onColor(Theme.bad) : BarState.accentText }
                         }
                     }
                 }
