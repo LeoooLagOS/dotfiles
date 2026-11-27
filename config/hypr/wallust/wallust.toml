@@ -61,8 +61,7 @@ thunderbird.target = '~/.config/lagos/app-colors/staging/thunderbird.css'
 vesktop.template = 'colors-vesktop.css'
 vesktop.target = '~/.config/lagos/app-colors/staging/vesktop.css'
 
-obsidian.template = 'colors-obsidian.css'
-obsidian.target = '~/.config/lagos/app-colors/staging/obsidian.css'
+# Obsidian's snippet: written by the panel (services/ObsidianTheme.qml), from its own palette
 
 firefox.template = 'colors-firefox.json'
 firefox.target = '~/.config/lagos/app-colors/staging/firefox.json'

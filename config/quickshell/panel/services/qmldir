@@ -35,3 +35,4 @@ singleton Fullscreen 1.0 Fullscreen.qml
 singleton NetSpeed 1.0 NetSpeed.qml
 singleton Modes 1.0 Modes.qml
 singleton BrowserTheme 1.0 BrowserTheme.qml
+singleton ObsidianTheme 1.0 ObsidianTheme.qml

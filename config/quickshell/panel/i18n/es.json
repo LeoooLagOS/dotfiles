@@ -431,7 +431,6 @@
  "PALETTE": "PALETA",
  "APPLY TO": "APLICAR A",
  "Both": "Ambos",
- "Launchers are the Rofi menus. Apps and browsers keep the system theme.": "Los menús son los de Rofi. Las apps y los navegadores conservan el tema del sistema.",
  "Choose launchers": "Elegir menús",
  "Turns off animations, blur, shadows, gaps and rounded corners in Hyprland for the best frame rate. Turning it off reloads Hyprland and your wallpaper colors.": "Apaga las animaciones, el desenfoque, las sombras, los espacios y las esquinas redondeadas de Hyprland para tener más cuadros por segundo. Al desactivarlo se recargan Hyprland y los colores del fondo.",
  "Clipboard & emoji": "Portapapeles y emoji",
@@ -1028,5 +1027,18 @@
  "Like the panel": "Como el panel",
  "Browser palette": "Paleta del navegador",
  "Inverted: Chromium's vibrant colors (surfaces take more of the wallpaper's color). Applies the next time the browser starts": "Invertida: los colores vibrantes de Chromium (las superficies toman más color del fondo). Se aplica la próxima vez que se abre el navegador",
- "Only the panel and Rofi. Apps and browsers: Settings → Wallpaper → Apps that follow the colors": "Solo el panel y Rofi. Apps y navegadores: Ajustes → Fondo → Apps que siguen los colores"
+ "Only the panel and Rofi. Apps and browsers: Settings → Wallpaper → Apps that follow the colors": "Solo el panel y Rofi. Apps y navegadores: Ajustes → Fondo → Apps que siguen los colores",
+ "In the Appearance panel": "En el panel de Apariencia",
+ "Apps shown below Apply to (Controls → Dark mode), each with lagOS colors or its own look, its mode and its palette": "Apps que se muestran bajo Aplicar a (Controles → Modo oscuro), cada una con los colores de lagOS o su aspecto propio, su modo y su paleta",
+ "Browsers": "Navegadores",
+ "Launchers are the Rofi menus. The rest keeps the system theme.": "Los lanzadores son los menús de Rofi. Lo demás mantiene el tema del sistema.",
+ "Obsidian mode": "Modo de Obsidian",
+ "Obsidian palette": "Paleta de Obsidian",
+ "Light or dark, with the panel's own palette": "Claro u oscuro, con la paleta del propio panel",
+ "Inverted: the surfaces take the wallpaper's color, like the panel's": "Invertida: las superficies toman el color del fondo, como en el panel",
+ "PANEL & LAUNCHERS": "PANEL Y LANZADORES",
+ "GTK and Qt apps, and whatever is set to System below.": "Apps GTK y Qt, y lo que esté en Sistema abajo.",
+ "lagOS colors": "Colores de lagOS",
+ "Vanilla": "Original",
+ "For each app: lagOS colors or its own (Vanilla, light or dark like the system); then its mode and its palette. Panel: the same as above.": "Para cada app: colores de lagOS o los suyos (Original, claro u oscuro como el sistema); luego su modo y su paleta. Panel: lo mismo que arriba."
 }

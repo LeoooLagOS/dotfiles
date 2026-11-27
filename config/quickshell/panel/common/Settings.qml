@@ -20,7 +20,7 @@ Singleton {
         // Appearance (the theme is also set from Controls → Dark mode)
         language: "system",                                      // common/Tr.qml
         alertMark: "auto", alertShape: "pill",                   // how warnings stand out (Theme.markOf)
-        mode: "system", inverted: false, themeScope: "both", themeLaunchers: ["all"], opacity: 72, blur: true, animations: true, rofiPosition: "bottom",
+        mode: "system", inverted: false, themeScope: "both", themeLaunchers: ["all"], appearanceApps: [], opacity: 72, blur: true, animations: true, rofiPosition: "bottom",
         blurLevel: "soft", blurOffApps: [],                       // Hyprland's blur strength; apps without it (scripts/wm/Blur.sh)
         // Panel
         openTab: "Overview", closeOutside: true, dimHover: true, width: 50, height: 50,
@@ -43,7 +43,7 @@ Singleton {
         // Wallpaper
         wallust: true, rotate: false, rotateMin: 30,
         // Apps that follow the wallpaper colors (scripts/AppColors.sh; the state file is the truth)
-        appColorsThunderbird: true, appColorsFirefox: true, appColorsBrowsers: true, browserMode: "panel", browserPalette: "panel", appColorsVesktop: true, appColorsObsidian: true,
+        appColorsThunderbird: true, appColorsFirefox: true, appColorsBrowsers: true, browserMode: "panel", browserPalette: "panel", obsidianMode: "panel", obsidianPalette: "panel", appColorsVesktop: true, appColorsObsidian: true,
         appColorsNvim: true, appColorsBtop: true,
         // Night light schedule (services/Toggles.qml): "off" | "sun" | "hours";
         // the hours are minutes of the day (21:00 = 1260)
@@ -142,7 +142,9 @@ Singleton {
                   opts: [["panel", "Panel only"], ["both", "Panel & launchers"], ["launchers", "Launchers only"]] },
                 { key: "themeLaunchers", label: "Launchers", help: "Which Rofi menus follow it", type: "chips", all: "all",
                   opts: [["all", "All"]].concat(launcherGroups.map(g => [g.id, g.label])),
-                  visibleIf: v => v.themeScope !== "panel" } ] },
+                  visibleIf: v => v.themeScope !== "panel" },
+                { key: "appearanceApps", label: "In the Appearance panel", help: "Apps shown below Apply to (Controls → Dark mode), each with lagOS colors or its own look, its mode and its palette", type: "chips",
+                  opts: [["browsers", "Browsers"], ["obsidian", "Obsidian"]] } ] },
             { title: "Panel surface", rows: [
                 { key: "opacity", label: "Opacity", help: "Of the panel card · light and inverted modes add a little", type: "range", min: 50, max: 100, step: 1, unit: "%" },
                 { key: "animations", label: "Animations", help: "Color and highlight transitions", type: "switch" } ] },
@@ -308,6 +310,12 @@ Singleton {
                   visibleIf: v => v.appColorsBrowsers },
                 { key: "appColorsVesktop", label: "Vesktop (Discord)", help: "Changes at once. The first time: Vencord → Themes → turn on “lagOS wallpaper”", type: "switch", system: true },
                 { key: "appColorsObsidian", label: "Obsidian", help: "Changes at once. The first time: Appearance → CSS snippets → turn on “lagos-wallpaper”", type: "switch", system: true },
+                { key: "obsidianMode", label: "Obsidian mode", help: "Light or dark, with the panel's own palette", type: "seg",
+                  opts: [["panel", "Like the panel"], ["system", "System"], ["dark", "Dark"], ["light", "Light"]],
+                  visibleIf: v => v.appColorsObsidian },
+                { key: "obsidianPalette", label: "Obsidian palette", help: "Inverted: the surfaces take the wallpaper's color, like the panel's", type: "seg",
+                  opts: [["panel", "Like the panel"], ["normal", "Normal"], ["inverted", "Inverted"]],
+                  visibleIf: v => v.appColorsObsidian },
                 { key: "appColorsNvim", label: "Neovim", help: "Changes at once, in every open Neovim. Its default theme, lagos-wallpaper (first in <leader>uC)", type: "switch", system: true },
                 { key: "appColorsBtop", label: "btop", help: "Changes at once. Off: back to the theme it had", type: "switch", system: true },
                 { label: "Terminal and Starship", help: "kitty, ghostty and the prompt follow on their own", type: "info", value: "Always" },
