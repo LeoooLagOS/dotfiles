@@ -143,6 +143,19 @@ Scope {
                             implicitWidth: Settings.v.barHeight - 8
                             implicitHeight: Settings.v.barHeight - 8
                             anchors.verticalCenter: parent.verticalCenter
+                            // Islands: a round card behind it, like the other groups', so
+                            // Hyprland blurs what's under it and the logo reads on any window
+                            Rectangle {
+                                visible: win.islands
+                                anchors.centerIn: parent
+                                width: parent.height
+                                height: width
+                                radius: width / 2
+                                color: Theme.bg
+                                border.width: 1
+                                border.color: Theme.border
+                                Behavior on color { ColorAnimation { duration: Theme.anim } }
+                            }
                             Rectangle {
                                 anchors.centerIn: parent
                                 width: parent.height
