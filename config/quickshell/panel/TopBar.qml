@@ -233,9 +233,8 @@ Scope {
                         // both halves: with the panel open on this monitor, while the island
                         // is open, or with nothing for the left one to show yet (an empty
                         // workspace before the weather). Then the bar is mirrored: both
-                        // sides measure the same (match), the workspaces keeping their
-                        // size, and the readings drop their numbers unless they fit
-                        // (compactReadings)
+                        // sides measure the same (match), and the readings show their
+                        // numbers only with some app open on the workspaces (readingNumbers)
                         readonly property bool twinsOff: panelOpen || islandOpen
                             || (win.zone("window") && !windowTitle.hasWindow && !Call.active && !leftMusic && !Weather.ready)
                         // Something plays while the right twin has a reminder: the player
@@ -249,23 +248,11 @@ Scope {
                         // its content, the mini weather the rest (and shows more)
                         readonly property bool glanceCompact: (Call.active || leftMusic) && miniWeather.wanted
                             && glance.natural < windowTitle.room
-                        // The readings' numbers: always with the twins on; mirrored, only if
-                        // the readings with numbers fit in the left side's width (the
-                        // workspaces keep their size, so they set it); never with the panel open
-                        // A card's width with every number shown, from its readings' fullWidth
-                        function fullCard(card, items) {
-                            const shown = items.filter(i => i.visible);
-                            return card.visible && shown.length
-                                ? 2 * card.pad + shown.reduce((a, i) => a + i.fullWidth, 0) + (shown.length - 1) * card.spacing : 0;
-                        }
-                        readonly property real rightFull: {
-                            const cards = [fullCard(stats, [cpuItem, ramItem, diskItem, tempItem]),
-                                           fullCard(conn, [wifiItem, btItem, batItem]),
-                                           power.visible ? power.width : 0].filter(w => w > 0);
-                            return right.anchors.rightMargin + cards.reduce((a, w) => a + w, 0) + Math.max(0, cards.length - 1) * 8;
-                        }
-                        readonly property bool compactReadings: panelOpen
-                            || (twinsOff && rightFull > natural([logo, workspaces], left.anchors.leftMargin) + 0.5)
+                        // The readings' numbers: always with the twins on. Mirrored (the panel
+                        // or the island open), all of them while some app is open on the
+                        // workspaces, none on empty ones: the narrower side's middle card
+                        // widens to the other (match), the workspaces then to the readings
+                        readonly property bool readingNumbers: !twinsOff || workspaces.occupied
                         // Each side's width with its cards as wide as their content, from the screen's edge
                         function natural(items, margin) {
                             const shown = items.filter(i => i.visible);
@@ -440,6 +427,32 @@ Scope {
                     }
 
                     // ---------------- Right ----------------
+                    // Mirrored (twins off), the readings and Wi-Fi · Bluetooth · battery
+                    // join in one card, the twin of the left's tray · workspaces: one
+                    // card on each side, a line between its two parts. Same width as
+                    // before (the gap becomes the line's room), so `match` still holds
+                    readonly property bool rightJoined: details.twinsOff && stats.visible && conn.visible
+                    Rectangle {
+                        id: rightCard
+                        x: right.x + stats.x
+                        y: right.y + stats.y
+                        width: conn.x + conn.width - stats.x
+                        height: stats.height
+                        radius: stats.radius
+                        color: Theme.bg
+                        border.width: 1
+                        border.color: Theme.border
+                        visible: stats.islands && opacity > 0
+                        opacity: barArea.rightJoined ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: Theme.anim } }
+                        Rectangle {
+                            x: stats.width + (right.spacing - width) / 2
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 1
+                            height: Settings.v.barHeight - 18
+                            color: Theme.withAlpha(Theme.fg, 0.35)
+                        }
+                    }
                     Row {
                         id: right
                         anchors.right: parent.right
@@ -450,6 +463,8 @@ Scope {
                         // Readings: hover for details, click for the system monitor
                         BarPill {
                             id: stats
+                            bare: barArea.rightJoined
+                            isCard: true
                             readonly property real natural: contentWidth + 2 * pad
                             implicitWidth: Math.max(natural, details.match(stats, [stats, conn, power], right.anchors.rightMargin))
                             visible: ["cpu", "ram", "disk", "temp"].some(id => win.zone(id))
@@ -458,9 +473,17 @@ Scope {
                             spacing: 13
                             onClicked: BarState.toggleMonitor(win.screen.name)
                             StatItem {
+                                id: tempItem
+                                visible: win.zone("temp"); tipHost: tip
+                                compact: !details.readingNumbers
+                                icon: ""; text: SystemStats.temp + "°"; level: win.lvl(SystemStats.temp, 80, 90)
+                                tip: ({ title: Tr.t("CPU temperature"), rows: [[Tr.t("Package"), SystemStats.temp + " °C"]], hist: SystemStats.tempHist, min: 30, max: 100,
+                                        hint: Tr.t("Last minute · click: system monitor"), keys: win.monitorKeys })
+                            }
+                            StatItem {
                                 id: cpuItem
                                 visible: win.zone("cpu"); tipHost: tip
-                                compact: details.compactReadings
+                                compact: !details.readingNumbers
                                 icon: ""; text: SystemStats.cpu + "%"; level: win.lvl(SystemStats.cpu, 80, 95)
                                 tip: ({ title: "CPU", rows: [[Tr.t("Usage"), SystemStats.cpu + " %"], [Tr.t("Temperature"), SystemStats.temp + " °C"]],
                                         hist: SystemStats.cpuHist, hint: Tr.t("Last minute · click: system monitor"), keys: win.monitorKeys })
@@ -468,7 +491,7 @@ Scope {
                             StatItem {
                                 id: ramItem
                                 visible: win.zone("ram"); tipHost: tip
-                                compact: details.compactReadings
+                                compact: !details.readingNumbers
                                 icon: "\uefc5"; text: SystemStats.memPct + "%"; level: win.lvl(SystemStats.memPct, 80, 92)
                                 tip: ({ title: Tr.t("Memory"), rows: [[Tr.t("In use"), SystemStats.gb(SystemStats.memUsed) + " / " + SystemStats.gb(SystemStats.memTotal) + " GiB"]],
                                         hist: SystemStats.memHist, hint: Tr.t("Last minute · click: system monitor"), keys: win.monitorKeys })
@@ -476,24 +499,18 @@ Scope {
                             StatItem {
                                 id: diskItem
                                 visible: win.zone("disk"); tipHost: tip
-                                compact: details.compactReadings
+                                compact: !details.readingNumbers
                                 icon: "\uf0a0"; text: SystemStats.diskPct + "%"; level: win.lvl(SystemStats.diskPct, 90, 97)
                                 tip: ({ title: Tr.t("Disk ( / )"), rows: [[Tr.t("Used"), SystemStats.gb(SystemStats.diskUsed) + " / " + SystemStats.gb(SystemStats.diskTotal) + " GiB"],
                                                                     [Tr.t("Free"), SystemStats.gb(SystemStats.diskTotal - SystemStats.diskUsed) + " GiB"]], hint: Tr.t("Click: system monitor"), keys: win.monitorKeys })
-                            }
-                            StatItem {
-                                id: tempItem
-                                visible: win.zone("temp"); tipHost: tip
-                                compact: details.compactReadings
-                                icon: ""; text: SystemStats.temp + "°"; level: win.lvl(SystemStats.temp, 80, 90)
-                                tip: ({ title: Tr.t("CPU temperature"), rows: [[Tr.t("Package"), SystemStats.temp + " °C"]], hist: SystemStats.tempHist, min: 30, max: 100,
-                                        hint: Tr.t("Last minute · click: system monitor"), keys: win.monitorKeys })
                             }
                         }
 
                         // Network, Bluetooth, battery
                         BarPill {
                             id: conn
+                            bare: barArea.rightJoined
+                            isCard: true
                             readonly property var wifiDevice: Networking.devices.values.find(d => d.type === DeviceType.Wifi) ?? null
                             readonly property var wifiNet: wifiDevice?.networks.values.find(n => n.connected) ?? null
                             readonly property real signal: wifiNet?.signalStrength ?? 0
@@ -512,7 +529,7 @@ Scope {
                             StatItem {
                                 id: wifiItem
                                 visible: win.zone("wifi"); tipHost: tip
-                                compact: details.compactReadings
+                                compact: !details.readingNumbers
                                 icon: !Networking.wifiEnabled ? "\u{f092d}" : !conn.wifiNet ? "\u{f092f}"
                                     : ["\u{f091f}", "\u{f0922}", "\u{f0925}", "\u{f0928}"][Math.min(3, Math.floor(conn.signal * 4))]
                                 iconSize: 14
@@ -528,7 +545,7 @@ Scope {
                             StatItem {
                                 id: btItem
                                 visible: win.zone("bluetooth"); tipHost: tip
-                                compact: details.compactReadings
+                                compact: !details.readingNumbers
                                 icon: !conn.bt?.enabled ? "\u{f00b2}" : conn.btOn.length ? "\u{f00b1}" : ""
                                 text: conn.btOn.length > 0 ? String(conn.btOn.length) : ""
                                 iconSize: 13
@@ -539,7 +556,7 @@ Scope {
                             StatItem {
                                 id: batItem
                                 visible: win.zone("battery") && conn.hasBat; tipHost: tip
-                                compact: details.compactReadings
+                                compact: !details.readingNumbers
                                 icon: conn.charging ? "\u{f0084}" : ["\u{f008e}", "\u{f007a}", "\u{f007b}", "\u{f007c}", "\u{f007d}", "\u{f007e}", "\u{f007f}", "\u{f0080}", "\u{f0081}", "\u{f0082}", "\u{f0079}"][Math.round(conn.pct / 10)]
                                 iconSize: 14
                                 text: conn.pct + "%"

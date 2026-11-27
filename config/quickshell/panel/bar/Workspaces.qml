@@ -31,6 +31,9 @@ BarPill {
         s.add(activeId);
         return [...s].filter(i => i > 0).sort((a, b) => a - b);
     }
+    // Some app open on a workspace (not the Comms dock's): mirrored, the bar
+    // shows the readings' numbers only then (TopBar.qml, details.readingNumbers)
+    readonly property bool occupied: Hyprland.toplevels.values.some(t => (t.workspace?.id ?? 0) > 0 && t.workspace?.name !== "comms")
     // As wide as its content, growing with the apps up to `cap` (TopBar.qml);
     // past it each workspace shows fewer app icons ("+N" for the rest)
     property real cap: 100000

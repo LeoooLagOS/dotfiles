@@ -18,7 +18,7 @@ Rectangle {
     // What it is and its keys, shown below the bar on hover (bar/BarTip.qml)
     property var tip: null
     property Item barTip: null
-    readonly property bool isCard: !bare        // the tip lines up with the card (bar/BarTip.qml)
+    property bool isCard: !bare                 // the tip lines up with the card (bar/BarTip.qml)
     readonly property bool hovered: mouse.containsMouse
     readonly property real contentWidth: row.implicitWidth
     readonly property bool islands: Settings.v.barStyle === "islands"
