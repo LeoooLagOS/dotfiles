@@ -449,6 +449,14 @@ calculate_dropdown_position() {
 
 get_current_workspace() {
   local ws
+  # A special workspace shown on the focused monitor (an app of the panel's
+  # Comms dock: special:comms-<app>) is on top of the regular one: the
+  # terminal goes there, or it would open hidden under it
+  ws=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .specialWorkspace.name // empty' 2>/dev/null)
+  if [ -n "$ws" ] && [ "$ws" != "$SPECIAL_WS" ]; then
+    echo "$ws"
+    return
+  fi
   ws=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.name // .id // empty' 2>/dev/null)
   if [ -z "$ws" ] || [ "$ws" = "null" ]; then
     ws=$(hyprctl activeworkspace 2>/dev/null | awk '/workspace ID/ {print $3}')
