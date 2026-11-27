@@ -9,6 +9,16 @@
 #   vesktop      a Vencord theme file (enable "lagOS wallpaper" once in Vencord → Themes); live
 #   obsidian     a CSS snippet in each vault (enable it once in Appearance → CSS snippets); live
 #   firefox      pywal's ~/.cache/wal/colors.json for the Pywalfox add-on; `pywalfox update`; live
+#   chromium     every Chromium browser (Brave, Chrome, Chromium, Edge; native or Flatpak): the
+#                panel writes staging/browser.json (services/BrowserTheme.qml: seed color, light /
+#                dark, normal / vibrant) and this turns it into their policies BrowserThemeColor and
+#                BrowserColorScheme, in /etc/<browser>/policies/managed/lagos-theme.json. Those
+#                files are made yours once per computer: sudo scripts/wm/BrowserPolicies.sh.
+#                A native browser rereads them at once; a Flatpak links them into its sandbox at
+#                start and watches only that folder, so the link is remade inside each sandbox.
+#                The variant (inverted = vibrant) is a preference: written into each closed
+#                browser's profiles, else at the next login (lagos-browser-variant.service)
+#   firefox's mode follows staging/browser.json too: `pywalfox dark | light | auto`
 #   nvim         ~/.config/lagos/nvim-colors.lua for the lagos-wallpaper colorscheme; every open
 #                Neovim reloads it (nvim/lua/plugins/colorscheme.lua)
 #   btop         a theme file; btop.conf points at it (or back at the previous theme when off);
@@ -25,10 +35,18 @@ PATH=$HOME/.local/bin:$PATH
 dir=${XDG_CONFIG_HOME:-$HOME/.config}/lagos/app-colors
 stage=$dir/staging
 offfile=$dir/off
-apps=(thunderbird firefox vesktop obsidian nvim btop)
-staged() { case $1 in firefox) echo "$stage/firefox.json" ;; nvim) echo "$stage/nvim.lua" ;; btop) echo "$stage/btop.theme" ;; *) echo "$stage/$1.css" ;; esac; }
+apps=(thunderbird firefox chromium vesktop obsidian nvim btop)
+staged() { case $1 in firefox) echo "$stage/firefox.json" ;; chromium) echo "$stage/browser.json" ;; nvim) echo "$stage/nvim.lua" ;; btop) echo "$stage/btop.theme" ;; *) echo "$stage/$1.css" ;; esac; }
 btopconf=${XDG_CONFIG_HOME:-$HOME/.config}/btop/btop.conf
 btoptheme=${XDG_CONFIG_HOME:-$HOME/.config}/btop/themes/lagos-wallpaper.theme
+# Chromium browsers: policy folder · Flatpak app id · native process · profile folders (Preferences)
+chromium_policies=(/etc/brave/policies/managed /etc/opt/chrome/policies/managed /etc/chromium/policies/managed /etc/opt/edge/policies/managed)
+chromium_flatpaks=(com.brave.Browser com.google.Chrome org.chromium.Chromium com.microsoft.Edge)
+chromium_procs=(brave chrome chromium chromium-browse msedge)   # process names: 15 characters at most
+chromium_profiles=("$HOME/.config/BraveSoftware/Brave-Browser" "$HOME/.var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser"
+                   "$HOME/.config/google-chrome" "$HOME/.var/app/com.google.Chrome/config/google-chrome"
+                   "$HOME/.config/chromium" "$HOME/.var/app/org.chromium.Chromium/config/chromium"
+                   "$HOME/.config/microsoft-edge" "$HOME/.var/app/com.microsoft.Edge/config/microsoft-edge")
 mkdir -p "$stage"
 
 is_on() { ! grep -qx "$1" "$offfile" 2>/dev/null; }
@@ -49,6 +67,7 @@ targets() {
                echo "$HOME/.var/app/dev.vencord.Vesktop/config/vesktop/themes/lagos-wallpaper.theme.css" ;;
     obsidian) vaults | while read -r v; do [ -d "$v/.obsidian" ] && echo "$v/.obsidian/snippets/lagos-wallpaper.css"; done ;;
     firefox) echo "${XDG_CACHE_HOME:-$HOME/.cache}/wal/colors.json" ;;
+    chromium) local d; for d in "${chromium_policies[@]}"; do [ -w "$d/lagos-theme.json" ] && echo "$d/lagos-theme.json"; done ;;
     nvim) echo "$HOME/.config/lagos/nvim-colors.lua" ;;
     btop) [ -f "$btopconf" ] && echo "$btoptheme" ;;
   esac
@@ -70,6 +89,16 @@ after() {
       pkill -USR2 -x btop 2>/dev/null || true ;;
     firefox)
       is_on firefox && command -v pywalfox >/dev/null && pywalfox update >/dev/null 2>&1 || true ;;
+    chromium)
+      # Flatpaks: remake the policy's link inside each sandbox, so the running browser rereads it
+      local i id d
+      while read -r i id; do
+        for d in "${chromium_policies[@]}"; do
+          flatpak enter "$i" sh -c "[ -d '$d' ] && [ -e '/run/host$d/lagos-theme.json' ] &&
+            ln -sfn '/run/host$d/lagos-theme.json' '$d/lagos-theme.json'" >/dev/null 2>&1 || true
+        done
+      done < <(flatpak ps --columns=instance,application 2>/dev/null | awk -v ids=" ${chromium_flatpaks[*]} " 'index(ids, " " $2 " ")')
+      chromium_variant ;;
   esac
 }
 
@@ -81,13 +110,55 @@ off_text() {
     nvim) printf -- '-- lagOS wallpaper colors: off (Settings → Wallpaper). lagos-wallpaper falls back to its previous theme\nreturn nil\n' ;;
     btop) printf '# lagOS wallpaper colors: off (btop.conf points back at the previous theme)\n' ;;
     firefox) printf '{}\n' ;;   # Pywalfox keeps its last colors: its own "Reset" brings Firefox's back
+    chromium) printf '{}\n' ;;  # no policy: each browser's own theme
     *) printf '/* lagOS wallpaper colors: off (Settings → Wallpaper → Apps that follow the colors) */\n' ;;
   esac
 }
 
+# What a target holds: the staged file as it is, except for the browsers' policies
+render() {
+  case $1 in
+    chromium) jq '{BrowserThemeColor: .seed, BrowserColorScheme: .scheme}' "$(staged chromium)" ;;
+    *) cat "$(staged "$1")" ;;
+  esac
+}
+
+# Chromium's color variant (a preference): into each closed browser's profiles; one still
+# open gets it at the next login (`AppColors.sh variant`, lagos-browser-variant.service)
+chromium_variant() {
+  local v=1 src; src=$(staged chromium)     # 1 tonal spot (normal), 3 vibrant; off: 0, the system's
+  if is_on chromium && [ -s "$src" ]; then [ "$(jq -r .variant "$src")" = vibrant ] && v=3; else v=0; fi
+  local root pref running p
+  running=$( { flatpak ps --columns=application 2>/dev/null; for p in "${chromium_procs[@]}"; do pgrep -x "$p" >/dev/null && echo "$p"; done; } )
+  for root in "${chromium_profiles[@]}"; do
+    [ -d "$root" ] || continue
+    case $root in
+      */.var/app/*) p=${root#*/.var/app/}; p=${p%%/*} ;;
+      *BraveSoftware*) p=brave ;; *google-chrome*) p=chrome ;; *chromium*) p=chromium ;; *edge*) p=msedge ;;
+    esac
+    if grep -qx "$p" <<<"$running" || { [ "$p" = chromium ] && grep -qx chromium-browse <<<"$running"; }; then continue; fi
+    for pref in "$root"/Default/Preferences "$root"/Profile\ */Preferences; do
+      [ -f "$pref" ] || continue
+      [ "$(jq '.browser.theme.color_variant2 // empty' "$pref")" = "$v" ] && continue
+      jq --argjson v "$v" '.browser.theme.color_variant2 = $v' "$pref" > "$pref.lagos" && mv "$pref.lagos" "$pref" &&
+        echo "chromium: variant $v → $pref"
+    done
+  done
+}
+
+# Firefox's light / dark (Pywalfox), from the browser palette's scheme; only when it changes
+firefox_mode() {
+  is_on firefox && command -v pywalfox >/dev/null || return 0
+  local scheme last=$dir/firefox-mode
+  scheme=$(jq -r '.scheme // empty' "$(staged chromium)" 2>/dev/null)
+  [ -n "$scheme" ] && [ "$(cat "$last" 2>/dev/null)" != "$scheme" ] || return 0
+  case $scheme in light) pywalfox light ;; dark) pywalfox dark ;; *) pywalfox auto ;; esac >/dev/null 2>&1 &&
+    echo "$scheme" > "$last" && echo "firefox: $scheme"
+}
+
 apply() {
   local app=$1 new t changed=0 src; src=$(staged "$app")
-  if is_on "$app" && [ -s "$src" ]; then new=$(cat "$src"); else new=$(off_text "$app"); fi
+  if is_on "$app" && [ -s "$src" ]; then new=$(render "$app"); else new=$(off_text "$app"); fi
   while read -r t; do
     [ -n "$t" ] || continue
     mkdir -p "$(dirname "$t")"
@@ -98,12 +169,16 @@ apply() {
   done < <(targets "$app")
   # btop.conf follows the switch even when the theme file itself didn't change
   [ "$changed" = 1 ] || [ "$app" = btop ] && after "$app"
+  # Not in the policy file, so checked every time (each writes only a real change)
+  [ "$app" = chromium ] && [ "$changed" = 0 ] && chromium_variant
+  [ "$app" = firefox ] && firefox_mode
   return 0
 }
 
 case "${1:-sync}" in
   sync) for a in "${apps[@]}"; do apply "$a"; done ;;
-  thunderbird|firefox|vesktop|obsidian|nvim|btop)
+  variant) chromium_variant ;;
+  thunderbird|firefox|chromium|vesktop|obsidian|nvim|btop)
     app=$1
     case "${2:-}" in
       on)  [ -f "$offfile" ] && { grep -vx "$app" "$offfile" > "$offfile.tmp"; mv "$offfile.tmp" "$offfile"; } ;;
@@ -111,5 +186,5 @@ case "${1:-sync}" in
       *) echo "usage: $0 $app on|off" >&2; exit 2 ;;
     esac
     apply "$app" ;;
-  *) echo "usage: $0 [sync] | APP on|off   (apps: ${apps[*]})" >&2; exit 2 ;;
+  *) echo "usage: $0 [sync | variant] | APP on|off   (apps: ${apps[*]})" >&2; exit 2 ;;
 esac

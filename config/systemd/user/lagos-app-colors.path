@@ -12,6 +12,7 @@ PathChanged=%h/.config/lagos/app-colors/staging/thunderbird.css
 PathChanged=%h/.config/lagos/app-colors/staging/vesktop.css
 PathChanged=%h/.config/lagos/app-colors/staging/obsidian.css
 PathChanged=%h/.config/lagos/app-colors/staging/firefox.json
+PathChanged=%h/.config/lagos/app-colors/staging/browser.json
 PathChanged=%h/.config/lagos/app-colors/staging/nvim.lua
 PathChanged=%h/.config/lagos/app-colors/staging/btop.theme
 

@@ -43,7 +43,7 @@ Singleton {
         // Wallpaper
         wallust: true, rotate: false, rotateMin: 30,
         // Apps that follow the wallpaper colors (scripts/AppColors.sh; the state file is the truth)
-        appColorsThunderbird: true, appColorsFirefox: true, appColorsVesktop: true, appColorsObsidian: true,
+        appColorsThunderbird: true, appColorsFirefox: true, appColorsBrowsers: true, browserMode: "panel", browserPalette: "panel", appColorsVesktop: true, appColorsObsidian: true,
         appColorsNvim: true, appColorsBtop: true,
         // Night light schedule (services/Toggles.qml): "off" | "sun" | "hours";
         // the hours are minutes of the day (21:00 = 1260)
@@ -134,7 +134,7 @@ Singleton {
                 { key: "language", label: "Language", help: "Of the bar, the panel and their menus. System: the language chosen when installing", type: "seg",
                   opts: [["system", "System"], ["en", "English"], ["es", "Español"]] } ] },
             { title: "Panel & launchers", rows: [
-                { key: "mode", label: "Mode", help: "Only the panel and Rofi: apps and browsers keep the system theme", type: "seg",
+                { key: "mode", label: "Mode", help: "Only the panel and Rofi. Apps and browsers: Settings → Wallpaper → Apps that follow the colors", type: "seg",
                   opts: [["system", "Follow system"], ["dark", "Dark"], ["light", "Light"]] },
                 { key: "inverted", label: "Palette", help: "Inverted: surfaces take the wallpaper color", type: "seg",
                   opts: [[false, "Normal"], [true, "Inverted"]] },
@@ -299,6 +299,13 @@ Singleton {
             { title: "Apps that follow the colors", rows: [
                 { key: "appColorsThunderbird", label: "Thunderbird", help: "Restarts by itself, hidden, when you're not using it", type: "switch", system: true },
                 { key: "appColorsFirefox", label: "Firefox", help: "Changes at once. Needs the Pywalfox add-on and `pywalfox install`. Off: Pywalfox's Reset brings Firefox's colors back", type: "switch", system: true },
+                { key: "appColorsBrowsers", label: "Browsers (Chromium)", help: "Brave, Chrome, Chromium, Edge: the wallpaper's color is the seed of their theme; changes at once. Once per computer: sudo scripts/wm/BrowserPolicies.sh", type: "switch", system: true },
+                { key: "browserMode", label: "Browser mode", help: "Light or dark, for these browsers and Firefox", type: "seg",
+                  opts: [["panel", "Like the panel"], ["system", "System"], ["dark", "Dark"], ["light", "Light"]],
+                  visibleIf: v => v.appColorsBrowsers || v.appColorsFirefox },
+                { key: "browserPalette", label: "Browser palette", help: "Inverted: Chromium's vibrant colors (surfaces take more of the wallpaper's color). Applies the next time the browser starts", type: "seg",
+                  opts: [["panel", "Like the panel"], ["normal", "Normal"], ["inverted", "Inverted"]],
+                  visibleIf: v => v.appColorsBrowsers },
                 { key: "appColorsVesktop", label: "Vesktop (Discord)", help: "Changes at once. The first time: Vencord → Themes → turn on “lagOS wallpaper”", type: "switch", system: true },
                 { key: "appColorsObsidian", label: "Obsidian", help: "Changes at once. The first time: Appearance → CSS snippets → turn on “lagos-wallpaper”", type: "switch", system: true },
                 { key: "appColorsNvim", label: "Neovim", help: "Changes at once, in every open Neovim. Its default theme, lagos-wallpaper (first in <leader>uC)", type: "switch", system: true },

@@ -91,7 +91,7 @@ Singleton {
     }
     // Apps that follow the wallpaper colors (Settings → Wallpaper): scripts/AppColors.sh keeps
     // the apps turned off in app-colors/off (missing = all on); the switches follow it
-    readonly property var appColorKeys: ({ appColorsThunderbird: "thunderbird", appColorsFirefox: "firefox",
+    readonly property var appColorKeys: ({ appColorsThunderbird: "thunderbird", appColorsFirefox: "firefox", appColorsBrowsers: "chromium",
                                            appColorsVesktop: "vesktop", appColorsObsidian: "obsidian",
                                            appColorsNvim: "nvim", appColorsBtop: "btop" })
     FileView {

@@ -1,0 +1,15 @@
+# Chromium's color variant (Settings → Wallpaper → Browser palette: normal / vibrant) is a
+# browser preference, written only while the browser is closed: a change made while it was
+# open lands here, at login, before the panel opens the Comms dock's web apps.
+[Unit]
+Description=Give the Chromium browsers the wallpaper palette's color variant
+PartOf=graphical-session.target
+After=graphical-session-pre.target
+Before=quickshell-panel.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/hypr/scripts/AppColors.sh variant
+
+[Install]
+WantedBy=graphical-session.target

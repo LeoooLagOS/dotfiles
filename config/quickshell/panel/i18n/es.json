@@ -532,7 +532,6 @@
  "Processor": "Procesador",
  "Graphics": "Gráficos",
  "Of the bar, the panel and their menus. System: the language chosen when installing": "De la barra, el panel y sus menús. Sistema: el idioma que se eligió al instalar",
- "Only the panel and Rofi: apps and browsers keep the system theme": "Solo el panel y Rofi: las apps y los navegadores conservan el tema del sistema",
  "Inverted: surfaces take the wallpaper color": "Invertida: las superficies toman el color del fondo",
  "The rest keeps the default theme (dark, normal)": "El resto conserva el tema predeterminado (oscuro, normal)",
  "Which Rofi menus follow it": "Qué menús de Rofi lo siguen",
@@ -1021,5 +1020,13 @@
  "hold": "mantén",
  "press": "pulsa",
  "Feels like %1°": "Sensación de %1°",
- "%1% humidity": "%1% de humedad"
+ "%1% humidity": "%1% de humedad",
+ "Browsers (Chromium)": "Navegadores (Chromium)",
+ "Brave, Chrome, Chromium, Edge: the wallpaper's color is the seed of their theme; changes at once. Once per computer: sudo scripts/wm/BrowserPolicies.sh": "Brave, Chrome, Chromium, Edge: el color del fondo es la semilla de su tema; cambia al instante. Una vez por equipo: sudo scripts/wm/BrowserPolicies.sh",
+ "Browser mode": "Modo del navegador",
+ "Light or dark, for these browsers and Firefox": "Claro u oscuro, para estos navegadores y Firefox",
+ "Like the panel": "Como el panel",
+ "Browser palette": "Paleta del navegador",
+ "Inverted: Chromium's vibrant colors (surfaces take more of the wallpaper's color). Applies the next time the browser starts": "Invertida: los colores vibrantes de Chromium (las superficies toman más color del fondo). Se aplica la próxima vez que se abre el navegador",
+ "Only the panel and Rofi. Apps and browsers: Settings → Wallpaper → Apps that follow the colors": "Solo el panel y Rofi. Apps y navegadores: Ajustes → Fondo → Apps que siguen los colores"
 }
