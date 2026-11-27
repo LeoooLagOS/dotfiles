@@ -32,7 +32,7 @@ Upstream KoolDots has since moved Waybar to `~/.config/hypr/waybar`; until that 
 
 ## 🚪 Power menu
 
-The power menu is `scripts/wm/PowerMenu.py`, a GTK layer-shell window that replaced wlogout, which ran an action on the first keypress.
+The power menu is the [Quickshell panel's](quickshell/panel/docs/REFERENCE.md#bar) (`bar/PowerMenu.qml`): a small card under the bar's power button, and big in the middle of the screen with Ctrl+Alt+P / Del. `scripts/wm/Wlogout.sh` opens it over IPC; when the panel isn't running it falls back to `scripts/wm/PowerMenu.py`, a GTK layer-shell window that replaced wlogout (which ran an action on the first keypress). Both work the same way:
 
 | Key | Action | Trigger |
 |---|---|---|
@@ -45,8 +45,9 @@ The power menu is `scripts/wm/PowerMenu.py`, a GTK layer-shell window that repla
 
 While a key is held, its tile fills up; releasing early drains it. Holding the left mouse button on a tile works the same way.
 
-- It reuses the icons in `config/wlogout/icons/` and the wallust colors from `config/waybar/wallust/colors-waybar.css`. The `layout` and `style.css` in `config/wlogout/` are no longer used and are kept only for upstream syncs.
+- The `layout` and `style.css` in `config/wlogout/` are no longer used and are kept only for upstream syncs.
 - `scripts/wm/Wlogout.sh` toggles the menu open and closed. It keeps its old name because Waybar, swaync and the Ctrl+Alt+P keybind call it.
+- `PowerMenu.py` (the fallback) reuses the icons in `config/wlogout/icons/` and the wallust colors from `config/waybar/wallust/colors-waybar.css`.
 - The blurred background comes from the `powermenu` layer rule in `config/hypr/UserConfigs/user_layer_rules.lua`.
 
 ## 🔎 Rofi menus
@@ -73,7 +74,7 @@ Added in `config/hypr/UserConfigs/user_keybinds.lua`; they show up in the keybin
 | Super+Alt+− / = | Panel more transparent / more opaque (`scripts/wm/PanelOpacity.sh`) |
 | Super+Alt+W | Colors from the wallpaper on/off (`scripts/wm/WallustToggle.sh`) |
 | Super+Alt+I | Caffeine: keep the screen awake |
-| Super+Alt+D | Dark / light theme for the whole desktop (`scripts/wm/DarkLight.sh`) |
+| Super+Alt+D | Dark / light for the whole desktop (`scripts/wm/SystemMode.sh toggle`: GTK, Qt and every app that follows the system) |
 | Super+Alt+M | Monitor profiles |
 | Super+Alt+K | Lock screen wallpaper: by default it follows the desktop wallpaper; picking one pins it, "Same as the desktop" goes back |
 | Super+Alt+T | Starship prompt style |
