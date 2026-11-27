@@ -33,7 +33,30 @@ $if(titlepage-background)$
   {\Large \textsf{$subtitle$}}
   $endif$
   \vskip 2em
-  \noindent {\Large \textsf{$for(author)$$author$$sep$, $endfor$} \vskip 0.6em \textsf{$date$}}
+  {\Large\sffamily
+  $for(author)$
+  \noindent $author$\par
+  $endfor$
+  }
+  % Optional: course, professor(s) and school, each shown only when set
+  $if(course)$
+  \addvspace{1.5em}
+  \noindent {\large\sffamily $if(course-label)$$course-label$$else$Materia$endif$: $course$}\par
+  $endif$
+  $if(professor)$
+  \addvspace{1.5em}
+  \noindent {\large\sffamily $if(professor-label)$$professor-label$$else$Docente$endif$: $for(professor)$$professor$$sep$, $endfor$}\par
+  $endif$
+  $if(school)$
+  \addvspace{1.5em}
+  {\large\sffamily
+  $for(school)$
+  \noindent $school$\par
+  $endfor$
+  }
+  $endif$
+  \vskip 1em
+  \noindent {\Large \textsf{$date$}}
   \vfill
 }
 $else$
@@ -46,7 +69,28 @@ $else$
   {\Large \textsf{$subtitle$}}
   $endif$
   \vskip 2em
-  \noindent {\Large \textsf{$for(author)$$author$$sep$, $endfor$}}
+  {\Large\sffamily
+  $for(author)$
+  \noindent $author$\par
+  $endfor$
+  }
+  % Optional: course, professor(s) and school, each shown only when set
+  $if(course)$
+  \addvspace{1.5em}
+  \noindent {\large\sffamily $if(course-label)$$course-label$$else$Materia$endif$: $course$}\par
+  $endif$
+  $if(professor)$
+  \addvspace{1.5em}
+  \noindent {\large\sffamily $if(professor-label)$$professor-label$$else$Docente$endif$: $for(professor)$$professor$$sep$, $endfor$}\par
+  $endif$
+  $if(school)$
+  \addvspace{1.5em}
+  {\large\sffamily
+  $for(school)$
+  \noindent $school$\par
+  $endfor$
+  }
+  $endif$
   \vfill
 }
 $endif$

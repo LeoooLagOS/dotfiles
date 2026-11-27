@@ -4,6 +4,13 @@ subtitle: "Subject or project phase"
 author:
   - Author Name
   - Second Author
+# Optional title page lines (delete any you don't need):
+# course: "Course name"                # shown as "Materia: ..." (course-label to change it)
+# professor:                           # shown as "Docente: ..." (professor-label to change it)
+#   - Professor Name
+# school:                              # one line each
+#   - University
+#   - Faculty
 date: "Month Year"
 lang: es
 titlepage: true
