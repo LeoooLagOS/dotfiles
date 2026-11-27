@@ -11,13 +11,14 @@
 #   firefox      pywal's ~/.cache/wal/colors.json for the Pywalfox add-on; `pywalfox update`; live
 #   chromium     every Chromium browser (Brave, Chrome, Chromium, Edge; native or Flatpak): the
 #                panel writes staging/browser.json (services/BrowserTheme.qml: seed color, light /
-#                dark, normal / vibrant) and this turns it into their policies BrowserThemeColor and
-#                BrowserColorScheme, in /etc/<browser>/policies/managed/lagos-theme.json. Those
+#                dark, normal / vibrant). The seed goes live through the policy BrowserThemeColor
+#                in /etc/<browser>/policies/managed/lagos-theme.json. Those
 #                files are made yours once per computer: sudo scripts/wm/BrowserPolicies.sh.
 #                A native browser rereads them at once; a Flatpak links them into its sandbox at
 #                start and watches only that folder, so the link is remade inside each sandbox.
-#                The variant (inverted = vibrant) is a preference: written into each closed
-#                browser's profiles, else at the next login (lagos-browser-variant.service)
+#                Light / dark and the variant (inverted = vibrant) have no policy: they're
+#                preferences, read at start. A closed browser gets them in its profiles; an open
+#                one restarts for them (BrowserRestart.sh: when it's not in front, tabs restored)
 #   firefox's mode follows staging/browser.json too: `pywalfox dark | light | auto`
 #   nvim         ~/.config/lagos/nvim-colors.lua for the lagos-wallpaper colorscheme; every open
 #                Neovim reloads it (nvim/lua/plugins/colorscheme.lua)
@@ -98,7 +99,7 @@ after() {
             ln -sfn '/run/host$d/lagos-theme.json' '$d/lagos-theme.json'" >/dev/null 2>&1 || true
         done
       done < <(flatpak ps --columns=instance,application 2>/dev/null | awk -v ids=" ${chromium_flatpaks[*]} " 'index(ids, " " $2 " ")')
-      chromium_variant ;;
+      chromium_prefs ;;
   esac
 }
 
@@ -118,31 +119,49 @@ off_text() {
 # What a target holds: the staged file as it is, except for the browsers' policies
 render() {
   case $1 in
-    chromium) jq '{BrowserThemeColor: .seed, BrowserColorScheme: .scheme}' "$(staged chromium)" ;;
+    chromium) jq '{BrowserThemeColor: .seed}' "$(staged chromium)" ;;
     *) cat "$(staged "$1")" ;;
   esac
 }
 
-# Chromium's color variant (a preference): into each closed browser's profiles; one still
-# open gets it at the next login (`AppColors.sh variant`, lagos-browser-variant.service)
-chromium_variant() {
-  local v=1 src; src=$(staged chromium)     # 1 tonal spot (normal), 3 vibrant; off: 0, the system's
-  if is_on chromium && [ -s "$src" ]; then [ "$(jq -r .variant "$src")" = vibrant ] && v=3; else v=0; fi
-  local root pref running p
-  running=$( { flatpak ps --columns=application 2>/dev/null; for p in "${chromium_procs[@]}"; do pgrep -x "$p" >/dev/null && echo "$p"; done; } )
+# Chromium's light / dark and color variant: preferences, read only at start (no policy
+# for them). "S V": browser.theme.color_scheme2 (0 system, 1 light, 2 dark) and color_variant2
+# (0 system, 1 tonal spot = normal, 3 vibrant = inverted); with the switch off, the system's
+chromium_values() {
+  local src s=0 v=0; src=$(staged chromium)
+  if is_on chromium && [ -s "$src" ]; then
+    case $(jq -r .scheme "$src") in light) s=1 ;; dark) s=2 ;; esac
+    [ "$(jq -r .variant "$src")" = vibrant ] && v=3 || v=1
+  fi
+  echo "$s $v"
+}
+# Into each browser's profiles: a closed one is written now; an open one restarts for it
+# (BrowserRestart.sh: when it's not in front, its tabs restored)
+chromium_prefs() {
+  local s v root pref p running need flatpaks
+  read -r s v < <(chromium_values)
+  flatpaks=$(flatpak ps --columns=application 2>/dev/null)
   for root in "${chromium_profiles[@]}"; do
     [ -d "$root" ] || continue
     case $root in
-      */.var/app/*) p=${root#*/.var/app/}; p=${p%%/*} ;;
-      *BraveSoftware*) p=brave ;; *google-chrome*) p=chrome ;; *chromium*) p=chromium ;; *edge*) p=msedge ;;
+      */.var/app/*) p=${root#*/.var/app/}; p=${p%%/*}; running=$(grep -x "$p" <<<"$flatpaks") ;;
+      *) case $root in *BraveSoftware*) p=brave ;; *google-chrome*) p=chrome ;; *chromium*) p=chromium ;; *) p=msedge ;; esac
+         running=$(ps -eo comm=,args= | awk -v p="$p" '($1 == p || $1 == p "-browse") && $2 !~ "^/app/" {print; exit}') ;;
     esac
-    if grep -qx "$p" <<<"$running" || { [ "$p" = chromium ] && grep -qx chromium-browse <<<"$running"; }; then continue; fi
+    need=0
     for pref in "$root"/Default/Preferences "$root"/Profile\ */Preferences; do
       [ -f "$pref" ] || continue
-      [ "$(jq '.browser.theme.color_variant2 // empty' "$pref")" = "$v" ] && continue
-      jq --argjson v "$v" '.browser.theme.color_variant2 = $v' "$pref" > "$pref.lagos" && mv "$pref.lagos" "$pref" &&
-        echo "chromium: variant $v → $pref"
+      [ "$(jq -c '[.browser.theme.color_scheme2 // 0, .browser.theme.color_variant2 // 0]' "$pref")" = "[$s,$v]" ] && continue
+      if [ -n "$running" ]; then need=1; continue; fi
+      jq --argjson s "$s" --argjson v "$v" '.browser.theme.color_scheme2 = $s | .browser.theme.color_variant2 = $v' \
+        "$pref" > "$pref.lagos" && mv "$pref.lagos" "$pref" && echo "chromium: scheme $s, variant $v → $pref"
     done
+    if [ "$need" = 1 ]; then
+      echo "chromium: $p restarts for its theme (scheme $s, variant $v)"
+      # Its own unit: a service's leftover processes die with it (one at a time per browser)
+      systemd-run --user --quiet --collect --unit="lagos-browser-restart-${p//./-}" \
+        "$(dirname "$(readlink -f "$0")")/BrowserRestart.sh" "$p" 2>/dev/null || true
+    fi
   done
 }
 
@@ -170,14 +189,15 @@ apply() {
   # btop.conf follows the switch even when the theme file itself didn't change
   [ "$changed" = 1 ] || [ "$app" = btop ] && after "$app"
   # Not in the policy file, so checked every time (each writes only a real change)
-  [ "$app" = chromium ] && [ "$changed" = 0 ] && chromium_variant
+  [ "$app" = chromium ] && [ "$changed" = 0 ] && chromium_prefs
   [ "$app" = firefox ] && firefox_mode
   return 0
 }
 
 case "${1:-sync}" in
   sync) for a in "${apps[@]}"; do apply "$a"; done ;;
-  variant) chromium_variant ;;
+  variant|prefs) chromium_prefs ;;          # at login (lagos-browser-variant.service)
+  values) chromium_values ;;                # for BrowserRestart.sh
   thunderbird|firefox|chromium|vesktop|obsidian|nvim|btop)
     app=$1
     case "${2:-}" in
