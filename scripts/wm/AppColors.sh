@@ -20,6 +20,8 @@
 # State: ~/.config/lagos/app-colors/off lists the apps turned off; missing = all on. The panel
 # reads it, so this script also works on its own.
 set -u
+# systemd's PATH lacks ~/.local/bin (pipx: pywalfox)
+PATH=$HOME/.local/bin:$PATH
 dir=${XDG_CONFIG_HOME:-$HOME/.config}/lagos/app-colors
 stage=$dir/staging
 offfile=$dir/off
