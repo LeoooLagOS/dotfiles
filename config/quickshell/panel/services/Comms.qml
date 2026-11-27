@@ -233,8 +233,13 @@ Singleton {
     function markSeen(key) { const s = Object.assign({}, seenAt); s[key] = Date.now(); seenAt = s; }
     function moveIn(d, w, focus) {
         const ws = "special:comms-" + d.key, cmds = [];
-        if (w.workspace.name !== ws)
+        if (w.workspace.name !== ws) {
             cmds.push(`hl.dsp.window.move({ workspace = "${ws}", follow = false, window = "address:${w.address}" })`);
+            // Claimed: adoptStrays runs right after on the same clients list, where
+            // it still shows on "comms" (an app restarted while you look at the
+            // comms opens there), and would take it as a guest
+            const a = Object.assign({}, adopting); a[w.address] = true; adopting = a;
+        }
         // Focusing a window in a hidden special workspace shows it (and hides another one)
         if (focus) cmds.push(...backdrop(), `hl.dsp.focus({ window = "address:${w.address}" })`);
         if (cmds.length) dispatchAll(cmds);
