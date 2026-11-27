@@ -5,7 +5,8 @@
 #  License: GNU GPLv3
 #  SPDX-License-Identifier: GPL-3.0-or-later
 # ==================================================
-# Re-apply saved Dark/Light mode on startup without toggling.
+# Re-apply saved Dark/Light mode on startup without toggling. lagOS: SystemMode.sh (only light /
+# dark; DarkLight.sh picked a random GTK and icon theme at every login and reran wallust)
 
 SCRIPTSDIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
-"$SCRIPTSDIR/DarkLight.sh" --apply-current --preserve-wallpaper --no-notify --no-restart --no-wallust
+"$SCRIPTSDIR/SystemMode.sh" apply

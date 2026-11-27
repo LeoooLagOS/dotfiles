@@ -43,7 +43,7 @@ Singleton {
     // ---------------- Mode ----------------
     readonly property string modeSetting: Settings.v.mode      // "system" | "dark" | "light"
     readonly property string scope: Settings.v.themeScope      // "panel" | "both" | "launchers"
-    property bool systemLight: false                            // from DarkLight.sh
+    property bool systemLight: false                            // from SystemMode.sh (or DarkLight.sh)
     // The user's choice…
     readonly property bool chosenLight: modeSetting === "light" || (modeSetting === "system" && systemLight)
     readonly property bool chosenInverted: Settings.v.inverted
@@ -198,7 +198,7 @@ Singleton {
         function onRawEvent(event) { if (event.name === "configreloaded") root.readRounding(); }
     }
 
-    // System light/dark, written by scripts/wm/DarkLight.sh
+    // System light/dark, written by scripts/wm/SystemMode.sh (KoolDots' DarkLight.sh shares the file)
     FileView {
         path: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/hypr/theme_mode"
         watchChanges: true

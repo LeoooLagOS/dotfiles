@@ -169,8 +169,8 @@ Singleton {
         if (key === "caffeine") Toggles.setCaffeine(on, 0);
         else if (key === "night") Toggles.toggleNight();
         else if (key === "game") Toggles.toggleGame();
-        else if (key === "dark") Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/DarkLight.sh",
-                                                           "--mode", on ? "Dark" : "Light", "--preserve-wallpaper", "--no-notify"]);
+        else if (key === "dark") Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/SystemMode.sh",
+                                                           on ? "Dark" : "Light"]);
     }
     function untilOf(what) {
         const d = new Date();

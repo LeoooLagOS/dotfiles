@@ -361,7 +361,7 @@ bind("SUPER", "O", window_to_empty, { description = "window out to the next empt
 bind("SUPER", "Z", exec_cmd("qs -c panel ipc call panel quickAdd ''"), { description = "quick add: a to-do or an event, in plain words" })
 bind("SUPER SHIFT", "Z", exec_cmd("qs -c panel ipc call panel quickAddSelection"), { description = "quick add from the selected text" })
 bind("SUPER ALT", "Print", exec_cmd("qs -c panel ipc call panel record"), { description = "screen recording start / stop (gpu-screen-recorder)" })
-bind("SUPER ALT", "D", exec_cmd(scripts .. "DarkLight.sh"), { description = "dark / light theme (whole desktop)" })
+bind("SUPER ALT", "D", exec_cmd(scripts .. "SystemMode.sh toggle"), { description = "dark / light theme (whole desktop)" })
 
 -- App launcher: RofiLauncher.sh (Apps · Files · Run · Windows · Calc tabs)
 unbind("SUPER", "D")
